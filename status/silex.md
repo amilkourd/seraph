@@ -1,5 +1,5 @@
 # silex — status
-Updated: 05:30
+Updated: 05:46
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -13,6 +13,7 @@ Updated: 05:30
 ## Measured
 | When | Moment | Transport | Warm | Attempts | request_to_view | Deadline |
 |---|---|---|---|---|---|---|
+| 05:41 | approach, test id, real façade shots + Rosetta footprint on earth-top-01 (6/6 refs) | CLI, Opus | yes | 1 | **219 s** | 300 s |
 | 05:16 | approach, test id, live Rosetta shots (6/8 refs as files, 24 s of it waiting for Rosetta) | CLI, Opus | yes | 1 | **140 s** | 300 s |
 | 05:10 | approach, sent by Seraph itself at dispatch (refs: IFC plans only, shots not taken yet) | CLI, Opus | yes | 1 | **102 s** | 300 s |
 | 05:05 | approach (TU Wien, Seraph's real request id) | CLI, Opus | yes (warm 17 s before) | 1 | **107 s** | 300 s |
@@ -62,12 +63,19 @@ Updated: 05:30
   said what it took. `earth-top-01` → the street band along the façade E1 opens on; IFC L0 → the footprint; IFC L3
   → one stair A. The three `sv-*` Street View shots are an **indoor panorama of the 42 Paris campus** (no façade),
   and Devin said so and took nothing from them (@rosetta told).
+- Façade shots fixed by Rosetta (05:35). Test build `view_approach_4` (05:41) on a state with Rosetta's footprint:
+  Devin drew on the street frame `earth-top-01` (footprint, boulevard band, truck → E1) and named what it took from
+  each image (sv-front: white panelled façade, pavement and railing → short straight arrow across the pavement;
+  sv-left: glazed lobby on the boulevard → E1; sv-right: no vehicle access on that side; earth-top: the boulevard
+  band; IFC L0/L3: stair A behind E1, fire R+3). Every request now tells Devin to draw on ONE frame (`earth-top-01`
+  for the street side, `ifc-L<n>` inside) and to prefer the street side when `building.footprint` exists.
 - A build waits up to `SILEX_REF_WAIT_S` (45 s) for shots that are missing while Rosetta reports active runs.
 - `GET /sessions` → `request_to_view_ms` of the session's last view (request reaching Silex → view served).
 - Playbook + every request: arrow width ≥ 16, no tag over the arrow (Amil's review of view_approach_2).
 
 ## In progress
-- Nothing running.
+- Nothing running. Watch: 219 s on the last build (100–140 s before) is close to the 300 s deadline. If it gets
+  tight: `SILEX_DEVIN_MODEL=claude-opus-5-5-medium-fast` (listed by `devin models`, not tried yet).
 
 ## Blocked
 -

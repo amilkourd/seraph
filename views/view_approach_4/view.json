@@ -1,0 +1,90 @@
+{
+ "view_id": "view_approach_4",
+ "moment": "approach",
+ "title_fr": "Par où j'entre",
+ "purpose_fr": "Par où j'entre : bloc vu du dessus, rue, camion, flèche vers E1, hydrant",
+ "data_keys": [
+  "building.entrances",
+  "building.approach",
+  "building.hydrants",
+  "building.truck_spot",
+  "building.stairs",
+  "building.rooms",
+  "building.levels",
+  "building.model",
+  "routes",
+  "building.footprint"
+ ],
+ "references": [
+  "sv-front-01",
+  "sv-left-01",
+  "sv-right-01",
+  "earth-top-01",
+  "ifc-L-1",
+  "ifc-L0",
+  "ifc-L1",
+  "ifc-L2",
+  "ifc-L3"
+ ],
+ "built_by": "devin",
+ "devin_session_url": null,
+ "transport": "cli",
+ "model": "opus",
+ "devin_cli_session": "acoustic-dragon",
+ "created_at": "2026-11-08T04:44:49.858Z",
+ "request_id": "req_test_facade_1",
+ "request_to_view_ms": 218765,
+ "attempts": 1,
+ "late": false,
+ "notes": "Street-frame top view (earth-top-01): the building footprint white, cut to a window zoomed on the way in, the street band through the truck, and one big arrow (width 18) from the truck to E1 with its tag set across the arrow; card: Entrez par E1, Montez esc. A, Feu R+3.",
+ "references_used": [
+  {
+   "image": "sv-front-01.jpg",
+   "image_id": "sv-front-01",
+   "caption": "Street View, façade",
+   "side": "front",
+   "took": "the white panelled façade of 98 Bd Bessières runs straight along the boulevard with a wide pavement, a low railing and a tree line between façade and roadway: the truck stands on the roadway and the last metres to the door cross the pavement, so the arrow is drawn short and straight from the truck onto the door, perpendicular to the street band",
+   "url": "http://172.16.0.13:8002/views/view_approach_4/refs/sv-front-01.jpg"
+  },
+  {
+   "image": "sv-left-01.jpg",
+   "image_id": "sv-left-01",
+   "caption": "Street View, gauche",
+   "side": "left",
+   "took": "the glazed entrance lobby at the base of the white façade, on the left end of the frontage, with the railing interrupted in front of it: confirms E1 is a door on the boulevard side, which is where the state puts it (491,474) on the earth frame. No hydrant visible in the shot, and H1's point is on this photo frame, not a drawing frame, so H1 is left out",
+   "url": "http://172.16.0.13:8002/views/view_approach_4/refs/sv-left-01.jpg"
+  },
+  {
+   "image": "sv-right-01.jpg",
+   "image_id": "sv-right-01",
+   "caption": "Street View, droite",
+   "side": "right",
+   "took": "looking down the boulevard: two carriageways with a central tramway/bus platform and the façade of 98 continuing on the left, no vehicle access on that side; so nothing is drawn to the right of the footprint and the only approach shown is the one from the truck in front of the entrance",
+   "url": "http://172.16.0.13:8002/views/view_approach_4/refs/sv-right-01.jpg"
+  },
+  {
+   "image": "earth-top-01.jpg",
+   "image_id": "earth-top-01",
+   "caption": "Google Earth, vue du dessus",
+   "side": "top",
+   "took": "Bd Bessières runs as a wide straight band diagonally along the south-east side of the block, buildings packed against it with a tree-lined pavement between: this is the frame the view draws on (footprint polygon, E1, E2 and the truck spot all live on it), and it is why the street band is drawn across the truck, parallel to the façade the arrow enters",
+   "url": "http://172.16.0.13:8002/views/view_approach_4/refs/earth-top-01.jpg"
+  },
+  {
+   "image": "ifc-L0.svg",
+   "image_id": "ifc-L0",
+   "caption": "Plan IFC niveau 0",
+   "side": "plan",
+   "took": "the ground-floor shape behind E1: the stair hall ESC A sits right inside the door at the bottom centre of the plan with corridor:0 between them, which is why the card reads Entrez par E1 then Montez esc. A",
+   "url": "http://172.16.0.13:8002/views/view_approach_4/refs/ifc-L0.svg"
+  },
+  {
+   "image": "ifc-L3.svg",
+   "image_id": "ifc-L3",
+   "caption": "Plan IFC niveau 3",
+   "side": "plan",
+   "took": "one single stair, ESC A, bottom centre, and the fire room 3.T Buanderie beside circulation 3.03 on the fire level: confirms there is no stair B and gives the card's Feu R+3 line",
+   "url": "http://172.16.0.13:8002/views/view_approach_4/refs/ifc-L3.svg"
+  }
+ ]
+}

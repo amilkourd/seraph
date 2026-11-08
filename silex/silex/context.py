@@ -23,6 +23,14 @@ VIEW_SCHEMA: dict[str, Any] = {
     "required": ["request_id", "view_id", "html"],
 }
 
+# every point carries the image it is on; a view draws on one frame
+FRAMES_NOTE = """- frames: every point names its image (`image_id`). Draw one view on ONE frame, never mix two:
+  the street side = `earth-top-01` (Rosetta: `building.footprint.polygon`, `entrances[].point`, `truck_spot.point`,
+  `hydrants[].point`); the inside = the IFC plans `ifc-L<n>` (`entrances[].plan_point`, `rooms[].zone`,
+  `stairs[].zones`, `routes[].path`). For « Par où j'entre », prefer the street side when `building.footprint`
+  exists: footprint white, street, truck, arrow truck → chosen door. Points on Street View photos (`sv-*`,
+  `evidence`) are not drawing coordinates."""
+
 KIT_FILES = [("halo-kit.js", "text/javascript"), ("halo.css", "text/css"), ("check-view.mjs", "text/javascript"),
              ("examples/approach.html", "text/html"), ("examples/team_engaged.html", "text/html"),
              ("examples/occupants.html", "text/html"), ("examples/inside_route.html", "text/html")]
@@ -103,6 +111,7 @@ def request_message(vr: dict, view_id: str, state: dict, refs: list[dict], cold:
 {inter}
 - deadline: {vr.get('deadline_s')} s from now. Aim to answer in under {max(60, int(vr.get('deadline_s') or 300) * 2 // 3)} s.
 - this building's stairs: {stairs}. Draw only what the state has.
+{FRAMES_NOTE}
 
 References (attached; use them only for shapes and proportions, never as a background image):
 {ref_lines}
@@ -181,6 +190,7 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
 - deadline: {vr.get('deadline_s')} s from now. Be fast: copy the example, adapt it, check, done.
 - legibility at arm's length: the arrow is the main shape (`width` ≥ 16, long); no tag over the arrow's shaft or
   head (put the entrance tag on the side away from the route).
+{FRAMES_NOTE}
 
 ## Build it FROM these images (open and look at every one of them with your read tool)
 Screenshots Rosetta's H agent took of the real address during the drive (Street View, Google Earth):
