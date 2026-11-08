@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 07:05
+Updated: 10:53
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -141,6 +141,14 @@ Updated: 07:05
   « Pas d'image »); Halo plays `/halo-kit/examples/<moment>.html` for the three kit moments, else « Vue de secours »;
   the badge says « Rejeu » (amber); no QR in the booth; if the fixtures fail the panel says « Rejeu indisponible »
   instead of waiting. next.config.ts untouched (a change restarts the projector's dev server).
+- Fix (Amil: « l'UI est cassée », the replay's panel): « Feu de véhicule en parking souterrain » took 4 lines at
+  78 px and, over a pending decision, pushed « Vues Halo » 76 px out of the panel. The title is now fitted on
+  mount, on a new title and whenever another panel block changes size: 78 px down to 48 px (2 px steps) until it
+  holds in 3 lines, no word is wider than the panel and the last card ends inside; still too long at 48 px → cut at
+  3 lines (…). Parking fire: 64 px, 3 lines. « Feu d'appartement »: 68 px (at 78 px « d'appartement » ran past the
+  panel's right edge). Booth (E): three turns under a decision ran 246 px out; the turns list now takes the room
+  left and shows whole cards only, newest first (column-wrap + overflow hidden). Checked on a mock copy (:3012,
+  fixture state, then a 94-char title, « Désincarcération », three seeded turns) and live on :3002.
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.

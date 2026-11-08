@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import QRCode from "qrcode";
 import type { Live, Turn } from "@/lib/live";
 import type { Gate, IncidentState } from "@/lib/types";
@@ -45,12 +45,53 @@ export function Panel({ live, now, booth = false }: { live: Live; now: number; b
   );
 }
 
+const TITLE = { max: 78, min: 48, lines: 3 };
+
 function Title({ s, now }: { s: IncidentState; now: number }) {
   const [head] = (s.incident.nature || "En attente d'incident").split(",");
   const o = s.incident.origin;
+  const ref = useRef<HTMLHeadingElement>(null);
+  // 78 px, smaller for a long incident: three lines at most, no word wider than the panel, and never more than the
+  // panel holds (« Feu de véhicule en parking souterrain » over a pending decision pushed « Vues Halo » out of the
+  // frame). Still too long at 48 px: cut at three lines. Fitted again whenever the rest of the panel changes size:
+  // a decision, a longer alert, a font that loads.
+  useLayoutEffect(() => {
+    const h = ref.current;
+    const panel = h?.closest("aside");
+    if (!h || !panel) return;
+    const fit = () => {
+      const last = panel.lastElementChild as HTMLElement | null;
+      if (!h.isConnected || !last) return;
+      const room = panel.clientHeight - parseFloat(getComputedStyle(panel).paddingBottom);
+      const fits = (size: number) => {
+        h.style.fontSize = `${size}px`;
+        return h.offsetHeight <= size * TITLE.lines && h.scrollWidth <= h.clientWidth && last.offsetTop + last.offsetHeight <= room;
+      };
+      h.classList.remove("line-clamp-3");
+      let size = TITLE.max;
+      while (size > TITLE.min && !fits(size)) size -= 2;
+      if (!fits(size)) h.classList.add("line-clamp-3");
+    };
+    fit();
+    const ro = new ResizeObserver(() => fit());
+    const watch = () => {
+      ro.disconnect();
+      for (const c of panel.children) if (!c.contains(h)) ro.observe(c);
+    };
+    const mo = new MutationObserver(watch);
+    mo.observe(panel, { childList: true });
+    watch();
+    document.fonts.ready.then(fit);
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+    };
+  }, [head]);
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="t-display text-[78px] text-ink [text-wrap:balance]">{head}</h1>
+      <h1 ref={ref} className="t-display text-[78px] text-ink [text-wrap:balance]">
+        {head}
+      </h1>
       <div className="flex flex-col items-start gap-1.5">
         <div className="flex gap-1.5">
           <span className="chip danger">Exercice</span>
@@ -301,10 +342,12 @@ const events = (types: string[]) =>
 /** Each speaker's last line: what was heard, what it became (rules or LLM), how long Seraph took, its answer. */
 function Turns({ turns }: { turns: Turn[] }) {
   const last = [...turns].reverse().filter((t, i, a) => a.findIndex((x) => x.speaker === t.speaker) === i).slice(0, 3);
+  // whole cards only, newest first: the list gets the room left under the phrases and the decision, and a card that
+  // does not fit wraps to a second column, out of sight (three turns under a decision ran 246 px out of the panel)
   return (
-    <div className="mt-auto flex flex-col gap-3">
+    <div className="mt-auto flex min-h-0 flex-col flex-wrap justify-end gap-3 overflow-hidden">
       {last.map((t) => (
-        <section key={t.id} className="card flex flex-col gap-2 p-4">
+        <section key={t.id} className="card flex w-full flex-none flex-col gap-2 p-4">
           <header className="flex h-6 items-center justify-between gap-2">
             <span className="label">{t.speaker}</span>
             <span className="chip h-6 text-[12px]">
