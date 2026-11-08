@@ -19,26 +19,37 @@
     "expected": {
       "event": "question",
       "topic": "approach",
-      "say_crew": "Tête de Seraph : entrée par E1, porte d'entrée, hall de l'escalier A. Évitez E2, la rampe mène au garage en feu. Seul escalier, enfumé depuis le sous-sol. Hydrant à 30 mètres devant E1.",
-      "halo_moment": "approach"
+      "say_crew": "Tête de Seraph : entrée par E1, porte d'entrée, hall de l'escalier A. Évitez E2, la rampe mène au garage en feu selon l'alerte. Seul escalier, enfumé selon l'alerte. Hydrant à 30 mètres devant E1.",
+      "halo_moment": "approach",
+      "note": "Before arrival only the alert (dispatch.read) has reported the fire and the smoke: every hazard is said « selon l'alerte »."
     }
   },
   {
     "id": "R02",
     "speaker": "Tête",
     "lang": "fr",
-    "text": "Seraph de Tête, sur place, fumée visible à la rampe du parking.",
+    "text": "Seraph de Tête, sur place, feu de véhicule au parking, fumée dans la cage d'escalier.",
     "expected": {
       "event": "hazard",
-      "hazard": {
-        "kind": "smoke",
-        "where": {
-          "entrance": "E2"
+      "hazards": [
+        {
+          "kind": "fire",
+          "where": {
+            "level": -1,
+            "room": "-1.11"
+          },
+          "severity": "high"
         },
-        "severity": "medium"
-      },
-      "say_crew": "Reçu, fumée entrée E2.",
-      "note": "« rampe », « parking », « garage » = entrance E2 (its IFC label: « Porte de garage, rampe (sous-sol) »)."
+        {
+          "kind": "smoke",
+          "where": {
+            "stair": "A"
+          },
+          "severity": "high"
+        }
+      ],
+      "say_crew": "Reçu, feu au garage et fumée escalier A, selon Tête.",
+      "note": "The crew confirms what the alert reported: same hazards, source now radio « Tête ». « parking », « garage » on level -1 = room -1.11 (IFC label Garage); « cage d'escalier » = stair:A (the only stair)."
     }
   },
   {
@@ -198,7 +209,7 @@
     "text": "Seraph, point de situation.",
     "expected": {
       "event": "sitrep_request",
-      "say_crew": "COS de Seraph : six occupants listés. Cinq joints, un sans réponse, Karim Benali 1.11. Deux personnes en 3.12 avec binôme 1. Inès Rahmani au 2e en fauteuil, aide nécessaire. Tom Becker au 2e, balcon 2.17, échelle. Escalier A enfumé."
+      "say_crew": "COS de Seraph : six occupants listés. Cinq joints, un sans réponse, Karim Benali 1.11. Deux personnes en 3.12 avec binôme 1. Inès Rahmani au 2e en fauteuil, aide nécessaire. Tom Becker au 2e, balcon 2.17, échelle. Escalier A enfumé selon Tête."
     }
   },
   {
@@ -231,7 +242,7 @@
       },
       "say_crew": "COS de Seraph : je dis à tous les occupants en ligne : sortez par l'escalier A. Sauf Inès Rahmani, en fauteuil au 2e. Confirmez ?",
       "targets": "every active occupant call, except occupants with mobility_issue and occupants with a team",
-      "note": "The Grenfell sentence: stay put lifted for everyone at once. It also ends the standing instruction for new callers. If the stair is still marked smoky, the read-back adds « Attention, escalier A signalé enfumé. » and the COS still decides."
+      "note": "The Grenfell sentence: stay put lifted for everyone at once. It also ends the standing instruction for new callers. If the stair is still marked smoky, the read-back adds « Attention, escalier A enfumé selon <source>. » and the COS still decides."
     }
   },
   {

@@ -1,5 +1,5 @@
 # talkie — status
-Updated: 05:20
+Updated: 05:40
 
 ## Running
 - talkie on http://localhost:3000 (`cd talkie && npm run dev`, binds 0.0.0.0) · public: none yet · transport: **mock**
@@ -22,7 +22,7 @@ Updated: 05:20
   Failed → « Appel impossible » + reason + Réessayer.
 - `/qr`: big QR to `OCCUPANTS_PUBLIC_URL` + `/inscription` (read at request time from the root `.env`).
   Unset → placeholder QR, labelled. `/qr?url=https://…` overrides on stage.
-- Mock transport replays `contracts/fixtures/radio.jsonl` (scenario v2, TU Wien, R00–R15, resynced 05:20): others talk (browser French voice), Seraph answers
+- Mock transport replays `contracts/fixtures/radio.jsonl` (scenario v2, TU Wien, R00–R15, resynced 05:40): others talk (browser French voice), Seraph answers
   with `say_crew` (`<HH:MM>` filled with now + 15 min / 10). When you transmit ≥ 0.6 s, Seraph answers your next line.
 - `?dev=1`: panel (Dev, bottom right): Repos, Émission 4 s, Seraph parle, Tête parle, Coupure 5 s, Coupure,
   Reconnecter, every fixture line, auto replay and voice toggles, a log of what would go on the wire.
