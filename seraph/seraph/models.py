@@ -46,6 +46,10 @@ class Level(M):
     level: int
     label: str
     elevation_m: Optional[float] = None
+    # Extra (asked by Amil via the review session, not yet in types.ts): computed by Seraph on every change.
+    # focus=false → the level is greyed on every plan (dashboard 3D, Halo, Devin's views).
+    focus: bool = False
+    focus_reasons: list[str] = []
 
 
 class Stair(M):

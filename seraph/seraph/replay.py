@@ -43,8 +43,12 @@ class Replayer:
         b.mock_speed = speed
         self.status = f"running:{fixture}"
         try:
+            early = [l for l in radio_lines() if l.get("expected", {}).get("gate", "").startswith("the standing instruction")]
             if fixture in ("all", "radio") and b.state.incident.status in ("idle", "closed"):
                 b.start_incident()
+                for line in early:          # R00: the COS confirms stay put at T-15, before any call
+                    await asyncio.sleep(1.0 / speed)
+                    await b.on_radio(radio_msg(line))
                 # wait for occupants + maps (or 30 s), so the radio lines find their facts
                 for _ in range(int(30 * 10 / speed) + 1):
                     if b.occupants_loaded and b.b.approach:
@@ -66,6 +70,8 @@ class Replayer:
             if fixture in ("all", "radio"):
                 await asyncio.sleep(RADIO_GAP_S / speed)
                 for line in radio_lines():
+                    if line in early:
+                        continue
                     await b.on_radio(radio_msg(line))
                     await asyncio.sleep(RADIO_GAP_S / speed)
             self.status = "done"

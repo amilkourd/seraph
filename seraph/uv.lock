@@ -34,6 +34,26 @@ wheels = [
 ]
 
 [[package]]
+name = "building-registry"
+version = "1.0.0"
+source = { editable = "../registry" }
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", marker = "extra == 'fire-service'", specifier = ">=0.27" },
+    { name = "httpx", marker = "extra == 'supabase'", specifier = ">=0.27" },
+    { name = "seraph-ifc", marker = "extra == 'ingest'", editable = "../ifc" },
+]
+provides-extras = ["supabase", "fire-service", "ingest"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "seraph-ifc", editable = "../ifc" },
+]
+
+[[package]]
 name = "certifi"
 version = "2026.10.23"
 source = { registry = "https://pypi.org/simple" }
@@ -470,6 +490,7 @@ name = "seraph"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "building-registry" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "pydantic" },
@@ -485,6 +506,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "building-registry", editable = "../registry" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "pydantic", specifier = ">=2.8" },

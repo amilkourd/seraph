@@ -24,6 +24,8 @@ def cap(s: str) -> str:
 def level_fr(level: Optional[int]) -> str:
     if level is None:
         return "étage inconnu"
+    if level < 0:
+        return "sous-sol" if level == -1 else f"{-level}e sous-sol"
     return ORD.get(level, f"{level}e")
 
 
@@ -56,10 +58,25 @@ REROUTE = {
     "es": "Los bomberos le piden que se detenga y use la escalera {to}. No use la escalera {frm}, hay humo.",
 }
 STANDING = {
-    "fr": "Restez dans la pièce, porte fermée, calfeutrez le bas de la porte. Les pompiers sont informés de votre position. Restez en ligne.",
-    "en": "Stay in the room with the door closed, block the gap under the door. The firefighters know where you are. Stay on the line.",
-    "es": "Quédese en la habitación con la puerta cerrada, tape la parte de abajo de la puerta. Los bomberos saben dónde está. No cuelgue.",
+    "fr": "Restez chez vous, porte fermée. Ne prenez pas l'escalier, il est enfumé. Calfeutrez le bas de la porte avec un linge mouillé. Les pompiers sont informés de votre position. Restez en ligne.",
+    "en": "Stay in your flat with the door closed. Do not use the stairs, there is smoke. Block the gap under the door with a wet towel. The firefighters know where you are. Stay on the line.",
+    "es": "Quédese en su casa con la puerta cerrada. No use la escalera, hay humo. Tape la parte de abajo de la puerta con un trapo mojado. Los bomberos saben dónde está. No cuelgue.",
 }
+STAY_OUTDOOR = {   # {o}: balcony / terrace word in that language
+    "fr": "Les pompiers vous demandent de rentrer chez vous tout de suite et de fermer la porte. Ne prenez pas l'escalier, il y a de la fumée. Allez sur votre {o} pour que les pompiers vous voient. Restez en ligne.",
+    "en": "The firefighters ask you to go back into your flat now and close the door. Do not use the stairs, there is smoke. Go out on your {o} so the firefighters can see you. Stay on the line.",
+    "es": "Los bomberos le piden que vuelva a su casa ahora mismo y cierre la puerta. No use la escalera, hay humo. Salga a su {o} para que los bomberos le vean. No cuelgue.",
+}
+OUTDOOR_WORD = {"balcon": {"fr": "balcon", "en": "balcony", "es": "balcón"},
+                "terrasse": {"fr": "terrasse", "en": "terrace", "es": "terraza"}}
+
+
+def stay_outdoor_text(lang: str, kind: str) -> str:
+    t = STAY_OUTDOOR.get(lang) or STAY_OUTDOOR["fr"]
+    w = OUTDOOR_WORD.get(kind, OUTDOOR_WORD["balcon"])
+    return t.format(o=w.get(lang, w["fr"]))
+
+
 HOLD = {
     "fr": "Restez en ligne, je transmets aux pompiers.",
     "en": "Stay on the line, I am passing this to the firefighters.",
@@ -126,6 +143,13 @@ ORDERS = {
     "Fermez la porte.": {"en": "Close the door.", "es": "Cierre la puerta."},
     "Allez à la fenêtre.": {"en": "Go to the window.", "es": "Vaya a la ventana."},
     "Signalez-vous à la fenêtre.": {"en": "Show yourself at the window.", "es": "Hágase ver en la ventana."},
+    "Sortez par l'escalier A.": {"en": "Leave the building by stairway A.", "es": "Salga del edificio por la escalera A."},
+    "Sortez par l'escalier B.": {"en": "Leave the building by stairway B.", "es": "Salga del edificio por la escalera B."},
+    "Sortez par la terrasse.": {"en": "Leave by the terrace.", "es": "Salga por la terraza."},
+    "Sortez par le jardin.": {"en": "Leave through the garden.", "es": "Salga por el jardín."},
+    "Sortez du logement.": {"en": "Leave your flat.", "es": "Salga de su casa."},
+    "Restez chez vous.": {"en": "Stay in your flat.", "es": "Quédese en su casa."},
+    "Restez chez vous, porte fermée.": {"en": "Stay in your flat with the door closed.", "es": "Quédese en su casa con la puerta cerrada."},
 }
 
 

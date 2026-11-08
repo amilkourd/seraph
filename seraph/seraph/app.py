@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from . import building as B
 from . import llm
 from .brain import Brain
-from .config import SERVICE_DIR, settings
+from .config import SERVICE_DIR, env, settings
 from .io import Bus, GabrielHub, MockGabriel, Rosetta, Silex
 from .models import dump
 from .replay import Replayer
@@ -93,7 +93,7 @@ async def health() -> dict:
                     "last_ms": llm.state["last_ms"], "last_error": llm.state["last_error"], "calls": llm.state["calls"]},
             "gabriel": {"connected": hub.connected, "mock_calls": mock_gabriel.active()},
             "rosetta": {"reachable": rosetta.reachable, "mock": settings.mock},
-            "silex": {"reachable": silex.reachable, "mock": settings.mock},
+            "silex": {"reachable": silex.reachable, "mock": settings.mock, "live_with_mock": env("SERAPH_SILEX_LIVE", "1") != "0"},
             "building": {"source": str(brain.kit.path.name) if brain.kit.path.name else None,
                          "model": brain.state.building.model.provenance if brain.state.building.model else
                          ("fixture" if brain.kit.adj else "none"),

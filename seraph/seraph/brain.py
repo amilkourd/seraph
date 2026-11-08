@@ -3,6 +3,7 @@ Outbound IO is injected (app.py wires HTTP/WS; tests wire fixtures), so the logi
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import os
 import random
 import re
@@ -12,13 +13,13 @@ from typing import Any, Callable, Optional
 
 from . import building as B
 from . import llm, rules, speech
-from .config import settings
+from .config import REPO, settings
 from .models import (
     Alert, Approach, Call, CallUrgency, CurrentView, EndpointStatus, Entrance, Gate, Hazard, Hydrant, ImagePoint, IncidentState,
     Occupant, Origin, Plan, PlanPoint, Risk, Room, Route, Screenshot, Source, Team, TeamLocation, TimelineEntry,
     TruckSpot, ViewRequestStatus, VoiceSignal, Wind, dump, now_iso,
 )
-from .registry import BuildingRegistry, LocalRegistry, empty_kit
+from .registry import BuildingRegistry, default_registry, empty_kit
 from .rules import Event, normalize, strip_accents
 from .speech import addressed, cap, hhmm, level_fr, n_fr
 
@@ -67,7 +68,7 @@ def noop(*_a: Any, **_k: Any) -> None:
 
 class Brain:
     def __init__(self, registry: Optional[BuildingRegistry] = None):
-        self.registry: BuildingRegistry = registry or LocalRegistry()
+        self.registry: BuildingRegistry = registry or default_registry()
         # outbound, wired by app.py (or tests)
         self.publish: Callable[[str, dict], None] = noop          # SSE event
         self.send_gabriel: Callable[[dict], None] = noop          # SeraphToGabriel
@@ -76,12 +77,17 @@ class Brain:
         self.request_view_out: Callable[[dict], None] = noop      # ViewRequest
         self.learn_out: Callable[[dict], None] = noop             # silex /endpoints/learn body
         self.version = 0
+        self.incident_t0 = 0.0
         self.say_log: list[dict] = []
         self.reset()
 
     # ───────── lifecycle ─────────
     def reset(self, address: str = "") -> None:
-        kit = self.registry.lookup(address or settings.demo_address)
+        try:
+            kit = self.registry.lookup(address or settings.demo_address)
+        except Exception as e:   # the registry never stops Seraph: no model = « pas de maquette »
+            print("building registry lookup failed", repr(e))
+            kit = None
         self.kit = kit or empty_kit()
         self.state = IncidentState(building=self.kit.building.model_copy(deep=True))
         self.state.rosetta.endpoints = [EndpointStatus(name=n, kind=k) for n, k in ENDPOINTS]
@@ -89,6 +95,7 @@ class Brain:
         self.phones: dict[str, str] = {}
         self.gate_actions: dict[str, dict] = {}
         self.runs: dict[str, dict] = {}
+        self.incident_t0 = time.time()
         self.call_facts: dict[str, dict] = {}
         self.call_flags: dict[str, dict] = {}
         self.no_answer_count: dict[str, int] = {}
@@ -101,7 +108,6 @@ class Brain:
         self.approach_key: Optional[str] = None
         self.sitrep_say = ""
         self.last_call_id: Optional[str] = None
-        self.hazards_applied = False
         self.occupants_loaded = False
         self.replay_mode = False
         self.mock_speed = 1.0
@@ -120,7 +126,7 @@ class Brain:
             "phones": self.phones, "gate_actions": self.gate_actions, "call_facts": self.call_facts,
             "call_flags": self.call_flags, "no_answer_count": self.no_answer_count, "with_team": self.with_team,
             "caught": sorted(self.caught), "air_alarm": sorted(self.air_alarm),
-            "standing_confirmed": self.standing_confirmed, "hazards_applied": self.hazards_applied,
+            "standing_confirmed": self.standing_confirmed,
             "occupants_loaded": self.occupants_loaded, "counters": [self.hz_n, self.rt_n, self.req_n, self.al_n]}}
 
     def restore(self, snap: dict) -> bool:
@@ -137,7 +143,6 @@ class Brain:
         self.caught = set(i.get("caught", []))
         self.air_alarm = set(i.get("air_alarm", []))
         self.standing_confirmed = i.get("standing_confirmed", False)
-        self.hazards_applied = i.get("hazards_applied", False)
         self.occupants_loaded = i.get("occupants_loaded", False)
         self.hz_n, self.rt_n, self.req_n, self.al_n = i.get("counters", [0, 0, 0, 0])
         self.recompute()
@@ -212,32 +217,96 @@ class Brain:
         hz = self.b.hazards
         for s in self.b.stairs:
             st = B.stair_status(self.kit, s.id, hz)
-            if st != s.status:
-                s.status = st
-                s.source = next((h.source for h in hz if h.where.get("stair") == s.id), s.source)
-        res = B.choose_approach(self.kit, hz, self.b) if self.b.entrances else None
+            s.status = st
+            s.source = next((h.source for h in hz if h.where.get("stair") == s.id), s.source)
+        res = B.choose_approach(self.kit, hz, self.b, self._approach_target()) if self.b.entrances else None
         if res:
             appr, detail = res
             self.b.approach = appr
             self.approach_say = self._approach_text(detail)
         self._routes()
+        self._focus()
         self.sitrep_say = self._sitrep_text()
+
+    def _focus(self) -> None:
+        """Which levels matter now (the others are greyed on every plan). Code only, recomputed on every change."""
+        why: dict[int, list[str]] = {}
+
+        def add(level: Optional[int], reason: str) -> None:
+            if level is None:
+                return
+            lst = why.setdefault(level, [])
+            if reason not in lst:
+                lst.append(reason)
+
+        for h in self.b.hazards:
+            if h.kind not in ("fire", "smoke"):
+                continue
+            lvl = h.where.get("level")
+            if lvl is None and h.where.get("entrance"):
+                e = next((x for x in self.b.entrances if x.id == h.where["entrance"]), None)
+                lvl = (e.model_extra or {}).get("level", 0) if e else None
+            if lvl is None and h.where.get("room"):
+                lvl = B.room_level(self.kit, B.room_node(str(h.where["room"]), None))
+            add(lvl, "feu" if h.kind == "fire" else "fumée")
+        for o in self.state.occupants:
+            attention = o.status in ("trapped", "needs_help", "no_answer") or (
+                o.heading_to and o.id not in self.with_team and (self._node_hazard(o.heading_to) or o.heading_to.startswith("ladder:")))
+            if attention:
+                add(o.level, "personnes")
+            if o.status != "safe_outside":
+                add(o.level, "occupants")
+        for t in self.state.crew.teams:
+            if t.status == "engaged" and t.location and t.location.level is not None:
+                add(t.location.level, t.id)
+        for r in self.state.routes:
+            add(B.room_level(self.kit, r.to) if r.to != "outside" else B.room_level(self.kit, r.from_), "cible")
+        if self.state.incident.status in ("dispatched", "en_route") and self.b.approach:
+            e = next((x for x in self.b.entrances if x.id == self.b.approach.best_entrance_id), None)
+            if e:
+                add((e.model_extra or {}).get("level", 0), "accès")
+        for lv in self.b.levels:
+            lv.focus_reasons = why.get(lv.level, [])
+            lv.focus = bool(lv.focus_reasons)
+
+    def _approach_target(self) -> Optional[str]:
+        o = self.state.incident.origin
+        return f"level:{o.floor}" if o else None
 
     def _approach_text(self, d: dict) -> str:
         best: Entrance = d["best"]
-        parts = [f"entrée par {best.id}, {best.label[:1].lower() + best.label[1:]}"]
-        lt = best.leads_to or ""
-        if lt.startswith("stair:"):
-            parts.append(f"elle donne sur l'escalier {lt[6:]}, {B.STATUS_FR.get(d['best_stair_status'] or 'unknown')}")
+        lab = best.label[:1].lower() + best.label[1:]
+        if len(self.b.stairs) == 1 and lab.endswith("escalier"):
+            lab += f" {self.b.stairs[0].id}"
+        parts = [f"entrée par {best.id}, {lab}"]
+        lt = d.get("best_leads_to") or best.leads_to or ""
+        single = len(self.b.stairs) == 1
+        if lt.startswith("stair:") and not single:
+            verb = "donne sur" if (best.leads_to or "").startswith("stair:") else "mène à"
+            parts.append(f"elle {verb} l'escalier {lt[6:]}, {B.STATUS_FR.get(d['best_stair_status'] or 'unknown')}")
+        hyd = None
         if self.b.hydrants:
             h = self.b.hydrants[0]
-            parts.append(f"hydrant à {int(h.distance_m)} mètres" if h.distance_m else f"hydrant : {h.label[:1].lower() + h.label[1:]}")
+            hyd = f"hydrant à {int(h.distance_m)} mètres" if h.distance_m else f"hydrant : {h.label[:1].lower() + h.label[1:]}"
+            if h.point and best.point and h.point.image_id == best.point.image_id:
+                near = min((e for e in self.b.entrances if e.point and e.point.image_id == h.point.image_id),
+                           key=lambda e: (e.point.x - h.point.x) ** 2 + (e.point.y - h.point.y) ** 2)
+                if near.id == best.id:
+                    hyd += f" devant {best.id}"
         for e, st in d["others"]:
-            elt = e.leads_to or ""
-            if elt.startswith("stair:") and st in ("smoke", "blocked"):
+            elt = d.get("others_leads_to", {}).get(e.id) or e.leads_to or ""
+            if e.id in d.get("why_out", {}):
+                parts.append(f"évitez {e.id}, {d['why_out'][e.id]}")
+            elif elt.startswith("stair:") and st in ("smoke", "blocked") and len(self.b.stairs) > 1:
                 parts.append(f"évitez {e.id}, escalier {elt[6:]} {B.STATUS_FR[st]}")
             elif e.status in ("blocked", "locked"):
                 parts.append(f"évitez {e.id}, {'verrouillée' if e.status == 'locked' else 'bloquée'}")
+        if single:
+            st = self.b.stairs[0]
+            o = self.state.incident.origin
+            parts.append(f"seul escalier, {self._stair_fr(st)}" if st.status != "unknown" else f"seul escalier, {st.id}")
+        if hyd:
+            parts.append(hyd)
         return ". ".join(cap(p) if i else p for i, p in enumerate(parts)) + "."
 
     def _routes(self) -> None:
@@ -330,7 +399,10 @@ class Brain:
         for (room, tid), n in groups.items():
             t = self.team(tid, create=False)
             parts.append(f"{n_fr(n, fem=True)} personne{'s' if n > 1 else ''} en {room} avec {(t.label if t else tid).lower()}")
-        for o in sorted(occs, key=lambda o: -self._urgency_level(o)):
+        def rank(o: Occupant) -> tuple[int, int]:
+            cat = 0 if o.status == "trapped" or o.mobility_issue or o.injuries else (1 if (o.heading_to or "").startswith("ladder:") else 2)
+            return cat, -self._urgency_level(o)
+        for o in sorted(occs, key=rank):
             if o.id in self.with_team:
                 continue
             if o.status == "trapped":
@@ -338,13 +410,16 @@ class Brain:
             elif o.mobility_issue or o.injuries:
                 why = "en fauteuil" if self._wheelchair(o) else ("blessé" if o.injuries else "mobilité réduite")
                 parts.append(f"{o.name} au {level_fr(o.level)} {why}, aide nécessaire")
+            elif o.heading_to and o.heading_to.startswith("ladder:"):
+                out = o.heading_to.split(":", 1)[1]
+                parts.append(f"{o.name} au {level_fr(o.level)}, {B.room_word(self.kit, out)} {out}, échelle")
             elif o.heading_to and self._node_hazard(o.heading_to):
                 parts.append(f"{o.name} vers {self._node_fr(o.heading_to)}, {self._node_hazard_fr(o.heading_to)}")
             elif o.smoke_seen and o.status == "sheltering":
                 parts.append(f"{n_fr(o.people_count or 1, fem=True)} personne{'s' if (o.people_count or 1) > 1 else ''} en {o.room}, fumée sous la porte")
         for s in self.b.stairs:
             if s.status in ("smoke", "blocked"):
-                parts.append(f"escalier {s.id} {B.STATUS_FR[s.status]}")
+                parts.append(f"escalier {s.id} {self._stair_fr(s)}")
         for e in self.b.entrances:
             if e.status in ("blocked", "locked"):
                 parts.append(f"entrée {e.id} {'verrouillée' if e.status == 'locked' else 'bloquée'}")
@@ -371,8 +446,19 @@ class Brain:
         hz = self._node_hazard(node)
         if not hz:
             return ""
-        h = hz[0]
-        return {"smoke": "enfumé", "fire": "en feu"}.get(h.kind, KIND_FR.get(h.kind, h.kind))
+        h = next((x for x in hz if x.source.confirmed), hz[0])
+        return f"{self._node_hazard_word(node)} {self._selon(h.source)}"
+
+    def _node_hazard_word(self, node: str) -> str:
+        hz = self._node_hazard(node)
+        if not hz:
+            return ""
+        return {"smoke": "enfumé", "fire": "en feu"}.get(hz[0].kind, KIND_FR.get(hz[0].kind, hz[0].kind))
+
+    def _stair_fr(self, s) -> str:
+        if s.status in ("smoke", "blocked") and s.source is not None:
+            return f"{B.STATUS_FR[s.status]} {self._selon(s.source)}"
+        return B.STATUS_FR.get(s.status, s.status)
 
     # ───────── incident start ─────────
     def start_incident(self, incident_id: Optional[str] = None) -> None:
@@ -380,31 +466,51 @@ class Brain:
         if inc.status not in ("idle", "closed"):
             return
         inc.id = incident_id or inc.id or "INC-0001"
+        # look the building up again with the incident id (access log); swap it while still idle if it changed
+        try:
+            kit = self.registry.lookup(settings.demo_address or inc.address, incident_id=inc.id)
+        except Exception as e:
+            kit = None
+            self.log("seraph", f"Registre des bâtiments indisponible ({type(e).__name__}).")
+        if kit and str(kit.path) != str(self.kit.path):
+            keep = self.state.incident
+            self.kit = kit
+            self.state = IncidentState(building=kit.building.model_copy(deep=True), incident=keep,
+                                       rosetta=self.state.rosetta, timeline=self.state.timeline)
+            inc = self.state.incident
+        if not self.kit.adj:
+            self.log("seraph", "Pas de maquette pour cette adresse : Rosetta et le plan affiché seulement.")
         inc.status = "dispatched"
         inc.declared_at = now_iso()
+        self.incident_t0 = time.time()           # Rosetta results of runs started before this are stale
         inc.address = settings.demo_address or inc.address
         self.log("seraph", f"Incident {inc.id} déclenché (exercice).")
         self.show_moment("dispatch", explicit=True)
         self.rosetta("dispatch.read", {"incident_id": inc.id}, priority=10)
         self.open_gate("relay_order",
-                       "Consigne par défaut aux occupants : si fumée devant la porte, rester dans la pièce porte fermée.",
+                       "Consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte fermée.",
                        {"standing": True},
-                       addressed("COS", "consigne par défaut aux occupants, si fumée devant la porte, rester dans la pièce porte fermée. Confirmez ?"))
+                       addressed("COS", "consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte fermée. Confirmez ?"))
         self.touch()
 
-    def _apply_initial_hazards(self) -> None:
-        if self.hazards_applied:
-            return
-        self.hazards_applied = True
-        for h in B.initial_hazards(self.kit):
-            if not any(x.id == h.id for x in self.b.hazards):
-                self.b.hazards.append(h)
-                self.hz_n = max(self.hz_n, int(re.sub(r"\D", "", h.id) or 0))
+    def _posted_plan(self, level: int) -> tuple[Path, int]:
+        """The plan posted at the door. PLAN_IMAGE_PATH when it is set to a real photo; when it still points at the v1
+        dev plan (or nothing) and the model has a level plan, the model's plan of the fire level (scenario v2: L-1)."""
+        p = settings.plan_image_path
+        if p.exists() and p.name != "plan-level3.svg":
+            return p, level
+        for base in (self.kit.files_dir, REPO / "ifc" / "out"):
+            for lv in (level, 0):
+                f = Path(base) / "levels" / f"L{lv}.svg"
+                if str(base) not in ("", ".") and f.exists():
+                    return f, lv
+        return p, level
 
     # ───────── Rosetta ─────────
     def rosetta(self, endpoint: str, params: dict, priority: int = 5) -> str:
         run_id = f"run_{ulid()}"
-        self.runs[run_id] = {"endpoint": endpoint, "params": params, "started": time.time(), "done": False}
+        self.runs[run_id] = {"endpoint": endpoint, "params": params, "started": time.time(), "done": False,
+                             "incident_id": self.state.incident.id, "incident_t0": self.incident_t0}
         self._endpoint_status(endpoint, status="running")
         self.run_rosetta(run_id, endpoint, params, priority)
         return run_id
@@ -418,9 +524,16 @@ class Brain:
         self.touch()
 
     def on_rosetta_result(self, res: dict) -> None:
-        self.publish("rosetta", res)
         ep_name = res.get("endpoint", "")
         run = self.runs.get(res.get("run_id", ""), {})
+        stale = not run or run.get("incident_t0") != self.incident_t0 or run.get("incident_id") != self.state.incident.id
+        out_id = (res.get("output") or {}).get("incident_id") if ep_name == "dispatch.read" else None
+        if not stale and out_id and run.get("params", {}).get("incident_id") and out_id != run["params"]["incident_id"]:
+            stale = True
+        if stale:
+            self.log("rosetta", f"Résultat périmé ignoré : {ep_name or 'Rosetta'} ({res.get('run_id', '?')}).")
+            return
+        self.publish("rosetta", res)
         status = res.get("status")
         if status in ("queued", "running"):
             self._endpoint_status(ep_name, status="running")
@@ -456,6 +569,8 @@ class Brain:
 
     def _r_dispatch_read(self, out: dict, src: Source, shots, live: str, run: dict) -> None:
         inc = self.state.incident
+        src = Source(kind="dispatch", label="alerte", url=src.url, confirmed=False)   # what 112 callers said
+        inc.source = dump(src)
         addr = out.get("address") or ""
         if addr in ("", "DEMO_ADDRESS"):
             addr = settings.demo_address or addr
@@ -467,7 +582,9 @@ class Brain:
             inc.id = out["incident_id"]
         if inc.status == "idle":
             inc.status = "dispatched"
-        self._apply_initial_hazards()
+        for text in [inc.nature] + list(out.get("caller_notes") or []):   # the 112 callers' words → unconfirmed
+            self._hazards_from_text(text, inc.origin.floor if inc.origin else None,
+                                    Source(kind="dispatch", label="alerte", confirmed=False))
         fire = next((h for h in self.b.hazards if h.kind == "fire" and h.where.get("room")), None)
         if fire and inc.origin and fire.where.get("level") == inc.origin.floor:
             inc.origin.room = str(fire.where["room"])
@@ -476,7 +593,8 @@ class Brain:
         params_addr = inc.address or settings.demo_address
         expected = [{"id": e.id, "label": e.label, "side": e.side} for e in self.b.entrances]
         self.rosetta("maps.building", {"address": params_addr, "expected_entrances": expected}, priority=8)
-        self.rosetta("plan.read", {"image_path": str(settings.plan_image_path), "level": inc.origin.floor if inc.origin else 0}, priority=6)
+        img, lvl = self._posted_plan(inc.origin.floor if inc.origin else 0)
+        self.rosetta("plan.read", {"image_path": str(img), "level": lvl}, priority=6)
         self.rosetta("georisques.risks", {"address": params_addr}, priority=4)
         self.rosetta("weather.wind", {"town": settings.demo_town}, priority=3)
         self.rosetta("occupants.list", {"building": self.b.name}, priority=7)
@@ -507,6 +625,10 @@ class Brain:
             else:
                 self.b.hydrants.append(Hydrant(id=h["id"], label=h.get("label", h["id"]), distance_m=h.get("distance_m"),
                                                point=point, source=hsrc))
+        fp = out.get("footprint")   # building outline on the top view, pointed by Holo (Rosetta); never drawn by Seraph
+        if isinstance(fp, dict) and fp.get("polygon") and fp.get("image_id"):
+            self.b.footprint = {"image_id": fp["image_id"], "polygon": fp["polygon"],
+                                "source": dump(Source(kind="earth", label="Earth", url=src.url, confirmed=True))}
         ts = out.get("truck_spot")
         if ts:
             self.b.truck_spot = TruckSpot(label=ts.get("label", ""), point=ImagePoint.model_validate(ts["point"]) if ts.get("point") else None, source=src)
@@ -521,23 +643,43 @@ class Brain:
                 if self.state.incident.status in ("dispatched", "en_route"):
                     self.state.incident.status = "en_route"
                 self.say(addressed("Tête", self.approach_say or ""))
-            self.request_moment("approach", f"Par où j'entre : bloc vu du dessus, rue, camion, flèche vers {key}, hydrant"
-                                + "".join(f", {e.id} barrée ({B.STATUS_FR.get(st or '', 'danger')})" for e, st in (B.choose_approach(self.kit, self.b.hazards, self.b) or ({}, {"others": []}))[1]["others"] if st in ("smoke", "blocked")),
+            det = (B.choose_approach(self.kit, self.b.hazards, self.b, self._approach_target()) or ({}, {"others": [], "why_out": {}}))[1]
+            barred = [f", {e.id} barrée ({det['why_out'][e.id]})" for e, _ in det["others"] if e.id in det.get("why_out", {})]
+            barred += [f", {e.id} barrée ({B.STATUS_FR.get(st or '', 'danger')})" for e, st in det["others"]
+                       if st in ("smoke", "blocked") and e.id not in det.get("why_out", {}) and len(self.b.stairs) > 1]
+            # a live result with screenshots the last request didn't carry → ask Devin again (Silex fetches the shots)
+            sent = set()
+            for r in self.state.halo.requests:
+                if r.moment == "approach":
+                    sent |= set(self.runs.get(r.request_id, {}).get("refs", []))
+            new_shots = {s.image_id for s in shots if self._ref_for("approach", s)} - sent
+            refresh = live == "live" and bool(new_shots) and any(r.moment == "approach" for r in self.state.halo.requests)
+            self.request_moment("approach", f"Par où j'entre : bloc vu du dessus, rue, camion, flèche vers {key}, hydrant" + "".join(barred),
                                 ["building.entrances", "building.approach", "building.hydrants", "building.truck_spot", "routes"],
-                                deadline_s=300)
+                                deadline_s=300, refresh=refresh)
 
     def _r_plan_read(self, out: dict, src: Source, shots, live: str, run: dict) -> None:
         lvl = int(out.get("level", 0))
         img = out.get("image_id") or (shots[0].image_id if shots else "plan")
         url = next((s.url for s in shots if s.image_id == img), self.b.plan.url if self.b.plan else "")
+        if self.b.model and self.kit.adj:
+            # cross-check only: never merge the photo into the IFC; keep it only if it describes this building
+            names = [n for n in (B.plan_name_to_node(p.get("name", ""), lvl) for p in out.get("points") or []) if n]
+            missing = [n for n in names if n not in self.kit.adj]
+            if missing:
+                self.log("rosetta", f"Plan affiché ({live}) : {', '.join(m.split(':', 1)[1] for m in missing[:6])} pas dans la maquette.", src)
+            if names and len(missing) * 2 > len(names):
+                self.log("rosetta", "Plan affiché écarté : il ne correspond pas à la maquette IFC.", src)
+                return
         self.b.plan = Plan(image_id=img, url=url, level=lvl,
                            points=[PlanPoint.model_validate(p) for p in out.get("points") or []])
         for z in out.get("zones") or []:
             node = B.plan_name_to_node(z["name"], lvl)
             if not node:
                 continue
-            if not self.b.model or node not in self.kit.zones:   # the IFC frame wins; the photo cross-checks it
-                self.kit.zones[node] = B.Zone(node, lvl, z["polygon"], img)
+            if self.b.model:          # the IFC frame wins; the photo only cross-checks it (kept in building.plan)
+                continue
+            self.kit.zones[node] = B.Zone(node, lvl, z["polygon"], img)
             if node.startswith("room:") or node.startswith("corridor:"):
                 rid = "corridor" if node.startswith("corridor:") else node[5:]
                 room = next((r for r in self.b.rooms if r.id == rid and r.level == lvl), None)
@@ -549,7 +691,7 @@ class Brain:
                     self.b.rooms.append(Room(id=rid, level=lvl, label=label, zone=z["polygon"], source=src))
         for p in self.b.plan.points:
             node = B.plan_name_to_node(p.name, lvl)
-            if node and (node not in self.kit.points or not self.b.model):
+            if node and not self.b.model:
                 self.kit.points[node] = (p.point.x, p.point.y, p.point.image_id)
         names = ", ".join(p.label for p in self.b.plan.points[:6])
         self.log("rosetta", f"Plan niveau {lvl} lu ({live}) : {names}.", src)
@@ -612,12 +754,8 @@ class Brain:
 
     # ───────── Gabriel: calls ─────────
     def place_calls(self, calls: list[dict]) -> None:
-        for c in calls:
-            self.called_at.setdefault(c["occupant_id"], time.time())
-            o = self.occ(c["occupant_id"])
-            if o and o.status in ("unknown",):
-                o.status = "calling"
-                o.last_update = now_iso()
+        # status and the 3-min « sans nouvelles » timer start on Gabriel's call_event (ringing), not here: a call
+        # nobody dialed yet (web calls only, SIP off) is « en attente », never « sans nouvelles »
         self.send_gabriel({"kind": "place_calls", "calls": calls})
         self.publish("calls_placed", {"count": len(calls), "occupant_ids": [c["occupant_id"] for c in calls]})
         self.log("call", f"Gabriel appelle {len(calls)} occupant{'s' if len(calls) > 1 else ''}.")
@@ -638,6 +776,8 @@ class Brain:
         if ev in ("ringing", "answered"):
             c.ended_at = None
         o = self.occ(c.occupant_id)
+        if o and ev == "ringing":
+            self.called_at.setdefault(o.id, time.time())
         if o:
             o.call_id = cid
             o.last_update = now_iso()
@@ -682,6 +822,18 @@ class Brain:
             c.status = "active"
         c.language = msg.get("lang") or c.language
         f_new = {k: v for k, v in (msg.get("facts") or {}).items() if v is not None}
+        if "room" in f_new:
+            # a room as heard is checked against the model: « 2.1 » → 2.01; anything else never overwrites a known room
+            o0 = self.occ(msg.get("occupant_id") or c.occupant_id)
+            lvl = f_new.get("level", o0.level if o0 else None)
+            heard = f_new.pop("room")
+            rid = B.resolve_room(self.kit, heard, lvl)
+            if rid:
+                f_new["room"] = rid
+                self.call_flags.setdefault(cid, {}).pop("room_unconfirmed", None)
+            else:
+                self.call_flags.setdefault(cid, {})["room_unconfirmed"] = str(heard)
+                self.log("call", f"Appel {cid} : pièce « {heard} » pas dans la maquette, à confirmer.")
         facts = self.call_facts.setdefault(cid, {})
         facts.update({k: v for k, v in f_new.items() if k != "voice"})
         if f_new.get("voice"):
@@ -697,6 +849,7 @@ class Brain:
             o.call_id = cid
             self._facts_to_occupant(o, facts, c)
         self.last_call_id = cid
+        self._call_hazards(c, o, f_new, facts)
         self._urgency(c)
         self.recompute()
         line, gate = self._call_catches(c, o, facts)
@@ -719,6 +872,23 @@ class Brain:
         self.publish("call", dump(c))
         self.touch()
 
+    def _call_hazards(self, c: Call, o: Optional[Occupant], f_new: dict, f: dict) -> None:
+        """What a caller says they see becomes a hazard « selon l'appel », unconfirmed, at the place they say."""
+        if not (f_new.get("smoke_seen") or f_new.get("fire_seen")):
+            return
+        kind = "fire" if f_new.get("fire_seen") else "smoke"
+        src = Source(kind="call", label=f"appel {o.name}" if o and o.name else ("appel 112" if c.direction == "in" else f"appel {c.call_id}"),
+                     confirmed=False)
+        heading = f.get("heading_to") or ""
+        if f.get("current_action") == "moving" and heading.startswith("stair:"):
+            self._add_hazard(kind, {"stair": heading.split(":", 1)[1]}, "medium", src)   # sees it on the way down
+            return
+        if f.get("free_text_fr") and self._hazards_from_text(f["free_text_fr"], f.get("level"), src):
+            return
+        lvl = f.get("level", o.level if o else None)
+        if lvl is not None and f.get("current_action") != "outside":
+            self._add_hazard(kind, {"level": lvl}, "medium" if kind == "smoke" else "high", src)
+
     def _facts_to_occupant(self, o: Occupant, f: dict, c: Call) -> None:
         for k in ("level", "room", "people_count", "smoke_seen", "mobility_issue", "injuries", "heading_to"):
             if f.get(k) is not None:
@@ -736,7 +906,7 @@ class Brain:
             o.status = "in_call"
         o.language = c.language or o.language
         o.last_update = now_iso()
-        o.source = Source(kind="call", label=f"appel {o.name or c.call_id}", confirmed=True)
+        o.source = Source(kind="call", label=f"appel {o.name or c.call_id}", confirmed=False)   # signalé until the crew says it
 
     def _urgency(self, c: Call) -> None:
         f = self.call_facts.get(c.call_id, {})
@@ -768,7 +938,7 @@ class Brain:
                 reasons.append("bloqué")
             if heading and self._node_hazard(heading):
                 lvl = 3
-                reasons.append(f"descend vers {self._node_fr(heading)}, {self._node_hazard_fr(heading)}")
+                reasons.append(f"descend vers {self._node_fr(heading)}, {self._node_hazard_word(heading)}")
             if f.get("smoke_seen") or f.get("fire_seen"):
                 lvl = 3
                 reasons.append("fumée sous la porte" if re.search(r"porte|door|puerta", excerpt) else
@@ -801,15 +971,20 @@ class Brain:
         pc = f.get("people_count")
         room = f.get("room") or (o.room if o and f.get("level") is not None and f.get("level") == o.level and act != "moving" else None)
         level = f.get("level")
+        unconfirmed = self.call_flags.get(c.call_id, {}).get("room_unconfirmed") and not f.get("room")
+        if unconfirmed and not room:
+            room = None
         if pc and pc > 1:
-            bits.append(f"{n_fr(pc, fem=True)} personnes" + (f" salle {room}" if room else ""))
+            bits.append(f"{n_fr(pc, fem=True)} personnes" + (f" {B.room_word(self.kit, room)} {room}" if room else (" pièce à confirmer" if unconfirmed else "")))
             if level is not None and not room:
                 bits[-1] += f" au {level_fr(level)}"
         else:
             if level is not None:
                 bits.append(level_fr(level))
             if room:
-                bits.append(f"salle {room}")
+                bits.append(f"{B.room_word(self.kit, room)} {room}")
+            elif unconfirmed:
+                bits.append("pièce à confirmer")
         if f.get("mobility_issue"):
             bits.append("en fauteuil, ne peut pas descendre seule" if re.search(r"fauteuil|wheelchair|silla", ex) and "seule" in ex
                         else ("en fauteuil" if re.search(r"fauteuil|wheelchair|silla", ex) else "mobilité réduite"))
@@ -841,10 +1016,35 @@ class Brain:
     def _call_catches(self, c: Call, o: Optional[Occupant], f: dict) -> tuple[Optional[str], bool]:
         if not o:
             return None, False
+        if o.id in self.with_team:      # with a team: the team decides on the spot, no « heading into smoke »
+            return None, False
         gate = False
         heading = f.get("heading_to")
         if heading and self._node_hazard(heading) and f"reroute:{o.id}:{heading}" not in self.caught:
             alt = self._alt_stair(heading)
+            if not alt and heading.startswith("stair:"):
+                # single stair (TU Wien): no other stair to give → stay home, door closed, and the flat's
+                # balcony / terrace (ladder point, chosen by code). The COS decides.
+                self.caught.add(f"reroute:{o.id}:{heading}")
+                frm = heading.split(":", 1)[1]
+                lvl = level_fr(o.level if f.get('level') is None else f['level'])
+                lad = B.ladder_for(self.kit, o.room, self.b.hazards)
+                head = f"{o.name}, {lvl}, descend par l'escalier {frm}, {self._node_hazard_fr(heading)}" + \
+                       (", seul escalier" if len(self.b.stairs) == 1 else ", pas d'autre escalier")
+                if lad:
+                    word = B.room_word(self.kit, lad[1])
+                    kind = "terrasse" if "terrasse" in normalize(word) else "balcon"
+                    art = "la" if kind == "terrasse" else "le"
+                    summary = f"{head}. Je lui dis de rester dans son logement, porte fermée, et d'aller sur {art} {kind} ?"
+                else:
+                    kind = None
+                    summary = f"{head}. Je lui dis de rester dans son logement, porte fermée ?"
+                self.open_gate("reroute_occupant", summary,
+                               {"occupant_id": o.id, "call_id": c.call_id, "shelter": True, "from": frm,
+                                "ladder": lad[0] if lad else None, "outdoor": lad[1] if lad else None,
+                                "outdoor_kind": kind, "lang": c.language or o.language or "fr"},
+                               addressed("COS", summary))
+                gate = True
             if alt:
                 self.caught.add(f"reroute:{o.id}:{heading}")
                 frm = heading.split(":", 1)[1]
@@ -923,6 +1123,9 @@ class Brain:
                 if c.status == "active":
                     self._standing_for(c, self.call_facts.get(c.call_id, {}))
             return
+        if a.get("lift"):
+            self.standing_confirmed = False      # stay put lifted: new callers no longer hear it
+            self.log("seraph", "Levée du confinement confirmée par le COS.")
         for t in a.get("targets", []):
             self.say(t["text"], target={"call_id": t["call_id"]}, lang=t["lang"],
                      extra={"text_fr": t["text_fr"], "translate": t["lang"] != "fr" and not t.get("translated")} if t["lang"] != "fr" else None)
@@ -930,6 +1133,34 @@ class Brain:
 
     def _do_reroute_occupant(self, g: Gate, a: dict) -> None:
         lang = a.get("lang", "fr")
+        if a.get("shelter"):
+            o = self.occ(a["occupant_id"])
+            if a.get("ladder"):
+                self.say(speech.stay_outdoor_text(lang, a.get("outdoor_kind") or "balcon"), target={"call_id": a["call_id"]}, lang=lang)
+            else:
+                self.say(speech.standing_text(lang), target={"call_id": a["call_id"]}, lang=lang)
+            if o:
+                o.heading_to = a.get("ladder")
+                o.status = "sheltering"
+                o.last_update = now_iso()
+                f = self.call_facts.get(a["call_id"])
+                if f is not None:
+                    f["heading_to"] = a.get("ladder")
+                    f["current_action"] = "staying"
+                c = self.call(a["call_id"])
+                if c:
+                    self._urgency(c)
+                    self.publish("call", dump(c))
+            if a.get("ladder") and o:
+                if o.room:
+                    self.add_route("evacuation", B.room_node(o.room, o.level), a["ladder"])
+                out = a.get("outdoor")
+                word = B.room_word(self.kit, out)
+                self.alert("warning", f"Échelle : {word} {out}, {level_fr(o.level)}, {o.name}")
+                self.say(f"Reçu. {o.name} reste dans son logement, {word} {out} : point échelle.")
+            else:
+                self.say("Reçu, je lui dis de rester dans son logement, porte fermée.")
+            return
         self.say(speech.reroute_text(lang, a["to"], a["from"]), target={"call_id": a["call_id"]}, lang=lang)
         o = self.occ(a["occupant_id"])
         if o:
@@ -976,6 +1207,11 @@ class Brain:
             r = self.handle(e, p, speaker)
             if i == 0 and r:
                 reply = r
+        if p.events and p.events[0].type == "hazard":
+            parts = [e.data["_part"] for e in p.events if e.type == "hazard" and e.data.get("_part")
+                     and not e.data.get("secondary") and not e.data.get("silent") and not e.data.get("entrance_status")]
+            if parts:
+                reply = f"Reçu, {' et '.join(parts)}, selon {speech.dest_fr(speaker)}."
         if reply is None and p.path == "none" and p.to_seraph and len(self.say_log) == n_says:
             reply = "Reçu."
         if reply:
@@ -1058,29 +1294,143 @@ class Brain:
     def _e_hazard(self, d: dict, p, dest: str) -> Optional[str]:
         h = d["hazard"]
         where = {k: v for k, v in (h.get("where") or {}).items() if v is not None}
+        if not any(k in where for k in ("room", "stair", "entrance")):
+            where = self._resolve_where(d.get("clause") or normalize(p.body), where, where.get("level"))
+        if self.kit.adj:   # an id the building doesn't have is a mishearing: keep the level, say it is not in the model
+            for key, node in (("room", B.room_node(str(where.get("room", "")), where.get("level")) if where.get("room") else None),
+                              ("stair", f"stair:{where['stair']}" if where.get("stair") else None),
+                              ("entrance", f"entrance:{where['entrance']}" if where.get("entrance") else None)):
+                if node and node not in self.kit.adj and not node.startswith("corridor"):
+                    self.log("seraph", f"{node.split(':', 1)[1]} pas dans la maquette : danger gardé au niveau seulement.")
+                    where.pop(key)
+            if not where:
+                return addressed(dest, "pas dans la maquette, répétez.")
         if d.get("entrance_status") and where.get("entrance"):
             e = next((x for x in self.b.entrances if x.id == where["entrance"]), None)
             if e:
                 e.status = d["entrance_status"]
                 e.source = Source(kind="radio", label=dest)
-        src = Source(kind="radio", label=p.text.split(",")[0].replace("Seraph de ", "") if " de " in p.text[:30] else (dest or "radio"))
-        cur = next((x for x in self.b.hazards if x.kind == h["kind"] and x.where == where), None)
-        sev_rank = {"low": 0, "medium": 1, "high": 2}
-        if cur:
-            if sev_rank.get(h["severity"], 1) > sev_rank.get(cur.severity, 1):
-                cur.severity = h["severity"]
-            cur.source = src
-        else:
-            self.hz_n += 1
-            self.b.hazards.append(Hazard(id=f"HZ-{self.hz_n}", kind=h["kind"], where=where, severity=h.get("severity", "medium"), source=src))
-        self.log("seraph", f"Danger : {KIND_FR.get(h['kind'], h['kind'])} {self._where_fr(where)} ({h.get('severity')}), selon {src.label}.", src)
+        src = Source(kind="radio", label=dest or "radio", confirmed=True)   # the crew saw it
         old_best = self.b.approach.best_entrance_id if self.b.approach else None
+        sev = h.get("severity", "medium")
+        if where.get("stair") and h["kind"] == "smoke" and sev == "medium":
+            sev = "high"                       # smoke in a stair cuts the way: the crew reporting it is enough
+        if h["kind"] == "fire" and where.get("room"):
+            lv = B.room_level(self.kit, B.room_node(str(where["room"]), None))
+            if lv is not None:
+                where = {"level": lv, "room": where["room"]}
+        self._add_hazard(h["kind"], where, sev, src)
+        d["_part"] = f"{KIND_FR.get(h['kind'], h['kind'])} {B.place_fr(self.kit, where)}" + (f" côté {d['side']}" if d.get("side") else "")
         self.recompute()
         self._after_hazard(old_best)
         side = f" côté {d['side']}" if d.get("side") else ""
         if d.get("entrance_status"):
             return f"Reçu, entrée {where['entrance']} {'verrouillée' if d['entrance_status'] == 'locked' else 'bloquée'}."
         return f"Reçu, {KIND_FR.get(h['kind'], h['kind'])} {self._where_fr(where)}{side}."
+
+    def _add_hazard(self, kind: str, where: dict, severity: str, src: Source) -> tuple[Hazard, bool]:
+        """The only way a hazard enters the state: from an event, with its source. Same kind + place = same hazard:
+        severity goes up, a crew confirmation upgrades an alert or call report (never the other way round)."""
+        cur = next((x for x in self.b.hazards if x.kind == kind and x.where == where), None)
+        rank = {"low": 0, "medium": 1, "high": 2}
+        if cur:
+            if rank.get(severity, 1) > rank.get(cur.severity, 1):
+                cur.severity = severity
+            if src.confirmed and not cur.source.confirmed:
+                self.log("seraph", f"Confirmé par {src.label} : {KIND_FR.get(kind, kind)} {self._where_fr(where)}.", src)
+                cur.source = src
+            elif src.confirmed:
+                cur.source = src
+            return cur, False
+        self.hz_n += 1
+        h = Hazard(id=f"HZ-{self.hz_n}", kind=kind, where=where, severity=severity, source=src)
+        self.b.hazards.append(h)
+        self.log("seraph", f"Danger : {KIND_FR.get(kind, kind)} {self._where_fr(where)} ({severity}), {self._selon(src)}.", src)
+        return h, True
+
+    def _selon(self, src: Optional[Source]) -> str:
+        return B.selon(src) or "source inconnue"
+
+    def _resolve_where(self, nb: str, where: dict, level: Optional[int]) -> dict:
+        """A place said in words → ids of this building: the stair (« la cage d'escalier » = the only one), an entrance
+        by its label (« rampe », « parking »), a room by its label on that level (« garage »). Never guessed beyond."""
+        w = dict(where)
+        if any(k in w for k in ("stair", "entrance")) or (w.get("room") and w["room"] != "corridor"):
+            return w
+        if re.search(r"\bescaliers?\b", nb) and len(self.b.stairs) == 1:
+            return {"stair": self.b.stairs[0].id}
+        e = self._entrance_named(nb)
+        if e and re.search(r"\b(sort|sortant|rampe|porte|entree|devant)\b", nb):
+            return {"entrance": e.id}
+        rid = self._room_named(nb, level)
+        if rid:
+            return {"level": level, "room": rid} if level is not None else {"room": rid}
+        if e:
+            return {"entrance": e.id}
+        return w
+
+    def _room_named(self, nb: str, level: Optional[int]) -> Optional[str]:
+        rooms = [r for r in self.b.rooms if level is None or r.level == level]
+        words = [w for w in nb.split() if len(w) > 4]
+        for pass_words in (words, [self.SYNONYMS[w] for w in words if w in self.SYNONYMS]):
+            for w in pass_words:
+                hits = [r for r in rooms if w in normalize(B.room_word(self.kit, r.id)).split()]
+                if len(hits) == 1:
+                    return hits[0].id
+        return None
+
+    def _hazards_from_text(self, text: str, level: Optional[int], src: Source) -> list[Hazard]:
+        out = []
+        for clause in re.split(r"[,;]|\.(?![\dtT])", text or ""):
+            nb = normalize(clause)
+            if not nb:
+                continue
+            ev = rules._hazard(nb, clause)
+            if not ev or "hazard" not in ev.data:
+                continue
+            h = ev.data["hazard"]
+            where = {k: v for k, v in (h.get("where") or {}).items() if v is not None}
+            if level is not None and not where:
+                where = {"level": level}
+            where = self._resolve_where(nb, where, where.get("level", level))
+            if not where:
+                continue
+            hz, new = self._add_hazard(h["kind"], where, "high" if h["kind"] == "fire" else h.get("severity", "medium"), src)
+            if new:
+                out.append(hz)
+        if out:
+            self.recompute()
+        return out
+
+    ENTRANCE_GENERIC = {"porte", "entree", "acces", "principale", "laterale", "hall", "escalier", "sous", "batiment"}
+    SYNONYMS = {"parking": "garage", "garage": "parking", "rampe": "garage"}
+
+    def _entrance_named(self, nb: str) -> Optional[Entrance]:
+        words = set(nb.split())
+        words |= {self.SYNONYMS[w] for w in words if w in self.SYNONYMS}
+        for e in self.b.entrances:
+            lab = {w for w in normalize(e.label).split() if len(w) > 4 and w not in self.ENTRANCE_GENERIC}
+            if lab & words:
+                return e
+        return None
+
+    def _e_hazard_cleared(self, d: dict, p, dest: str) -> Optional[str]:
+        w = {k: v for k, v in (d.get("where") or {}).items() if v is not None}
+        kind = d.get("kind", "smoke")
+        before = len(self.b.hazards)
+        self.b.hazards = [h for h in self.b.hazards if not (h.kind == kind and all(h.where.get(k) == v for k, v in w.items()))]
+        src = Source(kind="radio", label=dest)
+        if w.get("stair"):
+            self.kit.base_stair_status[w["stair"]] = "clear"
+            s = next((x for x in self.b.stairs if x.id == w["stair"]), None)
+            if s:
+                s.status = "clear"
+                s.source = src
+        self.log("seraph", f"Levé : {KIND_FR.get(kind, kind)} {self._where_fr(w)}, selon {dest}." if len(self.b.hazards) < before else
+                 f"{dest} : {self._where_fr(w)} sans {KIND_FR.get(kind, kind)}.", src)
+        self.recompute()
+        word = "désenfumé" if kind == "smoke" else "feu éteint"
+        return f"Reçu, {self._where_fr(w)} {word}." if w else "Reçu."
 
     def _where_fr(self, w: dict) -> str:
         if w.get("stair"):
@@ -1103,7 +1453,7 @@ class Brain:
             self.say(addressed("Tête", f"changement d'approche. {self.approach_say}"), priority="alert")
         # occupants now heading into a hazard
         for o in self.state.occupants:
-            if o.heading_to and o.call_id and self._node_hazard(o.heading_to):
+            if o.heading_to and o.call_id and o.id not in self.with_team and self._node_hazard(o.heading_to):
                 c = self.call(o.call_id)
                 if c:
                     self._urgency(c)
@@ -1118,8 +1468,10 @@ class Brain:
         key = f"teamhz:{t.id}:{node}"
         if not hz or key in self.caught:
             return
-        self.caught.add(key)
         alt = self._alt_stair(node)
+        if node.startswith("stair:") and not alt:
+            return                       # single stair: going up it under ARI is the plan, not a mistake
+        self.caught.add(key)
         what = f"{self._node_fr(node)[2:] if node.startswith('stair:') else node} {self._node_hazard_fr(node)}"
         text = f"{t.label}, {what}" + (f", passez par {alt}." if alt else ".")
         self.alert("danger", text)
@@ -1156,6 +1508,8 @@ class Brain:
         if loc.get("stair"):
             self._team_hazard(t, f"stair:{loc['stair']}")
         target = d.get("target_room")
+        if target and self.kit.building.rooms:
+            target = B.resolve_room(self.kit, target, loc.get("level") or (t.location.level if t.location else None))
         if target:
             lvl = loc.get("level") or (t.location.level if t.location else None)
             if lvl is not None:
@@ -1190,10 +1544,19 @@ class Brain:
             bits.append("fumée sous la porte" if re.search(r"porte|door|puerta", ex) else "fumée signalée")
         if any(o.mobility_issue for o in occs):
             bits.append("mobilité réduite")
-        return ", ".join(bits)
+        s = ", ".join(bits)
+        node = B.room_node(room, None)
+        for n in self.kit.adj.get(node, {}):
+            if n.startswith("room:") and f"ladder:{n[5:]}" in self.kit.adj:
+                out = n[5:]
+                s += f". {cap(B.room_word(self.kit, out))} {out} depuis la {B.room_word(self.kit, room)}"
+                break
+        return s
 
     def _e_occupants_update(self, d: dict, p, dest: str) -> Optional[str]:
         room = d.get("room")
+        if room and room != "corridor" and self.kit.building.rooms:
+            room = B.resolve_room(self.kit, room, d.get("level"))
         occs = [o for o in self.state.occupants if room and o.room == room]
         src = Source(kind="radio", label=dest)
         team = self.team(d["team"], create=False) if d.get("team") else None
@@ -1252,6 +1615,17 @@ class Brain:
 
     def _e_order_to_occupants(self, d: dict, p, dest: str) -> Optional[str]:
         targets, who = self._resolve_targets(d.get("target_text", ""))
+        left_out: list[Occupant] = []
+        if re.search(r"\b(tous|tout le monde|chacun)\b", normalize(d.get("target_text", ""))):
+            keep = []
+            for c in targets:
+                o = self.occ(c.occupant_id)
+                if o and (o.mobility_issue or o.id in self.with_team):
+                    if o.mobility_issue:
+                        left_out.append(o)
+                    continue
+                keep.append(c)
+            targets = keep
         if not targets:
             return addressed(dest, "à qui ? Répétez.")
         raw = d.get("raw") or ""
@@ -1263,8 +1637,19 @@ class Brain:
             tr = speech.translate_order(order_fr, lang)
             out.append({"call_id": c.call_id, "lang": lang, "text": tr or order_fr, "text_fr": order_fr, "translated": bool(tr) or lang == "fr"})
         summary = f"Je dis à {who} : « {order_fr} »"
-        self.open_gate("relay_order", summary, {"targets": out, "who_fr": who},
-                       addressed("COS", f"je dis à {who} : {order_fr[:1].lower() + order_fr[1:]} Confirmez ?"))
+        tail = ""
+        if left_out:
+            tail = " Sauf " + ", ".join(f"{o.name}, {'en fauteuil' if self._wheelchair(o) else 'mobilité réduite'}, {level_fr(o.level)}" for o in left_out) + "."
+            summary += tail
+        st = rules.find_stair(normalize(order_fr))
+        warn = ""
+        if st:
+            s = next((x for x in self.b.stairs if x.id == st), None)
+            if s and s.status in ("smoke", "blocked"):
+                warn = f" Attention, escalier {st} signalé {B.STATUS_FR[s.status]}."
+        spoken_tail = tail.replace(", en fauteuil, ", ", en fauteuil au ") if tail else ""
+        self.open_gate("relay_order", summary + warn, {"targets": out, "who_fr": who, "lift": bool(d.get("lift"))},
+                       addressed("COS", f"je dis à {who} : {order_fr[:1].lower() + order_fr[1:]}{spoken_tail}{warn} Confirmez ?"))
         return None
 
     def _resolve_targets(self, t: str) -> tuple[list[Call], str]:
@@ -1330,13 +1715,16 @@ class Brain:
             if not s:
                 return addressed(dest, f"escalier {d.get('stair')} pas dans la maquette.")
             src = (", selon la maquette" if s.source.kind == "ifc" else f", selon {s.source.label}") if s.source else ""
+            if s.status in ("smoke", "blocked"):
+                return addressed(dest, f"escalier {s.id} {self._stair_fr(s)}.")
             return addressed(dest, f"escalier {s.id} {B.STATUS_FR.get(s.status, s.status)}{src}.")
         if topic == "occupants":
             return addressed(dest, self._occupants_answer(p.body, d))
         if topic == "unknown_source":
             q = d.get("question_fr") or p.body_raw
             run_id = f"run_{ulid()}"
-            self.runs[run_id] = {"endpoint": "explore", "params": {"question_fr": q}, "started": time.time(), "done": False, "run_id": run_id}
+            self.runs[run_id] = {"endpoint": "explore", "params": {"question_fr": q}, "started": time.time(), "done": False,
+                                 "run_id": run_id, "incident_id": self.state.incident.id, "incident_t0": self.incident_t0}
             self.explore(run_id, q)
             return "Je cherche, source non vérifiée."
         return None
@@ -1396,10 +1784,11 @@ class Brain:
         return self._sitrep_text().split(" : ", 1)[1]
 
     # ───────── Halo moments ─────────
-    def request_moment(self, moment: str, purpose: str, data_keys: list[str], deadline_s: int, force: bool = False) -> None:
+    def request_moment(self, moment: str, purpose: str, data_keys: list[str], deadline_s: int, force: bool = False,
+                       refresh: bool = False) -> None:
         active = [r for r in self.state.halo.requests if r.moment == moment and r.status in ("requested", "building", "ready")]
         enabled = moment in settings.view_moments or force
-        if moment != "commander_request" and active:
+        if moment != "commander_request" and active and not refresh:
             self.show_moment(moment)
             return
         if not enabled:
@@ -1416,7 +1805,8 @@ class Brain:
             vr = {"request_id": req.request_id, "moment": moment, "purpose_fr": purpose, "data_keys": data_keys,
                   "references": refs, "interactions": ["tap a level → Seraph shows who is there"] if moment in ("occupants", "team_engaged") else [],
                   "deadline_s": deadline_s, "sample_state_url": f"{settings.seraph_public_url or settings.seraph_url}/state"}
-            self.runs[req.request_id] = {"view": True, "deadline": time.time() + deadline_s, "t0": time.time()}
+            self.runs[req.request_id] = {"view": True, "deadline": time.time() + deadline_s, "t0": time.time(),
+                                         "refs": [r["image_id"] for r in refs]}
             self.publish("silex", dump(req))
             self.log("silex", f"Vue demandée à Devin : {purpose}")
             self.request_view_out(vr)
@@ -1532,7 +1922,7 @@ class Brain:
                 self.touch()
         for oid, t0 in list(self.called_at.items()):
             o = self.occ(oid)
-            if o and o.status in ("unknown", "calling") and now - t0 > NO_NEWS_S / max(self.mock_speed, 1.0):
+            if o and o.status == "calling" and now - t0 > NO_NEWS_S / max(self.mock_speed, 1.0):
                 self._no_news(o)
                 self.touch()
 

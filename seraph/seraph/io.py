@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Optional
 import httpx
 from fastapi import WebSocket
 
-from .config import FIXTURES, settings
+from .config import FIXTURES, env, settings
 from .models import dump, now_iso
 
 if TYPE_CHECKING:
@@ -168,8 +168,21 @@ class Silex:
     def request(self, vr: dict) -> None:
         asyncio.get_running_loop().create_task(self._request(vr))
 
+    async def live(self) -> bool:
+        """Silex is called whenever it answers /health, even with MOCK=1 (SERAPH_SILEX_LIVE=0 forces the mock)."""
+        if env("SERAPH_SILEX_LIVE", "1") == "0":
+            return False
+        if not settings.mock:
+            return True
+        try:
+            async with httpx.AsyncClient(timeout=1.5) as c:
+                r = await c.get(f"{settings.silex_url}/health")
+                return r.status_code == 200
+        except Exception:
+            return False
+
     async def _request(self, vr: dict) -> None:
-        if settings.mock:
+        if not await self.live():
             await asyncio.sleep(0.5)
             self.brain.on_view_ready({"request_id": vr["request_id"], "status": "failed",
                                       "note": "mock : pas de Devin, vue de secours"})
@@ -189,7 +202,7 @@ class Silex:
         asyncio.get_running_loop().create_task(self._learn(body))
 
     async def _learn(self, body: dict) -> None:
-        if settings.mock:
+        if not await self.live():
             return
         try:
             async with httpx.AsyncClient(timeout=8) as c:

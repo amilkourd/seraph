@@ -36,8 +36,9 @@ def play_call(b: Brain, fx: dict) -> None:
                          "at": now_iso()})
 
 
-def make_brain(play_calls: bool = True) -> Brain:
-    b = Brain()
+def make_brain(play_calls: bool = True, building=None) -> Brain:
+    from seraph.registry import LocalRegistry
+    b = Brain(registry=LocalRegistry(building or FIXTURES / "building.json"))
     b.sent: list[dict] = []  # type: ignore[attr-defined]
     b.views: list[dict] = []  # type: ignore[attr-defined]
     b.explored: list[str] = []  # type: ignore[attr-defined]

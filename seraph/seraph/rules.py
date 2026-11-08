@@ -10,7 +10,7 @@ from typing import Any, Optional
 NUM_WORDS = {"un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5, "six": 6, "sept": 7, "huit": 8,
              "neuf": 9, "dix": 10}
 ORDINALS = {"premier": 1, "1er": 1, "deuxieme": 2, "second": 2, "troisieme": 3, "quatrieme": 4, "cinquieme": 5,
-            "sixieme": 6, "septieme": 7, "rdc": 0, "rez de chaussee": 0}
+            "sixieme": 6, "septieme": 7, "rdc": 0, "rez de chaussee": 0, "sous sol": -1}
 CALL_SIGNS = r"(seraph|cos|tete|codis|cta|chef(?: d agres)?|fpt|epa|vsav|binome (?:\d|un|deux|trois|quatre)|b\d)"
 
 
@@ -133,7 +133,7 @@ def parse(text: str, speaker: str = "") -> Parsed:
     crew_talk = dest is not None and dest != "seraph" and "seraph" not in norm
     if crew_talk:
         # crew to crew: Seraph listens silently for facts, never replies
-        p.events = [e for e in (_team(body, sp), _hazard(body, body_raw)) if e]
+        p.events = [e for e in [_team(body, sp)] + _hazards(body, body_raw) if e]
         for e in p.events:
             e.data["silent"] = True
         if not p.events:
@@ -164,14 +164,27 @@ def _classify(p: Parsed, sp: str) -> list[Event]:
     if re.search(r"\bhalo\b", b):
         return [_view_request(p)]
     # 4. order to occupants (read back + gated)
-    m = re.match(r"^(?:ok |bon )?(dis|demande|ordonne|indique|annonce|previens|transmets?)\b(.*)$", b)
+    m = re.match(r"^(?:ok |bon )?(dis|demande|ordonne|indique|annonce|previens|transmets?)\b(.*)$", b) \
+        or re.search(r"^(?:levee du confinement|fin du confinement|deconfinement|evacuation generale)\s+(dis|demande|ordonne|indique|annonce|previens|transmets?)\b(.*)$", b)
     if m:
         rest = m.group(2)
         mo = re.search(r"\b(?:de|d) (ne (?:pas|plus) \w+|\w+(?:er|ir|re))\b", rest)
         if mo:
             target = rest[:mo.start()].strip()
             order = rest[mo.start():].split(" ", 1)[1]
-            return [Event("order_to_occupants", {"target_text": target, "order_norm": order, "raw": p.body_raw})]
+            lift = bool(re.match(r"^(levee du confinement|fin du confinement|deconfinement|evacuation generale)", b))
+            return [Event("order_to_occupants", {"target_text": target, "order_norm": order, "raw": p.body_raw, "lift": lift})]
+    # 4b. a hazard cleared (« escalier A désenfumé »): never adds smoke
+    if re.search(r"\b(desenfumee?s?|fumee dissipee|plus de fumee|pas de fumee|aucune fumee|feu eteint|feu maitrise|pas de feu|levee de doute)\b", b):
+        kind = "fire" if re.search(r"\bfeu\b", b) and not re.search(r"fumee", b) else "smoke"
+        where: dict[str, Any] = {}
+        if find_stair(b):
+            where["stair"] = find_stair(b)
+        elif find_room(b):
+            where["room"] = find_room(b)
+        if find_level(b) is not None and "stair" not in where:
+            where["level"] = find_level(b)
+        return [Event("hazard_cleared", {"kind": kind, "where": where})]
     # 5. specific questions
     q = _question_topic(b, p)
     if q:
@@ -180,21 +193,19 @@ def _classify(p: Parsed, sp: str) -> list[Event]:
     occ = _occupants_update(b, sp)
     if occ:
         out = [occ]
-        hz = _hazard(b, p.body_raw)
-        if hz:
+        for hz in _hazards(b, p.body_raw):
             hz.data["secondary"] = True
             out.append(hz)
         return out
     # 7. team update (+ hazard in the same line)
     team = _team(b, sp)
-    hz = _hazard(b, p.body_raw)
+    hzs = _hazards(b, p.body_raw)
     if team:
-        if hz:
+        for hz in hzs:
             hz.data["secondary"] = True
-            return [team, hz]
-        return [team]
-    if hz:
-        return [hz]
+        return [team] + hzs
+    if hzs:
+        return hzs
     if p.question:
         return [Event("question", {"topic": "unknown_source", "question_fr": p.body_raw.strip()})]
     if re.fullmatch(r"(recu|bien recu|ok|compris|5 sur 5|cinq sur cinq)( seraph)?", b):
@@ -342,6 +353,31 @@ def _clause(raw: str, pattern: str) -> Optional[str]:
         if re.search(pattern, n):
             return n
     return None
+
+
+HAZARD_WORDS = rf"\b({FIRE}|{SMOKE}|odeur de gaz|fuite de gaz|effondre|effondrement|ecroule|chaleur|tres chaud)\b"
+
+
+def _hazards(b: str, raw: str) -> list[Event]:
+    """Every hazard of the line, one per clause (« feu de véhicule au parking, fumée dans la cage d'escalier »)."""
+    out: list[Event] = []
+    level = find_level(b)
+    for clause in re.split(r"[,;!?]|\.(?![\dtT])|\bet\b", raw or ""):
+        cn = normalize(clause)
+        if not cn or not re.search(HAZARD_WORDS, cn):
+            continue
+        ev = _hazard(cn, clause)
+        if not ev:
+            continue
+        w = ev.data["hazard"]["where"]
+        if "level" not in w and level is not None and not (w.get("stair") or w.get("entrance")):
+            w["level"] = level
+        ev.data["clause"] = cn                 # the place is resolved on its own clause, not the whole line
+        out.append(ev)
+    if not out:
+        ev = _hazard(b, raw)
+        return [ev] if ev else []
+    return out
 
 
 def _hazard(b: str, raw: str = "") -> Optional[Event]:
