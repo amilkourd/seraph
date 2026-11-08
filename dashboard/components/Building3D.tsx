@@ -201,6 +201,23 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       for (const [lv, t0] of since) if (!active.has(lv) || now - t0 >= FADE) since.delete(lv);
       shown = active;
       const groups = new Map<number, THREE.Group>();
+
+      // A firefighter reads this from 5 m, not an architect: a level shows its slab and its stair and lift shafts;
+      // on an active level only the rooms that matter get full walls (fire or smoke, people, a route's target or
+      // ladder balcony, the entrance halls), every other wall is faint.
+      const nodeRoom = (n?: string) =>
+        n?.startsWith("room:") ? rooms.find((r) => r.id === n.slice(5))
+        : n?.startsWith("corridor:") ? rooms.find((r) => r.kind === "corridor" && r.level === Number(n.slice(9)))
+        : undefined;
+      const placed = (room: string | null | undefined, level: number | null | undefined) =>
+        room ? rooms.filter((r) => sameRoom(room, r) && (level == null || r.level === level)) : [];
+      const key = new Set<KindRoom>([
+        ...hz.filter((h) => h.kind === "fire" || h.kind === "smoke").flatMap((h) => placed(h.where.room, h.where.level)),
+        ...s.occupants.filter((o) => o.status !== "safe_outside").flatMap((o) => placed(o.room, o.level)),
+        ...s.crew.teams.filter((t) => t.status === "engaged").flatMap((t) => placed(t.location?.room, t.location?.level)),
+        ...s.routes.map((r) => nodeRoom(r.to) ?? rooms.find((x) => r.to === `ladder:${x.id}`)),
+        ...(b.entrances as (Building["entrances"][number] & { leads_to?: string })[]).map((e) => nodeRoom(e.leads_to)),
+      ].filter((r): r is KindRoom => !!r));
       // real storey heights when the model has them, plus the exploded gap; else an even step
       const elev = (l: Building["levels"][number]) => l.elevation_m;
       const hasElev = levels.every((l) => elev(l) != null);
@@ -264,7 +281,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         for (const shape of polys ? shapes(polys, W) : [rect(-fw / 2, -fd / 2, fw, fd)]) {
           const geo = new THREE.ExtrudeGeometry(shape, { depth: SLAB, bevelEnabled: false });
           geo.rotateX(-Math.PI / 2);
-          const part = outlined(geo, solid("#000"), on ? line(C.ink, hi ? 3.5 : 2.8) : line(C.dim, 2.2));
+          const part = outlined(geo, solid("#000"), on ? line(C.ink, hi ? 3.5 : 3.2) : line(C.dim, 2.2));
           part.position.y = fy - SLAB;
           plate.add(part);
         }
@@ -273,10 +290,15 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         const corner = polys ? polys.flatMap((p) => p.outer).map(([px, pz]) => W(px, pz)).reduce((a, p) => (p[0] - p[1] < a[0] - a[1] ? p : a)) : [-fw / 2, fd / 2];
         at(tag(l.label, on ? "b3-level b3-level-hi" : "b3-level b3-level-dim"), [corner[0], fy - SLAB / 2, corner[1]], lg);
 
-        // its rooms, flat on the plate: walls as lines; fire = red floor, the room we go to = lit floor; a grey
-        // level has grey walls and no fills
+        // its rooms, flat on the plate: walls as lines; fire = red floor, the room we go to = lit floor. Line weights:
+        // slab edge > stair core > lift shafts > rooms that matter > every other wall. A grey level: slab and shafts only.
         for (const r of rooms.filter((x) => x.level === l.level)) {
           const poly = (r.zone as number[][]).map(([px, pz]) => W(px, pz));
+          if (r.kind === "elevator") {
+            lg.add(walls(poly, fy + FLAT, on ? line(C.ink, 2.2) : line(C.dim, 1.6)));
+            continue;
+          }
+          if (!on) continue;
           // fire and smoke only as reported (Amil): solid once a crew confirmed it, soft while only « signalé »
           const here = (kind: string) => hz.filter((h) => h.kind === kind && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
           const fire = here("fire").length > 0;
@@ -285,7 +307,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           const lit = r.id === targetRoom;
           const ladder = ladders.has(r.id);
           if (lit) litPoly = poly.map(([wx, wz]) => new THREE.Vector3(wx, fy + FLAT, wz));
-          if (on && (fire || lit || smoke || ladder)) {
+          if (fire || lit || smoke || ladder) {
             const floor = new THREE.Mesh(
               new THREE.ShapeGeometry(new THREE.Shape(poly.map(([wx, wz]) => new THREE.Vector2(wx, -wz)))),
               fire ? solid(C.fire, sure("fire") ? 1 : 0.35) : lit ? solid(C.lit) : ladder ? solid(C.life, 0.55) : solid(C.warn, sure("smoke") ? 0.45 : 0.2),
@@ -294,9 +316,9 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
             floor.position.y = fy + FLAT / 2;
             lg.add(floor);
           }
-          // terraces and other outside areas recede
-          const out = r.kind === "exterior";
-          lg.add(walls(poly, fy + FLAT, on ? line(fire ? C.fire : ladder ? C.life : out ? C.dim : C.line, out && !ladder ? 1.6 : 2.4) : line(out ? C.mute : C.dim, out ? 1.4 : 1.8)));
+          // the rooms that matter in full, the rest faint (terraces and other outside areas fainter still)
+          const strong = fire || ladder || key.has(r);
+          lg.add(walls(poly, fy + FLAT, strong ? line(fire ? C.fire : ladder ? C.life : C.ink, 2) : line(r.kind === "exterior" ? C.mute : C.dim, 1)));
         }
 
         // smoke on a named spot without a zone (e.g. the corridor): a flat amber patch
@@ -330,7 +352,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
             floor.position.y = fy + FLAT / 2;
             lg.add(floor);
           }
-          lg.add(walls(outline, fy + FLAT, on ? line(smoky ? C.warn : C.ink, 2.6) : line(C.dim, 2)));
+          lg.add(walls(outline, fy + FLAT, on ? line(smoky ? C.warn : C.ink, 2.6) : line(C.dim, 1.8)));
           if (l === levels.at(-1)) at(tag(st.id, smoky ? "b3-warn b3-center" : "b3-center"), [wx, fy + 0.3, wz], g);
         }
       }

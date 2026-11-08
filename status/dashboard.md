@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 05:51
+Updated: 05:55
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -91,6 +91,12 @@ Updated: 05:51
 - Fire and smoke only as reported (Amil, via the Seraph review): no hazard in the state → nothing red. A hazard with
   `source.confirmed: false` is a soft fill (fire 35 %, smoke 20 %, smoky stair 35 %) and its callout reads
   « → signalé · <source> »; once confirmed it is solid, « → confirmé · <source> ». No dotted fills (Amil's 3D rule).
+- Read from 5 m (Amil, via the Seraph review): a quiet level (focus false, and every level at idle) shows only its
+  slab edge, stair core and lift shafts, no room walls. An active level shows faint walls (1 px grey) except the rooms
+  that matter: fire/smoke rooms, rooms with people or an engaged team, a route's target or ladder balcony, and the
+  entrance halls (`entrances[].leads_to`): full walls (2 px white, red for fire, green for the ladder) and their fills.
+  Weights: slab 3.2–3.5 > stair core 2.6 > lift 2.2 > key rooms 2 > other walls 1. Checked at 1920×1080 at idle
+  (live) and on the Scenario v2 end state (mock state, R+1 forced quiet); not by a live replay on the shared Seraph.
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
