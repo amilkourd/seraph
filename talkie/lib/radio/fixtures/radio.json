@@ -1,5 +1,17 @@
 [
   {
+    "id": "R00",
+    "speaker": "COS",
+    "lang": "fr",
+    "text": "Seraph, confirme.",
+    "expected": {
+      "event": "confirm",
+      "gate": "the standing instruction (relay_order, opened at incident start)",
+      "say_crew": "Reçu, consigne par défaut active.",
+      "note": "Confirms stay put at T-15, as in the live demo. Replay: play it right after the incident starts, before the calls, so it takes the standing gate and not Tom's."
+    }
+  },
+  {
     "id": "R01",
     "speaker": "Tête",
     "lang": "fr",
@@ -115,7 +127,8 @@
     "text": "Seraph, annule.",
     "expected": {
       "event": "cancel",
-      "gate": "latest pending gate for COS"
+      "gate": "latest pending gate for COS",
+      "note": "After R00 (standing) and R07 (Tom) nothing is pending: Seraph says « Rien à annuler. »"
     }
   },
   {
