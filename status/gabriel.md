@@ -1,5 +1,5 @@
 # gabriel — status
-Updated: 09:53
+Updated: 10:30
 
 ## Running
 Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talkie on :3000 for web calls.
@@ -75,7 +75,22 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
 - Phone numbers: the SIP caller's number goes to Seraph only masked (`number_masked` « +33 7•• •• •• 72 », from the
   participant's `sip.phoneNumber`). Every log line of the call worker is masked too, framework extras included
   (livekit.agents logs `participant: sip_+33…`).
-- `place_calls` (outbound): logged with masked numbers, not dialed. **SIP is only stubbed for outbound now.**
+- **Outbound phone calls for `place_calls`: code done, waiting for a trunk.** The radio gets `place_calls`; for each
+  number `dial.py` creates room `call-CALL-P<5>` and dispatches `gabriel-call` with `{call_id, occupant_id,
+  direction:"out", channel:"phone", lang: language_hint, name, phone_e164}`. The agent sends `ringing`, dials with
+  `CreateSIPParticipant` (trunk `LIVEKIT_SIP_OUTBOUND_TRUNK_ID`, caller id = the trunk's number or
+  `LIVEKIT_SIP_OUTBOUND_NUMBER`, 30 s ring, `wait_until_answered`, number hidden from participant attributes), then
+  `answered` and the usual flow, or `no_answer` (SIP 408/480/486/487/600/603) / `failed` (anything else). Numbers are
+  masked in every event and log line. Both ids are read from `.env` at dial time: no restart after filling them in.
+  Tested offline with LiveKit mocked (busy → `no_answer` and hang-up, answer → `answered`); **never dialed for real**.
+- **Who is dialed:** `place_calls` carries no consent flag, so Gabriel dials only E.164 numbers outside `+3310000…`
+  (the registry's fictional seed numbers, demo occupants OCC-01…06, plus +33100000098/99). Numbers registered
+  through `/inscription` are real and consented; those are the ones dialed. Seed occupants keep the web call
+  (`/call?occ=…`). With no trunk set, nobody is dialed (log line « not dialed: no outbound trunk »).
+- Phone calls (in and out) now hang up the line when Gabriel ends the call (`end_call` from Seraph deletes the room;
+  before, the agent left and the caller stayed on a silent line).
+- A greeting-only turn (« Allô ? », which Gladia returns as English « Hello? ») no longer switches the call to
+  English: the language changes only on a turn with 3+ words besides allô/hello/oui/yes.
 - Metrics to Seraph (`{kind:"metric"}`): `eot_to_transcript`, `say_to_audio` (+`wait_ms`), `release_to_audio`,
   `call_ack`, `call_turn` (+`report_facts_ms`), `call_say_queued`.
 
@@ -86,12 +101,35 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   says what she's doing; Gabriel asks).
 
 ## In progress
-- Nothing. Next if wanted: outbound SIP for `place_calls` (stubbed), a real-phone check of the talkie mic.
+- Outbound calls: blocked on the trunk below, then Amil's own test call. Also open: a real-phone check of the talkie mic.
 
 ## Blocked
--
+- **Outbound SIP trunk does not exist.** The LiveKit project has 0 outbound and 0 inbound trunks (checked 10:05);
+  inbound works through the LiveKit Phone Number, which cannot dial out. `LIVEKIT_SIP_OUTBOUND_TRUNK_ID` is empty.
 
 ## Requests (to other sessions or Amil)
+- **Amil — create the outbound trunk (≈15 min), then put its id in `.env`.** Telnyx requires a paid account.
+  1. Telnyx portal, a number: use a Telnyx number you own (caller id). None yet: buy one; a US number is instant, a
+     French one needs regulatory documents.
+  2. Telnyx » Voice » Outbound Voice Profiles » Create: traffic type Conversational, service plan Global, and **add
+     France to the allowed destinations** (otherwise calls to +33 are refused).
+  3. Telnyx » Voice » SIP Trunking » Create SIP connection, type **FQDN**: FQDN = the LiveKit project's SIP URI
+     (LiveKit dashboard » Settings » Project » SIP URI, without `sip:`), port 5060. « Outbound calls authentication »:
+     pick a username and a password. Inbound settings: number formats `+E.164`, transport TCP. Outbound settings:
+     the voice profile from step 2. Link the number from step 1.
+  4. LiveKit dashboard » Telephony » SIP trunks » Create » Outbound (or `lk sip outbound create trunk.json`):
+     ```json
+     {"trunk": {"name": "telnyx-out", "address": "sip.telnyx.com", "numbers": ["+<Telnyx number>"],
+                "auth_username": "<username>", "auth_password": "<password>",
+                "headers": {"X-Telnyx-Username": "<username>"}}}
+     ```
+     The username header makes Telnyx always challenge for the password (LiveKit's Telnyx page). It sits in
+     `headers`, the outbound trunk's field for custom INVITE headers; the page says `headers_to_attributes`, which
+     maps received headers to attributes.
+  5. `.env`: `LIVEKIT_SIP_OUTBOUND_TRUNK_ID=ST_…` (shown after step 4). Optional `LIVEKIT_SIP_OUTBOUND_NUMBER=+…` if
+     the trunk has several numbers. No restart needed.
+  6. Test: register your own number on `/inscription`, start an incident: Seraph's `place_calls` → your phone rings
+     from the Telnyx number, « Exercice. Bonjour, ici Gabriel… ». `gabriel/logs/calls.log` shows the SIP code on failure.
 - Amil — phone B needs HTTPS for the mic. `cloudflared` is not installed: `brew install cloudflared` then
   `cloudflared tunnel --url http://localhost:3000` (and set `TALKIE_PUBLIC_URL`), or deploy `talkie/` to Vercel with
   `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `TALKIE_TRANSPORT=livekit`. Gabriel itself needs no tunnel.

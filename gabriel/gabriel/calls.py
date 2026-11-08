@@ -12,7 +12,9 @@ own process so calls never block each other or the radio (docs/06-gabriel.md « 
   translated faithfully when `translate:true`.
 
 Run: `uv run gabriel-calls dev` (hot reload) or `uv run gabriel-calls start`. Web calls arrive by explicit dispatch
-from the talkie's `/api/call-token` with metadata `{call_id, occupant_id, direction, channel, lang}`.
+from the talkie's `/api/call-token` with metadata `{call_id, occupant_id, direction, channel, lang}`; inbound phone
+calls by the SIP dispatch rule (`{direction:"in", channel:"phone"}`); outbound phone calls by `dial.Dialer` with
+`phone_e164` added, and the agent dials it (`Call.dial`).
 """
 from __future__ import annotations
 
@@ -24,13 +26,14 @@ import time
 from typing import Any, AsyncIterable, Optional
 
 import aiohttp
-from livekit import rtc
+from google.protobuf.duration_pb2 import Duration
+from livekit import api, rtc
 from livekit.agents import Agent, AgentServer, AgentSession, JobContext, JobProcess, cli, room_io
 from livekit.plugins import gladia, silero
 from livekit.plugins.gladia import stt as gladia_stt
 from openai import AsyncOpenAI
 
-from . import config, gladia_live
+from . import config, dial, gladia_live
 from .seraph_link import SeraphLink, mask, mask_logs, now_iso
 from .tts import SR as TTS_SR, TTS
 
@@ -38,6 +41,9 @@ log = logging.getLogger("gabriel.calls")
 mask_logs()
 
 LANGS = ("fr", "en", "es")
+RING_S = 30                                     # outbound: ring this long before no_answer
+NO_ANSWER = {408, 480, 486, 487, 600, 603}       # timeout, unavailable, busy, cancelled, declined
+HELLO = {"hello", "allo", "allô", "hola", "hi", "oui", "yes", "sí", "si", "bonjour", "ok", "okay", "alo", "aló"}
 GREETING = {
     "fr": "Exercice. Bonjour, ici Gabriel, l'assistant vocal des pompiers. Où êtes-vous en ce moment ?",
     "en": "Exercise. Hello, this is Gabriel, the fire service's voice assistant. Where are you right now?",
@@ -262,6 +268,7 @@ class Call:
         self.direction: str = meta.get("direction") or ("out" if self.occ_id else "in")
         self.channel: str = meta.get("channel") or "web"
         self.lang = norm_lang(meta.get("lang"))
+        self.phone_e164: str = meta.get("phone_e164") or ""     # outbound phone call: the number to dial
         self.occ: dict = {}
         self.link = SeraphLink(self.on_seraph, name=f"call {self.call_id}")
         self.tts = TTS(http)
@@ -287,7 +294,7 @@ class Call:
             f"level {lv}: " + ", ".join(f"{r['id']} {r.get('use') or ''}".strip() for r in self.room_list if r.get("level") == lv)
             for lv in sorted({r.get("level") for r in self.room_list if r.get("level") is not None})) if self.room_list else ""
         self.confirm_room: Optional[str] = None       # a room to read back before sending it
-        self.sip_number = ""                          # phone callers only, never logged or sent in full
+        self.sip_number = self.phone_e164             # phone calls only, never logged or sent in full
         self.room_asked: set[str] = set()
 
     def listed(self) -> str:
@@ -372,8 +379,8 @@ class Call:
         if not ev.is_final or not (ev.transcript or "").strip():
             return
         log.debug("%s final: %s", self.call_id, ev.transcript)
-        if ev.language:
-            self.lang = norm_lang(str(ev.language), self.lang)
+        if ev.language and len([w for w in re.findall(r"\w+", ev.transcript.lower()) if w not in HELLO]) >= 3:
+            self.lang = norm_lang(str(ev.language), self.lang)   # « Allô ? » comes back as English « Hello? »
         self.pending.append(ev.transcript.strip())
         self.last_final_at = time.perf_counter()
         # A caller often says two sentences with a short pause: wait a moment for the next final.
@@ -508,13 +515,42 @@ class Call:
                 self.send_facts({"voice": v, "confidence": 0.6})
                 log.info("%s voice: %s/%s", self.call_id, emo, v["sentiment"])
 
-    async def end(self, why: str) -> None:
+    async def dial(self) -> Optional[rtc.RemoteParticipant]:
+        """Outbound phone call: ring the number through the SIP outbound trunk, wait for the answer. ringing →
+        answered, or no_answer (busy, declined, no pick-up) / failed (trunk or network) and the job ends."""
+        ident = f"occupant:{self.occ_id}" if self.occ_id else f"phone:{self.call_id}"
+        self.event("ringing")
+        t0 = time.perf_counter()
+        try:
+            await self.ctx.api.sip.create_sip_participant(api.CreateSIPParticipantRequest(
+                sip_trunk_id=dial.trunk(), sip_call_to=self.phone_e164, room_name=self.ctx.room.name,
+                participant_identity=ident, participant_name=self.occ.get("name") or "",
+                sip_number=config.live_env("LIVEKIT_SIP_OUTBOUND_NUMBER"), hide_phone_number=True,
+                ringing_timeout=Duration(seconds=RING_S), wait_until_answered=True))
+        except api.SipCallError as e:
+            ev = "no_answer" if e.sip_status_code in NO_ANSWER else "failed"
+            log.warning("%s %s %s: SIP %s %s", self.call_id, mask(self.phone_e164), ev, e.sip_status_code, e.sip_status)
+            await self.end(f"SIP {e.sip_status_code}", ev)
+            return None
+        except Exception as e:
+            log.error("%s %s failed: %s %s", self.call_id, mask(self.phone_e164), type(e).__name__, e)
+            await self.end("dial error", "failed")
+            return None
+        self.link.metric("call_dial", (time.perf_counter() - t0) * 1000, call_id=self.call_id)
+        return await asyncio.wait_for(self.ctx.wait_for_participant(identity=ident), 10)
+
+    async def end(self, why: str, event: str = "ended") -> None:
         if self.ended:
             return
         self.ended = True
-        self.event("ended")
-        log.info("%s ended (%s)", self.call_id, why)
+        self.event(event)
+        log.info("%s %s (%s)", self.call_id, event, why)
         await asyncio.sleep(0.3)          # let the event leave
+        if self.channel == "phone":       # hang up the phone line too (the agent leaving alone leaves it open)
+            try:
+                await asyncio.wait_for(self.ctx.delete_room(), 3)
+            except Exception:
+                pass
         self.ctx.shutdown(reason=why)
 
 
@@ -544,8 +580,12 @@ async def call_agent(ctx: JobContext) -> None:
     await ctx.connect()
     log.info("%s %s %s, lang %s, occupant %s", call.call_id, call.direction, call.channel, call.lang,
              call.occ.get("name") or "-")
-    caller = await ctx.wait_for_participant()
-    call.sip_number = caller.attributes.get("sip.phoneNumber") or caller.identity.removeprefix("sip_")
+    if call.phone_e164:
+        if not (caller := await call.dial()):
+            return
+    else:
+        caller = await ctx.wait_for_participant()
+    call.sip_number = call.phone_e164 or caller.attributes.get("sip.phoneNumber") or caller.identity.removeprefix("sip_")
     call.event("answered")
 
     session = AgentSession(

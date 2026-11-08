@@ -29,6 +29,21 @@ def env(name: str, default: str = "") -> str:
     return os.environ.get(name, default) or default
 
 
+def live_env(name: str, default: str = "") -> str:
+    """The root .env value now (filled in while running, no restart), else the process env."""
+    p = ROOT / ".env"
+    try:
+        for line in p.read_text(encoding="utf-8").splitlines():
+            k, sep, v = line.strip().partition("=")
+            if sep and k.strip() == name:
+                v = re.split(r"\s+#", v, 1)[0].strip().strip('"').strip("'")
+                if v:
+                    return v
+    except OSError:
+        pass
+    return env(name, default)
+
+
 MOCK = env("MOCK", "0") == "1"
 LIVEKIT_URL = env("LIVEKIT_URL")
 LIVEKIT_API_KEY = env("LIVEKIT_API_KEY")

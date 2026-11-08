@@ -26,10 +26,12 @@ import aiohttp
 from livekit import api, rtc
 
 from . import config, gladia_live
-from .seraph_link import SeraphLink, mask, now_iso
+from .dial import Dialer
+from .seraph_link import SeraphLink, mask_logs, now_iso
 from .tts import TTS
 
 log = logging.getLogger("gabriel.radio")
+mask_logs()
 
 SR_IN = gladia_live.SR          # 16 kHz to Gladia
 SR_OUT = config.TTS_SAMPLE_RATE  # 24 kHz from ElevenLabs
@@ -64,6 +66,7 @@ class Radio:
         self.http: Optional[aiohttp.ClientSession] = None
         self.tts: Optional[TTS] = None
         self.link = SeraphLink(self.on_seraph, name="radio")
+        self.dialer = Dialer(self.link)
         self.preroll: dict[str, collections.deque] = {}
         self.turns: dict[str, Turn] = {}
         self.streams: dict[str, asyncio.Task] = {}
@@ -183,9 +186,7 @@ class Radio:
     # ───────── speaking ─────────
     def on_seraph(self, msg: dict) -> None:
         if msg.get("kind") == "place_calls":
-            # Real phone calls (LiveKit SIP + Twilio) are not wired yet (Amil's call): occupants use the web call page.
-            who = ", ".join(f"{c.get('occupant_id')} {mask(c.get('phone_e164', ''))}" for c in msg.get("calls", []))
-            log.warning("place_calls received, SIP not wired: %s → web calls only (/call?occ=…)", who)
+            asyncio.create_task(self.dialer.place(msg.get("calls", [])))     # outbound phone calls, see dial.py
             return
         if msg.get("kind") != "say" or msg.get("target", {}).get("room") != "crew":
             return
