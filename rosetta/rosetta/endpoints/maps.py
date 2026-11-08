@@ -17,7 +17,7 @@ import httpx
 from PIL import Image, ImageDraw
 from pydantic import BaseModel, Field
 
-from ..core import Run, RunFailed, endpoint, short
+from ..core import Run, RunFailed, endpoint, is_demo_address, short
 from ..holo import ask_json, check_blocked, gather_limited, locate
 from .common import agent, deadline
 
@@ -130,7 +130,8 @@ class Storeys(BaseModel):
 @endpoint(name="maps.building", kind="real", access="read + vision", timeout_s=90, cache="golden", site="google",
           source_kind="maps", source_label="Maps",
           params={"address": "string", "expected_entrances": "{id, label, side?}[]?"},
-          cache_key=lambda p: str(p.get("address") or ""))
+          cache_key=lambda p: str(p.get("address") or ""),
+          cache_scope=lambda p: is_demo_address(p.get("address")))
 async def maps_building(run: Run) -> dict:
     page = run.page
     address = str(run.params.get("address") or "").strip()

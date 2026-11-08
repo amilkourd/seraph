@@ -183,7 +183,7 @@ class Cache:
             shutil.rmtree(d)
         d.mkdir(parents=True)
         for s in run.screenshots:
-            shutil.copy(SHOTS / f"{s['image_id']}.jpg", d / f"{s['image_id']}.jpg")
+            shutil.copy(SHOTS / f"{s['_file']}.jpg", d / f"{s['image_id']}.jpg")
         (d / "result.json").write_text(json.dumps({"key": key, "cached_at": now_iso(), "result": run.result(),
                                                    "steps": len(run.steps)}, ensure_ascii=False, indent=1))
 
@@ -234,6 +234,7 @@ class Endpoint:
     params: dict
     fn: Callable[[Run], Awaitable[dict]]
     cache_key: Optional[Callable[[dict], str]] = None
+    cache_scope: Optional[Callable[[dict], bool]] = None   # False → no golden path for these params (judge's address)
     site: str = ""                 # profile name (cookies persisted per site)
     verified: bool = True
     needs_browser: bool = True
@@ -241,6 +242,19 @@ class Endpoint:
 
 
 ENDPOINTS: dict[str, Endpoint] = {}
+
+
+def in_scope(ep: Endpoint, params: dict) -> bool:
+    return ep.cache_scope is None or bool(ep.cache_scope(params))
+
+
+def is_demo_address(a) -> bool:
+    """The golden path exists only for the demo address: any other address (a judge's) is live or failed, never cache."""
+    return bool(settings.demo_address) and slug(str(a or "")) == slug(settings.demo_address)
+
+
+def is_demo_town(t) -> bool:
+    return bool(settings.demo_town) and slug(str(t or "")) == slug(settings.demo_town)
 
 
 def endpoint(**kw):
@@ -384,10 +398,13 @@ class Runner:
         if error is None and output is not None:
             run.status, run.output, run.live = "ok", output, live
             if live:
-                for s in run.screenshots:      # the stable file = the last good live result
-                    shutil.copy(SHOTS / f"{s['_file']}.jpg", SHOTS / f"{s['image_id']}.jpg")
-                    s["url"] = shot_url(s["image_id"], run.run_id[-6:])
-                if ep and ep.cache and ep.cache_key and run.extra.get("cacheable", True):
+                # urls point at this run's own files (never overwritten: a judge's address can't replace the demo's
+                # pictures). The stable /shots/<image_id>.jpg = the demo golden path, updated only in cache scope.
+                demo = ep is not None and in_scope(ep, run.params)
+                for s in run.screenshots:
+                    if demo:
+                        shutil.copy(SHOTS / f"{s['_file']}.jpg", SHOTS / f"{s['image_id']}.jpg")
+                if ep and ep.cache and ep.cache_key and run.extra.get("cacheable", True) and demo:
                     cache.put(run, ep.cache_key(run.params))
             if ep:
                 ep.stats["live" if live else "cache"].append(int(1000 * (run.ended_at - run.started_at)))
@@ -400,17 +417,21 @@ class Runner:
             ep.stats["failed"] += 1
         await run.frame("échec", error or "", step=run.step_n)
         self._trace(run)
-        if ep and ep.cache and ep.cache_key and run.allow_cache:
+        if ep and ep.cache and ep.cache_key and run.allow_cache and in_scope(ep, run.params):
             key = ep.cache_key(run.params)
             c = cache.get(ep.name, key, 1800 if ep.cache == "30min" else None)
             if c:
-                cache.restore_shots(ep.name, key)
                 r = c["result"]
                 served = Run(run_id=run.run_id, endpoint=run.endpoint, params=run.params, priority=run.priority)
                 served.started_at, served.ended_at = run.started_at, time.time()
                 served.status, served.live, served.output = "ok", False, r.get("output")
-                served.screenshots = [{**s, "url": shot_url(s["image_id"], "cache"), "_file": s["image_id"]}
-                                      for s in r.get("screenshots", [])]
+                served.screenshots = []
+                for s in r.get("screenshots", []):
+                    name = f"cache--{slug(ep.name)}--{slug(key)[:40]}--{s['image_id']}"
+                    src = cache.path(ep.name, key) / f"{s['image_id']}.jpg"
+                    if src.exists():
+                        shutil.copy(src, SHOTS / f"{name}.jpg")
+                    served.screenshots.append({**s, "url": shot_url(name), "_file": name})
                 served.source = {**(r.get("source") or run.source or {}), "at": now_iso()}
                 served.error = f"live: {error} → cache du {c['cached_at'][:16].replace('T', ' ')}"
                 served.extra = {"cached_at": c["cached_at"], "cache_reason": error}

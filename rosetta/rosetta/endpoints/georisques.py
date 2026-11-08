@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 
 
-from ..core import Run, RunFailed, endpoint
+from ..core import Run, RunFailed, endpoint, is_demo_address
 from .common import agent
 from .maps import ban
 
@@ -18,7 +18,8 @@ TECHNO = re.compile(r"industriel|nucléaire|nucleaire|canalisation|transport de 
 
 @endpoint(name="georisques.risks", kind="real", access="read", timeout_s=45, cache="golden", site="georisques",
           source_kind="georisques", source_label="Géorisques", params={"address": "string"},
-          cache_key=lambda p: str(p.get("address") or ""))
+          cache_key=lambda p: str(p.get("address") or ""),
+          cache_scope=lambda p: is_demo_address(p.get("address")))
 async def georisques_risks(run: Run) -> dict:
     page = run.page
     address = str(run.params.get("address") or "").strip()

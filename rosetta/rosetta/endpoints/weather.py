@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from datetime import datetime, timezone
 
-from ..core import Run, RunFailed, endpoint, now_iso
+from ..core import Run, RunFailed, endpoint, is_demo_town, now_iso, slug
 from .common import agent
 
 DIRS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"]
@@ -19,7 +19,8 @@ def label_fr(code: str) -> str:
 
 @endpoint(name="weather.wind", kind="real", access="read", timeout_s=45, cache="30min", site="meteofrance",
           source_kind="meteo", source_label="Météo-France", params={"town": "string"},
-          cache_key=lambda p: str(p.get("town") or ""))
+          cache_key=lambda p: str(p.get("town") or ""),
+          cache_scope=lambda p: is_demo_town(p.get("town")))
 async def weather_wind(run: Run) -> dict:
     page = run.page
     town = str(run.params.get("town") or "").strip()
@@ -36,7 +37,7 @@ async def weather_wind(run: Run) -> dict:
         await page.wait_for_timeout(800)
         if "/previsions-meteo-france/" not in page.url:
             return False, "the town's forecast page is not open"
-        name = town.split()[0].lower()
+        name = slug(town).split("-")[0]                 # « Saint-Étienne » → saint, matches the URL slug
         if name not in page.url.lower():
             return False, f"the forecast is not for {town}"
         return await wind.count() > 0, "wind block"

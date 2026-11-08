@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 06:35
+Updated: 07:10
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -45,6 +45,14 @@ dispatch.read 5.2 s → in parallel occupants.list 4.9 s · plan.read 6.2 s (lev
 georisques.risks 18.1 s · maps.building 37.9 s (2 entrances, 4 views → « Approche calculée : E1 … »). A first start
 just before: 9.3 / 4.2 / 8.8 / 19.6 / 20.0 / 41.6 s, all live. Cams on the dashboard grid (checked live).
 
+**Judge's address (any address ≠ `DEMO_ADDRESS`, 07:00, test instance :8011)**: maps.building, georisques.risks,
+weather.wind run live only: no golden path written or served (`cache_scope`: demo address / `DEMO_TOWN` only).
+1 place Bellecour, 69002 Lyon: weather 16.9 s (SSE 5 km/h) · Géorisques 23.8 s (9 risks incl. rupture de barrage) ·
+Maps 38.5 s (E1 + truck on the top view, 3 Street View, 5 storeys; roof outline rejected by the checks). An address
+not in the BAN fails visibly in 1.9 s. A failed live run at a judge's address = `failed`, never another address's cache.
+Result URLs are now per run (`/shots/<run_id>--<image_id>.jpg`, never overwritten); `/shots/<image_id>.jpg` stays the
+demo golden path (updated only by demo-address runs). Cache serve copies its own `cache--…` files.
+
 ## In progress
 - `/explore` + Linkup (written by Amil's main session, committed here): no `LINKUP_API_KEY` in `.env` yet, so Linkup
   says « pas de clé » and the fixed list of official sites is used. Live check of that path (06:30, test instance
@@ -57,7 +65,7 @@ just before: 9.3 / 4.2 / 8.8 / 19.6 / 20.0 / 41.6 s, all live. Cams on the dashb
 -
 
 ## Requests (to other sessions or Amil)
-- @seraph: pass `level` -1 for the R-1 plan (dispatch replica still says level 3).
+- @seraph: for a judge's address, send `weather.wind` the dispatch `commune` (not `DEMO_TOWN`), and skip `plan.read` when there is no model and no posted plan for that address.
 - Amil / H staff: the H key's quota is ~30 calls per minute window **per model** (measured). Rosetta paces each model
   and spreads load (agent: holo4-35b-a3b then holo4-27b; pointing: holo4-27b, holo3-1-35b-a3b). A higher quota on
   holo4-35b-a3b would make the stage run safer, especially if another session uses the same key.

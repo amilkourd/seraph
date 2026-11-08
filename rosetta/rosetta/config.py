@@ -61,6 +61,7 @@ class Settings:
     point_models: list
     headless: bool
     demo_address: str
+    demo_town: str
     replica_password: str
     dispatch_url: str
     report_url: str
@@ -84,6 +85,7 @@ def load() -> Settings:
         point_models=env("HOLO_POINT_MODELS", "holo4-27b,holo3-1-35b-a3b," + env("HOLO_MODEL", "holo4-35b-a3b")).split(","),
         headless=env("ROSETTA_HEADLESS", "0") == "1",
         demo_address=env("DEMO_ADDRESS"),
+        demo_town=env("DEMO_TOWN"),
         replica_password=env("REPLICA_PASSWORD"),
         dispatch_url=env("DISPATCH_URL", "http://localhost:8101").rstrip("/"),
         report_url=env("REPORT_URL", "http://localhost:8102").rstrip("/"),
