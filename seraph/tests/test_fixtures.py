@@ -150,10 +150,11 @@ def test_full_replay_v2():
     for exp_h in R["R02"]["expected"]["hazards"]:
         h = hz[(exp_h["kind"], tuple(sorted(exp_h["where"].items())))]
         assert h.source.confirmed and h.source.label == "Tête" and h.severity == exp_h["severity"]
-    assert crew(says["R03"])[0].startswith("Reçu, binôme 1 engagé, 300 bars, sortie prévue à")
+    assert crew(says["R03"]) == ["Reçu, binôme 1 engagé, escalier A."]      # air tracking off (ARI_ENABLED=0)
+    assert b.team("B1", create=False).exit_by is None
     assert not [a for a in b.state.alerts if a.text_fr.startswith("Binôme 1, escalier A")]   # single stair: no « passez par »
     assert crew(says["R04"]) == [R["R04"]["expected"]["say_crew"]]
-    assert any(v["moment"] == "team_engaged" for v in b.views)
+    assert not any(v["moment"] == "team_engaged" for v in b.views)
     assert any(v["moment"] == "commander_request" and v["purpose_fr"] == "Position des binômes par étage" for v in b.views)
     # R07 → Tom's gate: English, balcony, ladder point 2.17
     tom = [s for s in says["R07"] if s["target"].get("call_id") == "CALL-02"]
@@ -213,11 +214,13 @@ def test_no_standing_instruction_without_the_cos():
     assert not [s for s in b.say_log if s["target"].get("call_id")]
 
 
-def test_air_alarm():
+def test_air_alarm_when_enabled(monkeypatch):
     from datetime import datetime, timedelta, timezone
+    monkeypatch.setattr(type(settings), "ari_enabled", property(lambda self: True), raising=False)
     b = v2()
     radio(b, R["R03"])
     t = b.team("B1", create=False)
+    assert t.exit_by and t.pressure_bar_start == 300
     t.exit_by = (datetime.now(timezone.utc) + timedelta(seconds=10)).isoformat().replace("+00:00", "Z")
     b.tick()
     assert any(s["text"] == "Binôme 1 de Seraph, sortie dans 5 minutes." for s in b.say_log)

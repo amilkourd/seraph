@@ -1484,7 +1484,7 @@ class Brain:
         was = t.status
         if td.get("status"):
             t.status = td["status"]
-        if td.get("pressure_bar_start"):
+        if td.get("pressure_bar_start") and settings.ari_enabled:
             t.pressure_bar_start = int(td["pressure_bar_start"])
         loc = td.get("location") or {}
         if loc:
@@ -1498,7 +1498,7 @@ class Brain:
             t.entered_at = now_iso()
             if self.state.incident.status in ("dispatched", "en_route"):
                 self.state.incident.status = "on_scene"
-        if t.status == "engaged" and t.pressure_bar_start and t.entered_at:
+        if settings.ari_enabled and t.status == "engaged" and t.pressure_bar_start and t.entered_at:
             mins = (t.pressure_bar_start - 60) / 8 * 0.5 / settings.ari_time_factor
             t.exit_by = iso(parse_iso(t.entered_at) + timedelta(minutes=mins))
             self.air_alarm.discard(f"{t.id}:5")
@@ -1517,6 +1517,10 @@ class Brain:
             self._maybe_inside_route()
         # moment: first team engaged
         if t.status == "engaged" and was != "engaged":
+            if not settings.ari_enabled:      # teams as positions only: no air, no « Mon air » view
+                where = f", escalier {t.location.stair}" if t.location and t.location.stair else (
+                    f", {level_fr(t.location.level)}" if t.location and t.location.level is not None else "")
+                return f"Reçu, {t.label.lower()} engagé{where}."
             self.request_moment("team_engaged", "Mon air : binômes, compte à rebours de sortie", ["crew.teams"], deadline_s=120)
             if t.exit_by:
                 return f"Reçu, {t.label.lower()} engagé, {t.pressure_bar_start} bars, sortie prévue à {hhmm(t.exit_by)}. Calcul simplifié."
@@ -1528,7 +1532,7 @@ class Brain:
         if target:
             info = self._room_info(target)
             return addressed(t.label, f"reçu. En {target}, {info}." if info else "reçu.")
-        if td.get("pressure_bar_start") and t.exit_by:
+        if settings.ari_enabled and td.get("pressure_bar_start") and t.exit_by:
             return f"Reçu, {t.label.lower()}, sortie prévue à {hhmm(t.exit_by)}. Calcul simplifié."
         return addressed(t.label, "reçu.")
 
@@ -1704,6 +1708,8 @@ class Brain:
             return addressed(dest, ("selon Géorisques : " + ", ".join(r.label.lower() for r in rs) + ".") if rs else "Géorisques pas encore lu.")
         if topic == "building":
             return addressed(dest, self._building_answer(p.body))
+        if topic == "air" and not settings.ari_enabled:
+            return addressed(dest, "pas de suivi de l'air.")
         if topic == "air":
             ts = [self.team(d["team"], create=False)] if d.get("team") else [t for t in self.state.crew.teams if t.status == "engaged"]
             ts = [t for t in ts if t]
@@ -1902,7 +1908,7 @@ class Brain:
                 self.touch()
         f = settings.ari_time_factor
         for t in self.state.crew.teams:
-            if t.status != "engaged" or not t.exit_by:
+            if not settings.ari_enabled or t.status != "engaged" or not t.exit_by:
                 continue
             left = (parse_iso(t.exit_by) - nowdt).total_seconds()
             if left <= 5 * 60 / f and f"{t.id}:5" not in self.air_alarm:

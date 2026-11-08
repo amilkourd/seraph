@@ -56,6 +56,7 @@ class Settings:
     building_json: Path
     plan_image_path: Path
     ari_time_factor: float
+    ari_enabled: bool              # air tracking (exit_by, T-5 / T-0, « Mon air » view). Off for the demo (Amil, 06:40)
     llm_base_url: str
     llm_api_key: str
     llm_model: str
@@ -87,6 +88,7 @@ def load() -> Settings:
         building_json=bj,
         plan_image_path=_repo_path(env("PLAN_IMAGE_PATH", "contracts/fixtures/plan-level3.svg")),
         ari_time_factor=float(env("ARI_TIME_FACTOR", "10") or 10),
+        ari_enabled=env("ARI_ENABLED", "0") == "1",
         llm_base_url=env("LLM_BASE_URL"),
         llm_api_key=env("LLM_API_KEY"),
         llm_model=env("LLM_MODEL"),
