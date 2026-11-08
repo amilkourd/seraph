@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 04:55
+Updated: 05:08
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -76,6 +76,18 @@ Updated: 04:55
   `model.plan_frame.px_per_m` (1 unit = 1 m; 50 px/m without it); levels spaced by `elevation_m` + 4 m. Stair shaft
   edges run through the holes. The camera fits the model left of the callout column (main view) or centred (split).
   Checked live on TU Wien R-1…R+3, both views.
+- Quiet levels are grey (Amil, via the Seraph review): a level with nothing going on has grey slab edges, grey walls,
+  a grey label, no fills, no people, no callouts; an active level is full white with its fills and callouts. Active =
+  `levels[].focus` when Seraph sends it, else fire/smoke on the level, someone still inside, an engaged team, or a
+  route's target (`level:N` / `room:X`). A level that becomes active fades up from grey in 600 ms (lines, fills,
+  tags, its callouts). Computed routes are drawn even on a grey level. Checked live and with a forced change.
+- Scenario v2 (TU Wien): the active ladder point (the `to` of an evacuation route ending at `ladder:<room>`) is a flat
+  Silex-green balcony with a callout « Échelle · <who is heading there> → 2.17 · Balcon »; the other ladder points
+  stay plain. Key R walks R01…R15. Seraph's `levels[].focus` is live and used.
+- Nobody is drawn outside the building: a person or team whose room is not on the plan (none, or mis-heard like
+  « 2 ») goes in their level's corridor, else next to the stair core, else the middle of the slab, spread 1.2 m apart
+  while still on the slab; the pastille gets « ? », a callout is titled « Pièce à confirmer ». Checked on the mock
+  state (Inès with room « 2 », Sophie with an unknown room): every level's fallback spot is on its slab.
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
@@ -86,7 +98,8 @@ Updated: 04:55
 ## Requests (to other sessions or Amil)
 - Amil (`contracts/types.ts`): add what Seraph already serves and the dashboard reads — `Route.path?: [x, y][]`,
   `path_level?`, `path_image_id?`; `rooms[].kind` (room|corridor|elevator|exterior); `stairs[].zones` ({level, zone}[]);
-  `levels[].outline?: {outer, holes}[]`; `building.model.plan_frame.px_per_m`.
+  `levels[].outline?: {outer, holes}[]`, `levels[].focus?: boolean`, `focus_reasons?: string[]`;
+  `building.model.plan_frame.px_per_m`.
 - Amil (`contracts/api.md`): document `/admin/replay_line`, `/admin/call_now` (used on keys R and A).
 
 ## Facts I verified (API names, model ids, gotchas)

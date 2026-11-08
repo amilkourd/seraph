@@ -244,12 +244,14 @@ mark.src {
 .b3-level .b3-warn { color: #ff9c5a; }
 .b3-dot-sm { width: 13px; height: 13px; border-width: 2px; }
 .b3-level-hi { color: #fff; }
+.b3-level-dim { color: #54524f; }
 .b3-mark { display: flex; align-items: center; gap: 8px; }
 .b3-dot { display: block; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #000; flex: none; }
 .b3-dot-life { background: #3fd68a; }
 .b3-dot-warn { background: #ff9c5a; }
 .b3-dot-fire { background: #f2560f; box-shadow: 0 0 0 0 rgba(242, 86, 15, 0.8); animation: b3-ping 1.6s ease-out infinite; }
 .b3-dot-dim { background: #000; border-color: #8e8c87; }
+.b3-q { background: transparent; color: #fff; font-size: 18px; padding: 0; }
 .b3-team { display: block; width: 16px; height: 16px; background: #fff; border: 3px solid #000; transform: rotate(45deg); flex: none; }
 @keyframes b3-ping {
   to { box-shadow: 0 0 0 16px rgba(242, 86, 15, 0); }

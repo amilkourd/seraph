@@ -17,7 +17,7 @@ import { OCC_STATUS, hm, levelLabel } from "@/lib/fr";
 
 // Colours from brand/tokens.css, by meaning: fire and danger = Seraph (blackbody), smoke = Seraph 300, people = Silex,
 // structure and our crews = Halo white.
-const C = { ink: "#ffffff", line: "#d0cecb", dim: "#54524f", fire: "#f2560f", warn: "#ff9c5a", life: "#3fd68a", lit: "#e7e6e4" };
+const C = { ink: "#ffffff", line: "#d0cecb", dim: "#54524f", mute: "#3a3937", fire: "#f2560f", warn: "#ff9c5a", life: "#3fd68a", lit: "#e7e6e4" };
 const PX_PER_M = 50; // plan units (0–1000) per metre, when the model does not give its plan_frame
 const STEP = 9; // vertical distance between two floor plates when levels have no elevation
 const EXPLODE = 4; // added between levels on top of their real height (elevation_m, 1 world unit = 1 m)
@@ -26,6 +26,7 @@ const FLAT = 0.03; // the plan is drawn flat on the plate, just above its top fa
 const CORE = 1.6; // stair core, a small square on every plate
 const ELEV = (32 * Math.PI) / 180; // starting view
 const AZ = 0.62;
+const FADE = 600; // ms: a level that becomes active comes up from grey
 
 type Box = { x: number; y: number; w: number; h: number };
 // Seraph serves these on routes (status/seraph.md); not in contracts/types.ts yet — requested from Amil
@@ -33,9 +34,12 @@ type PathRoute = Route & { path?: [number, number][]; path_level?: number; path_
 // …and these from the IFC extract (rooms[].kind, stairs[].zones); also requested in contracts/types.ts
 type KindRoom = Building["rooms"][number] & { kind?: "room" | "corridor" | "elevator" | "exterior" };
 type ZonedStair = Building["stairs"][number] & { zones?: { level: number; zone: number[][] }[] };
+// …and Seraph computes which levels matter (levels[].focus), so the dashboard and Halo grey out the same ones
+type FocusLevel = Building["levels"][number] & { outline?: unknown; focus?: boolean; focus_reasons?: string[] };
 type V3 = [number, number, number];
-type Note = { pos: THREE.Vector3; tone: string; title: string; index: string; lines: string[]; rank: number };
+type Note = { pos: THREE.Vector3; level: number; tone: string; title: string; index: string; lines: string[]; rank: number };
 type NoteEl = Note & { box: HTMLDivElement; frame: SVGPathElement; leader: SVGPathElement; leaderDark: SVGPathElement; mark: SVGGElement; h: number };
+type Fade = { t0: number; lines: [LineMaterial, THREE.Color][]; fills: [THREE.MeshBasicMaterial, number, boolean][]; els: (HTMLElement | SVGElement)[] };
 
 // callouts, in the container's px: a column right of the building, above the radio
 const FIT = { left: 80, gap: 28, top: 36 }; // px kept free around the model: level labels, callout column, edges
@@ -99,6 +103,10 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
     controls.maxZoom = 3;
     let model: THREE.Group | null = null;
     let fitted = false;
+    // levels shown active at the last build, when each one became active, and the fades running
+    let shown: Set<number> | null = null;
+    const since = new Map<number, number>();
+    let fades: Fade[] = [];
 
     const line = (color: string, width: number) => {
       const m = new LineMaterial({ color, linewidth: width });
@@ -151,7 +159,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       const pts = new Map((b.plan?.points ?? []).map((p) => [p.name, [p.point.x, p.point.y] as [number, number]]));
       const rooms = (b.rooms as KindRoom[]).filter((r) => r.zone && r.zone.length >= 3);
       const stairs = b.stairs as ZonedStair[];
-      const outlines = new Map(levels.map((l) => [l.level, readOutline((l as Building["levels"][number] & { outline?: unknown }).outline)]));
+      const outlines = new Map(levels.map((l) => [l.level, readOutline((l as FocusLevel).outline)]));
       const all = [
         ...rooms.flatMap((r) => r.zone as number[][]),
         ...stairs.flatMap((st) => (st.zones ?? []).flatMap((z) => z.zone)),
@@ -173,6 +181,26 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       const targetRoom = victim?.to.startsWith("room:") ? victim.to.slice(5) : null;
       const focus = targetRoom ? rooms.find((r) => r.id === targetRoom)?.level : s.incident.origin?.floor;
       const hz = b.hazards;
+
+      // levels with nothing going on are grey (Amil): Seraph's levels[].focus when it sends it; else a level is active
+      // with fire or smoke, someone still inside, an engaged team, or a route's target
+      const active = new Set<number>();
+      if (levels.some((l) => typeof (l as FocusLevel).focus === "boolean")) {
+        for (const l of levels) if ((l as FocusLevel).focus) active.add(l.level);
+      } else {
+        for (const h of hz) if ((h.kind === "fire" || h.kind === "smoke") && h.where.level != null) active.add(h.where.level);
+        for (const o of s.occupants) if (o.status !== "safe_outside" && o.level != null) active.add(o.level);
+        for (const t of s.crew.teams) if (t.status === "engaged" && t.location?.level != null) active.add(t.location.level);
+        for (const r of s.routes) {
+          const lv = r.to.startsWith("level:") ? Number(r.to.slice(6)) : r.to.startsWith("room:") ? rooms.find((x) => x.id === r.to.slice(5))?.level : undefined;
+          if (lv != null && !Number.isNaN(lv)) active.add(lv);
+        }
+      }
+      const now = performance.now();
+      for (const lv of active) if (shown && !shown.has(lv) && !since.has(lv)) since.set(lv, now);
+      for (const [lv, t0] of since) if (!active.has(lv) || now - t0 >= FADE) since.delete(lv);
+      shown = active;
+      const groups = new Map<number, THREE.Group>();
       // real storey heights when the model has them, plus the exploded gap; else an even step
       const elev = (l: Building["levels"][number]) => l.elevation_m;
       const hasElev = levels.every((l) => elev(l) != null);
@@ -188,10 +216,38 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         return p ? W(...p) : null;
       };
 
+      // Someone whose room is not on the plan (none, or a mis-heard one) is never drawn outside the building: they go
+      // in their level's corridor, else next to the stair core, else the middle of the slab; the i-th one is moved
+      // aside by 1.2 m steps while it stays on the slab. Plan coordinates.
+      const onSlab = (lv: number, px: number, pz: number) =>
+        outlines.get(lv)?.some((p) => inside(px, pz, p.outer) && !p.holes.some((h) => inside(px, pz, h))) ?? true;
+      const near = (lv: number, i: number): [number, number] => {
+        const corr = rooms.find((r) => r.level === lv && r.kind === "corridor");
+        const c = corr && centroid(corr.zone as number[][]);
+        const core = stairs.flatMap((st) => st.zones?.filter((z) => z.level === lv) ?? [])[0]?.zone;
+        const slab = outlines.get(lv)?.reduce((a, p) => (Math.abs(area(p.outer)) > Math.abs(area(a.outer)) ? p : a));
+        const mid = slab && centroid(slab.outer);
+        const base: [number, number] =
+          c && inside(c[0], c[1], corr!.zone as number[][]) ? c
+          : core ? centroid(core)
+          : mid && onSlab(lv, mid[0], mid[1]) ? mid
+          : [(x0 + x1) / 2, (z0 + z1) / 2];
+        const step = Math.ceil(i / 2) * 1.2 * M * (i % 2 ? 1 : -1);
+        return i && onSlab(lv, base[0] + step, base[1]) ? [base[0] + step, base[1]] : base;
+      };
+
+      // the active ladder points: where an evacuation route ends at « ladder:<room> », the balcony or terrace the fire
+      // service's ladder reaches; the other ladder points of the model stay as they are
+      const ladders = new Set(s.routes.filter((r) => r.purpose === "evacuation" && r.to.startsWith("ladder:")).map((r) => r.to.slice(7)));
+
       let focusPlate: THREE.Object3D | null = null;
       for (const l of levels) {
         const fy = floorY(l.level);
         const hi = l.level === focus;
+        const on = active.has(l.level);
+        const lg = new THREE.Group();
+        g.add(lg);
+        groups.set(l.level, lg);
 
         // the slab is the plan: its real outline (levels[].outline from the IFC), else the union of the level's
         // rooms, with holes where the stair and lift shafts go through; a plain plate only when the level has no rooms
@@ -208,37 +264,40 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         for (const shape of polys ? shapes(polys, W) : [rect(-fw / 2, -fd / 2, fw, fd)]) {
           const geo = new THREE.ExtrudeGeometry(shape, { depth: SLAB, bevelEnabled: false });
           geo.rotateX(-Math.PI / 2);
-          const part = outlined(geo, solid("#000"), line(hi ? C.ink : C.line, hi ? 3.5 : 2.4));
+          const part = outlined(geo, solid("#000"), on ? line(C.ink, hi ? 3.5 : 2.8) : line(C.dim, 2.2));
           part.position.y = fy - SLAB;
           plate.add(part);
         }
-        g.add(plate);
+        lg.add(plate);
         if (hi) focusPlate = plate;
         const corner = polys ? polys.flatMap((p) => p.outer).map(([px, pz]) => W(px, pz)).reduce((a, p) => (p[0] - p[1] < a[0] - a[1] ? p : a)) : [-fw / 2, fd / 2];
-        at(tag(l.label, hi ? "b3-level b3-level-hi" : "b3-level"), [corner[0], fy - SLAB / 2, corner[1]], g);
+        at(tag(l.label, on ? "b3-level b3-level-hi" : "b3-level b3-level-dim"), [corner[0], fy - SLAB / 2, corner[1]], lg);
 
-        // its rooms, flat on the plate: walls as lines; fire = red floor, the room we go to = lit floor
+        // its rooms, flat on the plate: walls as lines; fire = red floor, the room we go to = lit floor; a grey
+        // level has grey walls and no fills
         for (const r of rooms.filter((x) => x.level === l.level)) {
           const poly = (r.zone as number[][]).map(([px, pz]) => W(px, pz));
           const fire = hz.some((h) => h.kind === "fire" && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
           const smoke = hz.some((h) => h.kind === "smoke" && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
           const lit = r.id === targetRoom;
+          const ladder = ladders.has(r.id);
           if (lit) litPoly = poly.map(([wx, wz]) => new THREE.Vector3(wx, fy + FLAT, wz));
-          if (fire || lit || smoke) {
+          if (on && (fire || lit || smoke || ladder)) {
             const floor = new THREE.Mesh(
               new THREE.ShapeGeometry(new THREE.Shape(poly.map(([wx, wz]) => new THREE.Vector2(wx, -wz)))),
-              fire ? solid(C.fire) : lit ? solid(C.lit) : solid(C.warn, 0.45),
+              fire ? solid(C.fire) : lit ? solid(C.lit) : ladder ? solid(C.life, 0.55) : solid(C.warn, 0.45),
             );
             floor.rotation.x = -Math.PI / 2;
             floor.position.y = fy + FLAT / 2;
-            g.add(floor);
+            lg.add(floor);
           }
           // terraces and other outside areas recede
-          g.add(walls(poly, fy + FLAT, line(fire ? C.fire : r.kind === "exterior" ? C.dim : C.line, r.kind === "exterior" ? 1.6 : 2.4)));
+          const out = r.kind === "exterior";
+          lg.add(walls(poly, fy + FLAT, on ? line(fire ? C.fire : ladder ? C.life : out ? C.dim : C.line, out && !ladder ? 1.6 : 2.4) : line(out ? C.mute : C.dim, out ? 1.4 : 1.8)));
         }
 
         // smoke on a named spot without a zone (e.g. the corridor): a flat amber patch
-        for (const h of hz.filter((x) => x.kind === "smoke" && x.where.level === l.level && x.where.room)) {
+        for (const h of hz.filter((x) => on && x.kind === "smoke" && x.where.level === l.level && x.where.room)) {
           if (rooms.some((r) => sameRoom(h.where.room, r) && r.level === l.level)) continue;
           const p = pts.get(h.where.room!) ?? pts.get(`room:${h.where.room}`);
           if (!p) continue;
@@ -246,7 +305,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           const patch = new THREE.Mesh(new THREE.CircleGeometry(95 / M, 48), solid(C.warn, 0.35));
           patch.rotation.x = -Math.PI / 2;
           patch.position.set(wx, fy + 0.02, wz);
-          g.add(patch);
+          lg.add(patch);
         }
 
         // stairs on this plate: the IFC outline when there is one, else a square core at the plan point;
@@ -259,13 +318,13 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           const smoky = st.status === "smoke" || hz.some((h) => h.kind === "smoke" && h.where.stair === st.id);
           const h = CORE / 2;
           const outline: [number, number][] = zone ? zone.map(([px, pz]) => W(px, pz)) : [[wx - h, wz - h], [wx + h, wz - h], [wx + h, wz + h], [wx - h, wz + h]];
-          if (smoky) {
+          if (on && smoky) {
             const floor = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)))), solid(C.warn));
             floor.rotation.x = -Math.PI / 2;
             floor.position.y = fy + FLAT / 2;
-            g.add(floor);
+            lg.add(floor);
           }
-          g.add(walls(outline, fy + FLAT, line(smoky ? C.warn : C.ink, 2.6)));
+          lg.add(walls(outline, fy + FLAT, on ? line(smoky ? C.warn : C.ink, 2.6) : line(C.dim, 2)));
           if (l === levels.at(-1)) at(tag(st.id, smoky ? "b3-warn b3-center" : "b3-center"), [wx, fy + 0.3, wz], g);
         }
       }
@@ -286,20 +345,18 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         g.add(new LineSegments2(new LineSegmentsGeometry().setPositions(segs), line(smoky ? C.warn : C.ink, 2)));
       }
 
-      // people where they are: in their room when we know it, else along the front edge of their plate
+      // people where they are: in their room when we know it, else inside their level (see near), marked « ? »
       const spot = (level: number, room?: string): [number, number] | null => {
         const r = rooms.find((x) => sameRoom(room, x) && x.level === level);
         const p = r ? centroid(r.zone as number[][]) : room ? (pts.get(`room:${room}`) ?? pts.get(room)) : undefined;
         return p ? W(...p) : null;
       };
-      const inside = s.occupants.filter((o) => o.status !== "safe_outside" && o.level != null && levels.some((l) => l.level === o.level));
-      const lanes = new Map<number, Occupant[]>();
-      for (const o of inside) if (!spot(o.level!, o.room)) lanes.set(o.level!, [...(lanes.get(o.level!) ?? []), o]);
+      const indoors = s.occupants.filter((o) => o.status !== "safe_outside" && o.level != null && levels.some((l) => l.level === o.level));
+      const strays = new Map<number, Occupant[]>();
+      for (const o of indoors) if (!spot(o.level!, o.room)) strays.set(o.level!, [...(strays.get(o.level!) ?? []), o]);
       const where = (o: Occupant): V3 => {
-        const xz = spot(o.level!, o.room);
-        if (xz) return [xz[0], floorY(o.level!) + 0.1, xz[1]];
-        const lane = lanes.get(o.level!)!;
-        return [-fw / 2 + (fw * (lane.indexOf(o) + 1)) / (lane.length + 1), floorY(o.level!) + 0.1, fd / 2 - 1.5];
+        const xz = spot(o.level!, o.room) ?? W(...near(o.level!, strays.get(o.level!)!.indexOf(o)));
+        return [xz[0], floorY(o.level!) + 0.1, xz[1]];
       };
 
       // No route line: the state gives the route as a list of nodes (stair → corridor → room), not a path. Joining
@@ -309,7 +366,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       // callouts: only what calls for attention — the fire, people to reach, our team, a caller heading into smoke
       const list: Note[] = [];
       const v3 = (p: V3) => new THREE.Vector3(...p);
-      for (const h of hz.filter((x) => x.kind === "fire" && x.where.level != null && x.where.room)) {
+      for (const h of hz.filter((x) => x.kind === "fire" && x.where.level != null && active.has(x.where.level) && x.where.room)) {
         const r = rooms.find((x) => x.id === h.where.room && x.level === h.where.level);
         const p = r ? centroid(r.zone as number[][]) : pts.get(`room:${h.where.room}`);
         if (!p) continue;
@@ -317,6 +374,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         const [fx, fz] = W(...p);
         list.push({
           pos: v3([fx, floorY(h.where.level!) + 0.1, fz]),
+          level: h.where.level!,
           tone: C.fire,
           rank: 0,
           title: "Feu",
@@ -326,7 +384,8 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       }
       const smoky = (stair?: string) => b.stairs.some((st) => `stair:${st.id}` === stair && st.status !== "clear");
       const noted = new Set<string>();
-      for (const o of inside) {
+      for (const o of indoors) {
+        if (!active.has(o.level!)) continue;
         const urgent = o.status === "needs_help" || o.status === "trapped";
         const target = o.room === targetRoom;
         const intoSmoke = o.status === "moving" && smoky(o.heading_to);
@@ -335,33 +394,53 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         const n = o.people_count && o.people_count > 1 ? `${o.people_count} pers. · ` : "";
         list.push({
           pos: v3(where(o)),
+          level: o.level!,
           tone: urgent ? C.fire : intoSmoke ? C.warn : C.life,
           rank: urgent ? 1 : intoSmoke ? 2 : 4,
-          title: o.room ?? "?",
+          title: spot(o.level!, o.room) ? o.room! : "Pièce à confirmer",
           index: levelLabel(s, o.level),
           lines: intoSmoke
             ? [`${o.name ?? o.id} → esc. ${o.heading_to!.split(":")[1]}`, "→ escalier enfumé"]
             : [`${n}${o.name ?? o.id}${o.mobility_issue ? " · PMR" : ""}`, `→ ${OCC_STATUS[o.status]}`],
         });
       }
-      for (const t of s.crew.teams.filter((x) => x.status === "engaged" && x.location?.level != null)) {
+      for (const id of ladders) {
+        const r = rooms.find((x) => x.id === id);
+        if (!r || !active.has(r.level)) continue;
+        const [lx, lz] = W(...centroid(r.zone as number[][]));
+        const who = s.occupants.filter((o) => o.heading_to === `ladder:${id}` && o.status !== "safe_outside");
+        list.push({
+          pos: v3([lx, floorY(r.level) + 0.1, lz]),
+          level: r.level,
+          tone: C.life,
+          rank: 2,
+          title: "Échelle",
+          index: levelLabel(s, r.level),
+          lines: [who.map((o) => o.name ?? o.id).join(", ") || "—", `→ ${(r.label ?? id).replace(/^(\S+)\s+/, "$1 · ")}`],
+        });
+      }
+      for (const t of s.crew.teams.filter((x) => x.status === "engaged" && x.location?.level != null && active.has(x.location.level))) {
         const lv = t.location!.level!;
         const loc = t.location;
         const room = loc?.room ? rooms.find((x) => sameRoom(loc.room, x) && x.level === lv) : undefined;
         const st = loc?.stair ? stairs.find((x) => x.id === loc.stair) : undefined;
         const named = loc?.room ? (pts.get(loc.room) ?? pts.get(`room:${loc.room}`)) : undefined;
         const p = room ? W(...centroid(room.zone as number[][])) : named ? W(...named) : st ? stairAt(st) : null;
-        const [tx, tz] = p ?? [0, 0];
+        const [tx, tz] = p ?? W(...near(lv, 0));
         list.push({
           pos: v3([tx, floorY(lv) + 0.1, tz]),
+          level: lv,
           tone: C.ink,
           rank: 3,
           title: t.id,
           index: levelLabel(s, lv),
-          lines: [loc?.room === "corridor" ? "Circulation" : (loc?.room ?? (loc?.stair ? `Esc. ${loc.stair}` : "—")), t.exit_by ? `→ sortie ${hm(t.exit_by)}` : `→ ${t.label}`],
+          lines: [
+            loc?.room === "corridor" ? "Circulation" : room || named ? loc!.room! : st ? `Esc. ${st.id}` : "Pièce à confirmer",
+            t.exit_by ? `→ sortie ${hm(t.exit_by)}` : `→ ${t.label}`,
+          ],
         });
       }
-      for (const o of inside) if (!noted.has(o.id)) at(person(o), where(o), g);
+      for (const o of indoors) if (!noted.has(o.id) && active.has(o.level!)) at(person(o, !spot(o.level!, o.room)), where(o), groups.get(o.level!)!);
 
       // Seraph's route, only when it is a computed path on the plan (through the gaps between zones, never a guess):
       // our way in white, an evacuation in Silex green; a dark casing keeps it readable on the lit room
@@ -372,10 +451,29 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           const [wx, wz] = W(px, pz);
           return [wx, y, wz];
         });
-        route(g, pts3, r.purpose === "evacuation" ? C.life : C.ink);
+        route(groups.get(r.path_level)!, pts3, r.purpose === "evacuation" ? C.life : C.ink);
       }
       // most urgent first: fire, someone to rescue, someone heading into smoke, our team, the room we go to
       notes = list.sort((a, b) => a.rank - b.rank).slice(0, col.max).map(note);
+
+      // a level that just became active comes up from grey: its lines from grey to their colour, its fills and tags
+      // from transparent
+      fades = [...since].map(([lv, t0]) => {
+        const f: Fade = { t0, lines: [], fills: [], els: [] };
+        groups.get(lv)?.traverse((o) => {
+          if (o instanceof CSS2DObject) f.els.push(o.element);
+          else if (o instanceof LineSegments2 || o instanceof Line2) {
+            const m = o.material as LineMaterial;
+            if (m.color.getHSL({ h: 0, s: 0, l: 0 }).l > 0.1) f.lines.push([m, m.color.clone()]); // not the route's dark casing
+          } else if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshBasicMaterial && o.material.color.getHex() !== 0) {
+            f.fills.push([o.material, o.material.opacity, o.material.transparent]);
+            o.material.transparent = true;
+          }
+        });
+        for (const n of notes) if (n.level === lv) f.els.push(n.box, n.frame, n.leader, n.leaderDark, n.mark);
+        return f;
+      });
+      fadeStep(performance.now());
 
       // first build: aim at the model and fit it; later builds keep the user's view
       const bb = new THREE.Box3().setFromObject(zoom === "focus" && focusPlate ? focusPlate : g);
@@ -437,8 +535,8 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       return new LineSegments2(new LineSegmentsGeometry().setPositions(segs), mat);
     }
 
-    // a flat pastille; a short tag only when it calls for a decision
-    function person(o: Occupant) {
+    // a flat pastille, « ? » when their room is not on the plan
+    function person(o: Occupant, unsure: boolean) {
       const urgent = o.status === "needs_help" || o.status === "trapped";
       const unknown = o.status === "no_answer" || o.status === "unknown" || o.status === "calling";
       const d = document.createElement("div");
@@ -446,6 +544,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       const dot = document.createElement("i");
       dot.className = `b3-dot ${urgent ? "b3-dot-fire" : unknown ? "b3-dot-dim" : o.status === "moving" ? "b3-dot-warn" : "b3-dot-life"}`;
       d.appendChild(dot);
+      if (unsure) d.append(tag("?", "b3-q"));
       return d;
     }
 
@@ -520,9 +619,25 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       });
     }
 
+    const grey = new THREE.Color(C.dim);
+    function fadeStep(now: number) {
+      fades = fades.filter((f) => {
+        const k = Math.min(1, Math.max(0, (now - f.t0) / FADE));
+        const e = 1 - (1 - k) ** 3;
+        for (const [m, to] of f.lines) m.color.copy(grey).lerp(to, e);
+        for (const [m, to, transparent] of f.fills) {
+          m.opacity = to * e;
+          if (k === 1) m.transparent = transparent;
+        }
+        for (const el of f.els) el.style.opacity = k === 1 ? "" : String(e);
+        return k < 1;
+      });
+    }
+
     let raf = 0;
     const frame = () => {
       raf = requestAnimationFrame(frame);
+      if (fades.length) fadeStep(performance.now());
       controls.update();
       renderer.render(scene, camera);
       labels.render(scene, camera);
@@ -570,7 +685,6 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
 
 type Loop = [number, number][];
 
-/** levels[].outline as the IFC session may serve it: one polygon, a list of polygons, or {outer, holes}. */
 type Poly = { outer: Loop; holes: Loop[] };
 
 /** levels[].outline in any of the shapes the IFC session may send: one loop, a list of loops (outer and holes by
@@ -709,7 +823,7 @@ function simplify(loop: Loop, tol: number): Loop {
   return [...a.slice(0, -1), ...b.slice(0, -1)];
 }
 
-/** Loops (world x/z) → THREE shapes: each outer loop with the opposite-wound loops inside it as holes. */
+/** Polygons (plan units) → THREE shapes in world x/z, each with its holes. */
 function shapes(polys: Poly[], W: (px: number, pz: number) => [number, number]): THREE.Shape[] {
   const v = (l: Loop) => l.map(([px, pz]) => {
     const [x, z] = W(px, pz);
