@@ -12,7 +12,7 @@ export interface Source {
       | "occupants" | "ifc" /* building model */ | "seraph" /* computed by code */ | "learned" /* unverified learned source */;
   label: string;          // short French label shown in UI: « appel 3.12 », « plan », « Maps », « calcul »
   url?: string;           // page or screenshot URL when there is one
-  confirmed: boolean;     // true = said on the radio/call or read from the source; false = inferred
+  confirmed: boolean;     // true = said by the crew on the radio, or read from a screen or the IFC; false = inferred, or « signalé »: alert and caller reports stay false until the crew confirms
   at: ISODate;
 }
 
