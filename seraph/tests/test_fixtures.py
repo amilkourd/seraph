@@ -394,3 +394,86 @@ def test_plan_exit_names_map_to_entrances():
     assert B.plan_name_to_node("exit:E2", -1) == "entrance:E2"
     b = v2()
     assert not any("E2 pas dans la maquette" in e.text_fr for e in b.state.timeline)
+
+
+class _OneAddress:
+    """Registry with a model for DEMO_ADDRESS only (like the real one), « pas de maquette » elsewhere."""
+    def __init__(self):
+        from seraph.registry import LocalRegistry
+        from seraph.config import FIXTURES
+        self.local = LocalRegistry(FIXTURES / "building.json")
+
+    def lookup(self, address, incident_id=None):
+        from seraph.brain import same_address
+        return self.local.lookup(address) if same_address(address, settings.demo_address) else None
+
+
+def _brain_with_dispatch(output: dict):
+    from seraph.brain import Brain
+    from seraph.io import fixture_result
+    b = Brain(registry=_OneAddress())
+    sent = []
+
+    def run(run_id, endpoint, params, priority):
+        sent.append((endpoint, params))
+        if endpoint == "dispatch.read":
+            r = fixture_result("dispatch.read", run_id)
+            r["output"] = {**r["output"], **output}
+            b.on_rosetta_result(r)
+    b.run_rosetta = run
+    b.start_incident()
+    return b, sent
+
+
+def test_weather_town_from_dispatch_commune():
+    b, sent = _brain_with_dispatch({"address": "1 place Bellecour, 69002 Lyon", "commune": "Lyon"})
+    assert ("weather.wind", {"town": "Lyon"}) in sent
+    b, sent = _brain_with_dispatch({"address": "1 place Bellecour, 69002 Lyon"})
+    assert ("weather.wind", {"town": "Lyon"}) in sent
+    from seraph.brain import town_of
+    assert town_of(None, "96 Boulevard Bessières, 75017 Paris") == "Paris 17e"
+
+
+def test_stranger_address_has_no_model_no_plan_no_occupants():
+    b, sent = _brain_with_dispatch({"address": "1 place Bellecour, 69002 Lyon", "commune": "Lyon"})
+    eps = [e for e, _ in sent]
+    assert b.state.building.name == "Pas de maquette"
+    assert "plan.read" not in eps and "occupants.list" not in eps
+    assert "maps.building" in eps and "georisques.risks" in eps
+    assert b.state.routes == []
+
+
+def test_demo_address_keeps_its_model_and_plan():
+    b, sent = _brain_with_dispatch({"address": settings.demo_address})
+    eps = [e for e, _ in sent]
+    assert b.state.building.model and "plan.read" in eps and "occupants.list" in eps
+
+
+def test_new_incident_at_another_address_goes_without_the_demo_model():
+    b, sent = _brain_with_dispatch({"incident_id": "INC-0002", "address": "1 place Bellecour, 69002 Lyon",
+                                    "commune": "Lyon", "nature": "Feu d'appartement", "level": 2, "caller_notes": []})
+    assert ("dispatch.read", {}) in sent                      # no id asked: Rosetta reads the newest open incident
+    assert b.state.incident.id == "INC-0002" and b.state.incident.address.startswith("1 place Bellecour")
+    assert b.state.building.name == "Pas de maquette" and not b.state.building.model
+    later = [p for e, p in sent if e == "georisques.risks"]
+    assert later and later[0]["address"].startswith("1 place Bellecour")
+    assert all(r["incident_id"] == "INC-0002" for k, r in b.runs.items() if r["endpoint"] != "dispatch.read")
+
+
+def test_demo_incident_unchanged_after_reset():
+    b, sent = _brain_with_dispatch({})
+    b.reset()
+    b2, sent2 = _brain_with_dispatch({})
+    assert b2.state.incident.id == "INC-0001" and b2.state.building.model
+    assert b2.state.building.approach.best_entrance_id == "E1"
+
+
+def test_voice_metric_carries_the_events():
+    b = v2()
+    got = []
+    b.publish = lambda ev, data: got.append((ev, data))
+    radio(b, R["R02"])
+    radio(b, R["R05"])
+    m = [d for ev, d in got if ev == "metric" and d["name"] == "voice_to_say"]
+    assert m[0]["events"] == ["hazard", "hazard"] and m[0]["said"] and m[0]["path"] == "rules"
+    assert m[1]["events"] == ["chatter"] and not m[1]["said"]

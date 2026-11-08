@@ -58,6 +58,26 @@ def iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
+def same_address(a: Optional[str], b: Optional[str]) -> bool:
+    n = lambda x: re.sub(r"[^a-z0-9]+", " ", strip_accents((x or "").lower())).strip()
+    return bool(a) and bool(b) and n(a) == n(b)
+
+
+def town_of(commune: Optional[str], address: str) -> str:
+    """Town for weather.wind: dispatch's commune, else from the address' postcode (« 75017 Paris » → « Paris 17e »),
+    else DEMO_TOWN."""
+    if commune:
+        return commune
+    m = re.search(r"\b(\d{5})\s+([^,]+)$", address or "")
+    if m:
+        pc, city = m.group(1), m.group(2).strip()
+        if pc.startswith("750") and city.lower().startswith("paris"):
+            n = int(pc[3:])
+            return f"Paris {n}{'er' if n == 1 else 'e'}"
+        return city
+    return settings.demo_town
+
+
 def mask(phone: str) -> str:
     return phone[:5] + "•••••" + phone[-2:] if len(phone) > 7 else "•••"
 
@@ -83,8 +103,9 @@ class Brain:
 
     # ───────── lifecycle ─────────
     def reset(self, address: str = "") -> None:
+        self.kit_address = address or settings.demo_address
         try:
-            kit = self.registry.lookup(address or settings.demo_address)
+            kit = self.registry.lookup(self.kit_address)
         except Exception as e:   # the registry never stops Seraph: no model = « pas de maquette »
             print("building registry lookup failed", repr(e))
             kit = None
@@ -468,7 +489,8 @@ class Brain:
         inc.id = incident_id or inc.id or "INC-0001"
         # look the building up again with the incident id (access log); swap it while still idle if it changed
         try:
-            kit = self.registry.lookup(settings.demo_address or inc.address, incident_id=inc.id)
+            self.kit_address = settings.demo_address or inc.address
+            kit = self.registry.lookup(self.kit_address, incident_id=inc.id)
         except Exception as e:
             kit = None
             self.log("seraph", f"Registre des bâtiments indisponible ({type(e).__name__}).")
@@ -486,25 +508,49 @@ class Brain:
         inc.address = settings.demo_address or inc.address
         self.log("seraph", f"Incident {inc.id} déclenché (exercice).")
         self.show_moment("dispatch", explicit=True)
-        self.rosetta("dispatch.read", {"incident_id": inc.id}, priority=10)
+        # no id asked → Rosetta reads the newest open incident (a judge's INC-0002 at any address); its id and address
+        # are adopted when dispatch.read lands
+        self.rosetta("dispatch.read", {"incident_id": incident_id} if incident_id else {}, priority=10)
         self.open_gate("relay_order",
                        "Consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte fermée.",
                        {"standing": True},
                        addressed("COS", "consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte fermée. Confirmez ?"))
         self.touch()
 
-    def _posted_plan(self, level: int) -> tuple[Path, int]:
-        """The plan posted at the door. PLAN_IMAGE_PATH when it is set to a real photo; when it still points at the v1
-        dev plan (or nothing) and the model has a level plan, the model's plan of the fire level (scenario v2: L-1)."""
+    def _posted_plan(self, level: int, address: str = "") -> Optional[tuple[Path, int]]:
+        """The plan posted at the door, or None. No model for the address → none (never the demo building's plan
+        for a stranger's address). PLAN_IMAGE_PATH (the demo venue's photo) only for DEMO_ADDRESS. Otherwise the
+        model's own plan of the fire level."""
+        if not self.kit.adj:
+            return None
+        demo = not address or same_address(address, settings.demo_address)
         p = settings.plan_image_path
-        if p.exists() and p.name != "plan-level3.svg":
+        if demo and p.exists() and p.name != "plan-level3.svg":
             return p, level
-        for base in (self.kit.files_dir, REPO / "ifc" / "out"):
-            for lv in (level, 0):
-                f = Path(base) / "levels" / f"L{lv}.svg"
-                if str(base) not in ("", ".") and f.exists():
-                    return f, lv
-        return p, level
+        if str(self.kit.files_dir) in ("", "."):
+            return None
+        for lv in (level, 0):
+            f = Path(self.kit.files_dir) / "levels" / f"L{lv}.svg"
+            if f.exists():
+                return f, lv
+        return None
+
+    def _building_for(self, address: str, incident_id: str) -> None:
+        try:
+            kit = self.registry.lookup(address, incident_id=incident_id)
+        except Exception as e:
+            kit = None
+            self.log("seraph", f"Registre des bâtiments indisponible ({type(e).__name__}).")
+        self.kit_address = address
+        if kit and str(kit.path) == str(self.kit.path):
+            return
+        hz = self.b.hazards
+        self.kit = kit or empty_kit()
+        self.state.building = self.kit.building.model_copy(deep=True)
+        self.state.building.hazards = hz
+        self.log("seraph", f"Maquette pour {address} : {self.b.name}." if kit else
+                 f"Pas de maquette pour {address} : Rosetta et le terrain seulement.")
+        self.recompute()
 
     # ───────── Rosetta ─────────
     def rosetta(self, endpoint: str, params: dict, priority: int = 5) -> str:
@@ -575,6 +621,8 @@ class Brain:
         if addr in ("", "DEMO_ADDRESS"):
             addr = settings.demo_address or addr
         inc.address = addr
+        if addr and not same_address(addr, self.kit_address):
+            self._building_for(addr, inc.id)       # a judge's address: its own model, or « pas de maquette »
         inc.nature = out.get("nature") or inc.nature
         if out.get("level") is not None:
             inc.origin = Origin(floor=int(out["level"]), room=inc.origin.room if inc.origin else None)
@@ -593,11 +641,17 @@ class Brain:
         params_addr = inc.address or settings.demo_address
         expected = [{"id": e.id, "label": e.label, "side": e.side} for e in self.b.entrances]
         self.rosetta("maps.building", {"address": params_addr, "expected_entrances": expected}, priority=8)
-        img, lvl = self._posted_plan(inc.origin.floor if inc.origin else 0)
-        self.rosetta("plan.read", {"image_path": str(img), "level": lvl}, priority=6)
+        posted = self._posted_plan(inc.origin.floor if inc.origin else 0, params_addr)
+        if posted:
+            self.rosetta("plan.read", {"image_path": str(posted[0]), "level": posted[1]}, priority=6)
+        else:
+            self.log("rosetta", "Pas de plan affiché connu pour cette adresse : plan.read non lancé.")
         self.rosetta("georisques.risks", {"address": params_addr}, priority=4)
-        self.rosetta("weather.wind", {"town": settings.demo_town}, priority=3)
-        self.rosetta("occupants.list", {"building": self.b.name}, priority=7)
+        self.rosetta("weather.wind", {"town": town_of(out.get("commune"), params_addr)}, priority=3)
+        if self.kit.adj:
+            self.rosetta("occupants.list", {"building": self.b.name}, priority=7)
+        else:
+            self.log("rosetta", "Pas de maquette : pas de liste d'occupants connue pour cette adresse.")
 
     def _r_maps_building(self, out: dict, src: Source, shots, live: str, run: dict) -> None:
         for e in out.get("entrances") or []:
@@ -1222,7 +1276,7 @@ class Brain:
             self.say(reply)
         t3 = time.perf_counter()
         said = self.say_log[n_says:]
-        if said:
+        if True:                                  # every line, said or not: the jury booth shows what it became
             from_eot = None
             if msg.get("end"):
                 try:
@@ -1233,7 +1287,7 @@ class Brain:
                         stages={"rules_ms" if path != "llm" else "llm_ms": round(((t1 - t0) if path != "llm" else (t2 - t1)) * 1000, 2),
                                 "compute_ms": round((t3 - t2) * 1000, 2), "queue_ms": 0.0},
                         since_eot_ms=round(from_eot, 1) if from_eot is not None and 0 <= from_eot < 600000 else None,
-                        utterance_id=msg.get("utterance_id"))
+                        utterance_id=msg.get("utterance_id"), events=[e.type for e in p.events], said=bool(said))
         self.recompute()
         self.touch()
         return {"events": [{"type": e.type, **e.data} for e in p.events], "path": path,
