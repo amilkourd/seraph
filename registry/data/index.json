@@ -16,14 +16,14 @@
    "exercise": true,
    "id_kind": "manual",
    "model": {
-    "building_sha256": "ae2e1d4411eec87657a035fa9eb99c4de86ba0dc209e277da4478ae34e8a8e6b",
+    "building_sha256": "1551d27d2a2365ce15a910877c0cf3e7ac77312ab15c6574cf2c2a5bd10219ed",
     "checks": {
      "failed": [],
      "passed": true
     },
     "extractor": {
      "name": "seraph_ifc.extract",
-     "version": "1.2.0"
+     "version": "1.3.0"
     },
     "files": [
      "building.json",
@@ -37,10 +37,10 @@
      "source.ifc"
     ],
     "ids_sha256": null,
-    "ifc_bytes": 358239,
+    "ifc_bytes": 395152,
     "ifc_file": "dev.ifc",
     "ifc_schema": "IFC4",
-    "ifc_sha256": "1d27a308b7b3617a084b487138f17a6b742f103356cf7bd559d7eda187297464",
+    "ifc_sha256": "5b9594f29a418c90d4b520d25aef67612ab900fc547692a7fa022d88706e6688",
     "levels": [
      0,
      1,
@@ -61,7 +61,7 @@
    "provenance_fr": "Bâtiment fictif — maquette IFC d'exercice",
    "registered_at": "2026-11-08T03:41:38Z",
    "rnb_ids": [],
-   "updated_at": "2026-11-08T03:50:01Z"
+   "updated_at": "2026-11-08T04:02:46Z"
   },
   "tuwien-escape-route-v2": {
    "addresses": [
@@ -79,7 +79,7 @@
    "exercise": true,
    "id_kind": "manual",
    "model": {
-    "building_sha256": "a510adcaafa116bda72209272115786107d327301b8d714afcd6d578e64a1b8c",
+    "building_sha256": "93aa1f59dee34244afebe2010fd4ab84a89eb1fa122ab1691ca03ebb6a00c16e",
     "checks": {
      "failed": [],
      "passed": true
@@ -87,7 +87,7 @@
     "credit": "TU Wien, Research Unit Digital Building Process — CC BY 4.0",
     "extractor": {
      "name": "seraph_ifc.extract",
-     "version": "1.2.0"
+     "version": "1.3.0"
     },
     "files": [
      "building.json",
@@ -124,7 +124,7 @@
    "provenance_fr": "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice",
    "registered_at": "2026-11-08T03:41:41Z",
    "rnb_ids": [],
-   "updated_at": "2026-11-08T03:50:01Z"
+   "updated_at": "2026-11-08T04:02:45Z"
   }
  },
  "format": 1

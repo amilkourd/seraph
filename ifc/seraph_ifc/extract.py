@@ -47,7 +47,8 @@ import ifcopenshell.util.element as E
 import ifcopenshell.util.placement
 import ifcopenshell.util.unit
 
-from . import __version__, checks, plans
+from . import __version__, checks, drawing, plans
+from .drawing import with_parts
 from .geometry import Shape, main_polygon, shapes
 
 EXTRACTOR = "seraph_ifc.extract"
@@ -127,15 +128,7 @@ def storey_of(el) -> Any:
     return None
 
 
-NOT_A_VALUE = {"", "nd", "n.d.", "n/a", "na", "-", "--", "none", "keine", "aucun", "aucune", "unknown", "inconnu"}
-
-
-def pset_value(el, pset: str, prop: str) -> Any:
-    """A property, or None when absent or a placeholder (« ND » = nicht definiert is not a fire rating)."""
-    v = (E.get_psets(el).get(pset) or {}).get(prop)
-    if v is None or (isinstance(v, str) and v.strip().lower() in NOT_A_VALUE):
-        return None
-    return v
+from .props import NOT_A_VALUE, pset_value  # noqa: E402,F401  (« ND » = nicht definiert is not a fire rating)
 
 
 def material_name(el) -> Optional[str]:
@@ -245,8 +238,9 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
     doors_el = f.by_type("IfcDoor")
     stairs_el = f.by_type("IfcStair") or f.by_type("IfcStairFlight")
     walls_el = f.by_type("IfcWall") + f.by_type("IfcCurtainWall")
-    slabs_el = f.by_type("IfcSlab")
-    geo = shapes(f, spaces_el + doors_el + stairs_el + slabs_el + (walls_el if len(walls_el) < 5000 else []))
+    slabs_el = [p for sl in f.by_type("IfcSlab") for p in with_parts(sl)]      # layered slabs: geometry on parts
+    geo = shapes(f, list({e.id(): e for e in list(spaces_el) + list(doors_el) + list(stairs_el) + slabs_el +
+                          (list(walls_el) if len(walls_el) < 5000 else [])}.values()))
 
     def elev(s) -> float:
         if s.Elevation is not None:
@@ -260,6 +254,7 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
 
     # Spaces, classified. Shafts are dropped (nobody is in a shaft).
     raw: list[tuple[Any, Optional[Polygon], Any, str, str, Optional[str], str]] = []
+    shafts_raw: list[tuple[Any, Polygon, Any]] = []
     for el in spaces_el:
         g = geo.get(el.id())
         poly = main_polygon(g.footprint) if g else None
@@ -268,7 +263,9 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
         use = (el.ObjectType or "").strip() or None
         ext = pset_value(el, "Pset_SpaceCommon", "IsExternal") is True
         kind = classify(nm, ln, use, ext)
-        if kind == "shaft":
+        if kind == "shaft":                      # not a place, not a route: drawn on the plan only
+            if poly is not None:
+                shafts_raw.append((el, poly, g))
             continue
         if poly is None or poly.area < 0.5:
             notes.append(f"space {nm or ln or el.GlobalId!r} skipped: no usable footprint")
@@ -591,8 +588,10 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
 
     # Contract objects.
     levels_out = []
+    outline_world: dict[int, list] = {}
     for n, z in sorted(elevation.items()):
         outline, source, thickness = _level_outline(n, z, slabs_el, geo, sps, elevation)
+        outline_world[n] = outline
         levels_out.append({
             "level": n, "label": level_label(n), "elevation_m": round(z, 2),
             "ifc_name": next((s.Name for s in storeys if level_of_storey[s.id()] == n), None),
@@ -711,11 +710,29 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
     results = checks.run_all(building, unlinked)
     building["model"]["checks"] = {"passed": all(c.ok for c in results),
                                    "failed": [c.name for c in results if not c.ok]}
+    shafts_by_level: dict[int, list] = defaultdict(list)
+    for el, poly, g in shafts_raw:
+        lv_ = level_of(el, g)
+        if lv_ is not None:
+            shafts_by_level[lv_].append(poly)
+    drawings = drawing.build(f, elevation, shafts_by_level)
+    north = _true_north(f)
     svgs = {f"levels/L{lv['level']}.svg": plans.level_svg(
-        lv, [r for r in rooms_out if r["level"] == lv["level"]], stairs_out,
-        [d for d in doors_out if d["level"] == lv["level"]], entrances_out) for lv in levels_out}
+        lv, frame, [r for r in rooms_out if r["level"] == lv["level"]], stairs_out,
+        [d for d in doors_out if d["level"] == lv["level"]], entrances_out, drawing=drawings.get(lv["level"]),
+        outline=outline_world.get(lv["level"]), ladders=facade_nodes.get(lv["level"]), north=north)
+        for lv in levels_out}
     report = _report(f, path, sha, building, results, unlinked, notes, dropped, elev, links)
     return Result(building=building, svgs=svgs, report=report, checks=results, unlinked=unlinked)
+
+
+def _true_north(f) -> tuple[float, float]:
+    """Direction of true north in the model's plan coordinates (IfcGeometricRepresentationContext.TrueNorth)."""
+    for c in f.by_type("IfcGeometricRepresentationContext"):
+        if not c.is_a("IfcGeometricRepresentationSubContext") and getattr(c, "TrueNorth", None) is not None:
+            r = c.TrueNorth.DirectionRatios
+            return float(r[0]), float(r[1])
+    return 0.0, 1.0
 
 
 def _level_outline(n: int, z: float, slabs_el, geo, sps: list[Sp], elevation: dict[int, float]):

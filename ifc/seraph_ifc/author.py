@@ -23,6 +23,7 @@ import ifcopenshell
 import ifcopenshell.api as api
 import ifcopenshell.api.aggregate
 import ifcopenshell.api.context
+import ifcopenshell.api.feature
 import ifcopenshell.api.geometry
 import ifcopenshell.api.material
 import ifcopenshell.api.project
@@ -231,6 +232,7 @@ def build(trace_path: Path, out: Path) -> Path:
             api.spatial.assign_container(f, products=[stair], relating_structure=storey)
 
         # Walls on room edges.
+        walls_by_seg: dict[tuple, Any] = {}
         for a, b, owners in wall_segments(here):
             kind = classify_wall(owners)
             dx, dy = b[0] - a[0], b[1] - a[1]
@@ -243,6 +245,7 @@ def build(trace_path: Path, out: Path) -> Path:
                                                        offset=-wt / 2)
             api.geometry.assign_representation(f, product=w, representation=rep)
             api.spatial.assign_container(f, products=[w], relating_structure=storey)
+            walls_by_seg[(a, b)] = w
             m, fr = material(kind)
             if m:
                 api.material.assign_material(f, products=[w], type="IfcMaterial", material=m)
@@ -263,7 +266,17 @@ def build(trace_path: Path, out: Path) -> Path:
             door.Description = d.description or None
             door.OverallWidth = d.width
             door.OverallHeight = DOOR_HEIGHT
+            door.OperationType = "DOUBLE_DOOR_SINGLE_SWING" if d.width >= 1.4 else "SINGLE_SWING_LEFT"
             api.geometry.edit_object_placement(f, product=door, matrix=_matrix((ox, oy, z), (ux, uy)))
+            host = walls_by_seg.get(seg)
+            if host is not None:      # the opening in the wall, filled by the door (plans cut through it)
+                opening = api.root.create_entity(f, ifc_class="IfcOpeningElement", name=f"Baie {d.name}")
+                api.geometry.edit_object_placement(f, product=opening, matrix=_matrix((ox, oy, z), (ux, uy)))
+                prof = sb.profile(sb.rectangle(size=(d.width + 0.02, wt + 0.1), position=(-0.01, -0.05)))
+                api.geometry.assign_representation(f, product=opening, representation=sb.get_representation(
+                    body, sb.extrude(prof, magnitude=DOOR_HEIGHT)))
+                api.feature.add_feature(f, feature=opening, element=host)
+                api.feature.add_filling(f, opening=opening, element=door)
             rep = api.geometry.add_door_representation(
                 f, context=body, overall_height=DOOR_HEIGHT, overall_width=d.width,
                 lining_properties={"LiningDepth": wt, "LiningThickness": 0.05})

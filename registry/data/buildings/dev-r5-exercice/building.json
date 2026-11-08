@@ -885,7 +885,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "levels": [
     0,
@@ -1032,7 +1032,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "levels": [
     0,
@@ -1184,7 +1184,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -1203,7 +1203,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -1244,9 +1244,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "0sZpLcmHn4uu1cXbfYJSDd"
+   "ifc_guid": "3i50eegpL4nPWkAMxzvTVO"
   },
   {
    "id": "0.14",
@@ -1277,9 +1277,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3HWklnyjfBqRC_ObL5TgMJ"
+   "ifc_guid": "2QSFLOitz8zRz_tPrvcVZT"
   },
   {
    "id": "0.ASC",
@@ -1310,9 +1310,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3gHPIHzET0bwkM8YziOdLt"
+   "ifc_guid": "36PytjLEnCf8Z3V6hJEdYj"
   },
   {
    "id": "corridor:0",
@@ -1359,9 +1359,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3E8Ngcasf4yRXg7JVYbPbA"
+   "ifc_guid": "1eVGwpbmz5iwnvtDOSbEsH"
   },
   {
    "id": "1.10",
@@ -1392,9 +1392,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3gXt$0lVHFkPtv1UI8ax2O"
+   "ifc_guid": "0sSn2dsgH6DOYoz_UUUhdH"
   },
   {
    "id": "1.14",
@@ -1425,9 +1425,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3l1pOLplX2HPVlNszZQsPa"
+   "ifc_guid": "0py2h5ZOH8H9fJQ1AFbOXp"
   },
   {
    "id": "1.ASC",
@@ -1458,9 +1458,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2V4U9oeMLDPx$R9OdFiB_V"
+   "ifc_guid": "1z7F6G$orBLQQFabhP8_A0"
   },
   {
    "id": "corridor:1",
@@ -1507,9 +1507,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "1HDL7E1Kn7sQAA5q7HDTwa"
+   "ifc_guid": "3iBS_SJK97NxZ_Jisg0wmS"
   },
   {
    "id": "2.01",
@@ -1540,9 +1540,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "00ioSpdIzFNAr9emue6nZD"
+   "ifc_guid": "0vtTrnUy11lAe4HpRyR8uE"
   },
   {
    "id": "2.02",
@@ -1573,9 +1573,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2$KRQ9sJ94yv5WEdL1HvZr"
+   "ifc_guid": "0Mrdgeuvn5DBJf5tqqyhkD"
   },
   {
    "id": "2.14",
@@ -1606,9 +1606,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2IALdyjVrET9o9y_wQf4ZU"
+   "ifc_guid": "39vLDRZzT9$uPsIbPoEosk"
   },
   {
    "id": "2.ASC",
@@ -1639,9 +1639,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2tavzu8lrEIuF36bUvWhqT"
+   "ifc_guid": "1GEtaVQ8n5xxmuc53l19W0"
   },
   {
    "id": "corridor:2",
@@ -1688,9 +1688,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "1BYHaw17PCOg2SiJOFvfpR"
+   "ifc_guid": "2iWsy9MQ94BeyoiaHFLXP0"
   },
   {
    "id": "3.10",
@@ -1721,9 +1721,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "34TaUTXl56z8EHGnVB0fAz"
+   "ifc_guid": "0B8$3cqLrB7gnk$OsEiVle"
   },
   {
    "id": "3.12",
@@ -1754,9 +1754,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "1lVvHSJg9BchO16ubv8fUE"
+   "ifc_guid": "36505sPaPCCx_bA9u4pvCn"
   },
   {
    "id": "3.14",
@@ -1787,9 +1787,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2g_vFXJRD6ygUsCcnoYroY"
+   "ifc_guid": "1du68bL115CQXFRTbzuDlj"
   },
   {
    "id": "3.ASC",
@@ -1820,9 +1820,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3D4drOQwn1ERIhCZ75PwEr"
+   "ifc_guid": "0rXUEQPe90ZBl39vWO4I3K"
   },
   {
    "id": "3.T",
@@ -1853,9 +1853,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "1ggzr9iFHFPxl3_WFNONAe"
+   "ifc_guid": "1uX1_CBTLAOfe3GEdT5SU8"
   },
   {
    "id": "corridor:3",
@@ -1902,9 +1902,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2kUtuwpub8zBemj_s1XxJe"
+   "ifc_guid": "2i__mT8ITDMBrhDhOkChDQ"
   },
   {
    "id": "4.02",
@@ -1935,9 +1935,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "0chBrAELzFY9_F2RCudo8K"
+   "ifc_guid": "3aLUnA$FX4YgQ0_XO7cYSZ"
   },
   {
    "id": "4.05",
@@ -1968,9 +1968,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "2X5n$_pBD61vEAkvfIXafe"
+   "ifc_guid": "3IYYa7h_fAKujaGfR9LgLA"
   },
   {
    "id": "4.14",
@@ -2001,9 +2001,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "00iunfVwL4exlyE8o3ySjs"
+   "ifc_guid": "3LboxqJkD6H9hgpF7waIVi"
   },
   {
    "id": "4.ASC",
@@ -2034,9 +2034,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "1GKS4URWj8Mhn$is_YXvyh"
+   "ifc_guid": "1Af8XhG8f3yQJY8bVeQm0q"
   },
   {
    "id": "corridor:4",
@@ -2083,9 +2083,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3UxKrQoEnEFAqBuTmskGwL"
+   "ifc_guid": "0$2XSpDsj67BRIJd2re1wd"
   },
   {
    "id": "5.01",
@@ -2116,9 +2116,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3_HedKmGz6LRO_sraGwCmt"
+   "ifc_guid": "2veWjJKMjC5famDV2Z42dB"
   },
   {
    "id": "5.14",
@@ -2149,9 +2149,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "3Ve7VNmyv09BS0uTBagKRI"
+   "ifc_guid": "3rmN2A$Qr2Qg8NLSMX6_Mx"
   },
   {
    "id": "5.ASC",
@@ -2182,9 +2182,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "1VElbb_pPE9usJ91Ualie9"
+   "ifc_guid": "3Vy7t1M292QREIbVhgA3AD"
   },
   {
    "id": "corridor:5",
@@ -2231,9 +2231,9 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
-   "ifc_guid": "0NNXqmukXCBvGZmmjIw_b9"
+   "ifc_guid": "1BfnT4JoT0muR2m5GFbbm1"
   }
  ],
  "plan": null,
@@ -2254,7 +2254,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2276,7 +2276,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2299,7 +2299,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2321,7 +2321,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2343,7 +2343,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2366,7 +2366,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2389,7 +2389,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L0",
@@ -2412,7 +2412,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L1",
@@ -2434,7 +2434,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L1",
@@ -2457,7 +2457,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L1",
@@ -2479,7 +2479,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L1",
@@ -2501,7 +2501,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L1",
@@ -2524,7 +2524,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L2",
@@ -2546,7 +2546,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L2",
@@ -2569,7 +2569,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L2",
@@ -2591,7 +2591,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L2",
@@ -2613,7 +2613,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L2",
@@ -2635,7 +2635,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L2",
@@ -2658,7 +2658,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2680,7 +2680,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2703,7 +2703,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2725,7 +2725,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2747,7 +2747,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2769,7 +2769,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2792,7 +2792,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L3",
@@ -2815,7 +2815,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L4",
@@ -2837,7 +2837,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L4",
@@ -2860,7 +2860,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L4",
@@ -2882,7 +2882,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L4",
@@ -2904,7 +2904,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L4",
@@ -2926,7 +2926,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L4",
@@ -2949,7 +2949,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L5",
@@ -2971,7 +2971,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L5",
@@ -2994,7 +2994,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L5",
@@ -3016,7 +3016,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L5",
@@ -3038,7 +3038,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "plan_point": {
     "image_id": "ifc-L5",
@@ -3058,7 +3058,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3070,7 +3070,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3082,7 +3082,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3093,7 +3093,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3104,7 +3104,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3116,7 +3116,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3128,7 +3128,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3139,7 +3139,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3150,7 +3150,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3162,7 +3162,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3174,7 +3174,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3185,7 +3185,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3196,7 +3196,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3208,7 +3208,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3220,7 +3220,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    },
    "room": "3.T"
   },
@@ -3233,7 +3233,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3244,7 +3244,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3255,7 +3255,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3267,7 +3267,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3279,7 +3279,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3290,7 +3290,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3301,7 +3301,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3313,7 +3313,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3325,7 +3325,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   },
   {
@@ -3336,7 +3336,7 @@
     "kind": "ifc",
     "label": "maquette",
     "confirmed": true,
-    "at": "2026-11-08T03:21:24Z"
+    "at": "2026-11-08T04:02:10Z"
    }
   }
  ],
@@ -3648,7 +3648,7 @@
   },
   "extractor": {
    "name": "seraph_ifc.extract",
-   "version": "1.2.0"
+   "version": "1.3.0"
   },
   "plan_frame": {
    "size": 1000,
@@ -3663,9 +3663,9 @@
   },
   "source_ifc": {
    "file": "dev.ifc",
-   "sha256": "1d27a308b7b3617a084b487138f17a6b742f103356cf7bd559d7eda187297464",
+   "sha256": "5b9594f29a418c90d4b520d25aef67612ab900fc547692a7fa022d88706e6688",
    "schema": "IFC4",
-   "bytes": 358239
+   "bytes": 395152
   },
   "ladder_points": {},
   "checks": {

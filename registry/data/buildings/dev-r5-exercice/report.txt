@@ -1,5 +1,5 @@
-Seraph IFC extraction — seraph_ifc.extract 1.2.0
-file      dev.ifc  (0.36 MB, IFC4, sha256 1d27a308b7b3617a…)
+Seraph IFC extraction — seraph_ifc.extract 1.3.0
+file      dev.ifc  (0.40 MB, IFC4, sha256 5b9594f29a418c90…)
 building  Bâtiment d'exercice  ·  Bâtiment fictif — maquette IFC d'exercice
 
 CHECKS
@@ -16,39 +16,39 @@ CHECKS
 
 LEVELS
   RDC   elev   0.00 m  ifc 'RDC'
-        0.10         0.10 Hall d'accueil                room        199.8 m²  0sZpLcmHn4uu1cXbfYJSDd
-        0.14         0.14 Salle polyvalente             room        186.5 m²  3HWklnyjfBqRC_ObL5TgMJ
-        0.ASC        0.ASC Ascenseur                    elevator      6.3 m²  3gHPIHzET0bwkM8YziOdLt
-        corridor:0   Circulation                        corridor     85.5 m²  3E8Ngcasf4yRXg7JVYbPbA
+        0.10         0.10 Hall d'accueil                room        199.8 m²  3i50eegpL4nPWkAMxzvTVO
+        0.14         0.14 Salle polyvalente             room        186.5 m²  2QSFLOitz8zRz_tPrvcVZT
+        0.ASC        0.ASC Ascenseur                    elevator      6.3 m²  36PytjLEnCf8Z3V6hJEdYj
+        corridor:0   Circulation                        corridor     85.5 m²  1eVGwpbmz5iwnvtDOSbEsH
   R+1   elev   3.00 m  ifc 'R+1'
-        1.10         1.10 Plateau                       room        199.8 m²  3gXt$0lVHFkPtv1UI8ax2O
-        1.14         1.14 Plateau                       room        186.5 m²  3l1pOLplX2HPVlNszZQsPa
-        1.ASC        1.ASC Ascenseur                    elevator      6.3 m²  2V4U9oeMLDPx$R9OdFiB_V
-        corridor:1   Circulation                        corridor     85.5 m²  1HDL7E1Kn7sQAA5q7HDTwa
+        1.10         1.10 Plateau                       room        199.8 m²  0sSn2dsgH6DOYoz_UUUhdH
+        1.14         1.14 Plateau                       room        186.5 m²  0py2h5ZOH8H9fJQ1AFbOXp
+        1.ASC        1.ASC Ascenseur                    elevator      6.3 m²  1z7F6G$orBLQQFabhP8_A0
+        corridor:1   Circulation                        corridor     85.5 m²  3iBS_SJK97NxZ_Jisg0wmS
   R+2   elev   6.00 m  ifc 'R+2'
-        2.01         2.01 Bureau                        room        113.4 m²  00ioSpdIzFNAr9emue6nZD
-        2.02         2.02 Bureau                        room         86.4 m²  2$KRQ9sJ94yv5WEdL1HvZr
-        2.14         2.14 Plateau                       room        186.5 m²  2IALdyjVrET9o9y_wQf4ZU
-        2.ASC        2.ASC Ascenseur                    elevator      6.3 m²  2tavzu8lrEIuF36bUvWhqT
-        corridor:2   Circulation                        corridor     85.5 m²  1BYHaw17PCOg2SiJOFvfpR
+        2.01         2.01 Bureau                        room        113.4 m²  0vtTrnUy11lAe4HpRyR8uE
+        2.02         2.02 Bureau                        room         86.4 m²  0Mrdgeuvn5DBJf5tqqyhkD
+        2.14         2.14 Plateau                       room        186.5 m²  39vLDRZzT9$uPsIbPoEosk
+        2.ASC        2.ASC Ascenseur                    elevator      6.3 m²  1GEtaVQ8n5xxmuc53l19W0
+        corridor:2   Circulation                        corridor     85.5 m²  2iWsy9MQ94BeyoiaHFLXP0
   R+3   elev   9.00 m  ifc 'R+3'
-        3.10         3.10 Plateau                       room        113.4 m²  34TaUTXl56z8EHGnVB0fAz
-        3.12         3.12 Réunion                       room         86.4 m²  1lVvHSJg9BchO16ubv8fUE
-        3.14         3.14 Cuisine                       room        146.2 m²  2g_vFXJRD6ygUsCcnoYroY
-        3.ASC        3.ASC Ascenseur                    elevator      6.3 m²  3D4drOQwn1ERIhCZ75PwEr
-        3.T          3.T Local technique                room         40.3 m²  1ggzr9iFHFPxl3_WFNONAe
-        corridor:3   Circulation                        corridor     85.5 m²  2kUtuwpub8zBemj_s1XxJe
+        3.10         3.10 Plateau                       room        113.4 m²  0B8$3cqLrB7gnk$OsEiVle
+        3.12         3.12 Réunion                       room         86.4 m²  36505sPaPCCx_bA9u4pvCn
+        3.14         3.14 Cuisine                       room        146.2 m²  1du68bL115CQXFRTbzuDlj
+        3.ASC        3.ASC Ascenseur                    elevator      6.3 m²  0rXUEQPe90ZBl39vWO4I3K
+        3.T          3.T Local technique                room         40.3 m²  1uX1_CBTLAOfe3GEdT5SU8
+        corridor:3   Circulation                        corridor     85.5 m²  2i__mT8ITDMBrhDhOkChDQ
   R+4   elev  12.00 m  ifc 'R+4'
-        4.02         4.02 Plateau                       room        113.4 m²  0chBrAELzFY9_F2RCudo8K
-        4.05         4.05 Réunion                       room         86.4 m²  2X5n$_pBD61vEAkvfIXafe
-        4.14         4.14 Plateau                       room        186.5 m²  00iunfVwL4exlyE8o3ySjs
-        4.ASC        4.ASC Ascenseur                    elevator      6.3 m²  1GKS4URWj8Mhn$is_YXvyh
-        corridor:4   Circulation                        corridor     85.5 m²  3UxKrQoEnEFAqBuTmskGwL
+        4.02         4.02 Plateau                       room        113.4 m²  3aLUnA$FX4YgQ0_XO7cYSZ
+        4.05         4.05 Réunion                       room         86.4 m²  3IYYa7h_fAKujaGfR9LgLA
+        4.14         4.14 Plateau                       room        186.5 m²  3LboxqJkD6H9hgpF7waIVi
+        4.ASC        4.ASC Ascenseur                    elevator      6.3 m²  1Af8XhG8f3yQJY8bVeQm0q
+        corridor:4   Circulation                        corridor     85.5 m²  0$2XSpDsj67BRIJd2re1wd
   R+5   elev  15.00 m  ifc 'R+5'
-        5.01         5.01 Plateau                       room        199.8 m²  3_HedKmGz6LRO_sraGwCmt
-        5.14         5.14 Plateau                       room        186.5 m²  3Ve7VNmyv09BS0uTBagKRI
-        5.ASC        5.ASC Ascenseur                    elevator      6.3 m²  1VElbb_pPE9usJ91Ualie9
-        corridor:5   Circulation                        corridor     85.5 m²  0NNXqmukXCBvGZmmjIw_b9
+        5.01         5.01 Plateau                       room        199.8 m²  2veWjJKMjC5famDV2Z42dB
+        5.14         5.14 Plateau                       room        186.5 m²  3rmN2A$Qr2Qg8NLSMX6_Mx
+        5.ASC        5.ASC Ascenseur                    elevator      6.3 m²  3Vy7t1M292QREIbVhgA3AD
+        corridor:5   Circulation                        corridor     85.5 m²  1BfnT4JoT0muR2m5GFbbm1
 
 STAIRS
   stair:A   'Escalier A (nord)'          levels [0, 1, 2, 3, 4, 5]

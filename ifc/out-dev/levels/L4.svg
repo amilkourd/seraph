@@ -1,49 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
-  <!-- Seraph · plan from the IFC · level 4 (R+4) · frame = rooms[].zone -->
-  <rect width="1000" height="1000" fill="#ffffff"/>
-  <text x="40" y="70" font-family="Arial" font-size="44" font-weight="bold" fill="#000">R+4</text>
-  <g fill="none" stroke="#000" stroke-width="8" stroke-linejoin="miter">
-    <polygon points="620,160 620,460 200,460 200,160"/>
-    <polygon points="940,160 940,460 620,460 620,160"/>
-    <polygon points="800,560 800,840 60,840 60,560"/>
-    <polygon points="60,360 130,360 130,460 60,460"/>
-    <polygon points="130,360 200,360 200,460 940,460 940,560 60,560 60,460 130,460"/>
-    <polygon points="60,160 200,160 200,360 60,360"/>
-    <polygon points="800,560 940,560 940,840 800,840"/>
-  </g>
-  <g stroke="#000" stroke-width="3">
-    <line x1="72" y1="185" x2="188" y2="185"/>
-    <line x1="72" y1="210" x2="188" y2="210"/>
-    <line x1="72" y1="235" x2="188" y2="235"/>
-    <line x1="72" y1="260" x2="188" y2="260"/>
-    <line x1="72" y1="285" x2="188" y2="285"/>
-    <line x1="72" y1="310" x2="188" y2="310"/>
-    <line x1="72" y1="335" x2="188" y2="335"/>
-    <line x1="812" y1="595" x2="928" y2="595"/>
-    <line x1="812" y1="630" x2="928" y2="630"/>
-    <line x1="812" y1="665" x2="928" y2="665"/>
-    <line x1="812" y1="700" x2="928" y2="700"/>
-    <line x1="812" y1="735" x2="928" y2="735"/>
-    <line x1="812" y1="770" x2="928" y2="770"/>
-    <line x1="812" y1="805" x2="928" y2="805"/>
-  </g>
-  <g>
-    <rect x="148" y="353" width="33" height="14" fill="#fff"/>
-    <circle cx="165" cy="360" r="6" fill="#c00000"/>
-    <rect x="123" y="394" width="14" height="33" fill="#fff"/>
-    <rect x="854" y="553" width="33" height="14" fill="#fff"/>
-    <circle cx="870" cy="560" r="6" fill="#c00000"/>
-    <rect x="395" y="453" width="30" height="14" fill="#fff"/>
-    <rect x="765" y="453" width="30" height="14" fill="#fff"/>
-    <rect x="415" y="553" width="30" height="14" fill="#fff"/>
-  </g>
-  <g font-family="Arial" fill="#000" text-anchor="middle">
-    <text x="410" y="320" font-size="30" font-weight="bold">4.02</text>
-    <text x="780" y="320" font-size="30" font-weight="bold">4.05</text>
-    <text x="430" y="710" font-size="30" font-weight="bold">4.14</text>
-    <text x="95" y="417" font-size="21" font-weight="bold">ASC.</text>
-    <text x="166" y="511" font-size="22" font-weight="normal">CIRCULATION</text>
-    <text x="130" y="274" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">A</text>
-    <text x="870" y="714" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">B</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000" font-family="Arial, Helvetica, sans-serif">
+<!-- Seraph · plan R+4 (level 4) from the IFC · cut 1.10 m above the floor · 0–1000 frame = rooms[].zone, image_id ifc-L4 -->
+<rect width="1000" height="1000" fill="#fff"/>
+<path d="M940.0,160.0 L940.0,840.0 L60.0,840.0 L60.0,160.0 Z M801.7,838.3 L938.3,838.3 L938.3,561.7 L801.7,561.7 Z M198.3,161.7 L61.7,161.7 L61.7,358.3 L198.3,358.3 Z M128.3,458.3 L128.3,361.7 L61.7,361.7 L61.7,458.3 Z" fill="#f4f4f4" fill-rule="evenodd" stroke="#9a9a9a" stroke-width="1.5"/>
+<g stroke="none">
+<path d="M620,160 L620,460 L200,460 L200,160 Z" fill="#ffffff"/>
+<path d="M940,160 L940,460 L620,460 L620,160 Z" fill="#ffffff"/>
+<path d="M800,560 L800,840 L60,840 L60,560 Z" fill="#ffffff"/>
+<path d="M60,360 L130,360 L130,460 L60,460 Z" fill="#ffffff"/>
+<path d="M130,360 L200,360 L200,460 L940,460 L940,560 L60,560 L60,460 L130,460 Z" fill="#d1ff73"/>
+<path d="M60,160 L200,160 L200,360 L60,360 Z" fill="#7dc95e"/>
+<path d="M800,560 L940,560 L940,840 L800,840 Z" fill="#7dc95e"/>
+</g>
+<path d="M56.6,459.9 L56.6,360.1 L56.6,359.9 L56.6,159.9 L59.9,159.9 L59.9,156.6 L199.9,156.6 L200.1,156.6 L619.9,156.6 L620.1,156.6 L940.1,156.6 L940.1,159.9 L943.4,159.9 L943.4,459.9 L943.4,460.1 L943.4,559.9 L943.4,560.1 L943.4,840.1 L940.1,840.1 L940.1,843.4 L800.1,843.4 L799.9,843.4 L59.9,843.4 L59.9,840.1 L56.6,840.1 L56.6,560.1 L56.6,559.9 L56.6,460.1 Z M203.4,163.4 L203.4,359.9 L203.4,360.1 L203.4,456.6 L394.7,456.6 L394.7,463.4 L199.9,463.4 L199.9,460.1 L196.6,460.1 L196.6,360.1 L196.6,359.9 L196.6,163.4 L63.4,163.4 L63.4,356.6 L130.1,356.6 L130.1,359.9 L133.4,359.9 L133.4,393.1 L126.6,393.1 L126.6,363.4 L63.4,363.4 L63.4,456.6 L126.6,456.6 L126.6,426.9 L133.4,426.9 L133.4,460.1 L130.1,460.1 L130.1,463.4 L63.4,463.4 L63.4,556.6 L414.7,556.6 L414.7,563.4 L63.4,563.4 L63.4,836.6 L796.6,836.6 L796.6,563.4 L445.3,563.4 L445.3,556.6 L799.9,556.6 L800.1,556.6 L853.1,556.6 L853.1,563.4 L803.4,563.4 L803.4,836.6 L936.6,836.6 L936.6,563.4 L886.9,563.4 L886.9,556.6 L936.6,556.6 L936.6,463.4 L795.3,463.4 L795.3,456.6 L936.6,456.6 L936.6,163.4 L623.4,163.4 L623.4,456.6 L764.7,456.6 L764.7,463.4 L620.1,463.4 L619.9,463.4 L425.3,463.4 L425.3,456.6 L616.6,456.6 L616.6,163.4 Z" fill="#111111" fill-rule="evenodd"/>
+<path d="M148.1,363.4 L133.4,363.4 L133.4,359.9 L130.1,359.9 L130.1,356.6 L148.1,356.6 Z M181.9,363.4 L181.9,356.6 L196.6,356.6 L196.6,359.9 L196.6,360.1 L196.6,363.4 Z" fill="#555555" fill-rule="evenodd"/>
+<path d="M149.2,356.5 L149.2,323.2" stroke="#000" stroke-width="1.6"/>
+<path d="M182.5,356.5 L182.2,352.1 L181.4,347.9 L180.0,343.7 L178.0,339.8 L175.6,336.2 L172.7,332.9 L169.5,330.1 L165.8,327.6 L161.9,325.7 L157.8,324.3 L153.5,323.5 L149.2,323.2" fill="none" stroke="#000" stroke-width="0.9"/>
+<path d="M149.2,356.5 L151.9,360.5 L154.7,352.5 L157.5,360.5 L160.3,352.5 L163.1,360.5 L165.8,352.5 L168.6,360.5 L171.4,352.5 L174.2,360.5 L176.9,352.5 L179.7,360.5 L182.5,356.5" fill="none" stroke="#d0021b" stroke-width="2"/>
+<path d="M126.5,425.8 L93.2,425.8" stroke="#000" stroke-width="1.6"/>
+<path d="M126.5,392.5 L122.1,392.8 L117.9,393.6 L113.7,395.0 L109.8,397.0 L106.2,399.4 L102.9,402.3 L100.1,405.5 L97.6,409.2 L95.7,413.1 L94.3,417.2 L93.5,421.5 L93.2,425.8" fill="none" stroke="#000" stroke-width="0.9"/>
+<path d="M854.2,556.5 L854.2,523.2" stroke="#000" stroke-width="1.6"/>
+<path d="M887.5,556.5 L887.2,552.1 L886.4,547.9 L885.0,543.7 L883.0,539.8 L880.6,536.2 L877.7,532.9 L874.5,530.1 L870.8,527.6 L866.9,525.7 L862.8,524.3 L858.5,523.5 L854.2,523.2" fill="none" stroke="#000" stroke-width="0.9"/>
+<path d="M854.2,556.5 L856.9,560.5 L859.7,552.5 L862.5,560.5 L865.3,552.5 L868.1,560.5 L870.8,552.5 L873.6,560.5 L876.4,552.5 L879.2,560.5 L881.9,552.5 L884.7,560.5 L887.5,556.5" fill="none" stroke="#d0021b" stroke-width="2"/>
+<path d="M395.8,456.5 L395.8,426.5" stroke="#000" stroke-width="1.6"/>
+<path d="M425.8,456.5 L425.6,452.6 L424.8,448.7 L423.5,445.0 L421.8,441.5 L419.6,438.2 L417.0,435.3 L414.1,432.7 L410.8,430.5 L407.3,428.8 L403.6,427.5 L399.7,426.8 L395.8,426.5" fill="none" stroke="#000" stroke-width="0.9"/>
+<path d="M765.8,456.5 L765.8,426.5" stroke="#000" stroke-width="1.6"/>
+<path d="M795.8,456.5 L795.6,452.6 L794.8,448.7 L793.5,445.0 L791.8,441.5 L789.6,438.2 L787.0,435.3 L784.1,432.7 L780.8,430.5 L777.3,428.8 L773.6,427.5 L769.7,426.8 L765.8,426.5" fill="none" stroke="#000" stroke-width="0.9"/>
+<path d="M415.8,556.5 L415.8,526.5" stroke="#000" stroke-width="1.6"/>
+<path d="M445.8,556.5 L445.6,552.6 L444.8,548.7 L443.5,545.0 L441.8,541.5 L439.6,538.2 L437.0,535.3 L434.1,532.7 L430.8,530.5 L427.3,528.8 L423.6,527.5 L419.7,526.8 L415.8,526.5" fill="none" stroke="#000" stroke-width="0.9"/>
+<path d="M60,360 L130,360 L130,460 L60,460 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M60,360 L130,460 M60,460 L130,360" stroke="#000" stroke-width="1.2"/>
+<g fill="#000" text-anchor="middle" paint-order="stroke" stroke="#fff" stroke-width="5" stroke-linejoin="round">
+<text x="410.0" y="301.6" font-size="24" font-weight="bold">4.02</text>
+<text x="410.0" y="324.4" font-size="15">Plateau</text>
+<text x="780.0" y="301.6" font-size="24" font-weight="bold">4.05</text>
+<text x="780.0" y="324.4" font-size="15">Réunion</text>
+<text x="430.0" y="691.6" font-size="24" font-weight="bold">4.14</text>
+<text x="430.0" y="714.4" font-size="15">Plateau</text>
+<text x="95.0" y="417.3" font-size="22" font-weight="bold">ASC</text>
+<text x="130.0" y="269.0" font-size="26" font-weight="bold">ESC A</text>
+<text x="870.0" y="709.0" font-size="26" font-weight="bold">ESC B</text>
+</g>
+<text x="189.6" y="355.5" font-size="12" font-weight="bold" fill="#d0021b" text-anchor="middle" paint-order="stroke" stroke="#fff" stroke-width="3">EI 30</text>
+<text x="894.6" y="555.5" font-size="12" font-weight="bold" fill="#d0021b" text-anchor="middle" paint-order="stroke" stroke="#fff" stroke-width="3">EI 30</text>
+<text x="40" y="72" font-size="48" font-weight="bold" fill="#000">R+4</text>
+<circle cx="930" cy="70" r="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M930.0,50.0 L937.0,64.4 L923.0,64.4 Z" fill="#000"/>
+<path d="M930.0,88.0 L930.0,62.0" stroke="#000" stroke-width="2.5"/>
+<text x="930.0" y="35.0" font-size="20" font-weight="bold" text-anchor="middle">N</text>
+<g stroke="#000" stroke-width="2"><line x1="793.3" y1="966" x2="960.0" y2="966"/><line x1="793.3" y1="959" x2="793.3" y2="973"/><line x1="960.0" y1="959" x2="960.0" y2="973"/></g>
+<text x="876.7" y="954" font-size="17" text-anchor="middle">5 m</text>
 </svg>
