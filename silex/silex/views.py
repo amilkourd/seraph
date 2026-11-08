@@ -26,6 +26,7 @@ POLL_S = 4
 RUNS: dict[str, "cli.Run"] = {}       # session id → its current Devin CLI process (for the dashboard tail)
 WAITING = ("waiting_for_user", "finished")
 MAX_REFS = 6
+HAZARD_MOMENTS = ("approach", "inside_route", "occupants")   # views about the building: a reported fire must show
 
 
 def now_iso() -> str:
@@ -105,6 +106,7 @@ class Silex:
         self.jobs: dict[str, Job] = {}
         self.devin = Devin()
         self.kit_urls: list[str] = []
+        self.kit_digest = ""
         self.lock = asyncio.Lock()
         self.tasks: set[asyncio.Task] = set()
         self.incident_status: Optional[str] = None
@@ -215,12 +217,13 @@ class Silex:
         return s.url if s else None
 
     # ───────── validation and publishing ─────────
-    async def validate(self, view_id: str, html: str, state: dict) -> list[str]:
+    async def validate(self, view_id: str, html: str, state: dict, moment: str = "") -> list[str]:
         stage = RUNTIME / "staging" / view_id
         stage.mkdir(parents=True, exist_ok=True)
         (stage / "index.html").write_text(html, encoding="utf-8")
         errors = static_checks(html) + await check_view(stage / "index.html")
-        errors += await renderer.render(f"http://127.0.0.1:{settings.port}/_staging/{view_id}/", state, stage / "preview.png")
+        errors += await renderer.render(f"http://127.0.0.1:{settings.port}/_staging/{view_id}/", state, stage / "preview.png",
+                                        expect_hazards=moment in HAZARD_MOMENTS)
         return list(dict.fromkeys(errors))
 
     async def publish(self, job: Job, html: str, notes: str, built_by: str, refs_used: Optional[list] = None) -> None:
@@ -289,7 +292,7 @@ class Silex:
         src = KIT / "examples" / f"{context.EXAMPLE_FOR.get(job.moment, 'approach')}.html"
         html = re.sub(r'data-view-id="[^"]*"', f'data-view-id="{job.view_id}"', src.read_text(encoding="utf-8"), count=1)
         job.status, job.attempt = "validating", 1
-        errors = await self.validate(job.view_id, html, state)
+        errors = await self.validate(job.view_id, html, state, job.moment)
         if errors:
             s.status = "failed"
             return await self.fail(job, "mock : l'exemple du kit ne passe pas — " + "; ".join(errors[:3]))
@@ -297,8 +300,10 @@ class Silex:
 
     # ───────── Devin: warm pool ─────────
     async def kit_attachments(self) -> list[str]:
-        if self.kit_urls:
+        digest = hashlib.sha1(b"".join((KIT / n).read_bytes() for n, _ in context.KIT_FILES)).hexdigest()
+        if self.kit_urls and self.kit_digest == digest:
             return self.kit_urls
+        self.kit_digest = digest                 # the kit changed (or first use): upload it again
         urls = []
         for name, ctype in context.KIT_FILES:
             urls.append(await self.devin.upload(Path(name).name, (KIT / name).read_bytes(), ctype))
@@ -503,7 +508,7 @@ class Silex:
                 if job.first_answer_ms is None:
                     job.first_answer_ms = int((time.time() - job.t0) * 1000)
                 job.status, s.status = "validating", "fixing" if job.attempt > 1 else "building"
-                errors = await self.validate(job.view_id, html, state)
+                errors = await self.validate(job.view_id, html, state, job.moment)
                 if not errors:
                     return await self.publish(job, html, notes, "devin")
                 job.rejected.append(_hash(html))
@@ -700,7 +705,7 @@ class Silex:
                 found = re.findall(r"```html\s*(<!doctype[\s\S]*?</html>)\s*```", run.output(), re.I)
                 html = found[-1] if found else ""
             job.status = "validating"
-            errors = await self.validate(job.view_id, html, state) if html else \
+            errors = await self.validate(job.view_id, html, state, job.moment) if html else \
                 [f"no file at {rel(out)}: write the whole view there with your file write tool (code {rc})"]
             notes, note_errors = self._read_notes(notes_path, refs)
             s.refs = [{"image": Path(r["path"]).name, "caption": r.get("caption"), "took": r.get("took", "")}

@@ -63,13 +63,29 @@ async def health() -> dict:
                       "model": settings.devin_model if settings.active_transport == "cli" else None,
                       "warm_idle": sum(s.status == "idle" for s in sess),
                       "warming": sum(s.status == "warming" for s in sess), "live": sum(s.live for s in sess)},
-            "renderer": renderer.available, "views": len(_list_views())}
+            "renderer": renderer.available, "views": len(list(VIEWS.glob("*/view.json")))}
 
 
 # ───────── views ─────────
 @app.post("/views/request")
 async def views_request(vr: dict) -> dict:
     return silex.request(vr)
+
+
+_KIT_CHECK: dict[str, tuple[float, bool]] = {}     # view_id → (mtime of view + kit rules, passes today's kit)
+
+
+def _passes_kit(view_id: str) -> bool:
+    """The kit's rules change during the night: a view built earlier may no longer pass check-view.mjs."""
+    import subprocess
+    p = VIEWS / view_id / "index.html"
+    stamp = max(p.stat().st_mtime, (KIT / "check-view.mjs").stat().st_mtime)
+    hit = _KIT_CHECK.get(view_id)
+    if hit and hit[0] == stamp:
+        return hit[1]
+    ok = subprocess.run(["node", str(KIT / "check-view.mjs"), str(p)], capture_output=True, timeout=20).returncode == 0
+    _KIT_CHECK[view_id] = (stamp, ok)
+    return ok
 
 
 def _list_views() -> list[dict]:
@@ -80,6 +96,7 @@ def _list_views() -> list[dict]:
         except ValueError:
             continue
         meta["url"] = f"{settings.public_url}/views/{meta['view_id']}/"
+        meta["passes_kit"] = _passes_kit(meta["view_id"])
         out.append(meta)
     return out
 

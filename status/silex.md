@@ -1,5 +1,5 @@
 # silex — status
-Updated: 05:55
+Updated: 06:03
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -13,6 +13,7 @@ Updated: 05:55
 ## Measured
 | When | Moment | Transport | Warm | Attempts | request_to_view | Deadline |
 |---|---|---|---|---|---|---|
+| 05:57 | approach, test id, kit rule 16 (hazards from the state), fire reported in the garage R-1 | CLI, Opus | yes | 1 | **146 s** | 300 s |
 | 05:41 | approach, test id, real façade shots + Rosetta footprint on earth-top-01 (6/6 refs) | CLI, Opus | yes | 1 | **219 s** | 300 s |
 | 05:16 | approach, test id, live Rosetta shots (6/8 refs as files, 24 s of it waiting for Rosetta) | CLI, Opus | yes | 1 | **140 s** | 300 s |
 | 05:10 | approach, sent by Seraph itself at dispatch (refs: IFC plans only, shots not taken yet) | CLI, Opus | yes | 1 | **102 s** | 300 s |
@@ -71,10 +72,18 @@ Updated: 05:55
   for the street side, `ifc-L<n>` inside) and to prefer the street side when `building.footprint` exists.
 - Amil's rule in the playbook and in every request, word for word: « Never write a hazard, level or room as literal
   text. Every fact in the card comes from the live state via Halo.onState at runtime, with its source tag. No
-  hazard in the state means no fire in the view. » Enforced: the headless render posts the state again with no
-  hazard (and no stair in smoke) and rejects a view that still shows feu/fumée/fire/smoke. The four views built so
-  far pass it (their « Feu … » line is computed from `building.hazards`); a literal « Feu R+3 » is rejected.
-  view_approach_4's « FEU R+3 » came from the stale 05:05 snapshot used for that test build, not from the code.
+  hazard in the state means no fire in the view. » Every request also says: re-read `halo/kit/RULES.md` and
+  `README.md` now (warm sessions read them at warm-up and the kit changes), use `Halo.fire/smoke(…, {hazard})` and
+  `Halo.hazardLine(state, h)` (kit rule 16). The API path re-uploads the kit when its files change and puts
+  RULES.md verbatim in each request.
+- **Live-bound check** (headless render): after the live state, the view gets state A (nothing reported, no stair in
+  smoke) and state B (a fire reported by the crew in the incident's room). A must show no feu/fumée/fire/smoke;
+  for approach / inside_route / occupants, B must change the drawing or the card. Devin builds once per moment;
+  data changes never trigger a rebuild.
+- `view_approach_5` (05:57, Devin CLI, 146 s, 1 attempt): passes the new check-view (rule 16) and both states;
+  card « Entrez par E1 / Montez esc. A / Feu signalé R-1 » from `Halo.hazardLine`, E2 crossed (it opens into the
+  garage fire). Views 1–4 were built before rule 16 and now fail check-view: `GET /views` → `passes_kit:false`.
+  Seraph builds a fresh view at each incident, so they are not what Halo shows.
 - A build waits up to `SILEX_REF_WAIT_S` (45 s) for shots that are missing while Rosetta reports active runs.
 - `GET /sessions` → `request_to_view_ms` of the session's last view (request reaching Silex → view served).
 - Playbook + every request: arrow width ≥ 16, no tag over the arrow (Amil's review of view_approach_2).

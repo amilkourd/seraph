@@ -115,8 +115,11 @@ def request_message(vr: dict, view_id: str, state: dict, refs: list[dict], cold:
 - deadline: {vr.get('deadline_s')} s from now. Aim to answer in under {max(60, int(vr.get('deadline_s') or 300) * 2 // 3)} s.
 - this building's stairs: {stairs}. Draw only what the state has.
 {FRAMES_NOTE}
-- live facts: {LIVE_FACTS} The snapshot may be stale; Silex re-renders the view with no hazard and rejects any
-  fire or smoke left.
+- live facts: {LIVE_FACTS} The snapshot may be stale. Silex renders the view twice more, with no hazard (any fire
+  or smoke left = rejected) and with a reported fire (the drawing or the card must change). Kit rule 16: hazards
+  only with `Halo.fire/smoke(svg, zone, {{hazard}})`, card lines with `Halo.hazardLine(state, h)`, never type
+  « Feu », « Fumée » or a level name.
+- the kit changes during the night: re-read `halo/kit/RULES.md` and `halo/kit/README.md` now, before writing.
 
 References (attached; use them only for shapes and proportions, never as a background image):
 {ref_lines}
@@ -125,6 +128,9 @@ State snapshot (`state.json` is attached in full; below it is trimmed: no doors,
 ```json
 {json.dumps(trim_state(state), ensure_ascii=False, separators=(",", ":"))}
 ```
+
+RULES.md as of now (it changes during the night; this version wins over the one in your context):
+{_read(KIT / "RULES.md")}
 
 Answer with the structured output: request_id `{vr['request_id']}`, view_id `{view_id}`, attempt 1, html, notes.
 """
@@ -196,8 +202,11 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
 - legibility at arm's length: the arrow is the main shape (`width` ≥ 16, long); no tag over the arrow's shaft or
   head (put the entrance tag on the side away from the route).
 {FRAMES_NOTE}
-- live facts: {LIVE_FACTS} The snapshot may be stale; Silex re-renders the view with no hazard and rejects any
-  fire or smoke left.
+- live facts: {LIVE_FACTS} The snapshot may be stale. Silex renders the view twice more, with no hazard (any fire
+  or smoke left = rejected) and with a reported fire (the drawing or the card must change). Kit rule 16: hazards
+  only with `Halo.fire/smoke(svg, zone, {{hazard}})`, card lines with `Halo.hazardLine(state, h)`, never type
+  « Feu », « Fumée » or a level name.
+- the kit changes during the night: re-read `halo/kit/RULES.md` and `halo/kit/README.md` now, before writing.
 
 ## Build it FROM these images (open and look at every one of them with your read tool)
 Screenshots Rosetta's H agent took of the real address during the drive (Street View, Google Earth):

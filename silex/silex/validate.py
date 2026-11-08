@@ -60,6 +60,21 @@ def no_hazard(state: dict) -> dict:
     return s
 
 
+def with_fire(state: dict) -> dict:
+    """The same state with one fire reported by the crew: in the incident's room if the building has it."""
+    s = no_hazard(state)
+    b = s.get("building") or {}
+    origin = (s.get("incident") or {}).get("origin") or {}
+    rooms = [r for r in b.get("rooms") or [] if r.get("zone")]
+    room = next((r for r in rooms if r.get("id") == origin.get("room")), None) \
+        or next((r for r in rooms if r.get("level") == origin.get("floor")), None) or (rooms[0] if rooms else None)
+    where = {"level": room.get("level"), "room": room.get("id")} if room else {"level": origin.get("floor", 0)}
+    b["hazards"] = [{"id": "HZ-silex-check", "kind": "fire", "where": where, "severity": "high",
+                     "source": {"kind": "radio", "label": "Tête", "url": None, "confirmed": True,
+                                "at": "2026-11-08T05:00:00Z"}}]
+    return s
+
+
 class Renderer:
     """One headless Chromium for the whole process. Renders the staged view with the live state."""
 
@@ -90,8 +105,15 @@ class Renderer:
             self.available = False
         return bool(self.available)
 
-    async def render(self, url: str, state: dict, shot: Path) -> list[str]:
-        """Loads `url` as the native shell would (string messages, ReactNativeWebView), posts the state twice."""
+    @staticmethod
+    async def _show(page, state: dict) -> tuple[str, int]:
+        await page.evaluate("m => window.postMessage(m, '*')", json.dumps({"type": "seraph:state", "state": state}))
+        await page.wait_for_timeout(400)
+        return await page.evaluate("document.body.innerText"), await page.evaluate("document.querySelectorAll('svg *').length")
+
+    async def render(self, url: str, state: dict, shot: Path, expect_hazards: bool = True) -> list[str]:
+        """Loads `url` as the native shell would (string messages, ReactNativeWebView): the live state twice, then
+        the same state with nothing reported and with a reported fire."""
         async with self._lock:
             if not await self._ensure():
                 return []                    # no browser: static checks only (said in /health)
@@ -111,14 +133,18 @@ class Renderer:
                 shell = await page.evaluate("window.__shell")
                 drawn = await page.evaluate("document.querySelectorAll('svg *').length") - ground
                 await page.screenshot(path=str(shot))
-                # no hazard reported → no fire, no smoke (Amil: they appear only once someone reported them)
-                await page.evaluate("m => window.postMessage(m, '*')", json.dumps({"type": "seraph:state", "state": no_hazard(state)}))
-                await page.wait_for_timeout(400)
-                text = await page.evaluate("document.body.innerText")
-                left = HAZARD_WORDS.findall(text or "")
+                # live-bound: A = nothing reported, B = a fire reported by the crew. A must show no fire or smoke
+                # (Amil: they appear only once reported), and a view about the building must change from A to B
+                text_a, count_a = await self._show(page, no_hazard(state))
+                text_b, count_b = await self._show(page, with_fire(state))
+                left = HAZARD_WORDS.findall(text_a or "")
                 if left:
                     errors.append(f"with no hazard in the state the view still shows « {left[0]} »: fire and smoke must come "
                                   "from state.building.hazards (and stair status) at runtime, never from literal text")
+                if expect_hazards and text_a == text_b and count_a == count_b:
+                    errors.append("the view does not react to a reported fire (same drawing and card with and without "
+                                  "building.hazards): draw each hazard live with Halo.fire/smoke(svg, zone, {hazard}) and "
+                                  "its card line with Halo.hazardLine(state, h)")
             except Exception as e:
                 errors.append(f"render failed: {type(e).__name__}: {str(e)[:160]}")
                 shell, drawn = [], 0
