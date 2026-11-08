@@ -1,12 +1,54 @@
 {
-  "_comment": "Seed data for the occupants replica (building manager software). Fictional people and NON-DIALABLE numbers. Real calls only go to judges who opt in through /inscription.",
-  "building": "Bâtiment d'exercice",
+  "_comment": "Seed data for the occupants replica (building manager software). Fictional people and NON-DIALABLE numbers. Real calls only go to judges who opt in through /inscription. Rooms are real ids of the TU Wien IFC (ifc/out/building.json).",
+  "building": "Immeuble d'habitation (maquette TU Wien)",
   "occupants": [
-    {"id": "OCC-01", "name": "Léa Martin",    "phone_e164": "+33100000001", "level": 3, "room": "3.12", "language": "fr"},
-    {"id": "OCC-02", "name": "Karim Benali",  "phone_e164": "+33100000002", "level": 3, "room": "3.10", "language": "fr"},
-    {"id": "OCC-03", "name": "Sophie Durand", "phone_e164": "+33100000003", "level": 4, "room": "4.05", "language": "fr"},
-    {"id": "OCC-04", "name": "Tom Becker",    "phone_e164": "+33100000004", "level": 4, "room": "4.02", "language": "en"},
-    {"id": "OCC-05", "name": "Inès Rahmani",  "phone_e164": "+33100000005", "level": 2, "room": "2.01", "language": "fr"},
-    {"id": "OCC-06", "name": "Lucía García",  "phone_e164": "+33100000006", "level": 5, "room": "5.01", "language": "es"}
+    {
+      "id": "OCC-01",
+      "name": "Léa Martin",
+      "phone_e164": "+33100000001",
+      "level": 3,
+      "room": "3.12",
+      "language": "fr"
+    },
+    {
+      "id": "OCC-02",
+      "name": "Karim Benali",
+      "phone_e164": "+33100000002",
+      "level": 1,
+      "room": "1.11",
+      "language": "fr"
+    },
+    {
+      "id": "OCC-03",
+      "name": "Sophie Durand",
+      "phone_e164": "+33100000003",
+      "level": 1,
+      "room": "1.01",
+      "language": "fr"
+    },
+    {
+      "id": "OCC-04",
+      "name": "Tom Becker",
+      "phone_e164": "+33100000004",
+      "level": 2,
+      "room": "2.16",
+      "language": "en"
+    },
+    {
+      "id": "OCC-05",
+      "name": "Inès Rahmani",
+      "phone_e164": "+33100000005",
+      "level": 2,
+      "room": "2.01",
+      "language": "fr"
+    },
+    {
+      "id": "OCC-06",
+      "name": "Lucía García",
+      "phone_e164": "+33100000006",
+      "level": 0,
+      "room": "0.19",
+      "language": "es"
+    }
   ]
 }

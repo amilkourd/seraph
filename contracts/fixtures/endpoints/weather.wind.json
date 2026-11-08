@@ -14,7 +14,7 @@
     {
       "image_id": "meteo-01",
       "url": "http://localhost:8001/shots/meteo-01.jpg",
-      "caption": "Météo-France, Paris 9e",
+      "caption": "Météo-France, Pau",
       "side": "top",
       "width": 1280,
       "height": 800,

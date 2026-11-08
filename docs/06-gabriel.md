@@ -25,7 +25,7 @@ Every listening path is Gladia live (`solaria-1`, region `eu-west`). Options, al
 
 **Radio formulas.** Fire-service radio is formatted (« <dest> de <émetteur> : … », « reçu », « binôme engagé, N bars »).
 Custom spelling maps what Gladia may hear to one written form, e.g. « Seraph de Tête » ← séraphe de tête · « Binôme 1 »
-← binôme un · « ARI » ← a r i · « escalier B » ← escalier bé · « E2 » ← e deux · « 3.12 » ← trois douze · « reçu » ←
+← binôme un · « ARI » ← a r i · « escalier A » ← escalier a · « E2 » ← e deux · « 3.12 » ← trois douze · « 2.17 » ← deux dix-sept · « reçu » ←
 resu. Build both lists at startup from the glossary and `BUILDING_JSON`; add the occupants' names when
 `occupants.list` returns. Gabriel speaks in the same formulas (`seraph` sends them already formatted).
 

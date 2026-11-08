@@ -35,7 +35,10 @@ in. In order of preference:
    Dimensions from the plan's scale, or paced on site. Materials and fire ratings only where the plan shows them
    (fire door symbol, legend) or the venue tells us; everything else absent.
    Every screen says: **« Maquette IFC reconstruite depuis le plan affiché — exercice »**.
-3. **Fallback at the 04:30 gate:** the fictional R+5 of `contracts/fixtures/` (labelled « bâtiment fictif »).
+3. **Fallback at the 04:30 gate:** the fictional R+5 (`ifc/out-dev`, labelled « bâtiment fictif »).
+
+**Decision (05:00): the demo runs on the real TU Wien IFC** (`ifc/out`, one stair, façade ladders as the second way
+out) at a fictional address. Scenario: `docs/02-scenario.md`. `contracts/fixtures/building.json` is built from it.
 
 Never publish the venue's plans in posts or the public README without their OK.
 
@@ -71,8 +74,8 @@ plans (photo/PDF/DWG) ─trace→ ifc/venue/trace.yaml ─author.py→ ifc/venue
     levels and colour rooms.
 - **Checks (fail = don't ship):** ≥ 2 escape routes from every occupied level · every room reachable from
   `outside` · every door links 2 nodes · stairs serve every level they claim · glb < 15 MB.
-- Names: keep the scenario ids when the building allows (`stair:A` clear, `stair:B` the one that will be in smoke,
-  `E1` main entrance, `E2` the other). Map them in `ifc/venue/ids.yaml`.
+- Names: keep the scenario ids when the building allows (`stair:A`, `E1` street entrance, `E2` the other,
+  `ladder:<room>` for balconies and terraces). Map them in `ifc/<building>/ids.yaml` (TU Wien: `ifc/tuwien/ids.yaml`).
 
 ## Who uses what
 | Consumer | Uses | How |

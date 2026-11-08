@@ -3,14 +3,14 @@
 If you read one file, read this one. Details live in `contracts/` and `docs/`; this file decides.
 
 ## In one minute
-A fire is declared in a building (an EXERCICE, in the hackathon venue). While the crew drives, **Rosetta**'s H
+A fire is declared in a building (an EXERCICE: a real architect's IFC, TU Wien, at a fictional address). While the crew drives, **Rosetta**'s H
 agents read every screen that matters (Google Maps/Earth, Géorisques, the plan posted at the door, the dispatch
 software, the building manager's occupant list). **Seraph** adds the building's **IFC model** (walls, doors, stairs, materials,
 fire ratings) and turns it all into one picture, picks the best entrance,
 and **Gabriel** gives the crew a 20-second briefing on the radio while **Halo**, the phone on the firefighter's
 forearm, draws the way in. Gabriel phones every occupant and takes the incident's 112 calls; each call becomes a
-line on the radio and a dot on the building. When an occupant heads into smoke, Seraph proposes a reroute and the
-commander says « confirme ». When a team goes in under breathing apparatus, Halo switches to their air countdown.
+line on the radio and a dot on the building. When an occupant heads down the only stair into smoke, Seraph proposes
+to keep them home, door closed, on their balcony (a ladder point), and the commander says « confirme ». When a team goes in under breathing apparatus, Halo switches to their air countdown.
 Every Halo screen is built for that moment by **Devin**, through **Silex**. At the end, the report writes itself in
 the legacy report software.
 
@@ -25,7 +25,7 @@ the legacy report software.
 | Halo shell, kit, fallback view | | |
 | Dashboard on the projector | | |
 | Report written by Rosetta in the replica, gated | | |
-| Building model: the venue's IFC (`ifc/`) → routes, level plans, 3D on the dashboard | Extractor tested on a real architect's IFC (TU Wien) | 3D on Halo |
+| Building model: a real architect's IFC (TU Wien, `ifc/`) → routes, level plans, ladder points, 3D on the dashboard | The venue's own IFC | 3D on Halo |
 
 ## The parts
 | Part | One line |
@@ -46,7 +46,7 @@ the legacy report software.
 | `dispatch.read` | Dispatch replica `:8101` | logs in, opens the open incident | address, nature, level, caller notes | replica | read |
 | `maps.building` | google.com/maps (Street View) + earth.google.com (3D) | searches the address, Street View front and sides, orbits the block in Earth 3D, top view | 5–7 screenshots, storeys, the IFC's entrances found outside, hydrant, truck spot (pointed by Holo) | **real** | read |
 | `georisques.risks` | georisques.gouv.fr | types the address, picks the suggestion, reads the risks | risks near the address | **real** | read |
-| `plan.read` | the photo of the plan posted at the venue's door (dev: `contracts/fixtures/plan-level3.svg`) | opens the image, Holo points at stairs, rooms, riser, cut-offs (for buildings without IFC; in the demo it cross-checks the IFC) | named points + zones (computed by code) | **real photo** | vision |
+| `plan.read` | the plan posted at the door (demo: the IFC's R-1 plan rendered, `ifc/out/levels/L-1.svg`) | opens the image, Holo points at the stair, lift, rooms, cut-offs (for buildings without IFC; in the demo it cross-checks the IFC) | named points + zones (computed by code) | **real photo** | vision |
 | `occupants.list` | Building manager replica `:8103` | logs in, opens the building, reads the occupant table | names, level, room, phone, language | replica | read |
 | `dispatch.write_112` | Dispatch replica | opens the incident, types a main-courante entry, adds it | each call logged on the incident | replica | write |
 | `report.fill` | Report replica `:8102` | fills the 4 sections, saves, sends | the finished report | replica | write, gated |
@@ -54,8 +54,9 @@ the legacy report software.
 Never on our own apps. Public sites read-only. Writes only in replicas.
 
 Not computer use: the building's **IFC** (`docs/10-ifc.md`), the file the fire service would hold. « L'IFC donne
-l'intérieur, Rosetta donne tout le reste. » No open IFC of a real French building exists, so the venue's is rebuilt
-from its posted plans (or taken from the venue if they have one), labelled on every screen.
+l'intérieur, Rosetta donne tout le reste. » No open IFC of a real French building exists: a venue's would be rebuilt
+from its posted plans; the demo uses a real architect's IFC (TU Wien, CC BY 4.0) at a fictional address, labelled
+on every screen.
 
 ## How the H agents work (Rosetta)
 1. Seraph calls `POST /run {endpoint, params}`. Rosetta opens a headed Chromium (Playwright) on the laptop.
@@ -66,7 +67,7 @@ from its posted plans (or taken from the venue if they have one), labelled on ev
 3. On `answer`, **code** checks the page and extracts the data itself (it never trusts text the model typed).
 4. **Pointing:** for screenshots that matter, a second Holo call: « find the side door (from the IFC's list of
    external doors), the hydrant, a place to park
-   a fire engine » → points on the 0–1000 grid. For the plan, Holo points at stair A, stair B, each room; code
+   a fire engine » → points on the 0–1000 grid. For the plan, Holo points at stair A, the lift, each room; code
    flood-fills the zones.
 5. Every screenshot is saved and returned. They feed the dashboard and become **Devin's visual references**.
 6. Each step is pushed to the dashboard's **agent cam** (screenshot, action, short thought).
@@ -81,14 +82,16 @@ A loop: **input → event → state → rules → actions → stream.**
   `team_update`, `view_request`, `order_to_occupants`, `confirm`, `cancel`, `report_request`, `sitrep_request`,
   `chatter`). Call facts arrive already structured.
 - **State:** one `IncidentState` (building, hazards, occupants, calls, teams, routes, gates, Halo, timeline).
-- **Computed by code, never by a model:** best entrance (stair behind it must be clear), routes (shortest path on
-  the IFC's graph avoiding smoke and fire), ARI exit time (simplified, labelled), every position on Halo.
-- **Catches (rules):** occupant heading into smoke → reroute gate · wheelchair or injury → alert · no answer → « sans
+- **Computed by code, never by a model:** best entrance (no fire between it and the stair; with one stair, the fire decides), routes (shortest path on
+  the IFC's graph avoiding smoke and fire, ladder points as rescue targets), ARI exit time (simplified, labelled), every position on Halo.
+- **Catches (rules):** occupant heading into smoke → gate (another stair if there is one; one stair: stay home,
+  door closed, balcony = ladder point) · wheelchair or injury → alert · no answer → « sans
   nouvelles » · team announcing a route through smoke → warning · air T-5 min → alarm · entrance now blocked →
   new approach.
 - **Building questions:** materials, fire doors, what's on a level → read from the IFC, source « IFC »; absent →
   « pas dans la maquette ». Never guessed. Radio and calls override the model (a blocked door is blocked).
-- **Gates:** any order to occupants, any reroute, sending the report. Seraph asks on the radio, acts on « Seraph,
+- **Gates:** the standing instruction (stay put), any order to occupants (flat by flat, or everyone at once), any
+  reroute, sending the report. Seraph asks on the radio, acts on « Seraph,
   confirme » or the dashboard button, drops on « annule » or after 2 min.
 - **Moments:** dispatch → `approach` view; first team engaged → `team_engaged` view (stretch: `occupants`,
   `inside_route`, anything the commander asks).
@@ -119,8 +122,9 @@ A loop: **input → event → state → rules → actions → stream.**
 4. Halo swaps to it. From then on the view moves by itself with every state update; no rebuild.
 5. Speed: Devin takes minutes. That's why the request is sent **at dispatch** (the drive is the build window) and
    why Silex keeps a warm Devin session. Until the view lands, Halo shows the fallback list, labelled.
-Example, `approach`: building block from above, the street, the truck at the truck spot, a flowing arrow to E2,
-the hydrant, E1 crossed out because stair B is in smoke, each element with its source tag.
+Example, `approach`: building block from above, rue Madame, the truck at the truck spot, a flowing arrow to E1,
+the hydrant, E2 crossed out because the ramp leads into the garage on fire, each element with its source tag; every
+point on the same top view (`earth-top-01`).
 
 ## Halo, on the wrist
 One idea at a time, huge, phosphor green on black, amber warnings, red danger. Top bar EXERCICE + clock. Alerts
@@ -141,10 +145,10 @@ fallbacks, `1–5` force a Halo moment.
 ## One incident, end to end
 | When | What happens |
 |---|---|
-| T-15 | The venue's IFC is already loaded (levels, stairs, doors). Amil clicks « Déclencher ». Rosetta: dispatch.read → then maps.building, plan.read, georisques.risks, occupants.list in parallel (agent cams light up). Seraph asks the COS to confirm the standing instruction. |
-| T-14 | Occupants listed → Gabriel calls everyone. Maps done → Seraph picks E2, Gabriel briefs the crew, Silex asks Devin for the `approach` view. |
-| T-10 → T-1 | Calls bring facts (3.12 two people, 2nd floor wheelchair, no answer in 3.10…); dots appear; Devin's view lands on Halo. |
-| Pitch | « Quelle entrée ? » → spoken answer + arrow · a judge's phone rings, live call → radio line · Tom heads to stair B → « Je lui dis de prendre A ? » → « Confirme » · « Binôme 1 engagé, 300 bars » → Devin's air view, countdown · « Fais le rapport » → « Confirme » → Rosetta fills it on screen · (only if the IFC has it) « La porte du local technique ? » → « Coupe-feu, source maquette ». |
+| T-15 | The TU Wien IFC is already loaded (levels, one stair, doors, ladder points). Amil clicks « Déclencher ». Rosetta: dispatch.read → then maps.building, plan.read, georisques.risks, occupants.list in parallel (agent cams light up). Seraph asks the COS to confirm the standing instruction (stay put). |
+| T-14 | Occupants listed → Gabriel calls everyone. Maps done → Seraph picks E1, Gabriel briefs the crew, Silex asks Devin for the `approach` view. |
+| T-10 → T-1 | Calls bring facts (3.12 two people, smoke under the door; 2.01 wheelchair; no answer in 1.11; witness: smoke out of the garage ramp…); dots appear; Devin's view lands on Halo. |
+| Pitch | « Quelle entrée ? » → spoken answer + arrow · a judge's phone rings, live call → radio line · Tom starts down the smoky stair → « Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ? » → « Confirme » → ladder point 2.17 · « Binôme 1 engagé, 300 bars » → Devin's air view, countdown · « Levée du confinement : dis à tous les occupants de sortir par l'escalier A » → « Confirme » → every caller at once · « Fais le rapport » → « Confirme » → Rosetta fills it on screen · « La porte du garage est coupe-feu ? » → « EI2 30-C-Sm, source maquette ». |
 
 ## What can break, and what we do
 | Breaks | Fallback (always labelled) |
@@ -154,7 +158,7 @@ fallbacks, `1–5` force a Halo moment.
 | Devin late | Halo fallback list « vue de secours » |
 | A live site (captcha, Earth 3D) | Golden-path cache « cache » |
 | A live line missed on stage | Replay that fixture line (`R`) |
-| Venue IFC not ready at 04:30 | Fictional building « bâtiment fictif » |
+| TU Wien model fails to load | Fictional R+5 (`ifc/out-dev`) « bâtiment fictif » |
 | 3D too heavy on the projector | Level plans only |
 
 ## Where the details are

@@ -1,37 +1,92 @@
-# Scenario — EXERCICE (fictional fire, every screen says so)
+# Scenario v2 — EXERCICE on the TU Wien building (every screen says EXERCICE)
 
-**« EXERCICE — Feu de local technique, 3e étage, bâtiment R+5 »** at the hackathon venue's address
-(`DEMO_ADDRESS` in `.env`; Amil fills it from the Luma page). The jury sits in the building that is "on fire".
-For development, everything below exists in `contracts/fixtures/` so nobody needs the venue.
+**« EXERCICE — Feu de véhicule au parking souterrain, fumée dans l'escalier, immeuble R+3 »** at `DEMO_ADDRESS`
+(`.env`: « 2 rue Madame, 64000 Pau »). The building is a **real architect's IFC** (TU Wien « Real-World Escape Route
+Test Model », CC BY 4.0) placed at a fictional address: provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) —
+adresse fictive, exercice » on every screen. Everything below exists in `contracts/fixtures/`; ids come from
+`ifc/out/building.json` (extractor 1.2.0, building map in `status/ifc.md`).
 
-## The building (`fixtures/building.json`, `fixtures/plan-level3.svg`)
-- R+5: levels 0 (RDC) to 5. Two stairs: **A** (north, left on the plan) and **B** (south, right, next to the
-  technical room). Elevator next to stair A (not to be used).
-- Entrances: **E1** main entrance on the boulevard, opens on the hall of stair B. **E2** side door on the side
-  street, opens directly on stair A.
-- Level 3: open space 3.10, meeting room 3.12, kitchen 3.14, technical room 3.T (**fire origin**), corridor. Dry
-  riser (colonne sèche) in stair A. Gas cut-off in 3.14.
-- Hydrant H1 on the side street, ~40 m from E2. Truck spot: side street, in front of E2.
-- **Best entrance (computed): E2** — « E2 donne directement sur l'escalier A, dégagé ; E1 donne sur le hall de
-  l'escalier B, enfumé. »
-- Wind: west, ~20 km/h. Géorisques: a couple of natural risks (mock), nothing industrial.
+## The building (`fixtures/building.json` = `ifc/out/building.json` + what Rosetta brings from outside)
+- Residential block, **R-1 to R+3**. R-1: garage `-1.11` with parking places, ramp `-1.03`, caves `-1.01`, local
+  poussettes `-1.04`, local électrique `-1.06` → local technique `-1.08`, all off the basement circulation
+  `corridor:-1`. RDC to R+2: two flats per level. R+3: one flat (`U3.1`) with three terraces.
+- **One stairwell, `stair:A`** (levels -1 to 3), plus a lift (`room:-1.02`, `0.03`, `1.02`, `2.02`, `3.01`; never a
+  route). The stair opens **without a door** on every common circulation (`corridor:-1` … `corridor:3`).
+- **Second way out of each flat = the façade**: balconies and terraces, reached by the fire service's ladders.
+  Graph nodes `ladder:<room>` (`model.ladder_points`): R+1 `ladder:1.05`, `ladder:1.18` · R+2 `ladder:2.05`,
+  `ladder:2.17` · R+3 `ladder:3.04`, `ladder:3.07`, `ladder:3.08`. A ladder point is never an exit on foot.
+- Entrances (from the IFC): **E1** « Porte d'entrée, hall de l'escalier », RDC, front, on rue Madame → `corridor:0`
+  (EI2 30-C). **E2** « Porte de garage, rampe (sous-sol) », R-1, left side → ramp `-1.03` → garage `-1.11`.
+- Flats (`units`): `U0.1` `U0.2` (RDC, terraces 0.01 / 0.14 / 0.20 open to the garden = exits on foot), `U1.1`
+  `U1.2`, `U2.1` `U2.2`, `U3.1`. Each flat door is EI2 30-C-Sm.
+- Outside, from Rosetta (`maps.building`; fixture values, all on the top view `earth-top-01`): hydrant **H1**
+  « Poteau incendie, trottoir rue Madame », ~30 m from E1 · truck spot « Rue Madame, devant E1 » · E1 on the front
+  façade, E2 at the foot of the ramp on the left side.
+- Posted plan (`plan.read`): the R-1 plan, rendered from the IFC (`ifc/out/levels/L-1.svg`), `image_id`
+  `plan-l-1-01`, same 0–1000 frame as `ifc-L-1`. It cross-checks the IFC; the IFC zones win.
+- Wind: west, ~20 km/h (Météo-France, Pau). Géorisques (mock): séisme zone 4, retrait-gonflement des argiles.
 
-**Switching to the venue (`docs/10-ifc.md`).** This fictional R+5 is the dev building (`ifc/dev/`). When the venue's
-IFC passes its checks, its `ifc/out/building.json` replaces the fixture and Amil rewrites rooms, occupants, radio and
-call lines on the real layout. The real layout must give: two escape routes (stair A clear, stair B the one in
-smoke — or two exits), the fire in a room next to B, the same ids where possible (`stair:A`, `stair:B`, `E1`, `E2`).
-The entrance photo still feeds `plan.read`.
+## The fire and why the stair is in smoke (geometry, from the IFC)
+- **Origin: a car on fire in the underground garage `-1.11`** (R-1). Smoke leaves by the ramp (`-1.03` → E2) and,
+  through the garage fire door **P-1-5** (EI2 30-C-Sm, self-closing, found wedged open), fills `corridor:-1`,
+  which opens on `stair:A` with no door. The single stair fills with smoke from the bottom up.
+- Starting hazards (`hazards_initial`, source « alerte »): `HZ-1` fire `{level:-1, room:"-1.11"}` high ·
+  `HZ-2` smoke `{stair:"A"}` high (112 callers: « fumée dans la cage d'escalier »).
+- **Best entrance (code): E1.** E2's path to the stair crosses the garage on fire (impassable); E1 opens on the stair
+  hall at RDC. Expected reason: « E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu. »
+  The stair is the same for both (one stair, in smoke): the fire decides, not the stair.
+- Rescue before attack: B1 goes **up** stair A from E1 under ARI (sauvetages). The attack on the car (B2) can use
+  the ramp later; that is not in the demo.
+
+## The Grenfell link (say it, show it)
+Grenfell Tower had **one staircase**. Residents were told to stay put; the advice was only lifted at 02:47, nearly
+two hours after the first call. Seraph does the opposite of guessing:
+1. **Stay put is a commander's decision.** At T-15 Seraph proposes the standing instruction (gate `relay_order`):
+   « Consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte
+   fermée. Confirmez ? » Gabriel says it only after « confirme », and only to callers at home who report smoke.
+2. **Flat by flat.** Anything else is one gate per flat: Tom going down the smoky stair (stay + balcony), Lucía
+   asking what to do (« Consigne ? »), Inès who cannot go down.
+3. **Liftable for everyone in one sentence.** « Seraph, levée du confinement : dis à tous les occupants de sortir
+   par l'escalier A. » → one read-back → « confirme » → every caller hears it at once, in their language.
 
 ## Occupants (`fixtures/occupants.json`, seeded in the occupants replica)
-| Id | Name | Level / room | Language | What the call will say (fixtures/calls.jsonl) |
-|---|---|---|---|---|
-| OCC-01 | Léa Martin | 3 / 3.12 | fr | In 3.12 with a colleague, smoke under the door, staying put |
-| OCC-02 | Karim Benali | 3 / 3.10 | fr | No answer |
-| OCC-03 | Sophie Durand | 4 / 4.05 | fr | Safe, sheltering in 4.05, no smoke |
-| OCC-04 | Tom Becker | 4 / 4.02 | en | Going down the south stairs (= B, smoke) → **the catch** |
-| OCC-05 | Inès Rahmani | 2 / 2.01 | fr | Wheelchair user, cannot go down alone → needs help |
-| OCC-06 | Lucía García | 5 / 5.01 | es | No smoke, asks what to do → « restez en ligne, je transmets » |
-| JUDGE-n | (opt-in via QR) | any | any | Live: whatever they say |
+Night (00:25): people are home, mostly in bedrooms. Fictional people, non-dialable numbers.
+| Id | Name | Level / room (flat) | Language | What the call says (`fixtures/calls.jsonl`) | Beat |
+|---|---|---|---|---|---|
+| OCC-01 | Léa Martin | R+3 / 3.12 Chambre (U3.1, terrace 3.07) | fr | With her son, smoke under the door, staying | sheltering, urgent; B1's target |
+| OCC-02 | Karim Benali | R+1 / 1.11 Chambre (U1.2) | fr | No answer, twice | « sans nouvelles » |
+| OCC-03 | Sophie Durand | R+1 / 1.01 Chambre (U1.1) | fr | At home, door closed, no smoke | safe, sheltering |
+| OCC-04 | Tom Becker | R+2 / 2.16 Séjour-cuisine (U2.2, balcony 2.17) | en | Leaving his flat, going down the stairs, some smoke | **the catch** |
+| OCC-05 | Inès Rahmani | R+2 / 2.01 Chambre (U2.1) | fr | Wheelchair user, cannot go down alone | needs help |
+| OCC-06 | Lucía García | RDC / 0.19 Séjour-cuisine (U0.2, terrace 0.20) | es | No smoke, asks what to do | « restez en ligne, je transmets » |
+| JUDGE-n | (opt-in via QR) | any | any | Live: whatever they say | — |
+Floors are counted the French way (RDC = 0, « second floor » = R+2). Callers name their floor and the kind of room;
+the room id comes from the occupant record.
+
+## The key beat (replaces « Tom, stair B → A »)
+1. Tom (R+2) answers: « I'm on the second floor, I'm going down the stairs right now. There's some smoke. » →
+   facts `heading_to: "stair:A"`, `current_action: "moving"`.
+2. Catch (code): an occupant heads into a node with a hazard and **there is no other stair**. Seraph proposes, on
+   the radio and on the dashboard (gate `reroute_occupant`):
+   « COS de Seraph : Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester chez
+   lui, porte fermée, et d'aller sur le balcon ? »
+3. COS: « Seraph, confirme. » → Gabriel tells Tom, in English (below). Seraph sets Tom `sheltering`,
+   `heading_to: "ladder:2.17"`, adds route `evacuation` `room:2.16 → room:2.17 → ladder:2.17`, raises an alert
+   « Échelle : balcon 2.17, 2e, Tom Becker », and tells the crew « Reçu. Tom Becker reste chez lui, balcon 2.17 :
+   point échelle. »
+4. Halo: the alert covers the view; then 2.17 is drawn as an **active ladder point** (the `to` of an evacuation
+   route); the other `model.ladder_points` stay dim. Dashboard: callout « Échelle · Tom Becker » on 2.17.
+The balcony is chosen by code: the ladder point of the occupant's flat (`units`) reachable from their room
+(2.16 → 2.17 through the French window P2-69); if the flat has several, the one off the room they are in.
+
+## Sentences (exact; Seraph templates, Gabriel speaks them)
+| Use | fr | en | es |
+|---|---|---|---|
+| Standing instruction (after « confirme », callers at home with smoke) | Restez chez vous, porte fermée. Ne prenez pas l'escalier, il est enfumé. Calfeutrez le bas de la porte avec un linge mouillé. Les pompiers sont informés de votre position. Restez en ligne. | Stay in your flat with the door closed. Do not use the stairs, there is smoke. Block the gap under the door with a wet towel. The firefighters know where you are. Stay on the line. | Quédese en su casa con la puerta cerrada. No use la escalera, hay humo. Tape la parte de abajo de la puerta con un trapo mojado. Los bomberos saben dónde está. No cuelgue. |
+| Stay + balcony (Tom, after « confirme ») | Les pompiers vous demandent de rentrer chez vous tout de suite et de fermer la porte. Ne prenez pas l'escalier, il y a de la fumée. Allez sur votre balcon pour que les pompiers vous voient. Restez en ligne. | The firefighters ask you to go back into your flat now and close the door. Do not use the stairs, there is smoke. Go out on your balcony so the firefighters can see you. Stay on the line. | Los bomberos le piden que vuelva a su casa ahora mismo y cierre la puerta. No use la escalera, hay humo. Salga a su balcón para que los bomberos le vean. No cuelgue. |
+| Hold (no order yet) | Restez en ligne, je transmets aux pompiers. | Stay on the line, I am passing this to the firefighters. | Quédese en línea, estoy transmitiendo su situación a los bomberos. |
+| Lift, for everyone (after « confirme ») | Sortez par l'escalier A. | Leave the building by stairway A. | Salga del edificio por la escalera A. |
+For a terrace (R+3) the stay sentence says « terrasse » / « terrace » / « terraza » instead of balcony.
 
 ## The crew (LiveKit room `crew`)
 COS (Amil, phone B talkie) · Tête (chef d'agrès FPT) · Binôme 1 (B1) · Binôme 2 (B2). In the demo, Amil voices the
@@ -40,17 +95,31 @@ COS and, if needed, Tête/Binôme lines; a judge can hold the talkie too.
 ## Timeline of the incident (real time, compressed for the demo)
 | T | What happens | Who |
 |---|---|---|
-| T-15 min | Amil starts the incident from the dashboard (= dispatch). Rosetta runs 6 endpoints; Silex starts the `approach` view; Gabriel calls every occupant | Seraph |
-| T-14 → T-1 | "The drive": Devin builds the approach view; calls come in; facts land on the floor stack | all |
-| T0 (pitch starts) | Halo already shows the approach; dashboard shows the Devin session that built it | — |
-| demo | Tête asks « quelle entrée ? » → spoken answer + arrow on Halo | Seraph, Gabriel |
+| T-15 min | Amil starts the incident (= dispatch). Rosetta runs its endpoints; Silex starts the `approach` view; Seraph proposes the standing instruction (stay put) and the COS confirms; Gabriel calls every occupant | Seraph |
+| T-14 → T-1 | "The drive": Devin builds the approach view; calls come in (Léa 3.12 smoke under the door, Inès 2.01 wheelchair, Karim no answer, Sophie safe, Lucía asks); the 112 witness: smoke out of the garage ramp | all |
+| T0 (pitch starts) | Halo already shows the approach (E1, E2 crossed: garage on fire); dashboard shows the Devin session | — |
+| demo | Tête: « quelle entrée ? » → E1, not E2, single stair in smoke, hydrant | Seraph, Gabriel |
 | demo | A judge's phone rings (or calls 112): live call → facts → crew summary | Gabriel |
-| demo | Tom heads to stair B → gate « je lui dis de prendre A ? » → « confirme » → told in English | Seraph, Gabriel |
-| demo | « Binôme 1 engagé, 300 bars » → Halo switches to air tracking (Devin) → countdown | Seraph, Silex |
+| demo | Tom starts down the smoky stair → « Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ? » → « confirme » → told in English → ladder point 2.17 on Halo | Seraph, Gabriel, Halo |
+| demo | « Binôme 1 engagé par l'escalier A, 300 bars » → Halo switches to air tracking (Devin) → countdown | Seraph, Silex |
+| demo | Tête: « escalier A désenfumé » · COS: « levée du confinement : dis à tous les occupants de sortir par l'escalier A » → read-back (except Inès, wheelchair) → « confirme » → every caller, every language | Seraph, Gabriel |
 | demo | « Seraph, fais le rapport » → gate → `report.fill` on screen | Rosetta |
-| optional | « Seraph, il y a une crèche dans la rue ? » → Rosetta explores live → new endpoint | Rosetta, Silex |
+| optional | « La porte du garage est coupe-feu ? » → « Porte -1.11 Garage : EI2 30-C-Sm, source maquette » | Seraph |
+| optional | « Seraph, il y a une crèche ou une école dans la rue ? » → Rosetta explores live → new endpoint | Rosetta, Silex |
 
-## ARI air (simplified, labelled « calcul simplifié » on every screen)
+## ARI air (unchanged; simplified, labelled « calcul simplifié » on every screen)
 `exit_by = entered_at + (pressure_bar_start − 60) / 8 bar·min⁻¹ × 0.5` (half the usable air to go in, half to come
 out). With 300 bar: (300−60)/8 = 30 min → exit after 15 min. Demo factor `ARI_TIME_FACTOR` (default 10) compresses
 time so the T-5 min alarm happens during the pitch. This is a demo rule, not the real ARI procedure.
+
+## What changed from v1 (fictional two-stair R+5)
+| v1 | v2 (TU Wien) |
+|---|---|
+| R+5, levels 0–5, stairs A (clear) and B (smoke) | R-1–R+3, one stair A (smoke), façade ladders as second way out |
+| Fire: technical room `3.T`, level 3 | Fire: garage `-1.11`, level -1 (smoke via P-1-5 → `corridor:-1` → stair A) |
+| Best entrance E2 (side door on stair A) | Best entrance E1 (stair hall); E2 = garage ramp, through the fire |
+| Tom 4.02 down stair B → « prends A ? » | Tom 2.16 down stair A → « reste chez lui, porte fermée, balcon ? » → `ladder:2.17` |
+| Standing: smoke at the door → stay in the room | Standing: smoke in the stair or at the door → stay home, door closed (stay put, by the COS) |
+| — | Lift for everyone in one sentence (R13–R15) |
+| Karim 3.10, Sophie 4.05, Inès 2.01, Lucía 5.01, Léa 3.12 | Karim 1.11, Sophie 1.01 (now has a call, CALL-07), Inès 2.01, Lucía 0.19, Léa 3.12 |
+| Plan photo `plan-level3.svg` (`plan-l3-01`) | IFC R-1 plan rendered (`plan-l-1-01`, frame of `ifc-L-1`) |

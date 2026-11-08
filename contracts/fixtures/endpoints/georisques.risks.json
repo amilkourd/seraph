@@ -5,14 +5,8 @@
   "live": false,
   "output": {
     "risks": [
-      {
-        "label": "Inondation par remontée de nappe",
-        "category": "naturel"
-      },
-      {
-        "label": "Retrait-gonflement des argiles",
-        "category": "naturel"
-      }
+      {"label": "Séisme : zone 4 (moyenne)", "category": "naturel"},
+      {"label": "Retrait-gonflement des argiles", "category": "naturel"}
     ],
     "url": "https://www.georisques.gouv.fr/"
   },

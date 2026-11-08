@@ -6,12 +6,13 @@
   "output": {
     "incident_id": "INC-0001",
     "address": "DEMO_ADDRESS",
-    "nature": "Feu de local technique, fumée importante",
-    "level": 3,
+    "nature": "Feu de véhicule en parking souterrain, fumée dans l'escalier",
+    "level": -1,
     "declared_at": "2026-11-08T00:00:00Z",
     "caller_notes": [
-      "Fumée au 3e étage côté sud",
-      "Personnes possiblement bloquées au 3e"
+      "Fumée dans la cage d'escalier",
+      "Fumée qui sort de la rampe du parking",
+      "Habitants bloqués dans les étages"
     ]
   },
   "screenshots": [

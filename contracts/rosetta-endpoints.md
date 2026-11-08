@@ -25,8 +25,8 @@ Points use H's 0–1000 grid on the screenshot they refer to (`ImagePoint`).
 params `{ incident_id?: string }` (none = most recent open incident)
 output
 ```json
-{ "incident_id": "INC-0001", "address": "…", "nature": "Feu de local technique", "level": 3,
-  "declared_at": "…", "caller_notes": ["Fumée au 3e", "Personnes possiblement bloquées"] }
+{ "incident_id": "INC-0001", "address": "…", "nature": "Feu de véhicule en parking souterrain, fumée dans l'escalier",
+  "level": -1, "declared_at": "…", "caller_notes": ["Fumée dans la cage d'escalier", "Habitants bloqués dans les étages"] }
 ```
 Steps: log in → incident list → open the newest « En cours » → read the fields. Code reads the DOM text after Holo
 reaches the page (never trust a value the model typed in its answer).
@@ -40,13 +40,17 @@ Holo then **points** on each screenshot at: entrances (with side), gates/fences,
 fire engine can stop, overhead obstacles.
 output
 ```json
-{ "storeys_estimate": 6,
-  "entrances": [{"id":"E1","label":"Entrée principale boulevard","side":"front","point":{"image_id":"sv-front-01","x":512,"y":640}},
-                {"id":"E2","label":"Porte latérale rue","side":"left","point":{"image_id":"earth-left-01","x":300,"y":700}}],
-  "hydrants": [{"id":"H1","label":"Poteau incendie rue","point":{"image_id":"sv-left-01","x":820,"y":760}}],
-  "truck_spot": {"label":"Boulevard, voie de bus","point":{"image_id":"earth-top-01","x":480,"y":820}},
-  "obstacles": ["Terrasse de café devant E1"] }
+{ "storeys_estimate": 4,
+  "entrances": [{"id":"E1","label":"Porte d'entrée, hall de l'escalier","side":"front","point":{"image_id":"earth-top-01","x":500,"y":585}},
+                {"id":"E2","label":"Porte de garage, rampe (sous-sol)","side":"left","point":{"image_id":"earth-top-01","x":318,"y":372}}],
+  "hydrants": [{"id":"H1","label":"Poteau incendie, trottoir rue Madame","point":{"image_id":"earth-top-01","x":642,"y":652}}],
+  "truck_spot": {"label":"Rue Madame, devant E1","point":{"image_id":"earth-top-01","x":500,"y":712}},
+  "evidence": [{"of":"E1","point":{"image_id":"sv-front-01","x":508,"y":642}}, …],
+  "obstacles": ["Voitures garées le long de la rue Madame"] }
 ```
+**Every point Halo draws (entrances, hydrant, truck spot) is on the same top view, `earth-top-01`.** Points found on
+other photos (Street View, Earth sides) go in `evidence` (`{of, point}`): proof for the dashboard, never drawn
+together on one scheme.
 Screenshots: `sv-front-01`, `sv-left-01`, `sv-right-01`, `earth-front-01`, `earth-left-01`, `earth-rear-01`,
 `earth-top-01` (whatever was reachable). Accept cookie consent first. If Earth's 3D doesn't render, keep Street View
 and Maps satellite only and say so in `error` (status stays `ok`).
@@ -61,17 +65,18 @@ params `{ town: string }` (e.g. "Paris 9e")
 output `{ "dir_deg": 270, "dir_label": "ouest", "speed_kmh": 20, "observed_at": "…", "url": "…" }`
 
 ## 5. `plan.read`
-params `{ image_path: string, level: number }` — the photo of the plan (the venue's door plan; dev uses
-`contracts/fixtures/plan-level3.svg` rendered to PNG).
-Does: opens the image in the browser at full size, Holo points at named elements. Names: `stair:A`, `stair:B`,
+params `{ image_path: string, level: number }` — the plan posted at the door. Demo (TU Wien): the IFC's R-1 plan
+`ifc/out/levels/L-1.svg` (copy in `contracts/fixtures/levels/`) rendered to PNG at 1000×1000, so its 0–1000 frame is
+the frame of `ifc-L-1`; the IFC zones win, the plan cross-checks them.
+Does: opens the image in the browser at full size, Holo points at named elements. Names: `stair:<id>`,
 `exit:<id>`, `room:<label>`, `riser` (colonne sèche), `gas_cutoff`, `electric_cutoff`, `extinguisher`, `elevator`,
 `you_are_here`. Then **code** computes zones: threshold the image, close door gaps (dilate walls), flood-fill from
 each room/stair point → polygon (0–1000 grid). Models point; code draws.
 output
 ```json
-{ "level": 3, "image_id": "plan-l3-01",
-  "points": [{"name":"stair:A","label":"Escalier A","point":{"image_id":"plan-l3-01","x":120,"y":200}}, …],
-  "zones":  [{"name":"room:3.12","polygon":[[600,150],[760,150],[760,330],[600,330]]}, …] }
+{ "level": -1, "image_id": "plan-l-1-01",
+  "points": [{"name":"stair:A","label":"Escalier A","point":{"image_id":"plan-l-1-01","x":600,"y":685}}, …],
+  "zones":  [{"name":"room:-1.11","polygon":[[852,940],[824,939],[824,551], …]}, …] }
 ```
 
 ## 6. `occupants.list`
@@ -80,8 +85,8 @@ output `{ "occupants": [{"id":"OCC-01","name":"…","phone_e164":"+33…","level
 Phone numbers go only to Gabriel (`place_calls`). Screens show them masked.
 
 ## 7. `dispatch.write_112`
-params `{ incident_id, entry_fr: string }` — e.g. « 01:12 Appel OCC-03 : 2 personnes salle 3.12, fumée sous la
-porte. » Does: incident page → « Main courante » → type → « Ajouter ». Verifies the entry appears in the list.
+params `{ incident_id, entry_fr: string }` — e.g. « 01:12 Appel Léa Martin : deux personnes chambre 3.12, fumée
+sous la porte. » Does: incident page → « Main courante » → type → « Ajouter ». Verifies the entry appears in the list.
 output `{ "ok": true, "entry_id": "…" }`
 
 ## 8. `report.fill`

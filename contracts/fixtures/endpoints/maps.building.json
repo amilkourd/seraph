@@ -4,57 +4,59 @@
   "status": "ok",
   "live": false,
   "output": {
-    "storeys_estimate": 6,
+    "storeys_estimate": 4,
     "entrances": [
       {
         "id": "E1",
-        "label": "Entrée principale boulevard",
+        "label": "Porte d'entrée, hall de l'escalier",
         "side": "front",
-        "point": {
-          "image_id": "sv-front-01",
-          "x": 512,
-          "y": 640
-        }
+        "point": {"image_id": "earth-top-01", "x": 500, "y": 585}
       },
       {
         "id": "E2",
-        "label": "Porte latérale rue",
+        "label": "Porte de garage, rampe (sous-sol)",
         "side": "left",
-        "point": {
-          "image_id": "earth-left-01",
-          "x": 300,
-          "y": 700
-        }
+        "point": {"image_id": "earth-top-01", "x": 318, "y": 372}
       }
     ],
     "hydrants": [
       {
         "id": "H1",
-        "label": "Poteau incendie rue latérale",
-        "point": {
-          "image_id": "sv-left-01",
-          "x": 820,
-          "y": 760
-        }
+        "label": "Poteau incendie, trottoir rue Madame",
+        "point": {"image_id": "earth-top-01", "x": 642, "y": 652}
       }
     ],
     "truck_spot": {
-      "label": "Rue latérale, devant E2",
-      "point": {
-        "image_id": "earth-top-01",
-        "x": 260,
-        "y": 520
-      }
+      "label": "Rue Madame, devant E1",
+      "point": {"image_id": "earth-top-01", "x": 500, "y": 712}
     },
+    "evidence": [
+      {
+        "of": "E1",
+        "point": {"image_id": "sv-front-01", "x": 508, "y": 642}
+      },
+      {
+        "of": "E2",
+        "point": {"image_id": "sv-left-01", "x": 362, "y": 690}
+      },
+      {
+        "of": "E2",
+        "point": {"image_id": "earth-left-01", "x": 296, "y": 704}
+      },
+      {
+        "of": "H1",
+        "point": {"image_id": "sv-front-01", "x": 846, "y": 758}
+      }
+    ],
     "obstacles": [
-      "Terrasse de café devant E1"
+      "Voitures garées le long de la rue Madame"
     ]
   },
   "screenshots": [
     {
       "image_id": "sv-front-01",
       "url": "http://localhost:8001/shots/sv-front-01.jpg",
-      "caption": "Façade boulevard (Street View)",
+      "caption": "Façade rue Madame, porte d'entrée E1 (Street View)",
       "side": "front",
       "width": 1280,
       "height": 800,
@@ -63,7 +65,7 @@
     {
       "image_id": "sv-left-01",
       "url": "http://localhost:8001/shots/sv-left-01.jpg",
-      "caption": "Rue latérale (Street View)",
+      "caption": "Côté gauche, rampe du garage E2 (Street View)",
       "side": "left",
       "width": 1280,
       "height": 800,
@@ -72,7 +74,7 @@
     {
       "image_id": "earth-left-01",
       "url": "http://localhost:8001/shots/earth-left-01.jpg",
-      "caption": "Côté rue latérale (Google Earth 3D)",
+      "caption": "Côté gauche, rampe du garage (Google Earth 3D)",
       "side": "left",
       "width": 1280,
       "height": 800,
@@ -81,7 +83,7 @@
     {
       "image_id": "earth-rear-01",
       "url": "http://localhost:8001/shots/earth-rear-01.jpg",
-      "caption": "Arrière (Google Earth 3D)",
+      "caption": "Arrière, balcons et terrasses (Google Earth 3D)",
       "side": "rear",
       "width": 1280,
       "height": 800,
@@ -90,7 +92,7 @@
     {
       "image_id": "earth-top-01",
       "url": "http://localhost:8001/shots/earth-top-01.jpg",
-      "caption": "Vue du dessus (Google Earth)",
+      "caption": "Vue du dessus, rue Madame (Google Earth)",
       "side": "top",
       "width": 1280,
       "height": 800,

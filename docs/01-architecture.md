@@ -88,7 +88,7 @@ sequenceDiagram
   R-->>S: results + screenshots + points (as they arrive)
   S->>X: view request "approach" (refs: Earth/Street View shots, data: entrances, hydrant, truck spot)
   S->>S: choose best entrance (code), compute approach arrow
-  S->>G: say on crew: « Tête de Seraph : R+5, entrée par … »
+  S->>G: say on crew: « Tête de Seraph : entrée par E1 … évitez E2 … »
   S->>G: place_calls (all occupants)
   X-->>S: view ready (url, devin session)
   S->>H: current view = approach
@@ -102,14 +102,14 @@ sequenceDiagram
   participant S as Seraph
   participant R as Rosetta
   participant Crew as Crew channel
-  C->>G: « I'm in room 3.12 with a colleague, smoke under the door »
+  C->>G: « Je suis dans ma chambre, au 3e, avec mon fils, fumée sous la porte »
   G->>S: call_facts {floor 3, room 3.12, people 2, smoke yes}
   S->>R: dispatch.write_112 (log the call on the incident)
-  S->>Crew: say « Appel : deux personnes salle 3.12, fumée sous la porte. »
-  S->>S: catch: caller 4th floor going down stair B, stair B = smoke
-  S->>Crew: say « COS de Seraph : occupant 4e descend par B, B enfumé. Je lui dis de prendre A ? »
+  S->>Crew: say « Appel : deux personnes chambre 3.12, fumée sous la porte. »
+  S->>S: catch: caller 2nd floor going down stair A, stair A = smoke, only stair
+  S->>Crew: say « COS de Seraph : Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ? »
   Crew->>S: « Seraph, confirme. » (gate released)
-  S->>G: say to that call: « Les pompiers vous demandent de prendre l'escalier A. »
+  S->>G: say to that call, in English: « … go back into your flat now and close the door … go out on your balcony … »
 ```
 
 ### 3. A moment → a Halo view
