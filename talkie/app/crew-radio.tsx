@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { RadioDevPanel } from "@/components/RadioDevPanel";
-import { withAccess } from "@/lib/access";
+import { ACCESS_DENIED, setAccessCode, withAccess } from "@/lib/access";
 import { createRadio, speakerLabel, type LinkState, type RadioTransport } from "@/lib/radio";
 import { busy, chirp, noiseBed, roger, squelchClose, squelchOpen, unlockAudio } from "@/lib/audio/sounds";
 import { unlockSpeech } from "@/lib/audio/speech";
@@ -127,7 +127,12 @@ function CallSignPicker({ onJoin }: { onJoin: (cs: string) => void }) {
 
   return (
     <main className="radio-surface safe-x safe-top safe-bottom flex h-dvh flex-col bg-black">
-      <header className="flex justify-end">
+      {/* same header as the radio: one channel, the buttons below pick who you are on it */}
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <span className="lockup block text-[15px] text-white">Canal crew</span>
+          <span className="lockup mt-1.5 block text-[30px] text-white">Votre indicatif</span>
+        </div>
         <ExerciceTag />
       </header>
 
@@ -186,6 +191,43 @@ function CallSignPicker({ onJoin }: { onJoin: (cs: string) => void }) {
         </button>
       </div>
     </main>
+  );
+}
+
+/** The public deploy refused the code (none in the link, or a wrong one): type it once, the phone keeps it. */
+function AccessCodeCard({ onCode }: { onCode: (code: string) => void }) {
+  const [code, setCode] = useState("");
+  const ok = code.trim().length > 0;
+  return (
+    <form
+      className="mb-3 rounded-[10px] border border-white bg-black p-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (ok) onCode(code.trim());
+      }}
+    >
+      <label className="lockup block text-[17px] text-white" htmlFor="access-code">
+        Code d&apos;accès
+      </label>
+      <input
+        id="access-code"
+        value={code}
+        onChange={(e) => setCode(e.target.value.slice(0, 64))}
+        autoCapitalize="off"
+        autoCorrect="off"
+        autoComplete="off"
+        spellCheck={false}
+        enterKeyHint="go"
+        className="mt-3 h-[56px] w-full rounded-[8px] border border-white bg-black px-4 font-mono text-[18px] text-white focus:outline-none"
+      />
+      <button
+        type="submit"
+        disabled={!ok}
+        className="lockup mt-3 h-[52px] w-full rounded-[8px] bg-white text-[15px] text-black transition-opacity disabled:opacity-30"
+      >
+        Rejoindre
+      </button>
+    </form>
   );
 }
 
@@ -396,7 +438,14 @@ function RadioScreen({
 
       {/* bottom: only when the channel cannot be joined */}
       <footer className="safe-x safe-bottom relative z-10">
-        {view === "off" && joinError && link === "offline" ? (
+        {view === "off" && joinError === ACCESS_DENIED && link === "offline" ? (
+          <AccessCodeCard
+            onCode={(code) => {
+              setAccessCode(code);
+              onRetry();
+            }}
+          />
+        ) : view === "off" && joinError && link === "offline" ? (
           <div className="mb-3 rounded-[10px] border border-white bg-black p-4">
             <p className="lockup text-[17px] text-white">Canal indisponible</p>
             <p className="mt-2 text-[16px] text-white">{joinError}</p>

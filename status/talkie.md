@@ -1,5 +1,5 @@
 # talkie — status
-Updated: 06:20
+Updated: 07:05
 
 ## Running
 - talkie on http://localhost:3000 (`cd talkie && npm run dev`, binds 0.0.0.0) · public: none yet · transport: **mock**

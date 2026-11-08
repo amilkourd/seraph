@@ -4,6 +4,7 @@
 // agent and the caller never see the listener. Keys stay on the server.
 // TALKIE_ACCESS_CODE set (public deploy) → 403 unless ?k=<code> matches. Unset → open, as on the LAN.
 import { AccessToken } from "livekit-server-sdk";
+import { ACCESS_DENIED } from "@/lib/access";
 import { crewAccessOk, serverEnv } from "@/lib/server/env";
 import type { NextRequest } from "next/server";
 
@@ -13,7 +14,7 @@ const CALL_ROOM = /^call-[\w+-]{1,64}$/;
 
 export async function GET(req: NextRequest) {
   if (!crewAccessOk(req.nextUrl.searchParams.get("k"))) {
-    return Response.json({ error: "Code d'accès refusé." }, { status: 403 });
+    return Response.json({ error: ACCESS_DENIED }, { status: 403 });
   }
   const identity = (req.nextUrl.searchParams.get("identity") ?? "").trim().slice(0, 40);
   const room = (req.nextUrl.searchParams.get("room") ?? CREW).trim() || CREW;
