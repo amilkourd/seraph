@@ -7,7 +7,7 @@
     "expected": {
       "event": "question",
       "topic": "approach",
-      "say_crew": "Tête de Seraph : entrée par la porte latérale E2, côté rue. Elle donne sur l'escalier A, dégagé. Hydrant à 40 mètres côté rue. Évitez E1, hall de l'escalier B enfumé.",
+      "say_crew": "Tête de Seraph : entrée par E1, porte d'entrée, hall de l'escalier A. Évitez E2, la rampe mène au garage en feu. Seul escalier, enfumé depuis le sous-sol. Hydrant à 30 mètres devant E1.",
       "halo_moment": "approach"
     }
   },
@@ -15,17 +15,18 @@
     "id": "R02",
     "speaker": "Tête",
     "lang": "fr",
-    "text": "Seraph de Tête, sur place, fumée visible au 3e côté sud.",
+    "text": "Seraph de Tête, sur place, fumée visible à la rampe du parking.",
     "expected": {
       "event": "hazard",
       "hazard": {
         "kind": "smoke",
         "where": {
-          "level": 3
+          "entrance": "E2"
         },
         "severity": "medium"
       },
-      "say_crew": "Reçu, fumée 3e côté sud."
+      "say_crew": "Reçu, fumée entrée E2.",
+      "note": "« rampe », « parking », « garage » = entrance E2 (its IFC label: « Porte de garage, rampe (sous-sol) »)."
     }
   },
   {
@@ -45,7 +46,8 @@
       },
       "computed": "exit_by = entered_at + 15 min / ARI_TIME_FACTOR",
       "say_crew": "Reçu, binôme 1 engagé, 300 bars, sortie prévue à <HH:MM>. Calcul simplifié.",
-      "halo_moment": "team_engaged"
+      "halo_moment": "team_engaged",
+      "note": "Stair A is the only stair and is in smoke: a team under ARI going up it is the plan, not a mistake. No « passez par » line, no danger alert for it."
     }
   },
   {
@@ -69,7 +71,8 @@
         },
         "severity": "high"
       },
-      "say_crew": "Binôme 1 de Seraph : reçu. En 3.12, deux personnes signalées par appel, fumée sous la porte."
+      "say_crew": "Binôme 1 de Seraph : reçu. En 3.12, deux personnes signalées par appel, fumée sous la porte. Terrasse 3.07 depuis la chambre.",
+      "note": "corridor = corridor:3, the R+3 landing. The terrace is the ladder point off 3.12 (P3-75 → ladder:3.07), read from the IFC."
     }
   },
   {
@@ -101,7 +104,8 @@
     "text": "Seraph, confirme.",
     "expected": {
       "event": "confirm",
-      "gate": "latest pending gate for COS"
+      "gate": "latest pending gate for COS",
+      "note": "In the replay this is Tom's gate (CALL-02): stay home, door closed, balcony 2.17."
     }
   },
   {
@@ -118,7 +122,7 @@
     "id": "R09",
     "speaker": "Binôme 1",
     "lang": "fr",
-    "text": "Seraph de binôme 1, deux victimes trouvées en 3.12, conscientes, on redescend par l'escalier A.",
+    "text": "Seraph de binôme 1, deux victimes trouvées en 3.12, conscientes, on redescend par l'escalier A sous cagoule.",
     "expected": {
       "event": "occupants_update",
       "occupants": [
@@ -133,14 +137,19 @@
         "from": "room:3.12",
         "to": "outside",
         "via": [
+          "room:3.12",
+          "room:3.03",
           "corridor:3",
           "level:3",
           "stair:A",
-          "entrance:E2",
+          "level:0",
+          "corridor:0",
+          "entrance:E1",
           "outside"
         ]
       },
-      "say_crew": "Reçu, deux victimes 3.12 avec binôme 1, descente par A."
+      "say_crew": "Reçu, deux victimes 3.12 avec binôme 1, descente par A.",
+      "note": "Occupants with a team are never caught as « heading into smoke »: no gate for Léa."
     }
   },
   {
@@ -176,7 +185,56 @@
     "text": "Seraph, point de situation.",
     "expected": {
       "event": "sitrep_request",
-      "say_crew": "COS de Seraph : six occupants listés. Cinq joints, un sans réponse, Karim Benali 3.10. Deux personnes en 3.12 avec binôme 1. Inès Rahmani au 2e en fauteuil, aide nécessaire. Escalier B enfumé."
+      "say_crew": "COS de Seraph : six occupants listés. Cinq joints, un sans réponse, Karim Benali 1.11. Deux personnes en 3.12 avec binôme 1. Inès Rahmani au 2e en fauteuil, aide nécessaire. Tom Becker au 2e, balcon 2.17, échelle. Escalier A enfumé."
+    }
+  },
+  {
+    "id": "R13",
+    "speaker": "Tête",
+    "lang": "fr",
+    "text": "Seraph de Tête, escalier A désenfumé.",
+    "expected": {
+      "event": "hazard",
+      "hazard_cleared": {
+        "kind": "smoke",
+        "where": {
+          "stair": "A"
+        }
+      },
+      "say_crew": "Reçu, escalier A désenfumé.",
+      "note": "« désenfumé » CLEARS the smoke on stair A (stair status clear, source Tête); it never adds smoke."
+    }
+  },
+  {
+    "id": "R14",
+    "speaker": "COS",
+    "lang": "fr",
+    "text": "Seraph, levée du confinement : dis à tous les occupants de sortir par l'escalier A.",
+    "expected": {
+      "event": "order_to_occupants",
+      "gate": {
+        "kind": "relay_order",
+        "summary_fr": "Je dis à tous les occupants en ligne : « Sortez par l'escalier A. » Sauf Inès Rahmani, en fauteuil, 2e."
+      },
+      "say_crew": "COS de Seraph : je dis à tous les occupants en ligne : sortez par l'escalier A. Sauf Inès Rahmani, en fauteuil au 2e. Confirmez ?",
+      "targets": "every active occupant call, except occupants with mobility_issue and occupants with a team",
+      "note": "The Grenfell sentence: stay put lifted for everyone at once. It also ends the standing instruction for new callers. If the stair is still marked smoky, the read-back adds « Attention, escalier A signalé enfumé. » and the COS still decides."
+    }
+  },
+  {
+    "id": "R15",
+    "speaker": "COS",
+    "lang": "fr",
+    "text": "Seraph, confirme.",
+    "expected": {
+      "event": "confirm",
+      "gate": "latest pending gate for COS (R14)",
+      "say_calls": {
+        "fr": "Sortez par l'escalier A.",
+        "en": "Leave the building by stairway A.",
+        "es": "Salga del edificio por la escalera A."
+      },
+      "say_crew": "Reçu, transmis à tous les occupants en ligne."
     }
   }
 ]
