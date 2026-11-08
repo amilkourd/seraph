@@ -43,7 +43,7 @@ type Fade = { t0: number; lines: [LineMaterial, THREE.Color][]; fills: [THREE.Me
 
 // callouts, in the container's px: a column right of the building, above the radio
 const FIT = { left: 80, gap: 28, top: 36 }; // px kept free around the model: level labels, callout column, edges
-const NOTE = { x: 740, w: 268, top: 64, bottom: 600, gap: 12, cut: 12 };
+const NOTE = { x: 740, w: 268, top: 64, bottom: 600, gap: 12, minGap: 6, cut: 12 };
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 /** `zoom`: "all" fits the whole building; "focus" frames the level that matters (split view, Rosetta below).
@@ -93,7 +93,8 @@ export function Building3D({ state, box, full = box, scale, zoom = "all" }: { st
     const wide = box.w > 1200;
     const ox = box.x - full.x; // the box inside the canvas
     const oy = box.y - full.y;
-    const col = { x: ox + (wide ? box.w - NOTE.w - 120 : NOTE.x), top: oy + (wide ? 36 : NOTE.top), bottom: oy + (wide ? box.h - 20 : NOTE.bottom), max: wide ? 4 : 5 };
+    // split: the column starts below the Live / Rejeu badge (top right, 24 + 64 px)
+    const col = { x: ox + (wide ? box.w - NOTE.w - 120 : NOTE.x), top: oy + (wide ? 104 : NOTE.top), bottom: oy + (wide ? box.h - 20 : NOTE.bottom), max: wide ? 4 : 5 };
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1000, 1000);
@@ -633,20 +634,38 @@ export function Building3D({ state, box, full = box, scale, zoom = "all" }: { st
           .join(" "),
       );
       for (const n of notes) n.h = n.box.offsetHeight; // read first (fonts may load late), then write
-      const at = notes
+      // the most urgent that fit in the column (notes are in rank order); the gap shrinks before a note is dropped
+      const room = col.bottom - col.top;
+      let used = -NOTE.minGap;
+      const shown = notes.filter((n) => {
+        if (used + NOTE.minGap + n.h > room) return false;
+        used += NOTE.minGap + n.h;
+        return true;
+      });
+      const heights = shown.reduce((sum, n) => sum + n.h, 0);
+      const gap = shown.length > 1 ? Math.min(NOTE.gap, (room - heights) / (shown.length - 1)) : 0;
+      for (const n of notes) {
+        const display = shown.includes(n) ? "" : "none";
+        for (const el of [n.box, n.frame, n.leader, n.leaderDark, n.mark]) el.style.display = display;
+      }
+      const at = shown
         .map((n) => {
           const v = n.pos.clone().project(camera);
           return { n, x: ((v.x + 1) / 2) * full.w, y: ((1 - v.y) / 2) * full.h };
         })
         .sort((a, b) => a.y - b.y);
+      // each label as near its anchor as it can be: pushed down below the one above, then up above the one below
       let y = col.top;
       const tops = at.map((a) => {
         const t = Math.max(a.y - a.n.h / 2, y);
-        y = t + a.n.h + NOTE.gap;
+        y = t + a.n.h + gap;
         return t;
       });
-      const over = y - NOTE.gap - col.bottom;
-      if (over > 0) for (let i = 0; i < tops.length; i++) tops[i] = Math.max(col.top, tops[i] - over);
+      let floor = col.bottom;
+      for (let i = tops.length - 1; i >= 0; i--) {
+        tops[i] = Math.min(tops[i], floor - at[i].n.h);
+        floor = tops[i] - gap;
+      }
       at.forEach(({ n, x, y: ay }, i) => {
         const t = tops[i];
         const { w, cut } = NOTE;
