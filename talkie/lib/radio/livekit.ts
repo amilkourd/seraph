@@ -5,6 +5,7 @@
 // squelch / hiss itself). Tokens: app/api/token (crew) and app/api/call-token (call room + Gabriel dispatch).
 import {
   ConnectionState,
+  DisconnectReason,
   type LocalAudioTrack,
   type Participant,
   RemoteAudioTrack,
@@ -42,6 +43,22 @@ function playAudio(track: RemoteTrack, ctx: AudioContext | undefined, filter: bo
     } catch {
       // @internal in the SDK: if it misbehaves, keep the audio without the filter
     }
+  }
+}
+
+type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
+
+/**
+ * iOS Safari: the UI sets audioSession "playback" (ignores the silent switch), which forbids the mic
+ * (« AudioSession category is not compatible with audio capture »). "play-and-record" allows both and is not
+ * silenced by the switch either.
+ */
+function allowCapture(): void {
+  try {
+    const s = (navigator as AudioSessionNavigator).audioSession;
+    if (s && s.type !== "play-and-record") s.type = "play-and-record";
+  } catch {
+    // older Safari: no audioSession API
   }
 }
 
@@ -90,6 +107,7 @@ export class LiveKitRadio implements RadioTransport {
   }
 
   private async connect(state: LinkState): Promise<void> {
+    allowCapture();
     await this.dropRoom();
     this.link.set(state);
     const room = new Room(roomOptions(this.options));
@@ -102,11 +120,12 @@ export class LiveKitRadio implements RadioTransport {
         this.link.set("connected");
         this.floor();
       })
-      .on(RoomEvent.Disconnected, () => {
+      .on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
         if (this.room !== room) return;
         this.endLocal(false);
         this.remote.set(null);
-        if (this.leaving) {
+        // Another phone joined with the same call sign: it takes over. Rejoining would kick it back, forever.
+        if (this.leaving || reason === DisconnectReason.DUPLICATE_IDENTITY || reason === DisconnectReason.PARTICIPANT_REMOVED) {
           this.link.set("offline");
           return;
         }
@@ -240,6 +259,7 @@ export class LiveKitCall implements CallTransport {
 
   async startCall(occId?: string, options?: JoinOptions): Promise<void> {
     const direction = occId ? "out" : "in";
+    allowCapture();
     await this.close();
     this.status.set({ phase: "connecting", direction });
     let callId: string | undefined;
