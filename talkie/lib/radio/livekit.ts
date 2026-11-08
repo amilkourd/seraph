@@ -15,6 +15,7 @@ import {
   RoomEvent,
   Track,
 } from "livekit-client";
+import { withAccess } from "../access";
 import { radioFilter } from "../audio/sounds";
 import { ATTR_TALKING, encodeEot, TOPIC_PTT } from "./payload";
 import { Signal } from "./signal";
@@ -141,7 +142,7 @@ export class LiveKitRadio implements RadioTransport {
 
     try {
       const { url, token } = await fetchJson<{ url: string; token: string }>(
-        `/api/token?identity=${encodeURIComponent(this.callSign)}`,
+        withAccess(`/api/token?identity=${encodeURIComponent(this.callSign)}`),
       );
       await room.connect(url, token, { autoSubscribe: true });
       void room.startAudio().catch(() => {});

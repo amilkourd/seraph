@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { RadioDevPanel } from "@/components/RadioDevPanel";
+import { withAccess } from "@/lib/access";
 import { createRadio, speakerLabel, type LinkState, type RadioTransport } from "@/lib/radio";
 import { busy, chirp, noiseBed, roger, squelchClose, squelchOpen, unlockAudio } from "@/lib/audio/sounds";
 import { unlockSpeech } from "@/lib/audio/speech";
@@ -409,7 +410,7 @@ function RadioScreen({
               </button>
               {radio.kind !== "mock" && (
                 <a
-                  href={`/?mock=1${dev ? "&dev=1" : ""}`}
+                  href={withAccess(`/?mock=1${dev ? "&dev=1" : ""}`)}
                   className="lockup grid h-[52px] flex-1 place-items-center rounded-[8px] border border-white text-[15px] text-white"
                 >
                   Mode local

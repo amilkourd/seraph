@@ -1,5 +1,5 @@
 # talkie — status
-Updated: 05:55
+Updated: 06:20
 
 ## Running
 - talkie on http://localhost:3000 (`cd talkie && npm run dev`, binds 0.0.0.0) · public: none yet · transport: **mock**
@@ -36,6 +36,16 @@ Updated: 05:55
   tap → in call → Raccrocher → Rappeler. Safari shows its "playing audio" icon while the mock speaks.
 - Gotcha seen in testing: two taps on different buttons < ~300 ms apart → iOS drops the second (double-tap window).
   The PTT uses pointer events, so it is not affected.
+- **Crew access code** (public deploy): `TALKIE_ACCESS_CODE` set → `/api/token` answers 403 « Code d'accès refusé. »
+  unless `?k=<code>` matches (sha256 + `timingSafeEqual`, never logged). The crew link is `/?k=<code>`: the page
+  passes k to `/api/token` and to the « Mode local » link, and remembers it on the phone (`talkie.k`). Unset → open,
+  as on the LAN. `/call` and `/api/call-token` stay open (occupants, judges from the QR). Code: `lib/server/env.ts`,
+  `lib/access.ts`.
+- **Builds standalone** (Vercel, root directory `talkie/`): tested from a copy of `talkie/` alone, no `../.env`, no
+  `contracts/`: `TALKIE_TRANSPORT=livekit npm run build` passes, the client bundle defaults to livekit, `/health` says
+  `transport:"livekit"`; 403 without k, 200 with k, call-token not gated. The root `.env` is only read in dev.
+  Vercel env: build `TALKIE_TRANSPORT=livekit`; runtime `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`,
+  `TALKIE_ACCESS_CODE`; optional `OCCUPANTS_PUBLIC_URL` (for `/qr`). `/health` is prerendered at build.
 
 ## Not verified
 - Actual sound quality (chirp, roger, squelch) by ear, and the mic: only a real phone tells. Do it on phone B.
