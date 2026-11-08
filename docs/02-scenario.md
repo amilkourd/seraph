@@ -118,16 +118,16 @@ COS and, if needed, Tête/Binôme lines; a judge can hold the talkie too.
 | demo | Tête: « quelle entrée ? » → E1, not E2, single stair in smoke, hydrant | Seraph, Gabriel |
 | demo | A judge's phone rings (or calls 112): live call → facts → crew summary | Gabriel |
 | demo | Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « confirme » → told in English → ladder point 2.17 on Halo | Seraph, Gabriel, Halo |
-| demo | « Binôme 1 engagé par l'escalier A, 300 bars » → Halo switches to air tracking (Devin) → countdown | Seraph, Silex |
 | demo | Tête: « escalier A désenfumé » · COS: « levée du confinement : dis à tous les occupants de sortir par l'escalier A » → read-back (except Inès, wheelchair) → « confirme » → every caller, every language | Seraph, Gabriel |
 | demo | « Seraph, fais le rapport » → gate → `report.fill` on screen | Rosetta |
 | optional | « La porte du garage est coupe-feu ? » → « Porte -1.11 Garage : EI2 30-C-Sm, source maquette » | Seraph |
 | optional | « Seraph, il y a une crèche ou une école dans la rue ? » → Rosetta explores live → new endpoint | Rosetta, Silex |
 
-## ARI air (unchanged; simplified, labelled « calcul simplifié » on every screen)
-`exit_by = entered_at + (pressure_bar_start − 60) / 8 bar·min⁻¹ × 0.5` (half the usable air to go in, half to come
-out). With 300 bar: (300−60)/8 = 30 min → exit after 15 min. Demo factor `ARI_TIME_FACTOR` (default 10) compresses
-time so the T-5 min alarm happens during the pitch. This is a demo rule, not the real ARI procedure.
+## ARI air tracking: cut (post-hackathon)
+Amil cut air tracking from the demo. Teams are positions only (engaged, level, stair, room): « binôme 1 engagé par
+l'escalier A, 300 bars » is answered « Reçu, binôme 1 engagé par l'escalier A. », with no exit time, no T-5 alarm and
+no `team_engaged` « Mon air » view. Seraph keeps the code behind `ARI_ENABLED` (off). If it comes back: the
+simplified rule was `exit_by = entered_at + (pressure_bar_start − 60) / 8 × 0.5` min, labelled « calcul simplifié ».
 
 ## What changed from v1 (fictional two-stair R+5)
 | v1 | v2 (TU Wien) |

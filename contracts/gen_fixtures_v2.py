@@ -376,8 +376,9 @@ state = {
     "occupants": occupants,
     "calls": calls,
     "crew": {"teams": [
-        {"id": "B1", "label": "Binôme 1", "status": "engaged", "entered_at": "2026-11-08T00:36:00Z", "pressure_bar_start": 300,
-         "exit_by": "2026-11-08T00:51:00Z", "location": {"level": 3, "room": "corridor"}, "last_update": "2026-11-08T00:38:00Z"},
+        # ARI air tracking is cut (ARI_ENABLED off): teams are positions only, no pressure or exit time
+        {"id": "B1", "label": "Binôme 1", "status": "engaged", "entered_at": "2026-11-08T00:36:00Z",
+         "location": {"level": 3, "room": "corridor"}, "last_update": "2026-11-08T00:38:00Z"},
         {"id": "B2", "label": "Binôme 2", "status": "standby", "last_update": "2026-11-08T00:36:00Z"},
     ]},
     "environment": {
@@ -394,8 +395,8 @@ state = {
              "view_id": "view_approach_1", "url": "http://localhost:8002/views/view_approach_1/",
              "devin_session_url": "https://app.devin.ai/sessions/example", "requested_at": "2026-11-08T00:26:00Z",
              "ready_at": "2026-11-08T00:31:00Z"},
-            {"request_id": "req_02", "moment": "team_engaged", "purpose_fr": "Mon air", "status": "building",
-             "requested_at": "2026-11-08T00:36:10Z"},
+            {"request_id": "req_02", "moment": "occupants", "purpose_fr": "Qui est où : étages, personnes, aide nécessaire, sans nouvelles",
+             "status": "building", "requested_at": "2026-11-08T00:34:00Z"},
         ],
     },
     "rosetta": {

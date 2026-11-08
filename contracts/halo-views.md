@@ -47,7 +47,7 @@ authoritative API; this is the minimum it must offer:
 | `Halo.arrow(svg, pathPoints, {animate:true})` | animated route arrow along given points |
 | `Halo.marker(svg, kind, point, label)` | door, hydrant, truck, person, team, stair, riser |
 | `Halo.smoke(svg, zoneOrBox)`, `Halo.fire(...)` | hazard shading |
-| `Halo.teamCard(el, team)`, `Halo.countdown(el, exit_by)` | ARI team tracking, exit countdown |
+| `Halo.teamCard(el, team)`, `Halo.countdown(el, exit_by)` | ARI team tracking, exit countdown (cut from the demo with ARI) |
 | `Halo.tag(el, source)` | source tag (confirmed vs inferred style) |
 | `Halo.onState(fn)`, `Halo.tap(target)`, `Halo.ready()` | messaging helpers |
 | `Halo.project(point, box)` | maps an `ImagePoint` (0–1000) into an SVG box |
@@ -60,6 +60,6 @@ for danger, white for key numbers. Large hit areas.
 |---|---|---|
 | `approach` | first good `maps.building` + `approach` computed | « Par où j'entre » : block, street, truck spot, arrow to the chosen entrance, hydrant |
 | `inside_route` | IFC level plan or `plan.read` ready + a route to a victim or level | « Par où je monte » : plan zones, smoke shaded, arrow along the route, stair status |
-| `occupants` | 2+ calls with facts | « Qui est où » : floor stack, people per level, trapped/needs help highlighted |
-| `team_engaged` | radio « binôme … engagé » | « Mon air » : team cards, countdown to exit_by, alarm at T-5 min |
+| `occupants` | 2+ calls with facts | « Qui est où » : floor stack, people per level, trapped/needs help highlighted, active ladder point (`to` of an evacuation route ending in `ladder:`) |
+| `team_engaged` | **cut** (ARI air tracking, post-hackathon; `ARI_ENABLED` off) | was « Mon air » : team cards, countdown to exit_by, alarm at T-5 min |
 | `commander_request` | radio « Seraph, il me faut … sur Halo » | whatever was asked, same rules |

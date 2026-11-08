@@ -10,7 +10,7 @@ fire ratings) and turns it all into one picture, picks the best entrance,
 and **Gabriel** gives the crew a 20-second briefing on the radio while **Halo**, the phone on the firefighter's
 forearm, draws the way in. Gabriel phones every occupant and takes the incident's 112 calls; each call becomes a
 line on the radio and a dot on the building. When an occupant heads down the only stair into smoke, Seraph proposes
-to keep them home, door closed, on their balcony (a ladder point), and the commander says « confirme ». When a team goes in under breathing apparatus, Halo switches to their air countdown.
+to keep them home, door closed, on their balcony (a ladder point), and the commander says « confirme »; Halo marks that balcony as a ladder point. Teams show on the building as positions.
 Every Halo screen is built for that moment by **Devin**, through **Silex**. At the end, the report writes itself in
 the legacy report software.
 
@@ -19,10 +19,10 @@ the legacy report software.
 |---|---|---|
 | Talkie crew channel + Gabriel on the radio | Learning a new source live (`/explore` → new endpoint) | Holographic helmet |
 | Gabriel call agents: web calls guaranteed, real phone calls if SIP works | `weather.wind` (Météo-France) | Victim register / SINUS-style tracking |
-| Rosetta: 7 endpoints (below) with the agent cam | `occupants` view and `inside_route` view (beyond the 2 core views) | Hazmat |
+| Rosetta: 7 endpoints (below) with the agent cam | `inside_route` view (beyond the 2 core views) | Hazmat |
 | Seraph: state, catches, gates, routes, moments | Spanish on calls (fr + en are core) | Multiple incidents |
-| Silex + Devin: 2 views built live (`approach`, `team_engaged`) | | Native apps, real fire-service systems |
-| Halo shell, kit, fallback view | | |
+| Silex + Devin: 2 views built live (`approach`, `occupants` with the ladder points) | | Native apps, real fire-service systems |
+| Halo shell, kit, fallback view | | ARI air tracking (exit time, T-5 alarm, `team_engaged` « Mon air » view): post-hackathon, Seraph keeps it behind `ARI_ENABLED` (off) |
 | Dashboard on the projector | | |
 | Report written by Rosetta in the replica, gated | | |
 | Building model: a real architect's IFC (TU Wien, `ifc/`) → routes, level plans, ladder points, 3D on the dashboard | The venue's own IFC | 3D on Halo |
@@ -86,18 +86,18 @@ A loop: **input → event → state → rules → actions → stream.**
   `chatter`). Call facts arrive already structured.
 - **State:** one `IncidentState` (building, hazards, occupants, calls, teams, routes, gates, Halo, timeline).
 - **Computed by code, never by a model:** best entrance (no fire between it and the stair; with one stair, the fire decides), routes (shortest path on
-  the IFC's graph avoiding smoke and fire, ladder points as rescue targets), ARI exit time (simplified, labelled), every position on Halo.
+  the IFC's graph avoiding smoke and fire, ladder points as rescue targets), every position on Halo.
 - **Catches (rules):** occupant heading into smoke → gate (another stair if there is one; one stair: stay home,
   door closed, balcony = ladder point) · wheelchair or injury → alert · no answer → « sans
-  nouvelles » · team announcing a route through smoke → warning · air T-5 min → alarm · entrance now blocked →
+  nouvelles » · team announcing a route through smoke → warning · entrance now blocked →
   new approach.
 - **Building questions:** materials, fire doors, what's on a level → read from the IFC, source « IFC »; absent →
   « pas dans la maquette ». Never guessed. Radio and calls override the model (a blocked door is blocked).
 - **Gates:** the standing instruction (stay put), any order to occupants (flat by flat, or everyone at once), any
   reroute, sending the report. Seraph asks on the radio, acts on « Seraph,
   confirme » or the dashboard button, drops on « annule » or after 2 min.
-- **Moments:** dispatch → `approach` view; first team engaged → `team_engaged` view (stretch: `occupants`,
-  `inside_route`, anything the commander asks).
+- **Moments:** dispatch → `approach` view; calls with facts → `occupants` view (floors, people, ladder points) (stretch:
+  `inside_route`, anything the commander asks). `team_engaged` is cut with ARI.
 - **Actions:** `say` to the crew or to one/many calls, `place_calls`, Rosetta runs, view requests, dispatch log
   entries, the report.
 
@@ -151,7 +151,7 @@ fallbacks, `1–5` force a Halo moment.
 | T-15 | The TU Wien IFC is already loaded (levels, one stair, doors, ladder points). Amil clicks « Déclencher ». Rosetta: dispatch.read → then maps.building, plan.read, georisques.risks, occupants.list in parallel (agent cams light up). Seraph asks the COS to confirm the standing instruction (stay put). |
 | T-14 | Occupants listed → Gabriel calls everyone. Maps done → Seraph picks E1, Gabriel briefs the crew, Silex asks Devin for the `approach` view. |
 | T-10 → T-1 | Calls bring facts (3.12 two people, smoke under the door; 2.01 wheelchair; no answer in 1.11; witness: smoke out of the garage ramp…); dots appear; Devin's view lands on Halo. |
-| Pitch | « Quelle entrée ? » → spoken answer + arrow · a judge's phone rings, live call → radio line · Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « Confirme » → ladder point 2.17 · « Binôme 1 engagé, 300 bars » → Devin's air view, countdown · « Levée du confinement : dis à tous les occupants de sortir par l'escalier A » → « Confirme » → every caller at once · « Fais le rapport » → « Confirme » → Rosetta fills it on screen · « La porte du garage est coupe-feu ? » → « EI2 30-C-Sm, source maquette ». |
+| Pitch | « Quelle entrée ? » → spoken answer + arrow · a judge's phone rings, live call → radio line · Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « Confirme » → ladder point 2.17 · « Levée du confinement : dis à tous les occupants de sortir par l'escalier A » → « Confirme » → every caller at once · « Fais le rapport » → « Confirme » → Rosetta fills it on screen · « La porte du garage est coupe-feu ? » → « EI2 30-C-Sm, source maquette ». |
 
 ## What can break, and what we do
 | Breaks | Fallback (always labelled) |

@@ -3925,8 +3925,6 @@
         "label": "Binôme 1",
         "status": "engaged",
         "entered_at": "2026-11-08T00:36:00Z",
-        "pressure_bar_start": 300,
-        "exit_by": "2026-11-08T00:51:00Z",
         "location": {"level": 3, "room": "corridor"},
         "last_update": "2026-11-08T00:38:00Z"
       },
@@ -4067,10 +4065,10 @@
       },
       {
         "request_id": "req_02",
-        "moment": "team_engaged",
-        "purpose_fr": "Mon air",
+        "moment": "occupants",
+        "purpose_fr": "Qui est où : étages, personnes, aide nécessaire, sans nouvelles",
         "status": "building",
-        "requested_at": "2026-11-08T00:36:10Z"
+        "requested_at": "2026-11-08T00:34:00Z"
       }
     ]
   },
