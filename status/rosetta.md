@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 06:25
+Updated: 06:35
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -46,10 +46,12 @@ georisques.risks 18.1 s · maps.building 37.9 s (2 entrances, 4 views → « App
 just before: 9.3 / 4.2 / 8.8 / 19.6 / 20.0 / 41.6 s, all live. Cams on the dashboard grid (checked live).
 
 ## In progress
-- `/explore` + Linkup (written by Amil's main session in `endpoints/explore.py`, not committed by me): imports fine,
-  no `LINKUP_API_KEY` in `.env` yet → same behaviour as before. Production :8001 not restarted on it while INC-0001
-  is live (a restart could make a `dispatch.write_112` hit an unreachable Rosetta). When the key is in: run one live
-  /explore (R11) on the test instance, log it here, restart :8001 between incidents.
+- `/explore` + Linkup (written by Amil's main session, committed here): no `LINKUP_API_KEY` in `.env` yet, so Linkup
+  says « pas de clé » and the fixed list of official sites is used. Live check of that path (06:30, test instance
+  :8011 pinned to holo4-27b to leave holo4-35b-a3b's quota to the live INC-0001): start page OK, Holo opens paris.fr
+  and searches, but **holo4-27b never answers in 24 steps** (max steps → failed). The same question passed on
+  holo4-35b-a3b in 16 steps (05:40). The Linkup path itself is not yet run live. When the key is in: R11 on :8011 with
+  the default models, then restart :8001 between incidents.
 
 ## Blocked
 -
@@ -87,4 +89,6 @@ just before: 9.3 / 4.2 / 8.8 / 19.6 / 20.0 / 41.6 s, all live. Cams on the dashb
   (pointing) and retried inside the run's budget.
 - Pointing accuracy on the R-1 plan (error in 0–1000 units, 6 targets): holo4-27b 3–13, holo3-1-35b-a3b 4–36.
 - Street View shots before 05:35 were 42's indoor 360 (user photo sphere); since then `!2e10` panoramas are skipped.
+- holo4-27b as the *agent* is weaker on open-ended tasks: on /explore it wandered 24 steps without answering. Fine as
+  overflow for short flows; exploration should stay on holo4-35b-a3b.
 - Pacing env: `HOLO_RPM` (26 per model), `HOLO_MAX_INFLIGHT` (6), `HOLO_POINT_MODELS`.
