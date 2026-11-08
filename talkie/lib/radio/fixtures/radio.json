@@ -49,7 +49,12 @@
         }
       ],
       "say_crew": "Reçu, feu au garage et fumée escalier A, selon Tête.",
-      "note": "The crew confirms what the alert reported: same hazards, source now radio « Tête ». « parking », « garage » on level -1 = room -1.11 (IFC label Garage); « cage d'escalier » = stair:A (the only stair)."
+      "note": "The crew confirms what the alert reported: the fire (-1.11) and the stair smoke flip from « signalé » (source alerte, confirmed false) to confirmed (source radio « Tête », confirmed true). The ramp smoke (E2) stays « signalé » (alerte, then appel 112): nobody on the crew confirms it. « parking », « garage » on level -1 = room -1.11 (IFC label Garage); « cage d'escalier » = stair:A (the only stair).",
+      "source": {
+        "kind": "radio",
+        "label": "Tête",
+        "confirmed": true
+      }
     }
   },
   {
@@ -62,15 +67,12 @@
       "team": {
         "id": "B1",
         "status": "engaged",
-        "pressure_bar_start": 300,
         "location": {
           "stair": "A"
         }
       },
-      "computed": "exit_by = entered_at + 15 min / ARI_TIME_FACTOR",
-      "say_crew": "Reçu, binôme 1 engagé, 300 bars, sortie prévue à <HH:MM>. Calcul simplifié.",
-      "halo_moment": "team_engaged",
-      "note": "Stair A is the only stair and is in smoke: a team under ARI going up it is the plan, not a mistake. No « passez par » line, no danger alert for it."
+      "say_crew": "Reçu, binôme 1 engagé par l'escalier A.",
+      "note": "Air tracking (ARI) is cut from the demo (ARI_ENABLED off): teams are positions only. The pressure is said on the radio but not tracked: no exit time, no « calcul simplifié », no air alarm, no team_engaged view. Stair A is the only stair and is in smoke: a team under ARI going up it is the plan, not a mistake. No « passez par » line, no danger alert for it."
     }
   },
   {
@@ -95,7 +97,7 @@
         "severity": "high"
       },
       "say_crew": "Binôme 1 de Seraph : reçu. En 3.12, deux personnes signalées par appel, fumée sous la porte. Terrasse 3.07 depuis la chambre.",
-      "note": "corridor = corridor:3, the R+3 landing. The terrace is the ladder point off 3.12 (P3-75 → ladder:3.07), read from the IFC."
+      "note": "corridor = corridor:3, the R+3 landing. The terrace is the ladder point off 3.12 (P3-75 → ladder:3.07), read from the IFC. The landing smoke arrives already confirmed (source radio « Binôme 1 »)."
     }
   },
   {

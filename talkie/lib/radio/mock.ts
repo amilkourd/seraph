@@ -21,17 +21,8 @@ import type {
 } from "./types";
 
 const LINES = fixture as RadioLine[];
-const ARI_TIME_FACTOR = 10; // .env.example default; R03's exit time = now + 15 min / factor
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-function parisHHMM(d: Date): string {
-  return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
-}
-
-function fillSay(say: string): string {
-  return say.replace("<HH:MM>", parisHHMM(new Date(Date.now() + (15 * 60_000) / ARI_TIME_FACTOR)));
-}
 
 class Aborted extends Error {}
 
@@ -133,7 +124,7 @@ export class MockRadio implements RadioTransport {
     try {
       await sleep(1100); // Gabriel: STT final + Seraph + TTS
       if (ep !== this.epoch) return;
-      await this.speakAs(SERAPH_IDENTITY, fillSay(say), ep);
+      await this.speakAs(SERAPH_IDENTITY, say, ep);
     } catch (e) {
       if (!(e instanceof Aborted)) throw e;
     } finally {
@@ -162,7 +153,7 @@ export class MockRadio implements RadioTransport {
         await sleep(800);
       }
       const say = line.expected.say_crew;
-      if (say) await this.speakAs(SERAPH_IDENTITY, fillSay(say), ep);
+      if (say) await this.speakAs(SERAPH_IDENTITY, say, ep);
     } catch (e) {
       if (!(e instanceof Aborted)) throw e;
     } finally {
