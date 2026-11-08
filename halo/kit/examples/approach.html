@@ -71,22 +71,36 @@ function draw(s) {
   const pts = doors.map(x => x.p).concat(start ? [start] : [], pei ? [xy(pei.point)] : []);
   const crop = { x0: Math.min(...pts.map(p => p[0])) - 60, x1: Math.max(...pts.map(p => p[0])) + 60,
                  y0: Math.min(...pts.map(p => p[1])) - 60, y1: Math.max(...pts.map(p => p[1])) + 60 };
+  // never closer than ~260 units: the building reads as a building, and the arrow stays big
+  const grow = (a, b) => { const m = (crop[a] + crop[b]) / 2, h = Math.max(130, (crop[b] - crop[a]) / 2); crop[a] = m - h; crop[b] = m + h; };
+  grow('x0', 'x1'); grow('y0', 'y1');
   const P = Halo.plan(f.svg, { box: Halo.AREA, crop: crop, zones: [{ id: 'building', zone: foot, state: 'target' }] }).project;
 
-  // the street the truck stands on, across the arrow
+  // the street the truck stands on: through the truck, parallel to the façade of the chosen door (its nearest edge),
+  // drawn under the building
   if (truck && d) {
-    const a = P(truck), t = P(d), ux = t.x - a.x, uy = t.y - a.y, l = Math.hypot(ux, uy) || 1, nx = -uy / l, ny = ux / l;
-    Halo.street(f.svg, { from: [a.x - nx * 900, a.y - ny * 900], to: [a.x + nx * 900, a.y + ny * 900], width: 50 });
+    const ring = foot.map(q => P(q)), dp = P(d);
+    let best = null;
+    ring.forEach((q, i) => {
+      const r = ring[(i + 1) % ring.length], vx = r.x - q.x, vy = r.y - q.y, l2 = vx * vx + vy * vy || 1;
+      const t = Math.max(0, Math.min(1, ((dp.x - q.x) * vx + (dp.y - q.y) * vy) / l2));
+      const dist = Math.hypot(q.x + vx * t - dp.x, q.y + vy * t - dp.y);
+      if (!best || dist < best.dist) best = { dist, ux: vx / Math.sqrt(l2), uy: vy / Math.sqrt(l2) };
+    });
+    const a = P(truck), st = Halo.street(f.svg, { from: [a.x - best.ux * 900, a.y - best.uy * 900], to: [a.x + best.ux * 900, a.y + best.uy * 900], width: 46 });
+    st.g.parentNode.insertBefore(st.g, st.g.parentNode.firstChild);
   }
   if (start && d) Halo.arrow(f.svg, [P(start), P(d)], { width: 10, gap: 26, speed: 60 });
   if (truck) Halo.marker(f.svg, 'truck', P(truck), null, { r: 18 });
   if (pei) Halo.marker(f.svg, 'hydrant', P(xy(pei.point)), pei.distance_m ? pei.distance_m + ' m' : null, { r: 16, at: 'e', tap: { kind: 'hydrant', id: pei.id } });
 
   // entrances: the chosen one big, the others dimmed; crossed only when they lead to danger
+  // the chosen door's tag goes beside the arrow, never on the building: above it when the arrow runs sideways
+  const along = start && d ? Math.abs(P(d).x - P(start).x) > Math.abs(P(d).y - P(start).y) : false;
   doors.slice(0, 3).forEach(({ e, p }) => {
     const chosen = best && e.id === best.id;
     Halo.marker(f.svg, 'door', P(p), e.id, { r: chosen ? 22 : 15, big: chosen, ping: chosen, crossed: !chosen && badEntrance(b, e),
-      tone: chosen ? 'ink' : 'dim', at: chosen ? 'e' : 'w', tap: { kind: 'entrance', id: e.id } });
+      tone: chosen ? 'ink' : 'dim', at: chosen ? (along ? 'n' : 'w') : 'w', tap: { kind: 'entrance', id: e.id } });
   });
   card(s, best, pei);
 }
@@ -96,13 +110,14 @@ function card(s, best, pei) {
   if (!best) return;
   const b = s.building, route = (s.routes || []).find(r => r.purpose === 'approach');
   const stairId = route && (route.via.find(n => n.startsWith('stair:')) || '').split(':')[1];
-  const stair = stairId && Halo.byId(b.stairs, stairId);
+  // hazard lines come from state.building.hazards only, worded by the kit (« signalé » until the crew confirms)
+  const onStair = stairId ? Halo.hazardsAt(s, { stair: stairId })[0] : null;
   const fire = b.hazards.find(h => h.kind === 'fire');
   const h1 = (b.hydrants || [])[0];
   f.panel([
     { text: 'Entrez par ' + best.id },
-    stair && (stair.status === 'smoke' ? { tone: 'warn', text: 'Esc. ' + stairId + ' fumée' } : { text: 'Montez esc. ' + stairId }),
-    fire && { tone: 'fire', text: 'Feu ' + Halo.levelLabel(s, fire.where.level) },
+    stairId && (onStair ? Halo.hazardLine(s, onStair) : { text: 'Montez esc. ' + stairId }),
+    fire && Halo.hazardLine(s, fire, { level: true }),
     h1 && h1.distance_m && !pei && { tone: 'water', text: 'PEI ' + h1.distance_m + ' m' }
   ]);
 }

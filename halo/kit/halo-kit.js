@@ -28,7 +28,7 @@
     smoke: 'warn', unknown: 'dim', ladder: 'ink'
   };
   var LAYERS = ['base', 'hazard', 'route', 'mark', 'label'];
-  var MAX_LABELS = 12;                                 // tags on one screen, at most
+  var MAX_LABELS = 16;                                 // tags on one screen, at most
   var TURNED = { base: 1, hazard: 1, route: 1 };     // layers that follow Halo.scene's rotation
 
   function tone(t) { return C[t] || t || C.ink; }
@@ -284,7 +284,7 @@
   }
   function clear(svg) {
     if (seq > 0) drawn = true;                         // something was drawn already: this is a redraw
-    svgOf(svg).__tags = [];
+    svgOf(svg).__tags = []; svgOf(svg).__marks = [];
     LAYERS.forEach(function (n) { var g = layer(svg, n); while (g.firstChild) g.removeChild(g.firstChild); });
   }
 
@@ -393,7 +393,7 @@
       label(svg, { x: b.x - 10, y: band.cy }, lv.label, { align: 'end', tone: off ? 'dim' : 'ink' });
     });
     stairs.forEach(function (s) {
-      var x = s.side === 'right' ? b.x + b.w - sw : b.x, box = { x: x, y: b.y, w: sw, h: b.h }, bad = s.status === 'smoke' || s.status === 'blocked';
+      var x = s.side === 'right' ? b.x + b.w - sw : b.x, box = { x: x, y: b.y, w: sw, h: b.h }, bad = !!s.hazard || s.status === 'blocked';
       shafts[s.id] = box;
       el('rect', { x: x, y: b.y, width: sw, height: b.h, fill: '#050505' }, g);
       for (var y = b.y + 8; y < b.y + b.h - 8; y += 12) {
@@ -401,7 +401,7 @@
       }
       drawIn(el('path', { d: area(box).d, fill: 'none', stroke: bad ? C.warn : C.line, 'stroke-width': 2.2,
         'stroke-dasharray': s.source && s.source.confirmed === false ? '0 6' : null, 'stroke-linecap': 'round' }, g));
-      if (s.status === 'smoke') smoke(svg, box, { outline: false });
+      if (s.hazard && s.hazard.kind === 'smoke') smoke(svg, box, { outline: false, hazard: s.hazard, tag: false });
       label(svg, { x: x + sw / 2, y: b.y + b.h + 6 }, s.id, { tone: bad ? 'warn' : 'ink', valign: 'top' });
     });
     return { g: g, band: function (lv) { return bands[lv]; }, shaft: function (id) { return shafts[id]; } };
@@ -436,9 +436,14 @@
   }
 
   // ---- hazards: animated halftone gradients --------------------------------------------------------------
+  // a hazard is drawn only from state.building.hazards, with its source (RULES 16): opts.hazard (or opts.source).
+  // Confirmed (crew radio) = solid, tag « confirmé · Tête »; reported (alert, call) = dotted, softer, « signalé · appel »
   function hazard(svg, a, opts, kind) {
     opts = opts || {};
-    var s = area(a), b = s.box, fireish = kind === 'fire', g = el('g', { 'class': 'h-' + kind }, layer(svg, 'hazard'));
+    var src = opts.source || (opts.hazard && opts.hazard.source);
+    if (!src) console.warn('Halo: ' + kind + ' drawn without its source (RULES.md 16)');
+    var reported = !src || src.confirmed === false;
+    var s = area(a), b = s.box, fireish = kind === 'fire', g = el('g', { 'class': 'h-' + kind, opacity: reported ? 0.6 : null }, layer(svg, 'hazard'));
     var id = uid('clip'), cp = el('clipPath', { id: id }, defs(svg));
     el('path', { d: s.d }, cp);
     var inner = loop(el('g', { 'clip-path': 'url(#' + id + ')' }, g), fireish ? 'h-flicker' : 'h-breathe');
@@ -448,11 +453,43 @@
     grain(inner, area(b).d);
     if (!s.circle && opts.outline !== false) {
       drawIn(el('path', { d: s.d, fill: 'none', stroke: fireish ? C.fire : C.warn, 'stroke-width': fireish ? 2.6 : 2.4,
-        'stroke-dasharray': fireish ? null : '0 6', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g));
+        'stroke-dasharray': reported || !fireish ? '0 6' : null, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g));
     }
     fadeIn(g);
-    if (opts.label) label(svg, anchor(b, opts.at || 'n'), opts.label, { tone: fireish ? 'fire' : 'warn', source: opts.source });
+    if (opts.tag !== false && src) label(svg, anchor(b, opts.at || 'n'), opts.label || hazardTag({ source: src }), { tone: fireish ? 'fire' : 'warn', source: src });
     return { g: g, box: b, c: s.c };
+  }
+
+  // hazardsAt(state, {level, room, stair, entrance}): the hazards of the state at that place
+  function hazardsAt(state, where) {
+    return (((state && state.building) || {}).hazards || []).filter(function (h) {
+      return Object.keys(where).every(function (k) { return where[k] === undefined || (h.where || {})[k] === where[k]; });
+    });
+  }
+  // hazardTag(h): « confirmé · Tête » / « signalé · appel », at most 18 characters
+  function hazardTag(h) {
+    return ((h.source && h.source.confirmed === false ? 'signalé · ' : 'confirmé · ') + hazardSource(h)).slice(0, 18);
+  }
+  // hazardSource(h): who reported it, one word (« Tête », « B1 », « appel », « alerte »), for tight screens; a label()
+  // with {source} adds the « ~ » and the dotted amber frame when it is only reported
+  function hazardSource(h) {
+    var src = h.source || {}, lbl = String(src.label || src.kind || '');
+    return src.kind === 'call' ? 'appel' : src.kind === 'dispatch' ? 'alerte' : lbl.replace(/^bin[ôo]me\s*(\d+)$/i, 'B$1');
+  }
+  // hazardLine(state, h, {level}): the card line for a hazard, built from the state (Devin never types « Feu R+3 »)
+  var HAZ_WORD = { fire: ['Feu', 'signalé'], smoke: ['Fumée', 'signalée'], heat: ['Chaleur', 'signalée'], gas: ['Gaz', 'signalé'],
+    structure: ['Structure', 'signalée'], electric: ['Élec.', 'signalé'] };
+  var HAZ_TONE = { fire: 'fire', smoke: 'warn', heat: 'fire', gas: 'risk', structure: 'warn', electric: 'risk' };
+  function hazardLine(state, h, opts) {
+    opts = opts || {};
+    var w = h.where || {}, word = HAZ_WORD[h.kind] || [h.kind, 'signalé'];
+    var where = w.stair ? 'esc. ' + w.stair : w.entrance ? w.entrance
+      : opts.level && w.level != null ? levelLabel(state, w.level)
+      : w.room === 'corridor' ? 'circulation' : w.room || (w.level != null ? levelLabel(state, w.level) : '');
+    var reported = !h.source || h.source.confirmed === false;
+    var text = (reported ? word[0] + ' ' + word[1] : word[0]) + (where ? ' ' + where : '');
+    if (text.length > 18) text = reported ? word[0] + ' ' + word[1] : (word[0] + ' ' + where).slice(0, 18);
+    return { tone: HAZ_TONE[h.kind] || 'warn', text: text };
   }
   function fire(svg, a, opts) { return hazard(svg, a, opts, 'fire'); }
   function smoke(svg, a, opts) { return hazard(svg, a, opts, 'smoke'); }
@@ -520,6 +557,7 @@
     var p = opts.screen ? P(point) : xf(svg, point), t = opts.tone || KIND_TONE[kind] || 'ink', col = tone(t), r = opts.r || 16;
     if (opts.ping) ping(svg, p, { tone: opts.ring || t, r: r + 4, screen: true });
     var g = el('g', { 'class': 'h-marker', transform: 'translate(' + r1(p.x) + ',' + r1(p.y) + ')' }, layer(svg, 'mark'));
+    var root = svgOf(svg); (root.__marks || (root.__marks = [])).push({ x: p.x - r, y: p.y - r, w: 2 * r, h: 2 * r });
     var inferred = opts.inferred || (opts.source && opts.source.confirmed === false);
     el('circle', { r: r, fill: '#000', stroke: opts.ring ? tone(opts.ring) : col, 'stroke-width': opts.ring ? 3.2 : 2.2,
       'stroke-dasharray': inferred ? '0 6' : null, 'stroke-linecap': 'round' }, g);
@@ -617,7 +655,8 @@
     // never on top of another tag: slide down, up, right, left until free; give up (drop it) past MAX_LABELS
     var root = svgOf(svg), placed = root.__tags || (root.__tags = []);
     if (placed.length >= MAX_LABELS) { g.remove(); return null; }
-    var hit = function (a) { return placed.some(function (q) { return a.x < q.x + q.w + 3 && q.x < a.x + a.w + 3 && a.y < q.y + q.h + 3 && q.y < a.y + a.h + 3; }); };
+    var obst = placed.concat(root.__marks || []);    // tags avoid other tags and every marker disc
+    var hit = function (a) { return obst.some(function (q) { return a.x < q.x + q.w + 3 && q.x < a.x + a.w + 3 && a.y < q.y + q.h + 3 && q.y < a.y + a.h + 3; }); };
     var box = { x: x, y: y, w: bw, h: h };
     for (var k = 1; hit(box) && k < 6; k++) {
       var tries = [[0, k * (h + 4)], [0, -k * (h + 4)], [k * (bw / 2 + 6), 0], [-k * (bw / 2 + 6), 0]];
@@ -732,6 +771,6 @@
     arrow: arrow, marker: marker, warn: warn, ping: ping, cross: cross, wind: wind, north: north,
     smoke: smoke, fire: fire, label: label, tag: tag, teamCard: teamCard, countdown: countdown, icon: icon,
     onState: onState, onAlert: onAlert, ready: ready, tap: tap, vibrate: vibrate,
-    project: project, area: area, centroid: centroid, hull: hull, focusLevels: focusLevels, ladderPoints: ladderPoints, byId: byId, levelLabel: levelLabel, time: function (iso) { return hhmm(new Date(iso)); }
+    project: project, area: area, centroid: centroid, hull: hull, focusLevels: focusLevels, ladderPoints: ladderPoints, hazardsAt: hazardsAt, hazardTag: hazardTag, hazardSource: hazardSource, hazardLine: hazardLine, byId: byId, levelLabel: levelLabel, time: function (iso) { return hhmm(new Date(iso)); }
   };
 })(window);

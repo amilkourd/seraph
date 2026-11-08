@@ -30,3 +30,8 @@ Every view must pass `node halo/kit/check-view.mjs <view.html>` before it is ser
 15. **Floors with nothing special are grey** (« les étages où il n'y a rien de spécial doivent être grisés »): no fill, no
     coloured tag. In focus: fire/smoke, someone inside, an engaged team, a route's target (Seraph's
     `building.levels[].focus` when present). `floorStack({focus: Halo.focusLevels(state)})` does it.
+16. **Fire and smoke only once reported**, and always with their source. Draw a hazard only if it is in
+    `state.building.hazards`: `Halo.fire/smoke(svg, zone, {hazard})`. Reported (`source.confirmed:false`, an alert or a
+    call) = dotted, softer, tag « signalé · appel »; confirmed by the crew = solid, « confirmé · Tête ». Card lines about
+    hazards come from `Halo.hazardLine(state, h)`; never type « Feu », « Fumée » or a level: no hazard in the state =
+    no fire anywhere, not even in the card.

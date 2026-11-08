@@ -71,8 +71,11 @@ addEventListener('message', e => {
 
 const ACTIONS = {
   'Fumée esc. A': () => {
-    const a = state.building.stairs.find(s => s.id === 'A');
-    a.status = a.status === 'smoke' ? 'clear' : 'smoke';
+    // hazards come only from state.building.hazards: toggle a reported smoke on stair A
+    const hz = state.building.hazards, i = hz.findIndex(h => h.kind === 'smoke' && h.where.stair === 'A');
+    if (i >= 0) hz.splice(i, 1);
+    else hz.push({ id: 'HZ-T', kind: 'smoke', where: { stair: 'A' }, severity: 'high', reported_at: iso(Date.now()),
+      source: { kind: 'call', label: 'appel', confirmed: false, at: iso(Date.now()) } });
   },
   'Air → T-5 dans 5 s': () => state.crew.teams.forEach(t => { if (t.exit_by) t.exit_by = iso(Date.now() + 5 * 60e3 + 5e3); }),
   'Air → T-0 dans 5 s': () => state.crew.teams.forEach(t => { if (t.exit_by) t.exit_by = iso(Date.now() + 5e3); }),

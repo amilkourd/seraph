@@ -9,6 +9,8 @@ const RULES = [
   [3, 'must give the instruction card (f.panel)', c => !/\.panel\(/.test(c)],
   [3, 'no pictograms in the instruction card', c => /\.panel\(\[[\s\S]*?\bicon\s*:/.test(c)],
   [14, 'text never blinks (no blink in the instruction card)', c => /\.panel\(\[[\s\S]*?\bblink\s*:/.test(c)],
+  [16, 'fire/smoke are drawn with their hazard (Halo.fire/smoke(..., {hazard}) or {source})', c => [...c.matchAll(/Halo\.(fire|smoke)\(/g)].some(m => !/\b(hazard|source)\s*:/.test(c.slice(m.index, c.indexOf(');', m.index))))],
+  [16, 'hazard words and level names come from the state (Halo.hazardLine / levelLabel), never typed', c => [...c.matchAll(/'([^'\n]*)'|"([^"\n]*)"|`([^`\n]*)`/g)].some(m => /\b(feu|fum[ée]e|incendie)\b|\bR[+-]\d\b|\bRDC\b/i.test(m[1] ?? m[2] ?? m[3]))],
   [15, 'floors with nothing special are grey: pass focus: Halo.focusLevels(state) to floorStack', c => /floorStack\(/.test(c) && !/focus\s*:\s*Halo\.focusLevels\(/.test(c)],
   [8, 'no motion of its own (keyframes, animate, timers)', c => /@keyframes|\banimation\s*:|<animate|requestAnimationFrame|setInterval|h-breathe|h-flicker|h-blink/.test(c)],
   [5, 'no glow, blur or shadow', c => /blur|bloom|glow|drop-shadow|box-shadow|text-shadow|feGaussian/i.test(c)],

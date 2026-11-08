@@ -54,13 +54,13 @@ function draw(s) {
     const w = h.where;
     if (w.level != null && w.level !== level) return;
     if (h.kind === 'fire' && zoneOf(w.room)) {
-      Halo.fire(f.svg, zoneOf(w.room).map(q => plan.project(q)));
+      Halo.fire(f.svg, zoneOf(w.room).map(q => plan.project(q)), { hazard: h });
       Halo.warn(f.svg, plan.zone(w.room).c, { level: 'danger' });
     } else if (h.kind === 'smoke') {
       const name = w.stair ? 'stair:' + w.stair : w.room === 'corridor' ? 'corridor' : w.room ? 'room:' + w.room : null;
       const z = ifc && name && (w.stair ? stairZone(Halo.byId(b.stairs, w.stair) || {}) : w.room === 'corridor' ? zoneOf('corridor:' + level) : zoneOf(w.room));
-      if (z) Halo.smoke(f.svg, z.map(q => plan.project(q)), { outline: false });
-      else if (name && pt(name)) { const c = plan.project(pt(name)); Halo.smoke(f.svg, { cx: c.x, cy: c.y, r: w.stair ? 32 : 52 }); }
+      if (z) Halo.smoke(f.svg, z.map(q => plan.project(q)), { outline: false, hazard: h, tag: !w.stair, at: 's' });
+      else if (name && pt(name)) { const c = plan.project(pt(name)); Halo.smoke(f.svg, { cx: c.x, cy: c.y, r: w.stair ? 32 : 52 }, { hazard: h, tag: !w.stair }); }
       if (name && pt(name) && !w.stair) { const c = plan.project(pt(name)); Halo.warn(f.svg, { x: c.x + 30, y: c.y - 30 }, { size: 32 }); }
     }
   });
@@ -87,7 +87,7 @@ function draw(s) {
   const teams = (s.crew.teams || []).filter(t => t.location && t.location.level === level && t.status === 'engaged');
   b.stairs.forEach(st => {
     const p = pt('stair:' + st.id); if (!p) return;
-    const bad = st.status === 'smoke' || st.status === 'blocked';
+    const bad = Halo.hazardsAt(s, { stair: st.id }).length > 0 || st.status === 'blocked';
     const here = teams.filter(t => !t.location.room && t.location.stair === st.id).map(t => t.id);
     Halo.marker(f.svg, 'stair', plan.project(p), [st.id].concat(here).join(' · '), { tone: bad ? 'warn' : 'ink', blink: bad, at: 's', source: st.source, tap: { kind: 'stair', id: st.id } });
   });
@@ -109,14 +109,13 @@ function draw(s) {
 
   // the card: where to go, how, what is in the way — one smoke line at most
   const here = b.hazards.filter(h => h.where.level === level);
-  const where = h => h.where.room === 'corridor' ? 'circulation' : h.where.room || Halo.levelLabel(s, level);
   const smoke = here.filter(h => h.kind === 'smoke').sort((x, y) => (y.where.room ? 1 : 0) - (x.where.room ? 1 : 0))[0];
   const stair = route && (route.via.find(n => n.startsWith('stair:')) || arrival || '').split(':')[1];
   f.panel([
     target && { tone: evac ? 'ink' : 'life', text: (evac ? 'Évacuez ' : 'Allez en ') + target },
     stair && { text: 'Par esc. ' + stair },
-    smoke && { tone: 'warn', text: 'Fumée ' + where(smoke) },
-    ...here.filter(h => h.kind === 'fire').map(h => ({ tone: 'fire', text: 'Feu ' + h.where.room }))
+    smoke && Halo.hazardLine(s, smoke),
+    ...here.filter(h => h.kind === 'fire').map(h => Halo.hazardLine(s, h))
   ]);
 }
 

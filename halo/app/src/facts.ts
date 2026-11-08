@@ -4,7 +4,6 @@ import { State } from './seraph';
 
 export type Line = { text: string; tone?: 'ink' | 'warn' | 'fire' | 'life' | 'water' | 'dim'; big?: boolean };
 
-const STATUS: Record<string, string> = { clear: 'dégagé', smoke: 'fumée', blocked: 'bloqué', unknown: '?' };
 
 function levelLabel(s: State, n?: number) {
   const l = (s?.building?.levels ?? []).find((x: any) => x.level === n);
@@ -12,10 +11,22 @@ function levelLabel(s: State, n?: number) {
 }
 const hhmm = (iso: string) => { const d = new Date(iso); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 
+// a hazard line, built from the state like the kit's Halo.hazardLine: « signalé » until the crew confirms it
+const WORD: Record<string, [string, string]> = { fire: ['Feu', 'signalé'], smoke: ['Fumée', 'signalée'], gas: ['Gaz', 'signalé'], electric: ['Élec.', 'signalé'] };
+function hazardLine(s: State, h: any, byLevel = false): Line {
+  const w = h.where ?? {}, [noun, adj] = WORD[h.kind] ?? [h.kind, 'signalé'];
+  const where = w.stair ? `esc. ${w.stair}` : w.entrance ? w.entrance : byLevel && w.level != null ? levelLabel(s, w.level)
+    : w.room === 'corridor' ? 'circulation' : w.room ?? (w.level != null ? levelLabel(s, w.level) : '');
+  const reported = !h.source || h.source.confirmed === false;
+  let text = `${reported ? `${noun} ${adj}` : noun}${where ? ` ${where}` : ''}`;
+  if (text.length > 18) text = reported ? `${noun} ${adj}` : `${noun} ${where}`.slice(0, 18);
+  return { text, tone: h.kind === 'fire' ? 'fire' : 'warn' };
+}
+
 export function factsFor(moment: string, s: State | null): Line[] {
   if (!s) return [{ text: 'En attente de Seraph', tone: 'dim' }];
   const b = s.building ?? {}, hz: any[] = b.hazards ?? [], routes: any[] = s.routes ?? [];
-  const smokyStairs = (b.stairs ?? []).filter((x: any) => x.status !== 'clear');
+  const smokyStairs = (b.stairs ?? []).filter((x: any) => hz.some(h => h.where?.stair === x.id));
   const fire = hz.find(h => h.kind === 'fire');
   switch (moment) {
     case 'approach': {
@@ -25,7 +36,8 @@ export function factsFor(moment: string, s: State | null): Line[] {
       return [
         best && { text: `Entrez par ${best}`, big: true },
         stair && { text: `Montez esc. ${stair}` },
-        ...smokyStairs.map((x: any) => ({ text: `Esc. ${x.id} ${STATUS[x.status] ?? x.status}`, tone: 'warn' })),
+        ...hz.filter(h => h.where?.stair).map(h => hazardLine(s, h)),
+        fire && hazardLine(s, fire, true),
         pei?.distance_m && { text: `PEI ${pei.distance_m} m`, tone: 'water' },
       ].filter(Boolean) as Line[];
     }
@@ -37,8 +49,8 @@ export function factsFor(moment: string, s: State | null): Line[] {
       return [
         room && { text: `${evac ? 'Évacuez' : 'Allez en'} ${room}`, big: true, tone: evac ? 'ink' : 'life' },
         stair && { text: `Par esc. ${stair}` },
-        hz.find(h => h.kind === 'smoke' && h.where?.room === 'corridor') && { text: 'Fumée circulation', tone: 'warn' },
-        fire && { text: `Feu ${fire.where?.room ?? levelLabel(s, fire.where?.level)}`, tone: 'fire' },
+        ...hz.filter(h => h.kind === 'smoke' && h.where?.room === 'corridor').map(h => hazardLine(s, h)),
+        fire && hazardLine(s, fire),
       ].filter(Boolean) as Line[];
     }
     case 'occupants': {
@@ -63,7 +75,7 @@ export function factsFor(moment: string, s: State | null): Line[] {
     }
     case 'dispatch':
       return [
-        fire && { text: `Feu ${levelLabel(s, fire.where?.level)}`, big: true, tone: 'fire' },
+        fire && { ...hazardLine(s, fire, true), big: true },
         s.incident?.address && { text: String(s.incident.address).split(',')[0] },
         s.incident?.address && { text: String(s.incident.address).split(',').slice(1).join(',').trim() },
       ].filter(Boolean) as Line[];
