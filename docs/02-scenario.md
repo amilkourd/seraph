@@ -114,7 +114,7 @@ COS and, if needed, Tête/Binôme lines; a judge can hold the talkie too.
 |---|---|---|
 | T-15 min | Amil starts the incident (= dispatch). Rosetta runs its endpoints; Silex starts the `approach` view; Seraph proposes the standing instruction (stay put) and the COS confirms; Gabriel calls every occupant | Seraph |
 | T-14 → T-1 | "The drive": Devin builds the approach view; calls come in (Léa 3.12 smoke under the door, Inès 2.01 wheelchair, Karim no answer, Sophie safe, Lucía asks); the 112 witness: smoke out of the garage ramp | all |
-| T0 (pitch starts) | Halo already shows the approach (E1, E2 crossed: garage on fire); dashboard shows the Devin session | — |
+| T0 (pitch starts) | Halo shows « Qui est où » (the occupants view outranks approach once calls land); « Quelle entrée ? » brings back the approach (E1, E2 crossed: garage on fire); dashboard shows the Devin sessions | — |
 | demo | Tête: « quelle entrée ? » → E1, not E2, single stair in smoke, hydrant | Seraph, Gabriel |
 | demo | A judge's phone rings (or calls 112): live call → facts → crew summary | Gabriel |
 | demo | Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « confirme » → told in English → ladder point 2.17 on Halo | Seraph, Gabriel, Halo |
