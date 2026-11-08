@@ -1,5 +1,5 @@
 # gabriel — status
-Updated: 05:24
+Updated: 09:53
 
 ## Running
 Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talkie on :3000 for web calls.
@@ -8,7 +8,9 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   plays every crew say on the laptop speaker.
 - calls: `cd gabriel && uv run gabriel-calls start` (`dev` = hot reload, don't use it for the demo) — LiveKit Agents
   worker, agent name `gabriel-call`, 6 warm processes (`GABRIEL_IDLE_PROCS`), one process per call, health server on a
-  random port (`GABRIEL_HTTP_PORT`; 8081 is taken by a node process here).
+  random port (`GABRIEL_HTTP_PORT`; 8081 is taken by a node process here). Takes web calls and real phone calls.
+  Keep it in `start` and keep the agent name `gabriel-call`: the SIP dispatch rule points at it. It reports unavailable
+  above 95 % CPU (`load_threshold=0.95`); a phone call arriving then gets no agent.
 - talkie on LiveKit: `TALKIE_TRANSPORT=livekit` in the root `.env` + restart talkie, or per page `?transport=livekit`
   (`http://localhost:3000/?transport=livekit`, `http://localhost:3000/call?occ=OCC-05&transport=livekit`).
 - mock (`MOCK=1`, no LiveKit): `uv run gabriel-mock radio R01 R03` · `call CALL-01` · `say "Seraph, quelle entrée ?" Tête`
@@ -64,7 +66,16 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   sends a voice-only `call_facts` at once (≤ 1 per 5 s). Seen live: « Il y a de la fumée sous la porte » → fear/negative.
 - **Parallel:** 3 web calls (fr wheelchair, es, inbound 112 en) + a radio turn at once: calls answer 0.76–1.37 s after
   the caller stops, radio release → audio 0.96 s, no interference.
-- `place_calls`: logged with masked numbers, not dialed (SIP not wired, Amil's decision). Numbers are masked everywhere.
+- **Real phone calls, inbound (09:48):** LiveKit Phone Number +1 646 357 5046 (`PN_PPN_Mr7J4H9szQnV`, US, inbound
+  only); Amil forwards his French mobile to it, so judges dial a French number. Dispatch rule `SDR_S8H3HrNSvi3j`
+  « seraph-112 » (any trunk) → room `call-<callee>_<random>`, agent `gabriel-call`, metadata
+  `{"direction":"in","channel":"phone"}`. Same agent and flow as web calls: first call `_16463575046_zEQFiPcaNRHd`,
+  in/phone/fr, read-back confirmed 3.10, Seraph summary « Appel 112 : quatre personnes séjour-cuisine 3.10… ». Set up
+  by the jury-walkthrough session, no code change needed.
+- Phone numbers: the SIP caller's number goes to Seraph only masked (`number_masked` « +33 7•• •• •• 72 », from the
+  participant's `sip.phoneNumber`). Every log line of the call worker is masked too, framework extras included
+  (livekit.agents logs `participant: sip_+33…`).
+- `place_calls` (outbound): logged with masked numbers, not dialed. **SIP is only stubbed for outbound now.**
 - Metrics to Seraph (`{kind:"metric"}`): `eot_to_transcript`, `say_to_audio` (+`wait_ms`), `release_to_audio`,
   `call_ack`, `call_turn` (+`report_facts_ms`), `call_say_queued`.
 
@@ -75,7 +86,7 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   says what she's doing; Gabriel asks).
 
 ## In progress
-- Nothing. Next if wanted: SIP/Twilio for `place_calls` and the 112 number (stubbed), a real-phone check of the mic.
+- Nothing. Next if wanted: outbound SIP for `place_calls` (stubbed), a real-phone check of the talkie mic.
 
 ## Blocked
 -
@@ -112,4 +123,9 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   mappings (« fourth floor » = 4, « avec un collègue » = 2…).
 - livekit (python rtc) 1.2: `participant_attributes_changed(changed, participant)`, `data_received(DataPacket)` with
   `.topic`; `AccessToken.with_attributes()`. Two coroutines calling `AudioSource.capture_frame` at once → InvalidState.
+- Phone audio logs once per call « transcript arrives after turn has been committed » (livekit.agents suggests
+  `min_delay`). Harmless here: the call flow runs on Gladia finals (`user_input_transcribed`), not on the session's
+  turn commit, and the session has no LLM.
+- `lk number update --sip-dispatch-rule-id` fails with invalid_argument; an any-trunk dispatch rule routes the number
+  anyway.
 - The in-app browser pane blocks the mic; Chromium with `--use-file-for-fake-audio-capture=<wav>` works for tests.

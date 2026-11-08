@@ -29,6 +29,38 @@ def mask(number: str) -> str:
     return f"+{d[:2]} {d[2:3]}•• •• •• {d[-2:]}"
 
 
+_PHONE = re.compile(r"\+\d[\d ]{6,16}\d")
+_STD = set(vars(logging.LogRecord("", 0, "", 0, "", None, None))) | {"message", "asctime"}
+
+
+def mask_logs() -> None:
+    """Mask phone numbers in every log record of this process, extras included (livekit.agents logs SIP callers as
+    `participant: sip_+33…`)."""
+    if getattr(logging.Logger.makeRecord, "_masked", False):
+        return
+    make = logging.Logger.makeRecord
+
+    def scrub(s: str) -> str:
+        return _PHONE.sub(lambda m: mask(m.group()), s)
+
+    def make_masked(self, *a, **kw):
+        rec = make(self, *a, **kw)
+        try:
+            if rec.args:
+                rec.msg, rec.args = rec.getMessage(), ()
+            if isinstance(rec.msg, str):
+                rec.msg = scrub(rec.msg)
+            for k, v in list(vars(rec).items()):
+                if k not in _STD and isinstance(v, str):
+                    setattr(rec, k, scrub(v))
+        except Exception:
+            pass
+        return rec
+
+    make_masked._masked = True
+    logging.Logger.makeRecord = make_masked
+
+
 class SeraphLink:
     def __init__(self, on_message: Optional[Handler] = None, name: str = "gabriel") -> None:
         self.on_message = on_message

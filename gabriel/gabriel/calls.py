@@ -31,10 +31,11 @@ from livekit.plugins.gladia import stt as gladia_stt
 from openai import AsyncOpenAI
 
 from . import config, gladia_live
-from .seraph_link import SeraphLink, mask, now_iso
+from .seraph_link import SeraphLink, mask, mask_logs, now_iso
 from .tts import SR as TTS_SR, TTS
 
 log = logging.getLogger("gabriel.calls")
+mask_logs()
 
 LANGS = ("fr", "en", "es")
 GREETING = {
@@ -286,6 +287,7 @@ class Call:
             f"level {lv}: " + ", ".join(f"{r['id']} {r.get('use') or ''}".strip() for r in self.room_list if r.get("level") == lv)
             for lv in sorted({r.get("level") for r in self.room_list if r.get("level") is not None})) if self.room_list else ""
         self.confirm_room: Optional[str] = None       # a room to read back before sending it
+        self.sip_number = ""                          # phone callers only, never logged or sent in full
         self.room_asked: set[str] = set()
 
     def listed(self) -> str:
@@ -296,7 +298,7 @@ class Call:
                 f"on level {self.occ.get('level') if self.occ.get('level') is not None else 'unknown'}.")
 
     def number(self) -> str:
-        return self.occ.get("phone_masked") or ("web" if self.channel == "web" else "••")
+        return self.occ.get("phone_masked") or ("web" if self.channel == "web" else mask(self.sip_number))
 
     def event(self, ev: str) -> None:
         self.link.send({"kind": "call_event", "call_id": self.call_id, "event": ev, "direction": self.direction,
@@ -543,6 +545,7 @@ async def call_agent(ctx: JobContext) -> None:
     log.info("%s %s %s, lang %s, occupant %s", call.call_id, call.direction, call.channel, call.lang,
              call.occ.get("name") or "-")
     caller = await ctx.wait_for_participant()
+    call.sip_number = caller.attributes.get("sip.phoneNumber") or caller.identity.removeprefix("sip_")
     call.event("answered")
 
     session = AgentSession(
