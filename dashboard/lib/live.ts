@@ -28,7 +28,20 @@ export type CamFrame = {
   at: string;
   first_at: string;
 };
-export type ServiceHealth = { ok: boolean; mock: boolean; ms: number | null };
+// `replay` (Seraph only): "idle" | "running:<fixture>" | "done" | "cancelled" — anything but idle is a replay until reset
+export type ServiceHealth = { ok: boolean; mock: boolean; ms: number | null; replay?: string };
+/** One line said to Seraph on the radio and what it became: rules or LLM, measured time, Seraph's answer. */
+export type Turn = {
+  id: string;
+  t: string;
+  speaker: string;
+  text: string;
+  path?: string; // rules | llm | none (Seraph's voice_to_say metric)
+  ms?: number; // Seraph's processing time
+  eotMs?: number; // end of speech → Seraph's answer, when Gabriel gives the end time
+  events?: string[];
+  reply?: string;
+};
 export type SilexSession = {
   id?: string;
   session_id?: string;
@@ -39,7 +52,7 @@ export type SilexSession = {
   purpose?: string;
 };
 export type Mode = "connecting" | "live" | "mock" | "fixtures";
-export type Config = { mock: boolean; seraph?: string; halo?: string; rosettaWs: string; haloMirror: string | null };
+export type Config = { mock: boolean; seraph?: string; halo?: string; rosettaWs: string; haloMirror: string | null; inscription?: string | null };
 export type Toast = { id: number; text: string; tone: "ok" | "err" | "wait" };
 
 export interface Live {
@@ -47,6 +60,7 @@ export interface Live {
   streamOk: boolean;
   state: IncidentState | null;
   radio: RadioLine[];
+  turns: Turn[];
   cams: Record<string, CamFrame>;
   results: Record<string, RosettaResult>;
   sessions: SilexSession[];
@@ -177,6 +191,7 @@ export function useLive(): Live {
   const [sessions, setSessions] = useState<SilexSession[]>([]);
   const [health, setHealth] = useState<Record<string, ServiceHealth>>({});
   const [metrics, setMetrics] = useState<Record<string, number>>({});
+  const [turns, setTurns] = useState<Turn[]>([]);
   const [config, setConfig] = useState<Config | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
 
@@ -325,10 +340,16 @@ export function useLive(): Live {
       on<GabrielToSeraph>("radio", (m) => {
         if (m.kind !== "radio_transcript") return;
         pushRadio({ id: m.utterance_id, t: m.start, speaker: m.speaker, text: m.text_fr ?? m.text, seraph: false });
+        setTurns((ts) => (ts.some((x) => x.id === m.utterance_id) ? ts : [...ts, { id: m.utterance_id, t: new Date().toISOString(), speaker: m.speaker, text: m.text_fr ?? m.text }].slice(-40)));
       });
       on<SeraphToGabriel>("say", (m) => {
         if (m.kind !== "say" || !("room" in m.target) || m.target.room !== "crew") return;
         pushRadio({ id: m.say_id, t: new Date().toISOString(), speaker: "Seraph", text: m.text, seraph: true });
+        // Seraph answers a line before its metric arrives: the answer goes to the latest line still without one
+        setTurns((ts) => {
+          const i = ts.findLastIndex((x) => !x.reply && Date.now() - Date.parse(x.t) < 20_000);
+          return i < 0 ? ts : ts.map((x, j) => (j === i ? { ...x, reply: m.text } : x));
+        });
       });
       on<Call>("call", (c) => setState((s) => s && { ...s, calls: upsert(s.calls, c, "call_id") }));
       on<Gate>("gate", (g) => setState((s) => s && { ...s, gates: upsert(s.gates, g, "gate_id") }));
@@ -339,7 +360,12 @@ export function useLive(): Live {
         if (!("request_id" in v)) return;
         setState((s) => s && { ...s, halo: { ...s.halo, requests: upsert(s.halo.requests, v, "request_id") } });
       });
-      on<{ name: string; value_ms: number }>("metric", (m) => setMetrics((x) => ({ ...x, [m.name]: m.value_ms })));
+      on<{ name: string; value_ms: number; path?: string; since_eot_ms?: number | null; utterance_id?: string; events?: unknown }>("metric", (m) => {
+        setMetrics((x) => ({ ...x, [m.name]: m.value_ms }));
+        if (m.name !== "voice_to_say" || !m.utterance_id) return;
+        const events = Array.isArray(m.events) ? m.events.map((e) => (typeof e === "string" ? e : String((e as { type?: string }).type ?? ""))).filter(Boolean) : undefined;
+        setTurns((ts) => ts.map((x) => (x.id === m.utterance_id ? { ...x, path: m.path, ms: m.value_ms, eotMs: m.since_eot_ms ?? undefined, events } : x)));
+      });
     }
 
     async function connectSeraph() {
@@ -470,5 +496,5 @@ export function useLive(): Live {
   const confirmGate = useCallback((id: string) => act("Confirmer", "seraph", `gates/${id}/confirm`), [act]);
   const cancelGate = useCallback((id: string) => act("Annuler", "seraph", `gates/${id}/cancel`), [act]);
 
-  return { mode, streamOk, state, radio, cams, results, sessions, health, metrics, config, toast, act, confirmGate, cancelGate };
+  return { mode, streamOk, state, radio, turns, cams, results, sessions, health, metrics, config, toast, act, confirmGate, cancelGate };
 }

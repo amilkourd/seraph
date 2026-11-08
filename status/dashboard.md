@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 06:32
+Updated: 07:04
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -105,6 +105,15 @@ Updated: 06:32
   id, level, stair (or room); team callouts read « → engagé ». « Vues Halo » skips team_engaged requests; keys 1–4
   force a Halo moment (team_engaged gone); the mock no longer speaks R03's exit-time line. Air alarms only ever came
   from Seraph's alerts, which Seraph stops sending.
+- Jury booth (Amil's plan, via the Seraph review): key E swaps the left panel for « Essayez »: the 5 phrases, the QR
+  to the occupants' `/inscription` (from `OCCUPANTS_PUBLIC_URL`; « Lien absent » box when it is empty, never a fake
+  QR), the COS decision card if a gate is pending, and each speaker's last line (most recent first, 3 max): the
+  transcript, Règles / LLM / Non reconnu and the time from end of speech to Seraph's answer (`metric` voice_to_say:
+  `path`, `since_eot_ms`, else `value_ms`, matched by `utterance_id`), the event types when the metric carries
+  `events`, and Seraph's answer. The building stays visible; E again goes back.
+- LIVE vs REJEU: a pill left of the screen button, always on screen in both views: Live (green) · Rejeu (amber,
+  amber border: Seraph /health `replay` is anything but "idle", i.e. from a replay's start until the next reset) ·
+  Mock · Hors ligne · Connexion. `/api/health` passes Seraph's `replay` through. The panel's old Mock chip is gone.
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
@@ -118,6 +127,10 @@ Updated: 06:32
   `levels[].outline?: {outer, holes}[]`, `levels[].focus?: boolean`, `focus_reasons?: string[]`;
   `building.model.plan_frame.px_per_m`.
 - Amil (`contracts/api.md`): document `/admin/replay_line`, `/admin/call_now` (used on keys R and A).
+- @seraph: add the event types to the `voice_to_say` metric (`events: ["hazard", …]`) so the booth shows what a
+  judge's line became; the dashboard already reads it.
+- Amil / @replicas: the booth QR needs `OCCUPANTS_PUBLIC_URL` in the root `.env` (empty now; talkie's /qr shows a
+  placeholder too). The occupants replica listens on 127.0.0.1 only, so a LAN URL would not work either.
 
 ## Facts I verified (API names, model ids, gotchas)
 - Next 16 dev blocks `/_next/hmr` and dev fonts for any origin but localhost: opened by the LAN address

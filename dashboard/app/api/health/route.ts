@@ -10,7 +10,8 @@ export async function GET() {
       try {
         const r = await fetch(`${serviceUrl(name)}/health`, { cache: "no-store", signal: AbortSignal.timeout(1500) });
         const body = r.ok ? await r.json().catch(() => ({})) : {};
-        return [name, { ok: r.ok && body.ok !== false, mock: Boolean(body.mock), ms: Date.now() - t0 }] as const;
+        const replay = typeof body.replay === "string" ? body.replay : undefined; // Seraph: is a fixture replay on?
+        return [name, { ok: r.ok && body.ok !== false, mock: Boolean(body.mock), ms: Date.now() - t0, replay }] as const;
       } catch {
         return [name, { ok: false, mock: false, ms: null }] as const;
       }

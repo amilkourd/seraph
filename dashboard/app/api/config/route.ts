@@ -20,5 +20,13 @@ export async function GET(req: NextRequest) {
     halo: forBrowser(serviceUrl("halo")!),
     rosettaWs: forBrowser(`${serviceUrl("rosetta")!.replace(/^http/, "ws")}/ws/cam`),
     haloMirror: mirrorUp ? forBrowser(mirror) : null,
+    inscription: inscription(),
   });
+}
+
+// the occupants replica's public opt-in page, for the booth's QR (same rule as talkie's /qr)
+function inscription(): string | null {
+  const base = process.env.OCCUPANTS_PUBLIC_URL?.trim().replace(/\/+$/, "");
+  if (!base) return null;
+  return base.endsWith("/inscription") ? base : `${base}/inscription`;
 }

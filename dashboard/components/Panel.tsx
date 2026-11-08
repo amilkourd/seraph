@@ -1,21 +1,31 @@
 "use client";
-import type { ReactNode } from "react";
-import type { Live } from "@/lib/live";
+import { useEffect, useState, type ReactNode } from "react";
+import QRCode from "qrcode";
+import type { Live, Turn } from "@/lib/live";
 import type { Gate, IncidentState } from "@/lib/types";
-import { TEAM_STATUS, dur, hm, hms, levelLabel } from "@/lib/fr";
+import { TEAM_STATUS, dur, hm, hms, levelLabel, secs } from "@/lib/fr";
 import { Sq } from "./ui";
 
 /** The one paper panel of the reference: the incident as a title, the COS decision when there is one, then three
  *  cards. The controls live behind the screen button, top right. */
-export function Panel({ live, now }: { live: Live; now: number }) {
+export function Panel({ live, now, booth = false }: { live: Live; now: number; booth?: boolean }) {
   const s = live.state;
   const gate = s?.gates.filter((g) => g.status === "pending").sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+
+  if (booth)
+    return (
+      <aside className="panel left-6 top-6 flex h-[1032px] w-[520px] flex-col px-7 pb-7 pt-9">
+        <Booth live={live} />
+        {gate && <Decision gate={gate} live={live} now={now} className="mt-6" />}
+        <Turns turns={live.turns} />
+      </aside>
+    );
 
   return (
     <aside className="panel left-6 top-6 flex h-[1032px] w-[520px] flex-col px-7 pb-7 pt-9">
       {s ? (
         <>
-          <Title s={s} live={live} now={now} />
+          <Title s={s} now={now} />
           {gate && <Decision gate={gate} live={live} now={now} />}
           <div className="mt-auto flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
@@ -33,7 +43,7 @@ export function Panel({ live, now }: { live: Live; now: number }) {
   );
 }
 
-function Title({ s, live, now }: { s: IncidentState; live: Live; now: number }) {
+function Title({ s, now }: { s: IncidentState; now: number }) {
   const [head] = (s.incident.nature || "En attente d'incident").split(",");
   const o = s.incident.origin;
   return (
@@ -43,7 +53,6 @@ function Title({ s, live, now }: { s: IncidentState; live: Live; now: number }) 
         <div className="flex gap-1.5">
           <span className="chip danger">Exercice</span>
           {o && <span className="chip">{`${levelLabel(s, o.floor)}${o.room ? ` · ${o.room}` : ""}`}</span>}
-          {live.mode !== "live" && <span className="chip solid">{live.mode === "mock" ? "Mock" : live.mode === "fixtures" ? "Seraph hors ligne" : "…"}</span>}
         </div>
         <span className="chip">
           {s.incident.declared_at ? `T+${dur(now - Date.parse(s.incident.declared_at))}` : "—"} · {hms(now)}
@@ -196,4 +205,71 @@ function Node({ on, label, danger }: { on: boolean; label?: string; danger?: boo
 
 function Link({ on, building }: { on: boolean; building?: boolean }) {
   return <span className={`block h-0 w-7 flex-none border-t-2 ${on ? "border-ink" : building ? "border-dashed border-propose" : "border-dashed border-ink-3"}`} />;
+}
+
+// ───────── booth (key E): judges drive Seraph themselves, every answer shows where it comes from ─────────
+
+const PHRASES = [
+  "Seraph, quelle entrée ?",
+  "Seraph, il me faut sur Halo le plan du R+3 avec les personnes et la fumée",
+  "Seraph de Tête, porte E1 bloquée",
+  "Seraph, point de situation",
+  "Seraph, levée de doute au 1er",
+];
+
+function Booth({ live }: { live: Live }) {
+  const url = live.config?.inscription;
+  const [qr, setQr] = useState<string | null>(null);
+  useEffect(() => {
+    if (!url) return;
+    QRCode.toString(url, { type: "svg", margin: 1, errorCorrectionLevel: "M", color: { dark: "#000000", light: "#ffffff" } })
+      .then(setQr)
+      .catch(() => setQr(null));
+  }, [url]);
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-[1fr_auto] items-start gap-5">
+        <div className="flex flex-col gap-3">
+          <h1 className="t-display text-[78px] text-ink">Essayez</h1>
+          <p className="text-[19px] leading-[1.3] text-ink-2">Appuyez sur le talkie, parlez à Seraph.</p>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          {url && qr ? (
+            <div className="h-[132px] w-[132px] bg-white [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qr }} />
+          ) : (
+            // never a fake QR: OCCUPANTS_PUBLIC_URL is not set in the root .env
+            <div className="label grid h-[132px] w-[132px] place-items-center border border-rule p-3 text-center text-[13px] text-ink-3">Lien absent</div>
+          )}
+          <span className="label text-[12px]">Inscription</span>
+        </div>
+      </div>
+      <ol className="flex flex-col gap-2">
+        {PHRASES.map((p) => (
+          <li key={p} className="card px-4 py-3 text-[19px] leading-[1.3] text-ink">« {p} »</li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+const PATH: Record<string, string> = { rules: "Règles", llm: "LLM", none: "Non reconnu" };
+
+/** Each speaker's last line: what was heard, what it became (rules or LLM), how long Seraph took, its answer. */
+function Turns({ turns }: { turns: Turn[] }) {
+  const last = [...turns].reverse().filter((t, i, a) => a.findIndex((x) => x.speaker === t.speaker) === i).slice(0, 3);
+  return (
+    <div className="mt-auto flex flex-col gap-3">
+      {last.map((t) => (
+        <section key={t.id} className="card flex flex-col gap-2 p-4">
+          <header className="flex h-6 items-center justify-between gap-2">
+            <span className="label">{t.speaker}</span>
+            <span className="chip h-6 text-[12px]">{t.path ? `${PATH[t.path] ?? t.path} · ${secs(t.eotMs ?? t.ms)}` : "…"}</span>
+          </header>
+          <p className="line-clamp-2 text-[17px] leading-[1.3] text-ink">« {t.text} »</p>
+          {t.events?.length ? <p className="label text-[13px] text-ink-2">→ {t.events.join(", ")}</p> : null}
+          {t.reply && <p className="line-clamp-2 text-[15px] leading-[1.3] text-ink-2">Seraph : {t.reply}</p>}
+        </section>
+      ))}
+    </div>
+  );
 }

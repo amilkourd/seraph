@@ -2,10 +2,11 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useLive, type Live } from "@/lib/live";
 import type { IncidentState } from "@/lib/types";
-import { MOMENTS, dur, hm, hms, levelLabel } from "@/lib/fr";
+import { MOMENTS, dur, hm, hms, levelLabel, type Tone } from "@/lib/fr";
 import { Building3D } from "./Building3D";
 import { Decision, Panel } from "./Panel";
 import { RosettaGrid } from "./RosettaGrid";
+import { Sq } from "./ui";
 
 // Stage layout (1920×1080). Main view: panel | the building, full height | radio over Halo.
 // Split view (screen button): the building framed on the level that matters, above the six Rosetta screens.
@@ -20,6 +21,7 @@ export function Dashboard() {
   const [scale, setScale] = useState(1);
   const [now, setNow] = useState(0); // set on mount: the clock must not be read during prerender
   const [view, setView] = useState<"main" | "split">("main");
+  const [booth, setBooth] = useState(false); // « Essayez »: the judges' booth in the left panel (key E)
 
   useEffect(() => {
     const fit = () => setScale(Math.min(window.innerWidth / 1920, window.innerHeight / 1080));
@@ -36,7 +38,7 @@ export function Dashboard() {
 
   // Keys from docs/03-demo-script.md: Space confirm / Esc cancel the latest gate, 1–4 force a Halo moment,
   // R replay the next radio line (R00…R15, for a line missed live). Controls: D start the incident, A call everyone
-  // now, Shift+R replay the whole incident, X twice reset.
+  // now, Shift+R replay the whole incident, X twice reset, E the judges' booth.
   const liveRef = useRef(live);
   useEffect(() => {
     liveRef.current = live;
@@ -66,6 +68,8 @@ export function Dashboard() {
         l.act("Appeler maintenant", "seraph", "admin/call_now", {});
       } else if (e.key.toLowerCase() === "d") {
         l.act("Déclencher", "seraph", "incident/start", {});
+      } else if (e.key.toLowerCase() === "e") {
+        setBooth((b) => !b);
       } else if (e.key.toLowerCase() === "x") {
         if (Date.now() - armed < 3000) {
           armed = 0;
@@ -86,7 +90,7 @@ export function Dashboard() {
         {view === "main" ? (
           <>
             <Building3D key="main" state={s} box={SCHEME} scale={scale} />
-            <Panel live={live} now={now} />
+            <Panel live={live} now={now} booth={booth} />
             <Radio live={live} />
             <HaloPhone live={live} />
           </>
@@ -97,6 +101,7 @@ export function Dashboard() {
             <RosettaGrid live={live} now={now} />
           </>
         )}
+        <SourceBadge live={live} />
         <ScreenButton live={live} active={view === "split"} onClick={() => setView((v) => (v === "main" ? "split" : "main"))} />
         {live.toast && (
           <div
@@ -121,6 +126,29 @@ function StateFrame({ src, state, title, className, style }: { src: string; stat
   // only when the state changes: the clock re-renders every second, and each post makes the view redraw
   useEffect(post, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return <iframe ref={ref} src={src} title={title} onLoad={post} className={`border-0 ${className ?? ""}`} style={style} />;
+}
+
+/** Always on screen, left of the screen button: live, a fixture replay, or the mock. A replay never looks live:
+ *  Seraph's /health says `replay` is anything but "idle" from the moment it starts until the next reset. */
+function SourceBadge({ live }: { live: Live }) {
+  const replay = live.health.seraph?.replay;
+  const replaying = live.mode === "live" && replay != null && replay !== "idle";
+  const [text, tone]: [string, Tone] =
+    live.mode === "mock" ? ["Mock", "gris"]
+    : live.mode === "connecting" ? ["Connexion", "gris"]
+    : live.mode === "fixtures" ? ["Hors ligne", "danger"]
+    : replaying ? ["Rejeu", "alerte"]
+    : ["Live", "sur"];
+  return (
+    <div
+      className={`dark label absolute right-[104px] top-6 flex h-16 items-center gap-3 rounded-full border bg-paper px-6 text-[20px] ${
+        replaying ? "border-alerte text-alerte" : "border-rule text-ink"
+      }`}
+    >
+      <Sq tone={tone} pulse={text === "Live"} />
+      {text}
+    </div>
+  );
 }
 
 /** Top right: one screen button. It switches to the split view (building above, Rosetta's screens below) and back.
