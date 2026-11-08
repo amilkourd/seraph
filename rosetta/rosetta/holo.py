@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import collections
 import json
 import re
 import time
@@ -30,7 +31,7 @@ _client: Optional[AsyncOpenAI] = None
 def client() -> AsyncOpenAI:
     global _client
     if _client is None:
-        _client = AsyncOpenAI(api_key=settings.h_api_key, base_url=settings.h_base_url, max_retries=1)
+        _client = AsyncOpenAI(api_key=settings.h_api_key, base_url=settings.h_base_url, max_retries=0)
     return _client
 
 
@@ -123,6 +124,64 @@ When the task is done, call answer. If you see a CAPTCHA or a bot check, do not 
 {json.dumps(STEP_SCHEMA)}
 ```
 </output_format>"""
+
+
+class Pacer:
+    """H's quota is per model (~30 calls per minute window, measured 06:05: 429 « Too Many Requests for <model> »).
+    Calls go to the first model of the list with room in its window; a 429 closes that model's window for a while."""
+
+    def __init__(self, rpm: int) -> None:
+        self.rpm = rpm
+        self.hits: dict[str, collections.deque] = collections.defaultdict(collections.deque)
+        self.closed_until: dict[str, float] = {}
+
+    def _room(self, m: str, now: float) -> bool:
+        q = self.hits[m]
+        while q and now - q[0] > 60:
+            q.popleft()
+        return now >= self.closed_until.get(m, 0) and len(q) < self.rpm
+
+    async def take(self, models: list[str], t_end: float) -> str:
+        while True:
+            now = time.time()
+            for m in models:
+                if self._room(m, now):
+                    self.hits[m].append(now)
+                    return m
+            if now > t_end - 3:
+                raise TimeoutError("quota H épuisé sur " + ", ".join(models))
+            await asyncio.sleep(0.5)
+
+    def close(self, m: str, seconds: float = 15) -> None:
+        self.closed_until[m] = time.time() + seconds
+
+
+pacer = Pacer(settings.holo_rpm)
+_inflight: Optional[asyncio.Semaphore] = None
+
+
+async def complete(budget_s: float, per_call_s: float, models: Optional[list[str]] = None, **kw):
+    """One chat completion, paced per model, under a cap on in-flight calls. A hung call is cut at `per_call_s`
+    (05:50: one call stalled 40 s); a 429 moves to the next model; retries while the run's budget lasts."""
+    global _inflight
+    if _inflight is None:
+        _inflight = asyncio.Semaphore(settings.holo_max_inflight)
+    models = models or settings.agent_models
+    t_end = time.time() + budget_s
+    while True:
+        model = await pacer.take(models, t_end)
+        async with _inflight:
+            left = t_end - time.time()
+            try:
+                return await client().chat.completions.create(model=model, timeout=max(3.0, min(per_call_s, left)), **kw)
+            except Exception as exc:
+                name = type(exc).__name__
+                if name not in ("APITimeoutError", "APIConnectionError", "InternalServerError", "RateLimitError") \
+                        or t_end - time.time() < 4:
+                    raise
+                if name == "RateLimitError":
+                    pacer.close(model)
+        await asyncio.sleep(0.3)
 
 
 def describe(call: ToolCall) -> str:
@@ -223,9 +282,8 @@ async def run_agent(page, task: str, *, on_step: OnStep, verify: Verify, hints: 
                                                      {"type": "text", "text": "\n</observation>"}]})
         _trim(messages)
         remaining = (deadline - time.time()) if deadline else 60
-        resp = await client().chat.completions.create(
-            model=settings.holo_model, messages=messages, temperature=0.6, timeout=max(5, min(45, remaining)),
-            extra_body={"structured_outputs": {"json": STEP_SCHEMA}})
+        resp = await complete(max(5, remaining), 15, settings.agent_models, messages=messages, temperature=0.6,
+                              extra_body={"structured_outputs": {"json": STEP_SCHEMA}})
         raw = resp.choices[0].message.content or ""
         try:
             step = Step.model_validate_json(raw)
@@ -321,8 +379,7 @@ async def locate(img: bytes, target: str, *, may_be_absent: bool = True, timeout
               + (" If the target is not visible on the image, set found to false.\n" if may_be_absent else "")
               + f" * You must output a valid JSON following the format: {json.dumps(schema)}\n"
               f" Your target is:\n{target}")
-    resp = await client().chat.completions.create(
-        model=settings.holo_model, temperature=0.0, timeout=timeout,
+    resp = await complete(timeout, 8, settings.point_models, temperature=0.0,
         messages=[{"role": "user", "content": [_img(img), {"type": "text", "text": prompt}]}],
         extra_body={"structured_outputs": {"json": schema}, "chat_template_kwargs": {"enable_thinking": False}})
     raw = resp.choices[0].message.content or "{}"
@@ -336,8 +393,7 @@ async def locate(img: bytes, target: str, *, may_be_absent: bool = True, timeout
 async def ask_json(img: bytes, question: str, model: type[BaseModel], timeout: float = 40) -> BaseModel:
     """Single-turn visual question with a JSON schema (reading labels on a plan photo, etc.)."""
     schema = model.model_json_schema()
-    resp = await client().chat.completions.create(
-        model=settings.holo_model, temperature=0.0, timeout=timeout,
+    resp = await complete(timeout, 15, settings.point_models, temperature=0.0,
         messages=[{"role": "user", "content": [_img(img), {"type": "text", "text":
                   f"{question}\nYou must output a valid JSON following the format: {json.dumps(schema)}"}]}],
         extra_body={"structured_outputs": {"json": schema}, "chat_template_kwargs": {"enable_thinking": False}})

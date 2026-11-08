@@ -55,6 +55,10 @@ class Settings:
     h_base_url: str
     holo_model: str
     max_parallel: int
+    holo_max_inflight: int
+    holo_rpm: int
+    agent_models: list
+    point_models: list
     headless: bool
     demo_address: str
     replica_password: str
@@ -73,6 +77,11 @@ def load() -> Settings:
         h_base_url=env("H_API_BASE_URL", "https://api.hcompany.ai/v1/"),
         holo_model=env("HOLO_MODEL", "holo4-35b-a3b"),
         max_parallel=int(env("ROSETTA_MAX_PARALLEL", "4")),
+        holo_max_inflight=int(env("HOLO_MAX_INFLIGHT", "6")),
+        holo_rpm=int(env("HOLO_RPM", "26")),
+        # agent steps: HOLO_MODEL first, holo4-27b as overflow; pointing: the other quotas first (06:05, errors < 40/1000)
+        agent_models=[m for m in [env("HOLO_MODEL", "holo4-35b-a3b"), "holo4-27b"] if m],
+        point_models=env("HOLO_POINT_MODELS", "holo4-27b,holo3-1-35b-a3b," + env("HOLO_MODEL", "holo4-35b-a3b")).split(","),
         headless=env("ROSETTA_HEADLESS", "0") == "1",
         demo_address=env("DEMO_ADDRESS"),
         replica_password=env("REPLICA_PASSWORD"),

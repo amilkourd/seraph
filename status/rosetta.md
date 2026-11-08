@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 05:35
+Updated: 06:00
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -33,19 +33,27 @@ Updated: 05:35
 | `plan.read` | ✅ 19 points on `plan-l-1-01` (L-1.svg) | 7 s | zones IoU vs IFC: -1.01 0.96, -1.04 0.97, -1.06 0.91, -1.08 0.95, -1.11 0.86 (garage + ramp + places in one region); stair 0.15 (hatching), lift 0.46 |
 | `maps.building` | ✅ 96 bd Bessières: E1 (496,500), truck (600,530) on `earth-top-01`; sv-front/left/right; 5 storeys | 32–42 s | no hydrant visible (honest: empty); E2 (garage ramp from the IFC) not at this address; footprint off |
 | `georisques.risks` | ✅ 8 risks (inondation, séisme, mouvements de terrain, argiles, radon, ICPE, canalisations, pollution des sols) | 22 s | Holo refuses cookies, picks the suggestion |
-| `weather.wind` | ✅ Paris: S, 5 km/h | 16 s | 30 min cache |
-| `/explore` | ⏳ not built | | |
+| `weather.wind` | ✅ Paris: S, 5 km/h | 12–16 s | 30 min cache |
+| `/explore` | ✅ « crèche ou école dans la rue ? » → paris.fr, « groupe scolaire Bessière » | 39 s, 16 steps | `verified:false`, source « source non vérifiée », trace for Silex |
 
-Parallel: `georisques.risks` + `maps.building` together 22 s / 32 s; `dispatch.read` + `occupants.list` 10 s / 9 s.
+**Seraph's dispatch fan-out, all six in parallel, live (06:00, `uv run python fanout.py`)**: occupants.list 6.3 s ·
+dispatch.read 7.1 s · plan.read 13.0 s · weather.wind 12.5 s · georisques.risks 16.2 s · maps.building 38.6 s →
+**all done in 40 s**, none from cache. Golden path rebuilt from that run (`GET /admin/cache`).
 
 ## In progress
-- End-to-end from Seraph `/incident/start`: waiting for Seraph to run with Rosetta live (it runs MOCK=1).
+- End-to-end from Seraph `/incident/start`: Seraph now runs MOCK=0 and idle; the start is Amil's (it also places calls
+  and asks Devin for views). The dashboard grid shows Rosetta's cam (checked live with weather.wind: « Live · étape »,
+  screenshot, timer, thought).
 
 ## Blocked
 -
 
 ## Requests (to other sessions or Amil)
-- @seraph: run with Rosetta live (MOCK=0 or a Rosetta-only switch), then `/incident/start`. Pass `level` -1 for the R-1 plan.
+- Amil: start the live incident (`/incident/start`) when ready; Rosetta is live and idle on :8001.
+- @seraph: pass `level` -1 for the R-1 plan (dispatch replica still says level 3).
+- Amil / H staff: the H key's quota is ~30 calls per minute window **per model** (measured). Rosetta paces each model
+  and spreads load (agent: holo4-35b-a3b then holo4-27b; pointing: holo4-27b, holo3-1-35b-a3b). A higher quota on
+  holo4-35b-a3b would make the stage run safer, especially if another session uses the same key.
 - Amil (`.env`): `PLAN_IMAGE_PATH` is still `contracts/fixtures/plan-level3.svg`; scenario v2 wants `ifc/out/levels/L-1.svg`.
 - @replicas: the dispatch seed still says « Feu de local technique », level 3 (scenario v2: vehicle fire, level -1).
 
@@ -68,3 +76,9 @@ Parallel: `georisques.risks` + `maps.building` together 22 s / 32 s; `dispatch.r
 - Géorisques report URL: `/mes-risques/connaitre-les-risques-pres-de-chez-moi/rapport2?…&lon=…&lat=…`.
 - Météo-France: `#atmogramme_slider li.wind p.wind-speed` → `img[title="Vent S"]` + `strong` km/h; « Maintenant » time in `#atmogramme_time_picker .period`.
 - The `rosetta` console script doesn't resolve the package (hatch layout); start with uvicorn.
+- **H quota: ~30 calls / minute window per model** (06:05: 30 OK in 13 s, then 429 « Too Many Requests for
+  holo4-35b-a3b »; holo4-27b and holo3-1 still answered → separate quotas). No rate-limit headers. Concurrency itself
+  is fine (12 parallel calls: 0.3–1.7 s). One call stalled 40 s once under load: calls are cut at 15 s (agent) / 8 s
+  (pointing) and retried inside the run's budget.
+- Pointing accuracy on the R-1 plan (error in 0–1000 units, 6 targets): holo4-27b 3–13, holo3-1-35b-a3b 4–36.
+- Pacing env: `HOLO_RPM` (26 per model), `HOLO_MAX_INFLIGHT` (6), `HOLO_POINT_MODELS`.

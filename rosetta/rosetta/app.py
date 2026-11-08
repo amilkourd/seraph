@@ -130,7 +130,7 @@ async def list_endpoints() -> list[dict]:
 
 @app.get("/health")
 async def health() -> dict:
-    return {"ok": True, "service": "rosetta", "mock": settings.mock, "model": settings.holo_model,
+    return {"ok": True, "service": "rosetta", "mock": settings.mock, "model": settings.holo_model, "agent_models": settings.agent_models, "point_models": settings.point_models, "rpm_per_model": settings.holo_rpm,
             "h_api_key": bool(settings.h_api_key), "headless": settings.headless,
             "parallel": settings.max_parallel, "active": runner.active, "queued": runner.queue.qsize(),
             "endpoints": len([n for n in ENDPOINTS if n != "explore"]) + len(learned()), "cache": len(cache.listing())}

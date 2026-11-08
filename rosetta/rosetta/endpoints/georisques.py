@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import re
 
-from ..config import TRACES
+
 from ..core import Run, RunFailed, endpoint
 from .common import agent
 from .maps import ban
@@ -50,7 +50,6 @@ async def georisques_risks(run: Run) -> dict:
     await page.wait_for_timeout(1500)
     img = await page.screenshot(type="jpeg", quality=85)
     run.add_shot("georisques-01", img, f"Géorisques : risques à {b['label']}", "top")
-    (TRACES / f"{run.run_id}-page.html").write_text(await page.content())   # dev: selectors for the extraction
     risks = await extract(page)
     run.source["url"] = page.url
     run.extra["summary"] = ", ".join(r["label"] for r in risks[:4]) or "aucun risque lu"

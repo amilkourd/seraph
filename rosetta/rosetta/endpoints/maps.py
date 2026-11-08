@@ -140,9 +140,9 @@ async def maps_building(run: Run) -> dict:
         # from above a door is not visible: Holo points where the entrance's façade meets the street
         targets = {e["id"]: (f"the {e.get('label', e['id'])} of {centre}, on its "
                              f"{SIDE_FR.get(e.get('side') or 'front', 'façade')}") for e in expected}
-        targets["H1"] = f"a fire hydrant (small red or yellow post on the sidewalk) near {centre}"
-        targets["truck"] = (f"a spot in the middle of the traffic lanes of the street just in front of the red ring "
-                            f"(on the asphalt, not on the sidewalk or a roof), where a fire engine can stop")
+        targets["H1"] = f"a fire hydrant (small red or yellow post on the sidewalk) near {centre}, not a map icon"
+        targets["truck"] = ("a point on the traffic lanes of the street nearest to the red ring: dark asphalt with white "
+                            "lane markings, not the sidewalk, not a roof, not a map label")
         keys = list(targets)
         absent_ok = {"H1"} | {e["id"] for e in expected if (e.get("side") or "front") != "front"}
         res = await gather_limited([locate(ringed, targets[k], may_be_absent=k in absent_ok) for k in keys], limit=10)

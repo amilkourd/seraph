@@ -73,6 +73,14 @@ def name_of(it: Item) -> Optional[tuple[str, str, str]]:
     return None
 
 
+def rel(path: str) -> str:
+    """Cache key: the same plan whether Seraph sends it absolute or relative to the repo."""
+    try:
+        return str(Path(path).resolve().relative_to(ROOT)) if Path(path).is_absolute() else str(Path(path))
+    except ValueError:
+        return path
+
+
 def resolve(path: str) -> Path:
     p = Path(path)
     if not p.is_absolute():
@@ -153,7 +161,7 @@ def zones(img: bytes, seeds: list[tuple[str, int, int]]) -> list[dict]:
 
 @endpoint(name="plan.read", kind="real", access="vision", timeout_s=60, cache="golden", site="",
           source_kind="plan", source_label="plan affiché", params={"image_path": "string", "level": "number"},
-          cache_key=lambda p: f"{p.get('image_path')}|{p.get('level')}")
+          cache_key=lambda p: f"{rel(str(p.get('image_path') or ''))}|{p.get('level')}")
 async def plan_read(run: Run) -> dict:
     path = resolve(str(run.params.get("image_path") or ""))
     level = run.params.get("level")
