@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 05:20
+Updated: 04:55
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -57,7 +57,6 @@ Updated: 05:20
   rectangle.
 - Fix: the Halo phone got `seraph:state` on every render (each clock tick) → the view redrew every second and
   its animations restarted (« ça clignote »). Now posted only when the state changes (checked: 0 posts in 6 s idle).
-- Rosetta removed from the screen for now (next step). Data layer still has the agent-cam WS for later.
 - Server routes: `/api/proxy/<service>/...` (SSE passthrough, tested), `/api/health`, `/api/config`,
   `/api/fixtures/...`, `/api/kit/...` (reads `halo/kit/`, fills `{{HALO_KIT_URL}}` in examples).
 
@@ -66,6 +65,18 @@ Updated: 05:20
   Seraph's computed `routes[].path` is drawn on `path_level` (white = our way, Silex green = evacuation, dark casing);
   teams on a stair sit on it (« Esc. A »); idle incident shows « En attente d'incident ».
 
+- IFC building (TU Wien, from Seraph 05:40): plates R-1…R+3 each draw their real rooms (terraces dimmer), stair A
+  from `stairs[].zones` (outline per level + shaft through all plates), corridors = rooms `corridor:<n>`, teams and
+  smoke matched to them.
+- Halo phone (live), Halo's protocol: loads `halo.current_view.url` and posts `{type: "seraph:state"}` on each
+  state change; `fallback://<moment>` → `HALO_URL/views/<moment>/`; no view yet → the kit's live preview.
+- Slabs are the plans (Amil, via the Seraph review): each level is extruded from its real outline
+  (`levels[].outline`, list of `{outer, holes}` — also accepts one loop, loops, or one `{outer, holes}`), else the
+  union of its room zones (raster union + closing, shafts cut out), never a square. Real scale from
+  `model.plan_frame.px_per_m` (1 unit = 1 m; 50 px/m without it); levels spaced by `elevation_m` + 4 m. Stair shaft
+  edges run through the holes. The camera fits the model left of the callout column (main view) or centred (split).
+  Checked live on TU Wien R-1…R+3, both views.
+
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
 
@@ -73,20 +84,10 @@ Updated: 05:20
 -
 
 ## Requests (to other sessions or Amil)
-- @halo: the dashboard draws its scheme with your kit (floorStack, marker, fire, smoke, arrow, label) in the
-  874×402 scene. `ground` is no longer exported, so `public/scheme.html` re-draws the same dot matrix full screen;
-  if you export `ground(canvas, {box, scale})` again I'll switch to it. Amil rejected smooth gradients and blur
-  (« dégradés métalliques ») and the grid of blocks in the ground: the dashboard turns them off on its side; the
-  Halo views in the phone mirror still show them.
-- Amil / @seraph (same as @halo's request): add `routes[].path` — the route as points on the level plan's 0–1000
-  frame, through the door centres, computed in code on the IFC graph. Without it, neither the dashboard nor Halo can
-  draw a route that does not cross walls. Seraph should also switch Halo to `inside_route` when a team is engaged on
-  a level (briefs/seraph.md « Moments → Halo »).
-- @halo: `examples/approach.html` still calls `Halo.big` (removed from the kit) → TypeError in the phone mirror.
-- @seraph / Amil: « Appeler maintenant » has no endpoint in `contracts/api.md` (button disabled). Proposal:
-  `POST /admin/call_now`.
-- @seraph / Amil: key `R` should replay one fixture line; `/admin/replay` only takes `fixture` + `speed`.
-- @seraph: with IFC rooms, keep `plan.points` for stairs (`stair:A`…) and `room:<id>` so the scheme can place people.
+- Amil (`contracts/types.ts`): add what Seraph already serves and the dashboard reads — `Route.path?: [x, y][]`,
+  `path_level?`, `path_image_id?`; `rooms[].kind` (room|corridor|elevator|exterior); `stairs[].zones` ({level, zone}[]);
+  `levels[].outline?: {outer, holes}[]`; `building.model.plan_frame.px_per_m`.
+- Amil (`contracts/api.md`): document `/admin/replay_line`, `/admin/call_now` (used on keys R and A).
 
 ## Facts I verified (API names, model ids, gotchas)
 - Headless Chrome `--virtual-time-budget` never finishes on the live page: the open SSE keeps it busy. Use the

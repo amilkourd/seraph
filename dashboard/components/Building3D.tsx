@@ -12,28 +12,33 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer.js";
-import type { IncidentState, Occupant, Route } from "@/lib/types";
+import type { Building, IncidentState, Occupant, Route } from "@/lib/types";
 import { OCC_STATUS, hm, levelLabel } from "@/lib/fr";
 
 // Colours from brand/tokens.css, by meaning: fire and danger = Seraph (blackbody), smoke = Seraph 300, people = Silex,
 // structure and our crews = Halo white.
-const C = { ink: "#ffffff", line: "#d0cecb", fire: "#f2560f", warn: "#ff9c5a", life: "#3fd68a", lit: "#e7e6e4" };
-const M = 50; // plan units (0–1000) per metre
-const STEP = 9; // vertical distance between two floor plates
+const C = { ink: "#ffffff", line: "#d0cecb", dim: "#54524f", fire: "#f2560f", warn: "#ff9c5a", life: "#3fd68a", lit: "#e7e6e4" };
+const PX_PER_M = 50; // plan units (0–1000) per metre, when the model does not give its plan_frame
+const STEP = 9; // vertical distance between two floor plates when levels have no elevation
+const EXPLODE = 4; // added between levels on top of their real height (elevation_m, 1 world unit = 1 m)
 const SLAB = 0.4;
 const FLAT = 0.03; // the plan is drawn flat on the plate, just above its top face
 const CORE = 1.6; // stair core, a small square on every plate
-const ELEV = (24 * Math.PI) / 180; // starting view
+const ELEV = (32 * Math.PI) / 180; // starting view
 const AZ = 0.62;
 
 type Box = { x: number; y: number; w: number; h: number };
 // Seraph serves these on routes (status/seraph.md); not in contracts/types.ts yet — requested from Amil
 type PathRoute = Route & { path?: [number, number][]; path_level?: number; path_image_id?: string };
+// …and these from the IFC extract (rooms[].kind, stairs[].zones); also requested in contracts/types.ts
+type KindRoom = Building["rooms"][number] & { kind?: "room" | "corridor" | "elevator" | "exterior" };
+type ZonedStair = Building["stairs"][number] & { zones?: { level: number; zone: number[][] }[] };
 type V3 = [number, number, number];
 type Note = { pos: THREE.Vector3; tone: string; title: string; index: string; lines: string[]; rank: number };
 type NoteEl = Note & { box: HTMLDivElement; frame: SVGPathElement; leader: SVGPathElement; leaderDark: SVGPathElement; mark: SVGGElement; h: number };
 
 // callouts, in the container's px: a column right of the building, above the radio
+const FIT = { left: 80, gap: 28, top: 36 }; // px kept free around the model: level labels, callout column, edges
 const NOTE = { x: 740, w: 268, top: 64, bottom: 600, gap: 12, cut: 12 };
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -144,8 +149,18 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       const b = s.building;
       const levels = [...b.levels].sort((a, c) => a.level - c.level);
       const pts = new Map((b.plan?.points ?? []).map((p) => [p.name, [p.point.x, p.point.y] as [number, number]]));
-      const rooms = b.rooms.filter((r) => r.zone && r.zone.length >= 3);
-      const all = [...rooms.flatMap((r) => r.zone as number[][]), ...pts.values()];
+      const rooms = (b.rooms as KindRoom[]).filter((r) => r.zone && r.zone.length >= 3);
+      const stairs = b.stairs as ZonedStair[];
+      const outlines = new Map(levels.map((l) => [l.level, readOutline((l as Building["levels"][number] & { outline?: unknown }).outline)]));
+      const all = [
+        ...rooms.flatMap((r) => r.zone as number[][]),
+        ...stairs.flatMap((st) => (st.zones ?? []).flatMap((z) => z.zone)),
+        ...[...outlines.values()].flatMap((ps) => ps?.flatMap((p) => p.outer) ?? []),
+        ...pts.values(),
+      ];
+      const M = (b as Building & { model?: { plan_frame?: { px_per_m?: number } } }).model?.plan_frame?.px_per_m ?? PX_PER_M;
+      // the corridor of a level: a room « corridor:<n> » (IFC) or the « corridor » plan point (fixture)
+      const sameRoom = (id: string | undefined, r: KindRoom) => id === r.id || (id === "corridor" && r.kind === "corridor");
       const x0 = (all.length ? Math.min(...all.map((p) => p[0])) : 100) - 40;
       const x1 = (all.length ? Math.max(...all.map((p) => p[0])) : 900) + 40;
       const z0 = (all.length ? Math.min(...all.map((p) => p[1])) : 100) - 40;
@@ -158,25 +173,55 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       const targetRoom = victim?.to.startsWith("room:") ? victim.to.slice(5) : null;
       const focus = targetRoom ? rooms.find((r) => r.id === targetRoom)?.level : s.incident.origin?.floor;
       const hz = b.hazards;
-      const floorY = (lv: number) => levels.findIndex((l) => l.level === lv) * STEP + SLAB;
+      // real storey heights when the model has them, plus the exploded gap; else an even step
+      const elev = (l: Building["levels"][number]) => l.elevation_m;
+      const hasElev = levels.every((l) => elev(l) != null);
+      const floorY = (lv: number) => {
+        const i = levels.findIndex((l) => l.level === lv);
+        return (hasElev ? elev(levels[i])! - elev(levels[0])! + i * EXPLODE : i * STEP) + SLAB;
+      };
+
+      const stairAt = (st: ZonedStair): [number, number] | null => {
+        const z = st.zones?.[0]?.zone;
+        if (z && z.length) return W(...centroid(z));
+        const p = pts.get(`stair:${st.id}`);
+        return p ? W(...p) : null;
+      };
 
       let focusPlate: THREE.Object3D | null = null;
       for (const l of levels) {
         const fy = floorY(l.level);
         const hi = l.level === focus;
 
-        // the floor plate
-        const plate = outlined(new THREE.BoxGeometry(fw, SLAB, fd), solid("#000"), line(hi ? C.ink : C.line, hi ? 3.5 : 2.4));
-        plate.position.set(0, fy - SLAB / 2, 0);
+        // the slab is the plan: its real outline (levels[].outline from the IFC), else the union of the level's
+        // rooms, with holes where the stair and lift shafts go through; a plain plate only when the level has no rooms
+        const own = rooms.filter((r) => r.level === l.level);
+        const shafts = [
+          ...stairs.flatMap((st) => st.zones?.filter((z) => z.level === l.level).map((z) => z.zone) ?? []),
+          ...own.filter((r) => r.kind === "elevator").map((r) => r.zone as number[][]),
+        ];
+        // (the fictional fixture has rooms on one level only and no corridor zone: it keeps plain plates)
+        const ifc = rooms.some((r) => r.kind);
+        const polys =
+          outlines.get(l.level) ?? (ifc && own.length ? polygons(slabLoops(own.filter((r) => r.kind !== "elevator").map((r) => r.zone as number[][]), shafts)) : null);
+        const plate = new THREE.Group();
+        for (const shape of polys ? shapes(polys, W) : [rect(-fw / 2, -fd / 2, fw, fd)]) {
+          const geo = new THREE.ExtrudeGeometry(shape, { depth: SLAB, bevelEnabled: false });
+          geo.rotateX(-Math.PI / 2);
+          const part = outlined(geo, solid("#000"), line(hi ? C.ink : C.line, hi ? 3.5 : 2.4));
+          part.position.y = fy - SLAB;
+          plate.add(part);
+        }
         g.add(plate);
         if (hi) focusPlate = plate;
-        at(tag(l.label, hi ? "b3-level b3-level-hi" : "b3-level"), [-fw / 2, fy - SLAB / 2, fd / 2], g);
+        const corner = polys ? polys.flatMap((p) => p.outer).map(([px, pz]) => W(px, pz)).reduce((a, p) => (p[0] - p[1] < a[0] - a[1] ? p : a)) : [-fw / 2, fd / 2];
+        at(tag(l.label, hi ? "b3-level b3-level-hi" : "b3-level"), [corner[0], fy - SLAB / 2, corner[1]], g);
 
         // its rooms, flat on the plate: walls as lines; fire = red floor, the room we go to = lit floor
         for (const r of rooms.filter((x) => x.level === l.level)) {
           const poly = (r.zone as number[][]).map(([px, pz]) => W(px, pz));
-          const fire = hz.some((h) => h.kind === "fire" && h.where.room === r.id);
-          const smoke = hz.some((h) => h.kind === "smoke" && h.where.room === r.id);
+          const fire = hz.some((h) => h.kind === "fire" && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
+          const smoke = hz.some((h) => h.kind === "smoke" && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
           const lit = r.id === targetRoom;
           if (lit) litPoly = poly.map(([wx, wz]) => new THREE.Vector3(wx, fy + FLAT, wz));
           if (fire || lit || smoke) {
@@ -188,12 +233,13 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
             floor.position.y = fy + FLAT / 2;
             g.add(floor);
           }
-          g.add(walls(poly, fy + FLAT, line(fire ? C.fire : C.line, 2.4)));
+          // terraces and other outside areas recede
+          g.add(walls(poly, fy + FLAT, line(fire ? C.fire : r.kind === "exterior" ? C.dim : C.line, r.kind === "exterior" ? 1.6 : 2.4)));
         }
 
         // smoke on a named spot without a zone (e.g. the corridor): a flat amber patch
         for (const h of hz.filter((x) => x.kind === "smoke" && x.where.level === l.level && x.where.room)) {
-          if (rooms.some((r) => r.id === h.where.room && r.level === l.level)) continue;
+          if (rooms.some((r) => sameRoom(h.where.room, r) && r.level === l.level)) continue;
           const p = pts.get(h.where.room!) ?? pts.get(`room:${h.where.room}`);
           if (!p) continue;
           const [wx, wz] = W(...p);
@@ -203,42 +249,46 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           g.add(patch);
         }
 
-        // stair cores: a flat square on every plate, amber floor when smoke-logged
-        for (const st of b.stairs) {
-          const p = pts.get(`stair:${st.id}`);
-          if (!p) continue;
-          const [wx, wz] = W(...p);
+        // stairs on this plate: the IFC outline when there is one, else a square core at the plan point;
+        // amber floor when smoke-logged
+        for (const st of stairs) {
+          const at0 = stairAt(st);
+          if (!at0) continue;
+          const [wx, wz] = at0;
+          const zone = st.zones?.find((z) => z.level === l.level)?.zone;
           const smoky = st.status === "smoke" || hz.some((h) => h.kind === "smoke" && h.where.stair === st.id);
           const h = CORE / 2;
-          const sq: [number, number][] = [[wx - h, wz - h], [wx + h, wz - h], [wx + h, wz + h], [wx - h, wz + h]];
+          const outline: [number, number][] = zone ? zone.map(([px, pz]) => W(px, pz)) : [[wx - h, wz - h], [wx + h, wz - h], [wx + h, wz + h], [wx - h, wz + h]];
           if (smoky) {
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(CORE, CORE), solid(C.warn));
+            const floor = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)))), solid(C.warn));
             floor.rotation.x = -Math.PI / 2;
-            floor.position.set(wx, fy + FLAT / 2, wz);
+            floor.position.y = fy + FLAT / 2;
             g.add(floor);
           }
-          g.add(walls(sq, fy + FLAT, line(smoky ? C.warn : C.ink, 2.6)));
+          g.add(walls(outline, fy + FLAT, line(smoky ? C.warn : C.ink, 2.6)));
           if (l === levels.at(-1)) at(tag(st.id, smoky ? "b3-warn b3-center" : "b3-center"), [wx, fy + 0.3, wz], g);
         }
       }
 
       // stair shafts: four vertical edges running through every plate, from the ground floor to the top
-      for (const st of b.stairs) {
-        const p = pts.get(`stair:${st.id}`);
+      for (const st of stairs) {
+        const p = stairAt(st);
         if (!p) continue;
-        const [wx, wz] = W(...p);
+        const [wx, wz] = p;
         const smoky = st.status === "smoke" || hz.some((h) => h.kind === "smoke" && h.where.stair === st.id);
-        const y0 = floorY(levels[0].level) + FLAT;
-        const y1 = floorY(levels.at(-1)!.level) + FLAT;
+        const served = levels.filter((l) => !st.zones || st.zones.some((z) => z.level === l.level));
+        const y0 = floorY(served[0].level) + FLAT;
+        const y1 = floorY(served.at(-1)!.level) + FLAT;
         const h = CORE / 2;
+        const corners: [number, number][] = st.zones?.[0] ? st.zones[0].zone.map(([px, pz]) => W(px, pz)) : [[wx - h, wz - h], [wx + h, wz - h], [wx + h, wz + h], [wx - h, wz + h]];
         const segs: number[] = [];
-        for (const [dx, dz] of [[-h, -h], [h, -h], [h, h], [-h, h]]) segs.push(wx + dx, y0, wz + dz, wx + dx, y1, wz + dz);
+        for (const [cx, cz] of corners) segs.push(cx, y0, cz, cx, y1, cz);
         g.add(new LineSegments2(new LineSegmentsGeometry().setPositions(segs), line(smoky ? C.warn : C.ink, 2)));
       }
 
       // people where they are: in their room when we know it, else along the front edge of their plate
       const spot = (level: number, room?: string): [number, number] | null => {
-        const r = rooms.find((x) => x.id === room && x.level === level);
+        const r = rooms.find((x) => sameRoom(room, x) && x.level === level);
         const p = r ? centroid(r.zone as number[][]) : room ? (pts.get(`room:${room}`) ?? pts.get(room)) : undefined;
         return p ? W(...p) : null;
       };
@@ -297,8 +347,11 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       for (const t of s.crew.teams.filter((x) => x.status === "engaged" && x.location?.level != null)) {
         const lv = t.location!.level!;
         const loc = t.location;
-        const p = loc?.room === "corridor" ? pts.get("corridor") : loc?.room ? pts.get(`room:${loc.room}`) : loc?.stair ? pts.get(`stair:${loc.stair}`) : undefined;
-        const [tx, tz] = p ? W(...p) : [0, 0];
+        const room = loc?.room ? rooms.find((x) => sameRoom(loc.room, x) && x.level === lv) : undefined;
+        const st = loc?.stair ? stairs.find((x) => x.id === loc.stair) : undefined;
+        const named = loc?.room ? (pts.get(loc.room) ?? pts.get(`room:${loc.room}`)) : undefined;
+        const p = room ? W(...centroid(room.zone as number[][])) : named ? W(...named) : st ? stairAt(st) : null;
+        const [tx, tz] = p ?? [0, 0];
         list.push({
           pos: v3([tx, floorY(lv) + 0.1, tz]),
           tone: C.ink,
@@ -342,9 +395,14 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           hw = Math.max(hw, Math.abs(v.x));
           hh = Math.max(hh, Math.abs(v.y));
         }
-        const half = Math.max(hh, hw / (box.w / box.h)) * (zoom === "focus" ? 1.12 : 1.02);
-        camera.left = -half * (box.w / box.h);
-        camera.right = half * (box.w / box.h);
+        // the model fits in the space left of the callout column (main: room for the level labels on the left;
+        // split: centred on the screen), its target at the centre of that space
+        const rx = wide ? box.w / 2 : (FIT.left + col.x - FIT.gap) / 2;
+        const rw = wide ? 2 * (col.x - FIT.gap - box.w / 2) : col.x - FIT.gap - FIT.left;
+        const ppu = Math.min(rw / (2 * hw), (box.h - 2 * FIT.top) / (2 * hh)) / (zoom === "focus" ? 1.12 : 1);
+        const half = box.h / (2 * ppu);
+        camera.left = -rx / ppu;
+        camera.right = (box.w - rx) / ppu;
         camera.top = half;
         camera.bottom = -half;
         camera.zoom = 1;
@@ -506,6 +564,166 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
   }, [state]);
 
   return <div ref={host} className="absolute" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />;
+}
+
+// ───────── slab outlines ─────────
+
+type Loop = [number, number][];
+
+/** levels[].outline as the IFC session may serve it: one polygon, a list of polygons, or {outer, holes}. */
+type Poly = { outer: Loop; holes: Loop[] };
+
+/** levels[].outline in any of the shapes the IFC session may send: one loop, a list of loops (outer and holes by
+ *  winding), {outer, holes}, or a list of {outer, holes} (a level in several parts). */
+function readOutline(o: unknown): Poly[] | null {
+  const isPt = (p: unknown) => Array.isArray(p) && p.length === 2 && typeof p[0] === "number";
+  const isPoly = (p: unknown): p is Poly => !!p && typeof p === "object" && Array.isArray((p as Poly).outer) && (p as Poly).outer.length >= 3;
+  if (!o) return null;
+  if (Array.isArray(o) && o.length && isPt(o[0])) return [{ outer: o as Loop, holes: [] }];
+  if (Array.isArray(o) && o.length && Array.isArray(o[0]) && isPt((o[0] as unknown[])[0])) return polygons(o as Loop[]);
+  if (Array.isArray(o)) {
+    const ps = o.filter(isPoly).map((p) => ({ outer: p.outer, holes: p.holes ?? [] }));
+    return ps.length ? ps : null;
+  }
+  return isPoly(o) ? [{ outer: o.outer, holes: o.holes ?? [] }] : null;
+}
+
+/** Loops to polygons: the winding of the biggest loop marks the outers, the others are holes of the outer they sit in. */
+function polygons(loops: Loop[]): Poly[] {
+  if (!loops.length) return [];
+  const big = loops.reduce((a, l) => (Math.abs(area(l)) > Math.abs(area(a)) ? l : a), loops[0]);
+  const sign = Math.sign(area(big));
+  const outers = loops.filter((l) => Math.sign(area(l)) === sign);
+  const holes = loops.filter((l) => Math.sign(area(l)) !== sign);
+  return outers.map((outer) => ({ outer, holes: holes.filter((h) => inside(h[0][0], h[0][1], outer)) }));
+}
+
+/** The union of a level's room zones as outline loops (plan units), with the shafts cut out. Rasterised on a 4-unit
+ *  grid, closed by 2 cells so the gaps of the walls between rooms disappear, then traced and simplified. */
+function slabLoops(zones: number[][][], holes: number[][][]): Loop[] {
+  const N = 250;
+  const S = 1000 / N;
+  let grid = new Uint8Array(N * N);
+  const paint = (poly: number[][], v: number) => {
+    const xs = poly.map((p) => p[0]);
+    const ys = poly.map((p) => p[1]);
+    const i0 = Math.max(0, Math.floor(Math.min(...xs) / S));
+    const i1 = Math.min(N - 1, Math.ceil(Math.max(...xs) / S));
+    const j0 = Math.max(0, Math.floor(Math.min(...ys) / S));
+    const j1 = Math.min(N - 1, Math.ceil(Math.max(...ys) / S));
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if (inside((i + 0.5) * S, (j + 0.5) * S, poly)) grid[j * N + i] = v;
+  };
+  const morph = (on: number, r: number) => {
+    const out = new Uint8Array(N * N).fill(1 - on);
+    for (let j = 0; j < N; j++)
+      for (let i = 0; i < N; i++) {
+        let hit = false;
+        for (let dj = -r; dj <= r && !hit; dj++)
+          for (let di = -r; di <= r && !hit; di++) {
+            const x = i + di;
+            const y = j + dj;
+            if (x >= 0 && y >= 0 && x < N && y < N && grid[y * N + x] === on) hit = true;
+          }
+        out[j * N + i] = hit ? on : 1 - on;
+      }
+    grid = out;
+  };
+  zones.forEach((z) => paint(z, 1));
+  morph(1, 2); // dilate: bridge the walls
+  morph(0, 2); // erode: back to the outer face
+  holes.forEach((z) => paint(z, 0));
+  const filled = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N && grid[j * N + i] === 1;
+
+  // boundary edges, each cell walked clockwise (y down), kept only where the neighbour is empty
+  const next = new Map<number, number[]>();
+  const key = (x: number, y: number) => y * (N + 1) + x;
+  const add = (a: number, b: number) => next.set(a, [...(next.get(a) ?? []), b]);
+  for (let j = 0; j < N; j++)
+    for (let i = 0; i < N; i++) {
+      if (!filled(i, j)) continue;
+      if (!filled(i, j - 1)) add(key(i, j), key(i + 1, j));
+      if (!filled(i + 1, j)) add(key(i + 1, j), key(i + 1, j + 1));
+      if (!filled(i, j + 1)) add(key(i + 1, j + 1), key(i, j + 1));
+      if (!filled(i - 1, j)) add(key(i, j + 1), key(i, j));
+    }
+  const loops: Loop[] = [];
+  for (const start of next.keys()) {
+    while (next.get(start)?.length) {
+      const loop: Loop = [];
+      let k = start;
+      do {
+        loop.push([(k % (N + 1)) * S, Math.floor(k / (N + 1)) * S]);
+        const outs = next.get(k)!;
+        const n = outs.pop()!;
+        k = n;
+      } while (k !== start && next.get(k)?.length);
+      if (loop.length >= 4) loops.push(simplify(loop, S * 1.2));
+    }
+  }
+  return loops.filter((l) => l.length >= 3 && Math.abs(area(l)) > S * S * 6);
+}
+
+function inside(x: number, y: number, poly: number[][]) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+
+function area(l: Loop) {
+  let a = 0;
+  for (let i = 0; i < l.length; i++) {
+    const [x1, y1] = l[i];
+    const [x2, y2] = l[(i + 1) % l.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return a / 2;
+}
+
+/** Douglas–Peucker on a closed loop: the staircase of the raster becomes straight walls and diagonals. */
+function simplify(loop: Loop, tol: number): Loop {
+  const dp = (pts: Loop): Loop => {
+    if (pts.length < 3) return pts;
+    const [ax, ay] = pts[0];
+    const [bx, by] = pts[pts.length - 1];
+    const len = Math.hypot(bx - ax, by - ay) || 1;
+    let far = 0;
+    let at = 0;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const d = Math.abs((by - ay) * pts[i][0] - (bx - ax) * pts[i][1] + bx * ay - by * ax) / len;
+      if (d > far) [far, at] = [d, i];
+    }
+    return far > tol ? [...dp(pts.slice(0, at + 1)).slice(0, -1), ...dp(pts.slice(at))] : [pts[0], pts[pts.length - 1]];
+  };
+  let far = 0;
+  let at = 0;
+  loop.forEach(([x, y], i) => {
+    const d = Math.hypot(x - loop[0][0], y - loop[0][1]);
+    if (d > far) [far, at] = [d, i];
+  });
+  const a = dp(loop.slice(0, at + 1));
+  const b = dp([...loop.slice(at), loop[0]]);
+  return [...a.slice(0, -1), ...b.slice(0, -1)];
+}
+
+/** Loops (world x/z) → THREE shapes: each outer loop with the opposite-wound loops inside it as holes. */
+function shapes(polys: Poly[], W: (px: number, pz: number) => [number, number]): THREE.Shape[] {
+  const v = (l: Loop) => l.map(([px, pz]) => {
+    const [x, z] = W(px, pz);
+    return new THREE.Vector2(x, -z);
+  });
+  return polys.map((p) => {
+    const shape = new THREE.Shape(v(p.outer));
+    for (const h of p.holes) shape.holes.push(new THREE.Path(v(h)));
+    return shape;
+  });
+}
+
+function rect(x: number, z: number, w: number, d: number): THREE.Shape {
+  return new THREE.Shape([new THREE.Vector2(x, -z), new THREE.Vector2(x + w, -z), new THREE.Vector2(x + w, -(z + d)), new THREE.Vector2(x, -(z + d))]);
 }
 
 function centroid(poly: number[][]): [number, number] {

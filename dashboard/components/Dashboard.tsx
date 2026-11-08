@@ -12,6 +12,7 @@ import { RosettaGrid } from "./RosettaGrid";
 const SCHEME = { x: 560, y: 0, w: 800, h: 1080 };
 const TOP = { x: 0, y: 0, w: 1920, h: 548 };
 const PHONE = { w: 874, h: 402, scale: 0.6 }; // iPhone 17 Pro in landscape, as Halo runs on the forearm
+const KIT_VIEWS = ["approach", "inside_route", "occupants", "team_engaged"]; // halo/kit/examples
 
 /** The projector screen: a fixed 1920×1080 stage, scaled to whatever display it lands on. */
 export function Dashboard() {
@@ -187,12 +188,18 @@ function Radio({ live }: { live: Live }) {
   );
 }
 
-/** Halo on the forearm: a landscape phone. Live → Halo's read-only mirror. Mock → the kit's example for the
- *  current moment, fed the fixture state, and labelled as such. */
+/** Halo on the forearm: a landscape phone showing exactly what phone A shows (halo/ protocol): the current view's
+ *  URL in a frame, fed `seraph:state` on every change; « fallback://<moment> » is Halo's stand-in at
+ *  HALO_URL/views/<moment>/. Before any view, the kit's live preview. Mock → the kit's example, fixture state. */
 function HaloPhone({ live }: { live: Live }) {
   const view = live.state?.halo.current_view;
-  const mirror = live.mode === "live" && live.health.halo?.ok ? live.config?.haloMirror : null;
+  const isLive = live.mode === "live";
+  const stand = view?.url.startsWith("fallback://");
+  // the view phone A shows: Devin's (Silex URL) or Halo's stand-in for a fallback moment
+  const current = isLive && view ? (stand ? (KIT_VIEWS.includes(view.moment) && live.config?.halo ? `${live.config.halo}/views/${view.moment}/` : null) : view.url) : null;
+  const preview = isLive && !view && live.config?.seraph ? `/api/kit/examples/index.html?v=approach&live=${encodeURIComponent(live.config.seraph)}` : null;
   const example = live.mode === "mock" && view ? `/api/kit/examples/${view.moment}.html` : null;
+  const src = current ?? preview ?? example;
   const sw = PHONE.w * PHONE.scale;
   const sh = PHONE.h * PHONE.scale;
 
@@ -201,16 +208,19 @@ function HaloPhone({ live }: { live: Live }) {
       <span className="mono text-[13px] text-gris">Halo</span>
       <div className="rounded-[34px] border-2 border-brume bg-black p-[10px]" style={{ width: sw + 24, height: sh + 24 }}>
         <div className="relative h-full w-full overflow-hidden rounded-[24px] bg-black">
-          {mirror || example ? (
+          {src ? (
             <StateFrame
-              src={(mirror || example)!}
-              state={example ? live.state : null}
+              key={src}
+              src={src}
+              state={preview ? null : live.state}
               title="Halo"
               className="absolute left-0 top-0 origin-top-left"
               style={{ width: PHONE.w, height: PHONE.h, transform: `scale(${PHONE.scale})` }}
             />
           ) : (
-            <div className="mono flex h-full items-center justify-center text-[13px] text-gris">Halo hors ligne</div>
+            <div className="mono flex h-full items-center justify-center text-[13px] text-gris">
+              {view ? `Vue de secours · ${view.moment}` : "Halo hors ligne"}
+            </div>
           )}
         </div>
       </div>

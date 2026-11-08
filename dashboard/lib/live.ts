@@ -40,7 +40,7 @@ export type SilexSession = {
   purpose?: string;
 };
 export type Mode = "connecting" | "live" | "mock" | "fixtures";
-export type Config = { mock: boolean; rosettaWs: string; haloMirror: string };
+export type Config = { mock: boolean; seraph?: string; halo?: string; rosettaWs: string; haloMirror: string | null };
 export type Toast = { id: number; text: string; tone: "ok" | "err" | "wait" };
 
 export interface Live {
@@ -414,7 +414,7 @@ export function useLive(): Live {
 
     (async () => {
       pollHealth();
-      const cfg = await getJSON<Config>("/api/config").catch(() => ({ mock: false, rosettaWs: "", haloMirror: "" }));
+      const cfg = await getJSON<Config>("/api/config").catch((): Config => ({ mock: false, rosettaWs: "", haloMirror: null }));
       if (stopped) return;
       setConfig(cfg);
       if (cfg.mock) {
