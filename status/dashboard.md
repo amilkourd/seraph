@@ -83,7 +83,7 @@ Updated: 05:08
   tags, its callouts). Computed routes are drawn even on a grey level. Checked live and with a forced change.
 - Scenario v2 (TU Wien): the active ladder point (the `to` of an evacuation route ending at `ladder:<room>`) is a flat
   Silex-green balcony with a callout « Échelle · <who is heading there> → 2.17 · Balcon »; the other ladder points
-  stay plain. Key R walks R01…R15. Seraph's `levels[].focus` is live and used.
+  stay plain. Key R walks R00…R15. Seraph's `levels[].focus` is live and used.
 - Nobody is drawn outside the building: a person or team whose room is not on the plan (none, or mis-heard like
   « 2 ») goes in their level's corridor, else next to the stair core, else the middle of the slab, spread 1.2 m apart
   while still on the slab; the pastille gets « ? », a callout is titled « Pièce à confirmer ». Checked on the mock

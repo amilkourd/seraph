@@ -35,7 +35,7 @@ export function Dashboard() {
   }, []);
 
   // Keys from docs/03-demo-script.md: Space confirm / Esc cancel the latest gate, 1–5 force a Halo moment,
-  // R replay the next radio line (R01…R15, for a line missed live). Controls: D start the incident, A call everyone
+  // R replay the next radio line (R00…R15, for a line missed live). Controls: D start the incident, A call everyone
   // now, Shift+R replay the whole incident, X twice reset.
   const liveRef = useRef(live);
   useEffect(() => {
@@ -59,7 +59,7 @@ export function Dashboard() {
       } else if (e.key === "R") {
         l.act("Rejouer les fixtures", "seraph", "admin/replay", { fixture: "all", speed: 4 });
       } else if (e.key === "r") {
-        const id = `R${String((line % 15) + 1).padStart(2, "0")}`;
+        const id = `R${String(line % 16).padStart(2, "0")}`;
         line++;
         l.act(`Ligne ${id}`, "seraph", "admin/replay_line", { id });
       } else if (e.key.toLowerCase() === "a") {
