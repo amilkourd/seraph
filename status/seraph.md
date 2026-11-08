@@ -93,6 +93,23 @@ Updated: 08:10
   or a dispatch.read for another incident id) are dropped with « Résultat périmé ignoré ». Running **MOCK=0**
   (Rosetta live, Silex live, Gabriel web calls only: SIP stubbed, so no-news needs a call that rang). 36 tests.
 
+- 11-08, **fixes from Amil's two real 112 calls** (08:48, 08:54), replayed at their real timing in
+  `tests/test_live_calls.py` (data from Gabriel's logs):
+  - Radio speaks a call again only when a material fact changes (level, room, people, mobility, injured yes/no,
+    fire/smoke seen, action, heading), at most one line per 8 s per call; the rest waits for `tick`. Gates stay
+    immediate. « blessé » instead of the raw injuries text; « aucun/none/non/rien » = not injured. A late
+    `current_action: unknown` never erases a known action.
+  - Main courante (`dispatch.write_112`): one entry per call, 3 s after `ended`/`failed` (Gabriel's last facts land
+    after hang-up), plus one at once when the call opens a gate. Replay calls never end, so the replay writes
+    only the gate entry.
+  - An inbound caller becomes an occupant `APP-n` (source « appel 112 », signalé, no phone, never called) on the
+    first facts with a level or room. Name from the transcript (« je m'appelle X », « c'est X », « my name is X »,
+    « me llamo X »); a name matching one listed occupant links the call to that occupant instead. Unnamed:
+    « Appelant 112 ». Radio: « Appel 112, Edouard : … ». Sitrep counts only listed occupants, callers said apart.
+  - Call room hazards must be in the model and on the caller's level (or a level said in words): « -1.10 » from
+    R+3 → « à confirmer », logged once. A room hazard replaces the same call's level-only one. « WC » stays
+    « WC ». 50 tests.
+
 ## In progress
 - Nothing blocking. Next: live run with Rosetta (Amil) and Gabriel once their WS is up.
 

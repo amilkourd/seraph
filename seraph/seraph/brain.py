@@ -33,6 +33,14 @@ JOINED = {"in_call", "sheltering", "moving", "needs_help", "safe_outside", "trap
 GATE_TTL_S = 120
 NO_NEWS_S = 180
 VOICE_RAISE = {"distress": "détresse", "fear": "peur", "pain": "douleur"}
+CALL_LINE_GAP_S = 8.0   # two radio lines for the same call never closer than this (catches and gates stay immediate)
+MC_DELAY_S = 3.0        # main courante a few seconds after hang-up: Gabriel's last facts land after the call ends
+CALLER = "APP-"         # an inbound 112 caller placed on the plan (not in the building's list, no phone)
+NO_INJURY = re.compile(r"^(aucun|aucune|pas de|pas bless|non|none|no|nobody|nothing|rien|ninguno|ninguna|nada|nadie|sin|0$|false$|personne$)")
+NAME_RE = re.compile(r"(?i:\bje m[' ]?appelle|\bmy name is|\bme llamo|\bmoi c'est)\s+([^\W\d_][\w'-]*)"
+                     r"|(?i:\bc'est)\s+([A-ZÀ-ÖØ-Þ][\w'-]*)")
+NAME_STOP = {"gabriel", "seraph", "moi", "ca", "le", "la", "les", "un", "une", "pas", "bon", "vrai", "ok", "oui",
+             "non", "quoi", "ici", "tout", "juste", "mon", "ma", "au", "en"}
 KIND_FR = {"smoke": "fumée", "fire": "feu", "heat": "chaleur", "gas": "gaz", "structure": "risque structure",
            "electric": "risque électrique"}
 STATUS_OCC_FR = {"unknown": "pas encore joint", "calling": "appel en cours", "in_call": "en ligne",
@@ -86,6 +94,26 @@ def noop(*_a: Any, **_k: Any) -> None:
     return None
 
 
+def injured(f: dict) -> bool:
+    """Gabriel fills `injuries` with what was said: « aucun », « none », « non » … is no injury."""
+    v = normalize(str(f.get("injuries") or ""))
+    return bool(v) and not NO_INJURY.match(v)
+
+
+def caller_name(excerpt: Optional[str]) -> Optional[str]:
+    """« je m'appelle Edouard », « c'est Edouard », « my name is … », « me llamo … » → the last name said."""
+    name = None
+    for m in NAME_RE.finditer((excerpt or "").replace("’", "'")):
+        n = m.group(1) or m.group(2)
+        if n and normalize(n) not in NAME_STOP:
+            name = n[:1].upper() + n[1:]
+    return name
+
+
+def is_caller(o: Optional[Occupant]) -> bool:
+    return bool(o) and o.id.startswith(CALLER)
+
+
 class Brain:
     def __init__(self, registry: Optional[BuildingRegistry] = None):
         self.registry: BuildingRegistry = registry or default_registry()
@@ -99,6 +127,7 @@ class Brain:
         self.version = 0
         self.incident_t0 = 0.0
         self.say_log: list[dict] = []
+        self.clock: Callable[[], float] = time.time             # call line spacing + main courante (tests drive it)
         self.reset()
 
     # ───────── lifecycle ─────────
@@ -136,6 +165,7 @@ class Brain:
         self.rt_n = 0
         self.req_n = 0
         self.al_n = 0
+        self.app_n = 0
         self.recompute()
         self.touch()
 
@@ -148,7 +178,8 @@ class Brain:
             "call_flags": self.call_flags, "no_answer_count": self.no_answer_count, "with_team": self.with_team,
             "caught": sorted(self.caught), "air_alarm": sorted(self.air_alarm),
             "standing_confirmed": self.standing_confirmed,
-            "occupants_loaded": self.occupants_loaded, "counters": [self.hz_n, self.rt_n, self.req_n, self.al_n]}}
+            "occupants_loaded": self.occupants_loaded, "counters": [self.hz_n, self.rt_n, self.req_n, self.al_n],
+            "app_n": self.app_n}}
 
     def restore(self, snap: dict) -> bool:
         if snap.get("building_path") != str(self.kit.path):
@@ -166,6 +197,7 @@ class Brain:
         self.standing_confirmed = i.get("standing_confirmed", False)
         self.occupants_loaded = i.get("occupants_loaded", False)
         self.hz_n, self.rt_n, self.req_n, self.al_n = i.get("counters", [0, 0, 0, 0])
+        self.app_n = i.get("app_n", 0)
         self.recompute()
         self.touch()
         return True
@@ -397,12 +429,13 @@ class Brain:
 
     def _sitrep_text(self) -> str:
         occs = self.state.occupants
+        listed = [o for o in occs if not is_caller(o)]      # 112 callers are not « listés »: said on their own below
         parts: list[str] = []
-        if occs:
-            joined = [o for o in occs if o.status in JOINED]
-            no_ans = [o for o in occs if o.status == "no_answer"]
-            waiting = len(occs) - len(joined) - len(no_ans)
-            parts.append(f"{n_fr(len(occs))} occupants listés")
+        if listed:
+            joined = [o for o in listed if o.status in JOINED]
+            no_ans = [o for o in listed if o.status == "no_answer"]
+            waiting = len(listed) - len(joined) - len(no_ans)
+            parts.append(f"{n_fr(len(listed))} occupants listés")
             p = f"{cap(n_fr(len(joined)))} joint{'s' if len(joined) > 1 else ''}"
             if no_ans:
                 p += f", {n_fr(len(no_ans))} sans réponse, " + ", ".join(f"{o.name} {o.room or ''}".strip() for o in no_ans)
@@ -438,6 +471,10 @@ class Brain:
                 parts.append(f"{o.name} vers {self._node_fr(o.heading_to)}, {self._node_hazard_fr(o.heading_to)}")
             elif o.smoke_seen and o.status == "sheltering":
                 parts.append(f"{n_fr(o.people_count or 1, fem=True)} personne{'s' if (o.people_count or 1) > 1 else ''} en {o.room}, fumée sous la porte")
+            elif is_caller(o):
+                n = o.people_count or 1
+                parts.append(f"appel 112 : {n_fr(n, fem=True)} personne{'s' if n > 1 else ''} " +
+                             (f"en {o.room}" if o.room else f"au {level_fr(o.level)}"))
         for s in self.b.stairs:
             if s.status in ("smoke", "blocked"):
                 parts.append(f"escalier {s.id} {self._stair_fr(s)}")
@@ -829,6 +866,11 @@ class Brain:
             c.ended_at = msg.get("at") or now_iso()
         if ev in ("ringing", "answered"):
             c.ended_at = None
+        fl = self.call_flags.setdefault(cid, {})
+        if ev in ("ended", "failed") and not fl.get("mc_done"):
+            fl["mc_due"] = self.clock() + MC_DELAY_S          # one main courante entry per call, at its end (tick)
+        elif ev in ("ringing", "answered"):
+            fl.pop("mc_due", None)
         o = self.occ(c.occupant_id)
         if o and ev == "ringing":
             self.called_at.setdefault(o.id, time.time())
@@ -875,29 +917,34 @@ class Brain:
         if c.status in ("ringing", "no_answer"):
             c.status = "active"
         c.language = msg.get("lang") or c.language
+        fl = self.call_flags.setdefault(cid, {})
+        facts = self.call_facts.setdefault(cid, {})
         f_new = {k: v for k, v in (msg.get("facts") or {}).items() if v is not None}
+        if f_new.get("current_action") == "unknown" and facts.get("current_action"):
+            f_new.pop("current_action")                      # « unknown » never erases what the caller said they do
         if "room" in f_new:
             # a room as heard is checked against the model: « 2.1 » → 2.01; anything else never overwrites a known room
             o0 = self.occ(msg.get("occupant_id") or c.occupant_id)
-            lvl = f_new.get("level", o0.level if o0 else None)
+            lvl = f_new.get("level", facts.get("level", o0.level if o0 else None))
             heard = f_new.pop("room")
             rid = B.resolve_room(self.kit, heard, lvl)
             if rid:
                 f_new["room"] = rid
-                self.call_flags.setdefault(cid, {}).pop("room_unconfirmed", None)
-            else:
-                self.call_flags.setdefault(cid, {})["room_unconfirmed"] = str(heard)
+                fl.pop("room_unconfirmed", None)
+            elif fl.get("room_unconfirmed") != str(heard):
+                fl["room_unconfirmed"] = str(heard)
                 self.log("call", f"Appel {cid} : pièce « {heard} » pas dans la maquette, à confirmer.")
-        facts = self.call_facts.setdefault(cid, {})
         facts.update({k: v for k, v in f_new.items() if k != "voice"})
         if f_new.get("voice"):
             v = VoiceSignal.model_validate(f_new["voice"])
             c.voice = v
             if v.emotion in VOICE_RAISE and v.sentiment in ("negative", "mixed"):
-                self.call_flags.setdefault(cid, {})["voice"] = v.emotion
+                fl["voice"] = v.emotion
         if msg.get("transcript_excerpt"):
             c.transcript_excerpt = msg["transcript_excerpt"]
         o = self.occ(msg.get("occupant_id") or c.occupant_id)
+        if c.direction == "in":
+            o = self._caller_occupant(c, o, facts)
         if o:
             c.occupant_id = o.id
             o.call_id = cid
@@ -906,19 +953,26 @@ class Brain:
         self._call_hazards(c, o, f_new, facts)
         self._urgency(c)
         self.recompute()
-        line, gate = self._call_catches(c, o, facts)
+        _, gate = self._call_catches(c, o, facts)
         summary = self._call_summary(c, o, facts)
-        changed = summary != c.summary_fr
-        c.summary_fr = summary
-        if changed and not gate and summary:
-            self.say(line or summary)
+        if summary:
+            c.summary_fr = summary
+        # the radio hears a call again only when a fact that changes the crew's picture changes (never wording),
+        # at most one line per CALL_LINE_GAP_S per call; the rest waits for tick. Catches and gates: at once.
+        key = self._call_key(facts)
+        now = self.clock()
+        if gate:
+            fl.update(said_key=key, said_at=now, line_pending=False)
             self.metric("call_fact_to_crew", (time.perf_counter() - t0) * 1000, call_id=cid)
-            self.rosetta("dispatch.write_112", {"incident_id": self.state.incident.id,
-                                                "entry_fr": f"{hhmm(now_iso())} {summary}"}, priority=2)
-        elif gate:
-            self.metric("call_fact_to_crew", (time.perf_counter() - t0) * 1000, call_id=cid)
-            self.rosetta("dispatch.write_112", {"incident_id": self.state.incident.id,
-                                                "entry_fr": f"{hhmm(now_iso())} {summary}"}, priority=2)
+            self._write_112(c)
+        elif summary and key != fl.get("said_key"):
+            if now - fl.get("said_at", 0.0) >= CALL_LINE_GAP_S:
+                self._call_line(c, now)
+                self.metric("call_fact_to_crew", (time.perf_counter() - t0) * 1000, call_id=cid)
+            else:
+                fl["line_pending"] = True
+        else:
+            fl["line_pending"] = False
         self._standing_for(c, facts)
         if sum(1 for k in self.call_facts if self.call_facts[k]) >= 2:
             self.request_moment("occupants", "Qui est où : étages, personnes, aide nécessaire, sans nouvelles",
@@ -927,29 +981,119 @@ class Brain:
         self.publish("call", dump(c))
         self.touch()
 
+    @staticmethod
+    def _call_key(f: dict) -> list:
+        return [f.get("level"), f.get("room"), f.get("people_count"), bool(f.get("mobility_issue")), injured(f),
+                f.get("fire_seen"), f.get("smoke_seen"), f.get("current_action"), f.get("heading_to")]
+
+    def _call_line(self, c: Call, now: float) -> None:
+        fl = self.call_flags.setdefault(c.call_id, {})
+        fl.update(said_key=self._call_key(self.call_facts.get(c.call_id, {})), said_at=now, line_pending=False)
+        if c.summary_fr:
+            self.say(c.summary_fr)
+
+    def _write_112(self, c: Call) -> None:
+        if c.summary_fr:
+            self.rosetta("dispatch.write_112", {"incident_id": self.state.incident.id,
+                                                "entry_fr": f"{hhmm(now_iso())} {c.summary_fr}"}, priority=2)
+
+    def _caller_occupant(self, c: Call, o: Optional[Occupant], f: dict) -> Optional[Occupant]:
+        """An inbound 112 caller becomes a person on the plan once they say where they are: APP-n, « appel 112 »,
+        signalé, no phone (never called back). A name they give that matches one listed occupant links the call
+        to that occupant instead."""
+        fl = self.call_flags.setdefault(c.call_id, {})
+        heard = caller_name(c.transcript_excerpt)
+        if heard:
+            fl["name"] = heard
+        name = fl.get("name")
+        if name and (o is None or is_caller(o)):
+            n = normalize(name)
+            hits = [x for x in self.state.occupants if not is_caller(x) and x.name and
+                    (n == normalize(x.name) or n in normalize(x.name).split())]
+            if len(hits) == 1:
+                if o is not None:
+                    self.state.occupants = [x for x in self.state.occupants if x.id != o.id]
+                self.log("call", f"Appel 112 : {name}, {hits[0].name} sur la liste.")
+                c.occupant_id = hits[0].id
+                return hits[0]
+        if o is None and (f.get("level") is not None or f.get("room")):
+            self.app_n += 1
+            o = Occupant(id=f"{CALLER}{self.app_n}", name=name or "Appelant 112", status="in_call",
+                         language=c.language or "fr", call_id=c.call_id,
+                         source=Source(kind="call", label="appel 112", confirmed=False))
+            self.state.occupants.append(o)
+            c.occupant_id = o.id
+            self.log("call", f"Appel 112{', ' + name if name else ''} : appelant sur le plan, signalé.")
+        elif is_caller(o) and name:
+            o.name = name
+        return o
+
+    def _call_label(self, c: Call, o: Optional[Occupant]) -> str:
+        if o and o.name and not is_caller(o):
+            return f"appel {o.name}"
+        return "appel 112" if c.direction == "in" else f"appel {c.call_id}"
+
     def _call_hazards(self, c: Call, o: Optional[Occupant], f_new: dict, f: dict) -> None:
-        """What a caller says they see becomes a hazard « selon l'appel », unconfirmed, at the place they say."""
+        """What a caller says they see becomes a hazard « selon l'appel », unconfirmed, at the place they say.
+        A room hazard from the call replaces its level-only one; no level-only one once the call has a room there."""
         if not (f_new.get("smoke_seen") or f_new.get("fire_seen")):
             return
         kind = "fire" if f_new.get("fire_seen") else "smoke"
-        src = Source(kind="call", label=f"appel {o.name}" if o and o.name else ("appel 112" if c.direction == "in" else f"appel {c.call_id}"),
-                     confirmed=False)
+        src = Source(kind="call", label=self._call_label(c, o), confirmed=False)
         heading = f.get("heading_to") or ""
         if f.get("current_action") == "moving" and heading.startswith("stair:"):
             self._add_hazard(kind, {"stair": heading.split(":", 1)[1]}, "medium", src)   # sees it on the way down
             return
-        if f.get("free_text_fr") and self._hazards_from_text(f["free_text_fr"], f.get("level"), src):
-            return
         lvl = f.get("level", o.level if o else None)
-        if lvl is not None and f.get("current_action") != "outside":
-            self._add_hazard(kind, {"level": lvl}, "medium" if kind == "smoke" else "high", src)
+        if f.get("free_text_fr") and self._hazards_from_text(f["free_text_fr"], lvl, src, call=c):
+            return
+        fl = self.call_flags.setdefault(c.call_id, {})
+        if lvl is not None and f.get("current_action") != "outside" and [kind, lvl] not in fl.get("room_hz", []):
+            h, new = self._add_hazard(kind, {"level": lvl}, "medium" if kind == "smoke" else "high", src)
+            if new:
+                fl.setdefault("hz", []).append(h.id)
+
+    def _call_where(self, c: Call, kind: str, nb: str, where: dict, level: Optional[int]) -> Optional[dict]:
+        """A room a caller names must be in the model and on their level, or on a level they say in words;
+        otherwise it is « à confirmer » and stays off the plan (« -1.10 » heard from R+3 is not a fire on R+1)."""
+        room = where.get("room")
+        if not room or room == "corridor":
+            return where
+        said = rules.find_level(rules.ROOM_RE.sub(" ", nb))      # a level in words, not read off a room number
+        rid = B.resolve_room(self.kit, room, where.get("level")) if self.b.rooms else None
+        lv = next((r.level for r in self.b.rooms if r.id == rid), None) if rid else None
+        if lv is not None and lv in (level, said):
+            return {**where, "level": lv, "room": rid}
+        fl = self.call_flags.setdefault(c.call_id, {})
+        if f"{kind}:{room}" not in fl.setdefault("unconfirmed_hz", []):
+            fl["unconfirmed_hz"].append(f"{kind}:{room}")
+            self.log("call", f"{self._call_label(c, self.occ(c.occupant_id)).capitalize()} : "
+                             f"{KIND_FR.get(kind, kind)} {room} à confirmer, pas sur l'étage de l'appelant.")
+        return None
+
+    def _room_replaces_level(self, c: Call, hz: Hazard) -> None:
+        lvl = hz.where.get("level")
+        fl = self.call_flags.setdefault(c.call_id, {})
+        if [hz.kind, lvl] not in fl.setdefault("room_hz", []):
+            fl["room_hz"].append([hz.kind, lvl])
+        mine = set(fl.get("hz", []))
+        gone = [h for h in self.b.hazards if h.id in mine and h.kind == hz.kind and h.where == {"level": lvl}
+                and not h.source.confirmed]
+        if gone:
+            ids = {h.id for h in gone}
+            self.b.hazards = [h for h in self.b.hazards if h.id not in ids]
+            self.log("seraph", f"Danger précisé : {KIND_FR.get(hz.kind, hz.kind)} {self._where_fr(hz.where)} au lieu de "
+                               f"{self._where_fr(gone[0].where)}, {self._selon(hz.source)}.", hz.source)
 
     def _facts_to_occupant(self, o: Occupant, f: dict, c: Call) -> None:
-        for k in ("level", "room", "people_count", "smoke_seen", "mobility_issue", "injuries", "heading_to"):
+        for k in ("level", "room", "people_count", "smoke_seen", "mobility_issue", "heading_to"):
             if f.get(k) is not None:
                 setattr(o, k, f[k])
+        if o.room and o.level is None:
+            o.level = next((r.level for r in self.b.rooms if r.id == o.room), None)
+        o.injuries = f["injuries"] if injured(f) else (o.injuries if f.get("injuries") is None else None)
         act = f.get("current_action")
-        if f.get("mobility_issue") or f.get("injuries"):
+        if f.get("mobility_issue") or injured(f):
             o.status = "needs_help"
         elif act == "outside":
             o.status = "safe_outside"
@@ -961,7 +1105,8 @@ class Brain:
             o.status = "in_call"
         o.language = c.language or o.language
         o.last_update = now_iso()
-        o.source = Source(kind="call", label=f"appel {o.name or c.call_id}", confirmed=False)   # signalé until the crew says it
+        # signalé until the crew says it
+        o.source = Source(kind="call", label="appel 112" if is_caller(o) else f"appel {o.name or c.call_id}", confirmed=False)
 
     def _urgency(self, c: Call) -> None:
         f = self.call_facts.get(c.call_id, {})
@@ -985,9 +1130,9 @@ class Brain:
                 lvl = 3
                 reasons.append("fauteuil roulant" + (", ne peut pas descendre seule" if "seule" in excerpt else "")
                                if re.search(r"fauteuil|wheelchair|silla", excerpt) else "mobilité réduite")
-            if f.get("injuries"):
+            if injured(f):
                 lvl = 3
-                reasons.append(f"blessure : {f['injuries']}")
+                reasons.append("blessé")
             if o and o.status == "trapped":
                 lvl = 3
                 reasons.append("bloqué")
@@ -1013,7 +1158,11 @@ class Brain:
     def _call_summary(self, c: Call, o: Optional[Occupant], f: dict) -> str:
         if not any(k not in ("confidence", "voice") for k in f):
             return c.summary_fr or ""
-        who = f"Appel {o.name}" if o and o.name else ("Appel 112" if c.direction == "in" else f"Appel {c.call_id}")
+        if is_caller(o) or (not o and c.direction == "in"):
+            name = self.call_flags.get(c.call_id, {}).get("name")
+            who = "Appel 112" + (f", {name}" if name else "")
+        else:
+            who = f"Appel {o.name}" if o and o.name else f"Appel {c.call_id}"
         if c.language and c.language != "fr":
             who += f", {speech.LANG_FR.get(c.language, c.language)}"
         ex = normalize(c.transcript_excerpt or "")
@@ -1043,8 +1192,8 @@ class Brain:
         if f.get("mobility_issue"):
             bits.append("en fauteuil, ne peut pas descendre seule" if re.search(r"fauteuil|wheelchair|silla", ex) and "seule" in ex
                         else ("en fauteuil" if re.search(r"fauteuil|wheelchair|silla", ex) else "mobilité réduite"))
-        if f.get("injuries"):
-            bits.append(f"blessé : {f['injuries']}")
+        if injured(f):
+            bits.append("blessé")
         if f.get("smoke_seen"):
             bits.append("fumée sous la porte" if re.search(r"porte|door|puerta", ex) else "fumée signalée")
         elif f.get("smoke_seen") is False and not f.get("mobility_issue"):
@@ -1058,10 +1207,10 @@ class Brain:
             bits.append("reste sur place" if not pc or pc == 1 else "restent sur place")
         elif act == "outside":
             bits.append("dehors")
-        if f.get("free_text_fr") and o:
+        if f.get("free_text_fr") and o and not is_caller(o):
             bits.append(f["free_text_fr"].rstrip("."))
         s = f"{who} : {', '.join(bits)}" if bits else who
-        if f.get("mobility_issue") or f.get("injuries"):
+        if f.get("mobility_issue") or injured(f):
             s += ". Aide nécessaire"
         if asks:
             s += ", demande quoi faire. Consigne ?"
@@ -1108,7 +1257,7 @@ class Brain:
                                {"occupant_id": o.id, "call_id": c.call_id, "to": alt, "from": frm, "lang": c.language or o.language or "fr"},
                                addressed("COS", summary))
                 gate = True
-        if (f.get("mobility_issue") or f.get("injuries")) and f"help:{o.id}" not in self.caught:
+        if (f.get("mobility_issue") or injured(f)) and f"help:{o.id}" not in self.caught:
             self.caught.add(f"help:{o.id}")
             what = "Personne à mobilité réduite" if f.get("mobility_issue") else "Blessé"
             self.alert("warning", f"{what} au {level_fr(o.level)} ({o.room or '?'})")
@@ -1437,7 +1586,7 @@ class Brain:
                     return hits[0].id
         return None
 
-    def _hazards_from_text(self, text: str, level: Optional[int], src: Source) -> list[Hazard]:
+    def _hazards_from_text(self, text: str, level: Optional[int], src: Source, call: Optional[Call] = None) -> list[Hazard]:
         out = []
         for clause in re.split(r"[,;]|\.(?![\dtT])", text or ""):
             nb = normalize(clause)
@@ -1451,11 +1600,18 @@ class Brain:
             if level is not None and not where:
                 where = {"level": level}
             where = self._resolve_where(nb, where, where.get("level", level))
+            if where and call is not None:
+                where = self._call_where(call, h["kind"], nb, where, level)
             if not where:
                 continue
             hz, new = self._add_hazard(h["kind"], where, "high" if h["kind"] == "fire" else h.get("severity", "medium"), src)
             if new:
                 out.append(hz)
+            if call is not None:
+                if new:
+                    self.call_flags.setdefault(call.call_id, {}).setdefault("hz", []).append(hz.id)
+                if where.get("room") and where["room"] != "corridor" and where.get("level") is not None:
+                    self._room_replaces_level(call, hz)
         if out:
             self.recompute()
         return out
@@ -1988,6 +2144,19 @@ class Brain:
             o = self.occ(oid)
             if o and o.status == "calling" and now - t0 > NO_NEWS_S / max(self.mock_speed, 1.0):
                 self._no_news(o)
+                self.touch()
+        clk = self.clock()
+        for cid, fl in list(self.call_flags.items()):
+            c = self.call(cid)
+            if not c:
+                continue
+            if fl.get("line_pending") and clk - fl.get("said_at", 0.0) >= CALL_LINE_GAP_S:
+                self._call_line(c, clk)
+                self.touch()
+            if fl.get("mc_due") and clk >= fl["mc_due"]:
+                fl.pop("mc_due")
+                fl["mc_done"] = True
+                self._write_112(c)
                 self.touch()
 
 

@@ -229,7 +229,9 @@ def room_word(kit: BuildingKit, room_id: Optional[str]) -> str:
     lab = r.label.strip()
     if lab.startswith(r.id):
         lab = lab[len(r.id):].strip()
-    return (lab[:1].lower() + lab[1:]) if lab else "salle"
+    if not lab:
+        return "salle"
+    return lab if lab[:2].isupper() else lab[:1].lower() + lab[1:]     # « WC » stays « WC »
 
 
 def unit_of(kit: BuildingKit, room_id: Optional[str]) -> Optional[dict[str, Any]]:
