@@ -9,7 +9,7 @@ import sqlite3
 from fastapi import Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from .common import Replica, Store, ago, demo_address, demo_commune, fixture, iso, utcnow
+from .common import Replica, Store, ago, building_model, demo_address, demo_commune, fixture, iso, level_label, utcnow
 
 SCHEMA = """
 DROP TABLE IF EXISTS meta;
@@ -34,14 +34,22 @@ HISTORY = [
     ("INC-0995", 40 * 60 + 5, "25 boulevard de la Simulation", "Odeur de gaz dans immeuble", 2, "FPT 1 · VSAV 1"),
 ]
 
-SEED_LOG = [
-    (4.0, "CTA", "Appel 18 reçu. Témoin : fumée au 3e étage côté sud."),
-    (3.5, "CTA", "Appelant : personnes possiblement bloquées au 3e."),
-    (3.0, "CTA", "Départ FPT 1, EPA 1, VSAV 1."),
-    (2.5, "CTA", "Bâtiment R+5. Gestionnaire prévenu, liste des occupants demandée."),
-    (1.5, "FPT 1", "FPT 1 parti."),
-    (1.0, "EPA 1", "EPA 1 parti."),
-]
+
+
+def seed_log(notes: list[str]) -> list[tuple[float, str, str]]:
+    """Six entries before the demo starts (the next one is MC-0007), built from the fixture's caller notes."""
+    levels = sorted(l["level"] for l in building_model().get("levels", [])) or [0]
+    building = f"Immeuble {level_label(levels[-1])}" + (f", sous-sol {level_label(levels[0])}" if levels[0] < 0 else "")
+    first = notes[0] if notes else "feu signalé"
+    rest = "; ".join(notes[1:]) or "pas de précision"
+    return [
+        (4.0, "CTA", f"Appel 18 reçu. Témoin : {first}."),
+        (3.5, "CTA", f"Appelant : {rest}."),
+        (3.0, "CTA", "Départ FPT 1, EPA 1, VSAV 1."),
+        (2.5, "CTA", f"{building}. Gestionnaire prévenu, liste des occupants demandée."),
+        (1.5, "FPT 1", "FPT 1 parti."),
+        (1.0, "EPA 1", "EPA 1 parti."),
+    ]
 
 
 def seed(conn: sqlite3.Connection, keep_public: bool) -> None:
@@ -60,11 +68,12 @@ def seed(conn: sqlite3.Connection, keep_public: bool) -> None:
             (inc_id, ago(minutes), address, town, nature, level, CLOSED, "Requérant", "+33100000098",
              "[]", means, "CIS Centre (fictif)", ago(minutes - 55)),
         )
-    for n, (minutes, author, text) in enumerate(SEED_LOG, start=1):
+    log = seed_log(demo["caller_notes"])
+    for n, (minutes, author, text) in enumerate(log, start=1):
         conn.execute("INSERT INTO main_courante VALUES (?,?,?,?,?)",
                      (f"MC-{n:04d}", "INC-0001", ago(minutes), author, text))
     conn.executemany("INSERT INTO meta VALUES (?,?)",
-                     [("incident", "2"), ("main_courante", str(len(SEED_LOG) + 1))])
+                     [("incident", "2"), ("main_courante", str(len(log) + 1))])
 
 
 store = Store("dispatch", SCHEMA, seed)
@@ -76,6 +85,7 @@ login = Depends(replica.operator)
 def incident_row(row: sqlite3.Row) -> dict:
     data = dict(row)
     data["caller_notes"] = json.loads(data["caller_notes"] or "[]")
+    data["level_label"] = level_label(data["level"])
     return data
 
 

@@ -19,7 +19,7 @@
       <tr><th>Déclarée le</th><td><div class="field" id="f-declaree"><time datetime="{{ inc.declared_at }}">{{ inc.declared_at|local("%d/%m/%Y %H:%M:%S") }}</time></div></td></tr>
       <tr><th>Statut</th><td><div class="field status-{{ 'open' if inc.status == 'En cours' else 'closed' }}" id="f-statut">{{ inc.status }}</div></td></tr>
       <tr><th>Nature</th><td><div class="field" id="f-nature">{{ inc.nature }}</div></td></tr>
-      <tr><th>Niveau</th><td><div class="field narrow" id="f-niveau">{{ inc.level }}</div></td></tr>
+      <tr><th>Niveau</th><td><div class="field narrow" id="f-niveau">{{ inc.level }}</div> <div class="field narrow" id="f-niveau-libelle">{{ inc.level_label }}</div></td></tr>
     </table>
   </fieldset>
   <fieldset class="group">

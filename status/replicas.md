@@ -1,5 +1,5 @@
 # replicas — status
-Updated: 04:35
+Updated: 05:10
 
 ## Running
 - dispatch « Alerte / Interventions » on http://localhost:8101 · public: none · MOCK n/a (local SQLite)
@@ -18,15 +18,25 @@ Updated: 04:35
   « RAPPORT D'INTERVENTION » band, uppercase section bands, grey read-only fields, red required labels);
   occupants = property-manager intranet « PATRIMOINE ». References: Systel STARTOPS manuals and SDIS 63 CRSS
   procedure on enasis.fr.
-- Seed: INC-0001 « En cours » with `DEMO_ADDRESS`, the fixture's nature / level 3 / caller notes, 6 main-courante
-  entries (next is MC-0007, as in the fixture) + 5 closed incidents; reports: 5 old « Transmis » (next is CR-0001);
-  occupants: the 6 from `contracts/fixtures/occupants.json`.
+- Seed (scenario v2, TU Wien building, 05:10): INC-0001 « En cours » with `DEMO_ADDRESS` and the fixture's nature
+  (« Feu de véhicule en parking souterrain… »), level -1 and 3 caller notes; 6 main-courante entries written from
+  those notes and the building's levels (next is MC-0007) + 5 closed incidents; reports: 5 old « Transmis » (next is
+  CR-0001); occupants: building « Immeuble d'habitation (maquette TU Wien) », R-1 à R+3, the 6 from
+  `contracts/fixtures/occupants.json`. Everything is read from the fixtures and `BUILDING_JSON` at each reset.
+- `/inscription` « Pièce » is a list of the building's bedrooms and living rooms grouped by floor (RDC to R+3), with
+  the IFC room ids (`BUILDING_JSON`, else the fixture), so every judge lands in a room Seraph can place. The floor is
+  taken from the room.
 - `/admin/reset`: GET = page with button, POST = restore seed; answers JSON `{ok:true}` (HTML if `Accept: text/html`).
   `GET /health` → `{ok, mock:false, service}` on each app.
 - `/inscription` (no login): name, phone, floor, room, language, required consent checkbox with the brief's exact
   sentence. Checked at 390 px wide: no horizontal scroll, consent enforced, private pages 404 from outside.
 - Playwright run passes: `dispatch.read`, `dispatch.write_112` (MC-0007), `occupants.list` (6 rows, full E.164 read
   from the DOM), `report.fill` (CR-0001 → Brouillon → Transmis), `/inscription` on a phone viewport.
+- **Holo run passes (05:00), `holo4-35b-a3b`, H's agent-loop recipe, code logs in, Holo navigates, code verifies:**
+  `dispatch.read` 2 steps / 6 s · `occupants.list` 2 / 4 s · `dispatch.write_112` 5 / 11 s ·
+  `report.fill` 12 / 24 s (fills 4 sections, scrolls, Enregistrer, Transmettre; texts match exactly).
+  Rerun on the v2 seed (05:10): all four pass (report.fill 12 steps / 68 s; the H API was slower).
+  Rerun: `cd replicas && uv run --with openai python tests/holo_probe.py holo4-35b-a3b /tmp/holo-shots`.
 
 ## In progress
 -
@@ -44,13 +54,23 @@ Updated: 04:35
   `td.c-tel` = `+33100000001`), but the middle digits are CSS-blurred on screen, so agent-cam screenshots on the
   projector show them masked (safety rule 5). Read the number from the DOM, never from the screenshot.
 
+- @rosetta (Amil): **let code log in, not Holo.** Told to type a password placeholder, `holo4-35b-a3b` drops the
+  braces or ignores it and starts guessing passwords (« password », « azerty », « admin »…, 25 steps, never in).
+  With Playwright filling `#username` / `#password` and clicking `#btn-connexion` first, every flow passes. The model
+  then never sees the password either.
+
 ## Facts I verified (API names, model ids, gotchas)
+- H API `GET /v1/models` (05:00): `holo3-1-35b-a3b`, `holo3-122b-a10b`, `holo4-27b`, `holo4-35b-a3b`. `HOLO_MODEL` is
+  empty in `.env`. Agent loop per hub.hcompany.ai/agent-loop: Step schema `{note, thought, tool_call}` in the system
+  prompt's `<output_format>` and in `extra_body={"structured_outputs": {"json": schema}}`; clicks on a 0–1000 grid;
+  keep the last 3 screenshots. Works with `holo4-35b-a3b`, temperature 0.6, JPEG screenshots.
 - DOM anchors for Rosetta's success checks and extraction (all plain visible text, stable ids):
   - Login (all three): `/login`, labels « Identifiant » `#username`, « Mot de passe » `#password`, button
     « Connexion ». Any private URL redirects to `/login?next=…` and back after login.
   - `dispatch.read`: list `/interventions`, `#interventions tr.inc.open` (newest first), link text = `INC-0001`.
     Page `/interventions/INC-0001`: `#f-numero`, `#f-adresse`, `#f-commune`, `#f-nature`, `#f-niveau`,
-    `#f-declaree time[datetime]` (ISO UTC), `#notes-appelant li` (caller notes), `#f-moyens`.
+    `#f-declaree time[datetime]` (ISO UTC), `#notes-appelant li` (caller notes), `#f-moyens`. `#f-niveau` is the
+    integer (`-1`); `#f-niveau-libelle` shows « R-1 » / « RDC » / « R+3 » next to it.
   - `dispatch.write_112`: same page, textarea label « Message » `#mc-texte` (name `texte`), button « Ajouter ».
     After: `#flash` = « Entrée MC-0007 ajoutée à la main courante. », URL `?ajout=MC-0007`, first row of
     `#main-courante-liste tbody` has `data-id="MC-0007"` and `.c-texte` = the entry.

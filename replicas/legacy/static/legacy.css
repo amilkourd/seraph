@@ -55,7 +55,7 @@ body.app-dispatch legend { color: #0046d5; padding: 0 4px; }
 .fiche th { text-align: right; font-weight: normal; padding: 2px 6px 2px 0; white-space: nowrap; vertical-align: top; width: 1%; }
 .fiche td { padding: 2px 0; width: 99%; }
 .field { background: #fff; border: 1px solid #7f9db9; padding: 2px 4px; min-height: 19px; }
-.field.narrow { width: 50px; }
+.field.narrow { width: 50px; display: inline-block; }
 .field.inline { display: inline-block; min-width: 110px; }
 .field.multi { min-height: 40px; }
 .field ul { margin: 0; padding-left: 14px; }

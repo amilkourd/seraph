@@ -7,7 +7,8 @@ import sqlite3
 from fastapi import Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from .common import Replica, Store, demo_address, demo_commune, fixture, iso, mask_phone, normalize_phone, utcnow
+from .common import (Replica, Store, building_model, demo_address, demo_commune, fixture, iso, level_label, mask_phone,
+                     normalize_phone, utcnow)
 
 SCHEMA = """
 DROP TABLE IF EXISTS meta;
@@ -25,9 +26,28 @@ CREATE TABLE access_log (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT, user TEX
 
 MANAGER, PUBLIC = "Gestionnaire", "Inscription QR"
 LANGUAGES = [("fr", "Français"), ("en", "English"), ("es", "Español")]
-LEVELS = [(0, "RDC"), (1, "1er étage"), (2, "2e étage"), (3, "3e étage"), (4, "4e étage"), (5, "5e étage")]
+LIVING = ("chambre", "séjour-cuisine")
 MAX_PUBLIC = 200
 CONSENT = "J'accepte d'être appelé(e) par l'assistant vocal pendant la démonstration"
+
+
+def floor_name(level: int) -> str:
+    return {0: "RDC", 1: "1er étage"}.get(level, f"{level}e étage" if level > 0 else f"Sous-sol {level_label(level)}")
+
+
+def levels() -> list[tuple[int, str]]:
+    """Floors of the building Seraph loads (IFC), else R+0..R+5."""
+    found = sorted(l["level"] for l in building_model().get("levels", []))
+    return [(n, floor_name(n)) for n in (found or range(6))]
+
+
+def living_rooms() -> list[tuple[int, str, list[tuple[str, str]]]]:
+    """Bedrooms and living rooms per floor, with the IFC's room ids, so Seraph can place each judge."""
+    by_level: dict[int, list[tuple[str, str]]] = {}
+    for room in building_model().get("rooms", []):
+        if room.get("use") in LIVING and room.get("level", -1) >= 0:
+            by_level.setdefault(room["level"], []).append((room["id"], room.get("label") or room["id"]))
+    return [(n, floor_name(n), sorted(by_level[n])) for n in sorted(by_level)]
 
 
 def seed(conn: sqlite3.Connection, keep_public: bool) -> None:
@@ -36,8 +56,10 @@ def seed(conn: sqlite3.Connection, keep_public: bool) -> None:
         kept = [tuple(r) for r in conn.execute("SELECT * FROM occupants WHERE source=?", (PUBLIC,))]
     conn.executescript(SCHEMA)
     data = fixture("occupants.json")
-    conn.execute("INSERT INTO buildings VALUES (1, ?, ?, ?, 'R+5', 'Gestionnaire (fictif)')",
-                 (data["building"], demo_address(), demo_commune()))
+    floors = [n for n, _ in levels()]
+    conn.execute("INSERT INTO buildings VALUES (1, ?, ?, ?, ?, 'Gestionnaire (fictif)')",
+                 (data["building"], demo_address(), demo_commune(),
+                  f"{level_label(floors[0])} à {level_label(floors[-1])}"))
     now = iso(utcnow())
     for o in data["occupants"]:
         conn.execute("INSERT INTO occupants VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -82,7 +104,7 @@ def check_occupant(name: str, phone: str, level: str, room: str, language: str) 
         return values, "Nom obligatoire (80 caractères maximum)."
     if not e164:
         return values, "Numéro de téléphone invalide."
-    if values["level"] not in {str(n) for n, _ in LEVELS}:
+    if values["level"] not in {str(n) for n, _ in levels()}:
         return values, "Niveau invalide."
     if not values["room"] or len(values["room"]) > 20:
         return values, "Local obligatoire (20 caractères maximum)."
@@ -92,7 +114,11 @@ def check_occupant(name: str, phone: str, level: str, room: str, language: str) 
     return values, None
 
 
-templates_ctx = {"languages": LANGUAGES, "levels": LEVELS, "phone_parts": phone_parts}
+def ctx() -> dict:
+    with store.connect() as conn:
+        row = conn.execute("SELECT name FROM buildings WHERE id=1").fetchone()
+    return {"languages": LANGUAGES, "levels": levels(), "rooms": living_rooms(), "phone_parts": phone_parts,
+            "building_name": row["name"] if row else ""}
 
 
 @app.get("/batiments", response_class=HTMLResponse)
@@ -114,7 +140,7 @@ def building_page(request: Request, building_id: int, user: str, status_code: in
         if log:
             log_access(conn, request, user, "Consultation liste des occupants", f"{building['name']} ({len(rows)})")
     return replica.render(request, "occupants/building.html", status_code=status_code, b=dict(building), rows=rows,
-                          form=form or {"language": "fr", "level": "0"}, error=error, **templates_ctx)
+                          form=form or {"language": "fr", "level": "0"}, error=error, **ctx())
 
 
 @app.get("/batiments/{building_id}", response_class=HTMLResponse)
@@ -154,7 +180,7 @@ def edit_form(request: Request, building_id: int, occ_id: str, user: str = login
         return replica.render(request, "occupants/missing.html", status_code=404, what=f"Occupant {occ_id}")
     form = {**occ, "phone_raw": occ["phone_e164"], "level": str(occ["level"])}
     return replica.render(request, "occupants/edit.html", o=occ, form=form, error=None, building_id=building_id,
-                          **templates_ctx)
+                          **ctx())
 
 
 @app.post("/batiments/{building_id}/occupants/{occ_id}/modifier", response_class=HTMLResponse)
@@ -168,7 +194,7 @@ def edit_save(request: Request, building_id: int, occ_id: str, user: str = login
     values["notes"] = notes.strip()[:200]
     if error:
         return replica.render(request, "occupants/edit.html", status_code=400, o=occ, form=values, error=error,
-                              building_id=building_id, **templates_ctx)
+                              building_id=building_id, **ctx())
     with store.connect() as conn:
         conn.execute("UPDATE occupants SET name=?, phone_e164=?, level=?, room=?, language=?, notes=?, updated_at=? "
                      "WHERE id=?", (values["name"], values["phone_e164"], int(values["level"]), values["room"],
@@ -199,18 +225,23 @@ def journal(request: Request, user: str = login):
 @app.get("/inscription", response_class=HTMLResponse)
 def signup_form(request: Request):
     return replica.render(request, "occupants/inscription.html", form={"language": "fr", "level": ""}, error=None,
-                          consent=CONSENT, **templates_ctx)
+                          consent=CONSENT, **ctx())
 
 
 @app.post("/inscription", response_class=HTMLResponse)
 def signup(request: Request, nom: str = Form(""), telephone: str = Form(""), niveau: str = Form(""),
            local: str = Form(""), langue: str = Form("fr"), consentement: str = Form("")):
+    rooms = {rid: (n, label) for n, _, items in living_rooms() for rid, label in items}
+    if rooms:
+        niveau = str(rooms[local][0]) if local in rooms else ""
     values, error = check_occupant(nom, telephone, niveau, local, langue)
+    if rooms and local not in rooms:
+        error = "Choisissez une pièce dans la liste."
     if not error and consentement != "oui":
         error = "Cochez la case de consentement pour vous inscrire."
     if error:
         return replica.render(request, "occupants/inscription.html", status_code=400, form=values, error=error,
-                              consent=CONSENT, **templates_ctx)
+                              consent=CONSENT, **ctx())
     now = iso(utcnow())
     with store.connect() as conn:
         existing = conn.execute("SELECT id FROM occupants WHERE phone_e164=? AND source=?",
@@ -223,12 +254,12 @@ def signup(request: Request, nom: str = Form(""), telephone: str = Form(""), niv
         else:
             if conn.execute("SELECT count(*) FROM occupants WHERE source=?", (PUBLIC,)).fetchone()[0] >= MAX_PUBLIC:
                 return replica.render(request, "occupants/inscription.html", status_code=429, form=values,
-                                      error="Inscriptions closes.", consent=CONSENT, **templates_ctx)
+                                      error="Inscriptions closes.", consent=CONSENT, **ctx())
             occ_id, seq = next_occupant(conn)
             conn.execute("INSERT INTO occupants VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                          (occ_id, seq, 1, values["name"], values["phone_e164"], int(values["level"]), values["room"],
                           values["language"], "", PUBLIC, now, now, now))
         log_access(conn, request, "public", "Inscription (consentement)", occ_id)
     return replica.render(request, "occupants/inscription_ok.html", occ_id=occ_id, name=values["name"],
-                          phone=mask_phone(values["phone_e164"]), level=values["level"], room=values["room"],
-                          **templates_ctx)
+                          phone=mask_phone(values["phone_e164"]), floor=floor_name(int(values["level"])),
+                          room=rooms.get(values["room"], (0, values["room"]))[1], **ctx())

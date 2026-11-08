@@ -56,6 +56,21 @@ def demo_commune() -> str:
     return match.group(1).strip() if match else env("DEMO_TOWN", "Paris 9e")
 
 
+def level_label(level: int) -> str:
+    return "RDC" if level == 0 else f"R{level:+d}"
+
+
+def building_model() -> dict:
+    """The building Seraph loads: BUILDING_JSON if it exists, else the fixture. {} if neither parses."""
+    path = ROOT / env("BUILDING_JSON", "ifc/out/building.json")
+    if not path.exists():
+        path = FIXTURES / "building.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
 def fixture(name: str) -> dict:
     return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
 

@@ -80,7 +80,7 @@ def dispatch_write_112(page: Page) -> dict:
 
 def occupants_list(page: Page) -> dict:
     login(page, OCCUPANTS, "/batiments")
-    page.get_by_role("link", name="Bâtiment d'exercice").click()
+    page.get_by_role("link", name=fixture("occupants.json")["building"]).click()
     page.wait_for_url("**/batiments/1")
     shot(page, "occupants-building")
     rows = []
@@ -133,8 +133,7 @@ def inscription_phone(browser) -> dict:
     overflow = page.evaluate("document.documentElement.scrollWidth") > 390
     page.get_by_label("Nom et prénom").fill("Juge Démo")
     page.get_by_label("Téléphone portable").fill("06 00 00 00 42")
-    page.get_by_label("Étage").select_option("3")
-    page.get_by_label("Salle").fill("3.14")
+    page.get_by_label("Pièce").select_option("3.12")
     page.get_by_label("Langue de l'appel").select_option("en")
     page.get_by_role("button", name="Valider mon inscription").click()
     blocked = page.evaluate("document.querySelector('#consentement').validity.valueMissing")

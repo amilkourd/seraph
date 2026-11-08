@@ -8,6 +8,13 @@
   <input id="nom" name="nom" autocomplete="name" required maxlength="80" value="{{ form.name or '' }}">
   <label for="telephone">Téléphone portable</label>
   <input id="telephone" name="telephone" type="tel" inputmode="tel" autocomplete="tel" required value="{{ form.phone_raw or '' }}">
+  {% if rooms %}
+  <label for="local">Pièce</label>
+  <select id="local" name="local" required>
+    <option value="" disabled {% if not form.room %}selected{% endif %}>—</option>
+    {% for n, floor, items in rooms %}<optgroup label="{{ floor }}">{% for rid, label in items %}<option value="{{ rid }}" {% if form.room == rid %}selected{% endif %}>{{ label }}</option>{% endfor %}</optgroup>{% endfor %}
+  </select>
+  {% else %}
   <div class="pub-row">
     <div>
       <label for="niveau">Étage</label>
@@ -21,6 +28,7 @@
       <input id="local" name="local" required maxlength="20" value="{{ form.room or '' }}">
     </div>
   </div>
+  {% endif %}
   <label for="langue">Langue de l'appel</label>
   <select id="langue" name="langue">{% for code, label in languages %}<option value="{{ code }}" {% if form.language == code %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
   <label class="consent" for="consentement">
