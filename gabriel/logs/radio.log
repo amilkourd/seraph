@@ -1,0 +1,6 @@
+04:35:58 gabriel.seraph INFO radio: Seraph link up (ws://localhost:8000/ws/gabriel)
+04:35:58 gabriel.tts INFO tts first byte 169 ms (Stay on the line.)
+04:35:58 gabriel.tts INFO tts first byte 177 ms (Exercise. Hello, this is Gabriel, the fi)
+04:35:58 gabriel.tts INFO tts first byte 183 ms (Ejercicio. Hola, soy Gabriel, el asisten)
+04:35:58 gabriel.tts INFO tts first byte 202 ms (Ejercicio. Hola, soy Gabriel, el asisten)
+04:35:58 gabriel.radio INFO joined crew as Seraph (0 others)

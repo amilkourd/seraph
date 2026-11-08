@@ -1,0 +1,13 @@
+{% extends "occupants/public.html" %}
+{% block title %}Inscription enregistrée{% endblock %}
+{% block content %}
+<h1>Inscription enregistrée</h1>
+<div class="flash big" id="flash" role="status">Réf. {{ occ_id }}</div>
+<table class="pub-recap">
+  <tr><th>Nom</th><td>{{ name }}</td></tr>
+  <tr><th>Téléphone</th><td>{{ phone }}</td></tr>
+  <tr><th>Étage</th><td>{{ level }}</td></tr>
+  <tr><th>Salle</th><td>{{ room }}</td></tr>
+</table>
+<p><a href="/inscription">Modifier mon inscription</a></p>
+{% endblock %}

@@ -1,0 +1,31 @@
+{
+  "run_id": "run_mock_dispatch_write_112",
+  "endpoint": "dispatch.write_112",
+  "status": "ok",
+  "live": false,
+  "output": {
+    "ok": true,
+    "entry_id": "MC-0007"
+  },
+  "screenshots": [
+    {
+      "image_id": "dispatch-mc-07",
+      "url": "http://localhost:8001/shots/dispatch-mc-07.jpg",
+      "caption": "Main courante : entrée ajoutée",
+      "side": "top",
+      "width": 1280,
+      "height": 800,
+      "taken_at": "2026-11-08T00:00:00Z"
+    }
+  ],
+  "source": {
+    "kind": "dispatch",
+    "label": "alerte",
+    "confirmed": true,
+    "at": "2026-11-08T00:00:00Z",
+    "url": "http://localhost:8101/interventions/INC-0001"
+  },
+  "duration_ms": 1200,
+  "started_at": "2026-11-08T00:00:00Z",
+  "ended_at": "2026-11-08T00:00:00Z"
+}

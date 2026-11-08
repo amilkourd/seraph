@@ -1,0 +1,19 @@
+{% extends "occupants/layout.html" %}
+{% block title %}Immeubles{% endblock %}
+{% block content %}
+<div class="crumbs">Accueil › Immeubles</div>
+<h1 class="intra-h1">Immeubles</h1>
+<table class="gridview" id="batiments">
+  <thead><tr><th>Réf.</th><th>Nom</th><th>Adresse</th><th>Commune</th><th>Niveaux</th><th>Occupants</th><th>Gestionnaire</th></tr></thead>
+  <tbody>
+    {% for b in rows %}
+    <tr data-id="{{ b.id }}">
+      <td class="c-id">{{ "%04d"|format(b.id) }}</td>
+      <td class="c-nom"><a href="/batiments/{{ b.id }}">{{ b.name }}</a></td>
+      <td class="c-adresse">{{ b.address }}</td><td class="c-commune">{{ b.commune }}</td>
+      <td class="c-niveaux">{{ b.levels }}</td><td class="c-occupants">{{ b.n }}</td><td>{{ b.manager }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr" data-view-id="view_approach_example">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>approach</title>
+<link rel="stylesheet" href="{{HALO_KIT_URL}}/halo.css">
+<script src="{{HALO_KIT_URL}}/halo-kit.js"></script>
+</head>
+<body>
+<script>
+/* Moment « approach » — « Par où j'entre ». The building from above, turned 45° like the reference, lit: it is where
+ * we go. Streets on the sides that have an entrance, the truck, the hydrant, the arrow into the chosen entrance, the
+ * others crossed out, fire and smoke inside. The state has no footprint: the block is schematic, entrances sit on
+ * their `side`, stairs and fire are projected from the level plan's 0–1000 frame. The view decides nothing. */
+const f = Halo.frame(document.body, { title: "Par où j'entre" });
+Halo.scene(f.svg, { rotate: -45, cx: 320 });      // in Halo.AREA: the instruction card sits on the right
+const B = { x: 185, y: 116, w: 270, h: 170 };      // the building, scene units
+const GAP = 52;                                    // block edge → street centre
+
+function doorPoint(e, i, n) {
+  const t = (i + 1) / (n + 1);
+  return { front: { x: B.x + B.w * t, y: B.y + B.h }, rear: { x: B.x + B.w * t, y: B.y },
+           left: { x: B.x, y: B.y + B.h * t }, right: { x: B.x + B.w, y: B.y + B.h * t } }[e.side];
+}
+function streetOf(side) {
+  return { front: { from: [-500, B.y + B.h + GAP], to: [1400, B.y + B.h + GAP] },
+           rear: { from: [-500, B.y - GAP], to: [1400, B.y - GAP] },
+           left: { from: [B.x - GAP, -700], to: [B.x - GAP, 1100] },
+           right: { from: [B.x + B.w + GAP, -700], to: [B.x + B.w + GAP, 1100] } }[side];
+}
+function planToBlock(b) {            // the level plan's useful extent, stretched onto the block
+  const xs = [], ys = [];
+  b.rooms.forEach(r => (r.zone || []).forEach(p => { xs.push(p[0]); ys.push(p[1]); }));
+  ((b.plan && b.plan.points) || []).forEach(p => { xs.push(p.point.x); ys.push(p.point.y); });
+  if (!xs.length) return null;
+  const x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 40, y0 = Math.min(...ys) - 40, y1 = Math.max(...ys) + 40;
+  return p => ({ x: B.x + (p.x - x0) / (x1 - x0) * B.w, y: B.y + (p.y - y0) / (y1 - y0) * B.h });
+}
+
+function draw(s) {
+  f.clear();
+  const b = s.building, best = Halo.byId(b.entrances, b.approach && b.approach.best_entrance_id);
+  const toBlock = planToBlock(b);
+  const planPt = name => { const p = ((b.plan && b.plan.points) || []).find(q => q.name === name); return p && toBlock ? toBlock(p.point) : null; };
+
+  const sides = [...new Set(b.entrances.map(e => e.side))];
+  sides.forEach(side => Halo.street(f.svg, streetOf(side)));
+  Halo.block(f.svg, B, { state: 'target' });
+
+  b.hazards.filter(h => h.kind === 'fire' && h.where.room).forEach(h => {
+    const room = b.rooms.find(r => r.id === h.where.room);
+    if (room && room.zone && toBlock) Halo.fire(f.svg, room.zone.map(p => toBlock({ x: p[0], y: p[1] })), { label: 'Feu ' + Halo.levelLabel(s, h.where.level) });
+  });
+
+  const stairPts = {};
+  b.stairs.forEach(st => {
+    const p = planPt('stair:' + st.id);
+    if (!p) return;
+    stairPts[st.id] = p;
+    const bad = st.status !== 'clear';
+    if (st.status === 'smoke') Halo.smoke(f.svg, { cx: p.x, cy: p.y, r: 36 });
+    Halo.marker(f.svg, 'stair', p, st.id, { tone: bad ? 'warn' : 'ink', blink: bad, at: 'e', tap: { kind: 'stair', id: st.id } });
+  });
+
+  const doors = {};
+  sides.forEach(side => {
+    const list = b.entrances.filter(e => e.side === side);
+    list.forEach((e, i) => { doors[e.id] = doorPoint(e, i, list.length); });
+  });
+  b.entrances.forEach(e => {
+    const chosen = best && e.id === best.id;
+    Halo.marker(f.svg, 'door', doors[e.id], e.id, { r: chosen ? 20 : 16, big: chosen, ping: chosen, crossed: !chosen,
+      at: chosen ? 'e' : 's', tap: { kind: 'entrance', id: e.id } });
+  });
+
+  if (best) {
+    // truck and hydrant on the street of the chosen entrance, upstream of the door
+    const d = doors[best.id], vertical = best.side === 'left' || best.side === 'right', st = streetOf(best.side);
+    const truck = vertical ? { x: st.from[0], y: d.y - 130 } : { x: d.x - 140, y: st.from[1] };
+    if (b.truck_spot) Halo.marker(f.svg, 'truck', truck, null, { r: 18 });
+    (b.hydrants || []).slice(0, 1).forEach(h => {
+      const hp = vertical ? { x: st.from[0] + (st.from[0] < B.x ? 26 : -26), y: d.y - 160 } : { x: d.x - 190, y: st.from[1] - 26 };   // building-side kerb
+      Halo.marker(f.svg, 'hydrant', hp, null, { r: 16, tap: { kind: 'hydrant', id: h.id } });
+    });
+
+    // truck → along the street → through the door → the stair the approach route names
+    const route = (s.routes || []).find(r => r.purpose === 'approach');
+    const stairId = route && (route.via.find(n => n.startsWith('stair:')) || '').split(':')[1];
+    const corner = vertical ? { x: truck.x, y: d.y } : { x: d.x, y: truck.y };
+    const pts = [truck, corner, d];
+    const sp = stairPts[stairId];
+    if (sp) pts.push(vertical ? { x: sp.x, y: d.y } : { x: d.x, y: sp.y }, sp);
+    Halo.arrow(f.svg, pts, { gap: sp ? 22 : 0, source: route && route.source });
+
+    // the card: what to do, in three lines
+    f.panel([
+      { text: 'Entrez par ' + best.id },
+      stairId && { text: 'Montez esc. ' + stairId },
+      ...b.stairs.filter(x => x.status !== 'clear').map(x => ({ tone: 'warn', text: 'Esc. ' + x.id + ' fumée' }))
+    ]);
+  }
+  Halo.north(f.svg);
+}
+
+Halo.onState(draw);
+Halo.ready();
+</script>
+</body>
+</html>

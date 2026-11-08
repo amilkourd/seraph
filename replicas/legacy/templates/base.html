@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+{% block viewport %}{% endblock %}
+<title>{% block title %}{{ app.product }}{% endblock %} — EXERCICE</title>
+<link rel="stylesheet" href="/static/legacy.css">
+</head>
+<body class="app-{{ app.name }}{% block bodyclass %}{% endblock %}">
+<div class="exercice" id="exercice">EXERCICE — données fictives</div>
+{% block layout %}{% endblock %}
+</body>
+</html>

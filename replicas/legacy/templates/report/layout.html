@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block layout %}
+<div class="portal">
+  <div class="portal-top">
+    <div class="portal-user">
+      <div class="portal-name">{{ (user or "non identifié")|upper }}</div>
+      <div class="portal-select">CENTRE EXERCICE</div>
+      <div class="portal-select">Console</div>
+    </div>
+    <div class="portal-centre">Centre EXERCICE - {{ now_local("%d/%m/%Y") }}<span class="portal-version">Version 2.14_11</span></div>
+    {% if user %}<a class="portal-logout" href="/logout">Déconnexion</a>{% endif %}
+  </div>
+  <div class="portal-main">
+    <nav class="portal-nav">
+      {% for item in ["Alerte locale", "Synoptique", "Suivi des interventions"] %}<span class="nav-btn off">{{ item }}</span>{% endfor %}
+      {% if user %}<a class="nav-btn active" href="/comptes-rendus" id="nav-rapports">Rapports d'intervention</a>{% else %}<span class="nav-btn active">Rapports d'intervention</span>{% endif %}
+      {% for item in ["Feuilles de garde", "Planning", "Personnels", "Messagerie", "Statistiques", "Annuaire du centre", "Journal des événements", "Paramétrage"] %}<span class="nav-btn off">{{ item }}</span>{% endfor %}
+    </nav>
+    <div class="portal-content">
+      {% if flash %}<div class="flash" id="flash" role="status">{{ flash }}</div>{% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

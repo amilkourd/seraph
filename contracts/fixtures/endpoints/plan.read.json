@@ -1,0 +1,292 @@
+{
+  "run_id": "run_mock_plan_read",
+  "endpoint": "plan.read",
+  "status": "ok",
+  "live": false,
+  "output": {
+    "level": 3,
+    "image_id": "plan-l3-01",
+    "points": [
+      {
+        "name": "stair:A",
+        "label": "Escalier A",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 130,
+          "y": 260
+        }
+      },
+      {
+        "name": "stair:B",
+        "label": "Escalier B",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 870,
+          "y": 740
+        }
+      },
+      {
+        "name": "elevator",
+        "label": "Ascenseur",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 130,
+          "y": 410
+        }
+      },
+      {
+        "name": "room:3.10",
+        "label": "3.10 Plateau",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 415,
+          "y": 310
+        }
+      },
+      {
+        "name": "room:3.12",
+        "label": "3.12 Réunion",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 785,
+          "y": 310
+        }
+      },
+      {
+        "name": "room:3.14",
+        "label": "3.14 Cuisine",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 420,
+          "y": 700
+        }
+      },
+      {
+        "name": "room:3.T",
+        "label": "3.T Local technique",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 715,
+          "y": 740
+        }
+      },
+      {
+        "name": "corridor",
+        "label": "Circulation",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 570,
+          "y": 515
+        }
+      },
+      {
+        "name": "riser",
+        "label": "Colonne sèche",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 130,
+          "y": 330
+        }
+      },
+      {
+        "name": "gas_cutoff",
+        "label": "Coupure gaz",
+        "point": {
+          "image_id": "plan-l3-01",
+          "x": 300,
+          "y": 800
+        }
+      }
+    ],
+    "zones": [
+      {
+        "name": "stair:A",
+        "polygon": [
+          [
+            60,
+            160
+          ],
+          [
+            200,
+            160
+          ],
+          [
+            200,
+            360
+          ],
+          [
+            60,
+            360
+          ]
+        ]
+      },
+      {
+        "name": "elevator",
+        "polygon": [
+          [
+            60,
+            360
+          ],
+          [
+            200,
+            360
+          ],
+          [
+            200,
+            460
+          ],
+          [
+            60,
+            460
+          ]
+        ]
+      },
+      {
+        "name": "room:3.10",
+        "polygon": [
+          [
+            210,
+            160
+          ],
+          [
+            620,
+            160
+          ],
+          [
+            620,
+            460
+          ],
+          [
+            210,
+            460
+          ]
+        ]
+      },
+      {
+        "name": "room:3.12",
+        "polygon": [
+          [
+            630,
+            160
+          ],
+          [
+            940,
+            160
+          ],
+          [
+            940,
+            460
+          ],
+          [
+            630,
+            460
+          ]
+        ]
+      },
+      {
+        "name": "corridor",
+        "polygon": [
+          [
+            200,
+            465
+          ],
+          [
+            940,
+            465
+          ],
+          [
+            940,
+            565
+          ],
+          [
+            200,
+            565
+          ]
+        ]
+      },
+      {
+        "name": "room:3.14",
+        "polygon": [
+          [
+            210,
+            570
+          ],
+          [
+            630,
+            570
+          ],
+          [
+            630,
+            840
+          ],
+          [
+            210,
+            840
+          ]
+        ]
+      },
+      {
+        "name": "room:3.T",
+        "polygon": [
+          [
+            640,
+            640
+          ],
+          [
+            790,
+            640
+          ],
+          [
+            790,
+            840
+          ],
+          [
+            640,
+            840
+          ]
+        ]
+      },
+      {
+        "name": "stair:B",
+        "polygon": [
+          [
+            800,
+            640
+          ],
+          [
+            940,
+            640
+          ],
+          [
+            940,
+            840
+          ],
+          [
+            800,
+            840
+          ]
+        ]
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "image_id": "plan-l3-01",
+      "url": "http://localhost:8001/shots/plan-l3-01.jpg",
+      "caption": "Plan d'intervention niveau 3 (photo)",
+      "side": "plan",
+      "width": 1000,
+      "height": 1000,
+      "taken_at": "2026-11-08T00:00:00Z"
+    }
+  ],
+  "source": {
+    "kind": "plan",
+    "label": "plan",
+    "confirmed": true,
+    "at": "2026-11-08T00:00:00Z"
+  },
+  "duration_ms": 1200,
+  "started_at": "2026-11-08T00:00:00Z",
+  "ended_at": "2026-11-08T00:00:00Z"
+}

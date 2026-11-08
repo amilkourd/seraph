@@ -1,0 +1,30 @@
+[project]
+name = "building-registry"
+version = "1.0.0"
+description = "Seraph building registry: address → building model. Local (offline) and Supabase backends, fire-service adapter."
+requires-python = ">=3.12"
+dependencies = []            # the local backend is stdlib only, so Seraph can import it as is
+
+[project.optional-dependencies]
+supabase = ["httpx>=0.27"]
+fire-service = ["httpx>=0.27"]
+ingest = ["seraph-ifc"]      # `registry register` runs the IFC extractor (ifc/)
+
+[project.scripts]
+registry = "building_registry.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "httpx>=0.27", "seraph-ifc"]
+
+[tool.uv.sources]
+seraph-ifc = { path = "../ifc", editable = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["building_registry"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

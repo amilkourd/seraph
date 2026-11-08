@@ -1,0 +1,34 @@
+{% extends "dispatch/layout.html" %}
+{% block title %}Nouvelle intervention{% endblock %}
+{% block wintitle %}Grille d'appel — nouvelle intervention{% endblock %}
+{% block content %}
+<form method="post" action="/interventions/nouvelle" id="form-nouvelle">
+  {% if error %}<div class="error" role="alert">{{ error }}</div>{% endif %}
+  <div class="fiche-grid">
+    <fieldset class="group">
+      <legend>Localisation</legend>
+      <table class="fiche">
+        <tr><th><label for="adresse" class="req">Adresse</label></th><td><input id="adresse" name="adresse" size="40" value="{{ form.adresse or '' }}"></td></tr>
+        <tr><th><label for="commune">Commune</label></th><td><input id="commune" name="commune" size="24" value="{{ form.commune or '' }}"></td></tr>
+        <tr><th><label for="niveau" class="req">Niveau</label></th><td><input id="niveau" name="niveau" size="4" value="{{ form.niveau or '0' }}"></td></tr>
+      </table>
+    </fieldset>
+    <fieldset class="group">
+      <legend>Sinistre</legend>
+      <table class="fiche">
+        <tr><th><label for="nature" class="req">Nature</label></th><td><input id="nature" name="nature" size="40" list="natures" value="{{ form.nature or '' }}">
+          <datalist id="natures"><option value="Feu de local technique"><option value="Feu d'appartement"><option value="Fumée suspecte"><option value="Malaise sur voie publique"><option value="Personne bloquée dans ascenseur"></datalist></td></tr>
+        <tr><th><label for="moyens">Moyens</label></th><td><input id="moyens" name="moyens" size="30" value="{{ form.moyens or 'FPT 1 · EPA 1 · VSAV 1' }}"></td></tr>
+      </table>
+    </fieldset>
+    <fieldset class="group">
+      <legend>Demandeur</legend>
+      <table class="fiche">
+        <tr><th><label for="appelant">Appelant</label></th><td><input id="appelant" name="appelant" size="30" value="{{ form.appelant or '' }}"></td></tr>
+        <tr><th><label for="renseignements">Renseignements</label></th><td><textarea id="renseignements" name="renseignements" rows="3" cols="38">{{ form.renseignements or '' }}</textarea></td></tr>
+      </table>
+    </fieldset>
+  </div>
+  <div class="actions"><button type="submit" id="btn-creer">Déclencher</button> <a href="/interventions">Annuler</a></div>
+</form>
+{% endblock %}

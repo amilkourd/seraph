@@ -1,0 +1,34 @@
+{
+  "run_id": "run_mock_weather_wind",
+  "endpoint": "weather.wind",
+  "status": "ok",
+  "live": false,
+  "output": {
+    "dir_deg": 270,
+    "dir_label": "ouest",
+    "speed_kmh": 20,
+    "observed_at": "2026-11-08T00:00:00Z",
+    "url": "https://meteofrance.com/"
+  },
+  "screenshots": [
+    {
+      "image_id": "meteo-01",
+      "url": "http://localhost:8001/shots/meteo-01.jpg",
+      "caption": "Météo-France, Paris 9e",
+      "side": "top",
+      "width": 1280,
+      "height": 800,
+      "taken_at": "2026-11-08T00:00:00Z"
+    }
+  ],
+  "source": {
+    "kind": "meteo",
+    "label": "Météo-France",
+    "confirmed": true,
+    "at": "2026-11-08T00:00:00Z",
+    "url": "https://meteofrance.com/"
+  },
+  "duration_ms": 1200,
+  "started_at": "2026-11-08T00:00:00Z",
+  "ended_at": "2026-11-08T00:00:00Z"
+}

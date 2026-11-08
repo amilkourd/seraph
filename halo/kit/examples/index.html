@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Halo">
+<title>Halo kit · schémas</title>
+<style>
+  html, body { margin: 0; background: #000; color: #8e8c87; font: 15px -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  body.one { overflow: hidden; }
+  /* edge to edge, like the native app: the scheme is centred, the sides are ground */
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100dvh; border: 0; }
+  .corner { position: fixed; top: 0; width: 72px; height: 72px; z-index: 3; cursor: pointer; }
+  .bar { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px 16px; background: #0b0b0b; }
+  .bar b { color: #fff; letter-spacing: .08em; text-transform: uppercase; margin-right: 8px; }
+  button { font: inherit; color: #fff; background: #1a1a19; border: 1px solid #3a3936; padding: 6px 10px; cursor: pointer; }
+  .grid { display: flex; flex-direction: column; gap: 22px; padding: 16px; }
+  .cell h2 { margin: 0 0 6px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #8e8c87; font-weight: 600; }
+  .cell h2 a { color: inherit; }
+  .phone { position: relative; overflow: hidden; outline: 1px solid #2a2a28; border-radius: 18px; }
+  .phone iframe { position: absolute; top: 0; left: 0; width: 874px; height: 402px; border: 0; transform-origin: 0 0; }
+  #log { margin-left: auto; color: #5a5955; }
+</style>
+</head>
+<body>
+<script>
+/* Preview harness: plays the Halo shell for the example views. Fetches each view, replaces {{HALO_KIT_URL}}
+ * like Silex does, loads it in a sandboxed iframe and posts the fixture state. ?v=<view> shows one view full
+ * screen (phone / simulator); tap the top-left / top-right corner to go to the previous / next view.
+ * ?live=http://localhost:8000 follows Seraph's stream instead of the fixture (and Seraph's moment, in single mode).
+ * Dev only: times are made live and the plan image points at the fixture. */
+const VIEWS = ['approach', 'inside_route', 'occupants', 'team_engaged'];
+const KIT = new URL('..', location.href).href.replace(/\/$/, '');
+const FIXTURE = new URL('../../../contracts/fixtures/state-sample.json', location.href).href;
+const PLAN = new URL('../../../contracts/fixtures/plan-level3.svg', location.href).href;
+const PHONE = { w: 874, h: 402 };     // iPhone 17 Pro, landscape, points
+const LIVE = new URLSearchParams(location.search).get('live');     // e.g. http://localhost:8000 : follow Seraph's stream
+const keep = () => LIVE ? '&live=' + encodeURIComponent(LIVE) : '';
+const frames = [];
+let state;
+
+const iso = t => new Date(t).toISOString();
+function mock(s) {
+  const now = Date.now();
+  s.crew.teams.forEach(t => { if (t.status === 'engaged') { t.entered_at = iso(now - 9.5 * 60e3); t.exit_by = iso(now + 5.5 * 60e3); } });
+  if (s.building.plan) s.building.plan.url = PLAN;
+  return s;
+}
+async function mount(parent, view) {
+  const html = (await (await fetch(view + '.html', { cache: 'no-store' })).text()).replaceAll('{{HALO_KIT_URL}}', KIT)
+    .replace(/(halo\.css|halo-kit\.js)"/g, '$1?t=' + Date.now() + '"');      // dev: never a stale kit
+  const f = document.createElement('iframe');
+  // the shell uses sandbox="allow-scripts"; on localhost Chromium blocks an opaque-origin frame from loading the
+  // kit (private network access), so the harness keeps the frame's origin
+  f.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+  f.srcdoc = html;
+  f.onload = () => send(f);
+  parent.appendChild(f);
+  frames.push(f);
+  return f;
+}
+function send(f) { f.contentWindow.postMessage({ type: 'seraph:state', state }, '*'); }
+function broadcast() { frames.forEach(send); }
+addEventListener('message', e => {
+  const log = document.getElementById('log');
+  if (log && e.data && e.data.type) log.textContent = e.data.type + ' ' + JSON.stringify(e.data.target || e.data.view_id || '');
+});
+
+const ACTIONS = {
+  'Fumée esc. A': () => {
+    const a = state.building.stairs.find(s => s.id === 'A');
+    a.status = a.status === 'smoke' ? 'clear' : 'smoke';
+  },
+  'Air → T-5 dans 5 s': () => state.crew.teams.forEach(t => { if (t.exit_by) t.exit_by = iso(Date.now() + 5 * 60e3 + 5e3); }),
+  'Air → T-0 dans 5 s': () => state.crew.teams.forEach(t => { if (t.exit_by) t.exit_by = iso(Date.now() + 5e3); }),
+  '3.10 répond : 1 pers.': () => {
+    const o = state.occupants.find(o => o.id === 'OCC-02');
+    Object.assign(o, { status: 'sheltering', people_count: 1, source: { kind: 'call', label: 'appel Karim Benali', confirmed: true, at: iso(Date.now()) } });
+  }
+};
+
+// live: Seraph's SSE (state, halo_view). In single view mode the screen follows Seraph's moment.
+function follow(one) {
+  const es = new EventSource(LIVE + '/stream?client=halo');
+  es.addEventListener('state', e => { state = JSON.parse(e.data); broadcast(); });
+  es.addEventListener('halo_view', e => {
+    const m = JSON.parse(e.data).moment;
+    if (one && VIEWS.includes(m) && m !== one) location.replace('?v=' + m + keep());
+  });
+}
+
+async function main() {
+  state = LIVE ? await (await fetch(LIVE + '/state', { cache: 'no-store' })).json()
+               : mock(await (await fetch(FIXTURE, { cache: 'no-store' })).json());
+  const one = new URLSearchParams(location.search).get('v');
+  if (LIVE) follow(one);
+  if (one) {
+    document.body.className = 'one';
+    await mount(document.body, one);
+    const go = k => { location.replace('?v=' + VIEWS[(VIEWS.indexOf(one) + k + VIEWS.length) % VIEWS.length] + keep()); };
+    [['left', -1], ['right', 1]].forEach(([side, k]) => {
+      const c = document.createElement('div'); c.className = 'corner'; c.style[side] = 0;
+      c.addEventListener('touchend', e => { e.preventDefault(); go(k); }); c.addEventListener('click', () => go(k));
+      document.body.appendChild(c);
+    });
+    addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
+    return;
+  }
+  const bar = document.createElement('div'); bar.className = 'bar'; document.body.appendChild(bar);
+  bar.innerHTML = '<b>Halo · schémas</b>';
+  Object.keys(ACTIONS).forEach(k => {
+    const b = document.createElement('button'); b.textContent = k;
+    b.onclick = () => { ACTIONS[k](); broadcast(); };
+    bar.appendChild(b);
+  });
+  const r = document.createElement('button'); r.textContent = 'Rejouer'; r.onclick = () => location.reload(); bar.appendChild(r);
+  const log = document.createElement('span'); log.id = 'log'; bar.appendChild(log);
+  const grid = document.createElement('div'); grid.className = 'grid'; document.body.appendChild(grid);
+  for (const v of VIEWS) {
+    const cell = document.createElement('div'); cell.className = 'cell';
+    cell.innerHTML = '<h2><a href="?v=' + v + keep() + '">' + v + '</a></h2>';
+    const phone = document.createElement('div'); phone.className = 'phone'; cell.appendChild(phone);
+    grid.appendChild(cell);
+    const f = await mount(phone, v);
+    const fit = () => {
+      const k = Math.min(1, (grid.clientWidth) / PHONE.w);
+      phone.style.width = PHONE.w * k + 'px'; phone.style.height = PHONE.h * k + 'px';
+      f.style.transform = 'scale(' + k + ')';
+    };
+    fit(); addEventListener('resize', fit);
+  }
+}
+main();
+</script>
+</body>
+</html>

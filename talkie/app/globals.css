@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* Black and white only. States differ by shape: outline, filled, dashed + lock, dashed + spinning. */
+
+@theme inline {
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-archivo);
+}
+
+html,
+body {
+  height: 100%;
+  background: #000;
+  color: #fff;
+  color-scheme: dark;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-geist), "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+/* Radio surfaces: no selection, no callout, no double-tap zoom. Inputs keep their behaviour. */
+.radio-surface {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Caps lockup. */
+.lockup {
+  font-family: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  font-stretch: 125%;
+  font-weight: 760;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+/* Mono caps labels. */
+.radio-label {
+  font-family: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.safe-x {
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+.safe-top {
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+.safe-bottom {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* ── push-to-talk button ── */
+.ptt {
+  position: relative;
+  width: min(64vw, 48dvh, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: #000;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  touch-action: none;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform 90ms ease-out,
+    background-color 120ms ease-out,
+    color 120ms ease-out;
+}
+.ptt:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 6px;
+}
+/* on air: filled */
+.ptt[data-state="tx"] {
+  background: #fff;
+  color: #000;
+  transform: scale(0.965);
+}
+/* someone else talks: dashed, locked */
+.ptt[data-state="rx"] {
+  border-style: dashed;
+  cursor: not-allowed;
+}
+/* offline: a dashed ring that turns, so the wait is visibly alive */
+.ptt[data-state="off"] {
+  border-color: transparent;
+  cursor: not-allowed;
+}
+.ptt[data-state="off"]::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 3px dashed #fff;
+  animation: ptt-spin 3.2s linear infinite;
+}
+@keyframes ptt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ptt::before {
+    animation: none !important;
+  }
+}

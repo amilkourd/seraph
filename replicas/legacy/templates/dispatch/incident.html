@@ -1,0 +1,78 @@
+{% extends "dispatch/layout.html" %}
+{% block title %}Intervention {{ inc.id }}{% endblock %}
+{% block wintitle %}Intervention N° {{ inc.id }} - [SUIVI]{% endblock %}
+{% block content %}
+<div class="xp-toolbar">
+  <a class="tb" href="#main-courante" id="tb-main-courante">Main courante <small>F1</small></a>
+  <a class="tb" href="/interventions" id="tb-retour">Retour au suivi</a>
+  <span class="tb disabled">Imprimer <small>F10</small></span>
+  <span class="tb disabled">Consignes</span>
+  <span class="tb disabled">Effectif</span>
+</div>
+<div class="xp-tabs"><span class="tab active">Informations</span><span class="tab">Synthèse des moyens</span></div>
+
+<div class="fiche-grid" id="fiche">
+  <fieldset class="group">
+    <legend>Sinistre</legend>
+    <table class="fiche">
+      <tr><th>N° intervention</th><td><div class="field" id="f-numero">{{ inc.id }}</div></td></tr>
+      <tr><th>Déclarée le</th><td><div class="field" id="f-declaree"><time datetime="{{ inc.declared_at }}">{{ inc.declared_at|local("%d/%m/%Y %H:%M:%S") }}</time></div></td></tr>
+      <tr><th>Statut</th><td><div class="field status-{{ 'open' if inc.status == 'En cours' else 'closed' }}" id="f-statut">{{ inc.status }}</div></td></tr>
+      <tr><th>Nature</th><td><div class="field" id="f-nature">{{ inc.nature }}</div></td></tr>
+      <tr><th>Niveau</th><td><div class="field narrow" id="f-niveau">{{ inc.level }}</div></td></tr>
+    </table>
+  </fieldset>
+  <fieldset class="group">
+    <legend>Localisation</legend>
+    <table class="fiche">
+      <tr><th>Adresse</th><td><div class="field" id="f-adresse">{{ inc.address }}</div></td></tr>
+      <tr><th>Commune</th><td><div class="field" id="f-commune">{{ inc.commune }}</div></td></tr>
+      <tr><th>Centre</th><td><div class="field" id="f-centre">{{ inc.centre }}</div></td></tr>
+      <tr><th>Moyens engagés</th><td><div class="field" id="f-moyens">{{ inc.means }}</div></td></tr>
+    </table>
+  </fieldset>
+  <fieldset class="group">
+    <legend>Demandeur</legend>
+    <table class="fiche">
+      <tr><th>Appelant</th><td><div class="field" id="f-appelant">{{ inc.caller }}</div></td></tr>
+      <tr><th>Tél.</th><td><div class="field" id="f-tel">{{ inc.caller_phone|mask if inc.caller_phone else "" }}</div></td></tr>
+      <tr><th>Renseignements</th><td>
+        <div class="field multi" id="f-renseignements">
+          {% if inc.caller_notes %}<ul id="notes-appelant">{% for n in inc.caller_notes %}<li>{{ n }}</li>{% endfor %}</ul>{% else %}—{% endif %}
+        </div></td></tr>
+    </table>
+  </fieldset>
+</div>
+
+<fieldset class="group" id="main-courante">
+  <legend>Main courante — Intervention N° {{ inc.id }}</legend>
+  {% if inc.status == "En cours" %}
+  <form method="post" action="/interventions/{{ inc.id }}/main-courante" id="form-main-courante" class="mc-form">
+    {% if error %}<div class="error" id="mc-error" role="alert">{{ error }}</div>{% endif %}
+    <label for="mc-texte">Message</label>
+    <textarea id="mc-texte" name="texte" rows="3" cols="100" maxlength="2000">{{ texte }}</textarea>
+    <div class="mc-actions">
+      <span>Heure : <span class="field inline">{{ now_local("%d/%m/%Y %H:%M") }}</span></span>
+      <button type="submit" id="btn-ajouter">Ajouter</button>
+    </div>
+  </form>
+  {% else %}
+  <p class="muted">Intervention clôturée : main courante archivée.</p>
+  {% endif %}
+  <table class="grid" id="main-courante-liste">
+    <thead><tr><th>N°</th><th>Heure</th><th>Auteur</th><th>Message</th></tr></thead>
+    <tbody>
+      {% for e in log %}
+      <tr data-id="{{ e.id }}" class="{{ 'added' if e.id == added else '' }}">
+        <td class="c-id">{{ e.id }}</td>
+        <td class="c-heure"><time datetime="{{ e.at }}">{{ e.at|local("%H:%M:%S") }}</time></td>
+        <td class="c-auteur">{{ e.author }}</td>
+        <td class="c-texte">{{ e.text }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="empty">Aucune entrée.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</fieldset>
+{% endblock %}

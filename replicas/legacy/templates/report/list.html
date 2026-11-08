@@ -1,0 +1,40 @@
+{% extends "report/layout.html" %}
+{% block title %}Rapports d'intervention{% endblock %}
+{% block content %}
+<div class="panel">
+  <div class="panel-title">Rapports d'intervention</div>
+  <div class="panel-toolbar">
+    <a class="pbtn" href="/comptes-rendus/nouveau?intervention=INC-0001" id="btn-nouveau">Nouveau compte rendu</a>
+  </div>
+  <div class="list-layout">
+    <div class="list-main">
+      <div class="count" id="count">Nombre d'enregistrements répondant aux critères (100 maximum) : {{ rows|length }}</div>
+      <table class="grid" id="comptes-rendus">
+        <thead><tr><th>N° CR</th><th>N° de l'intervention</th><th>Identification</th><th>Rédacteur</th><th>Modifié le</th><th>État</th><th></th></tr></thead>
+        <tbody>
+          {% for r in rows %}
+          <tr data-id="{{ r.id }}">
+            <td class="c-id"><a href="/comptes-rendus/{{ r.id }}">{{ r.id }}</a></td>
+            <td class="c-intervention">{{ r.incident_id }}</td>
+            <td class="c-ident">{{ r.incident_at|local }} <b>{{ (r.nature or "")|upper }}</b><br>{{ r.address }}</td>
+            <td class="c-redacteur">{{ r.author }}</td>
+            <td class="c-modifie">{{ r.updated_at|local }}</td>
+            <td class="c-etat etat-{{ 'sent' if r.status == 'Transmis' else 'draft' }}">{{ r.status|upper }}</td>
+            <td class="c-actions"><a href="/comptes-rendus/{{ r.id }}">Consulter</a>{% if r.status == "Brouillon" %} · <a href="/comptes-rendus/{{ r.id }}/modifier">Modifier</a>{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="empty">Aucun compte rendu.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <form class="criteria" method="get" action="/comptes-rendus" id="form-criteres">
+      <div class="criteria-title">Critères de recherche :</div>
+      <label for="numero">N° :</label><input id="numero" name="numero" size="12" value="{{ numero }}">
+      <label for="etat">État :</label>
+      <select id="etat" name="etat"><option value="">Tous</option>{% for s in states %}<option value="{{ s }}" {% if etat == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+      <button type="submit" class="pbtn">Appliquer</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

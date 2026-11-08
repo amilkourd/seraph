@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <!-- Seraph · plan from the IFC · level -1 (R-1) · frame = rooms[].zone -->
+  <rect width="1000" height="1000" fill="#ffffff"/>
+  <text x="40" y="70" font-family="Arial" font-size="44" font-weight="bold" fill="#000">R-1</text>
+  <g fill="none" stroke="#000" stroke-width="8" stroke-linejoin="miter">
+    <polygon points="448,314 623,168 709,268 558,394 527,357 462,411 441,385 480,352"/>
+    <polygon points="409,347 444,318 472,352 438,381"/>
+    <polygon points="763,607 769,599 772,595 775,590 780,581 782,576 785,566 787,556 788,551 788,541 788,536 787,526 786,520 783,511 781,506 779,501 774,492 765,480 551,224 547,227 455,117 530,60 928,522 903,611 812,688 753,616"/>
+    <polygon points="463,412 527,359 557,395 494,448"/>
+    <polygon points="516,439 628,346 681,409 569,503"/>
+    <polygon points="368,481 418,439 453,482 403,524"/>
+    <polygon points="616,555 618,558 616,560 569,503 681,409 728,466 635,544 633,541"/>
+    <polygon points="283,624 198,523 290,447 339,505 363,484 399,527"/>
+    <polygon points="616,560 618,558 621,561 638,547 635,544 728,466 774,520 774,522 776,534 688,607 686,605 669,619 671,621 669,623"/>
+    <polygon points="378,554 428,614 316,708 266,648"/>
+    <polygon points="72,416 90,402 283,634 634,340 757,487 763,495 767,504 771,513 773,517 775,527 776,531 776,536 776,546 775,556 774,560 772,570 770,574 766,583 763,587 761,591 755,599 746,607 812,688 510,940"/>
+    <polygon points="364,765 316,708 428,614 476,672 474,673 472,671 455,685 457,687"/>
+    <polygon points="364,765 457,687 460,690 476,676 474,673 476,672 525,730 523,731 521,729 504,743 506,745 413,823"/>
+    <polygon points="461,881 413,823 506,745 508,748 525,734 523,731 525,730 573,788"/>
+    <polygon points="573,788 622,846 510,940 461,881"/>
+    <polygon points="368,382 405,351 489,452 458,478 418,431 407,441 383,412 389,407"/>
+    <polygon points="407,441 340,497 295,443 368,382 389,407 383,412"/>
+  </g>
+  <g stroke="#000" stroke-width="3">
+    <line x1="307" y1="400" x2="395" y2="400"/>
+    <line x1="307" y1="418" x2="395" y2="418"/>
+    <line x1="307" y1="436" x2="395" y2="436"/>
+    <line x1="307" y1="454" x2="395" y2="454"/>
+    <line x1="307" y1="472" x2="395" y2="472"/>
+  </g>
+  <g>
+    <rect x="467" y="417" width="14" height="30" fill="#fff"/>
+    <circle cx="474" cy="432" r="6" fill="#c00000"/>
+    <rect x="442" y="387" width="14" height="30" fill="#fff"/>
+    <circle cx="449" cy="402" r="6" fill="#c00000"/>
+    <rect x="419" y="347" width="14" height="32" fill="#fff"/>
+    <rect x="377" y="492" width="14" height="30" fill="#fff"/>
+    <circle cx="384" cy="507" r="6" fill="#c00000"/>
+    <rect x="459" y="463" width="30" height="14" fill="#fff"/>
+    <circle cx="474" cy="470" r="6" fill="#c00000"/>
+    <rect x="431" y="447" width="14" height="30" fill="#fff"/>
+    <circle cx="438" cy="462" r="6" fill="#c00000"/>
+    <rect x="814" y="424" width="14" height="93" fill="#fff"/>
+  </g>
+  <g font-family="Arial" fill="#000" text-anchor="middle">
+    <text x="579" y="301" font-size="30" font-weight="bold">-1.01</text>
+    <text x="441" y="355" font-size="18" font-weight="bold">ASC.</text>
+    <text x="855" y="550" font-size="30" font-weight="bold">-1.03</text>
+    <text x="510" y="412" font-size="25" font-weight="bold">-1.04</text>
+    <text x="598" y="434" font-size="30" font-weight="bold">-1.05</text>
+    <text x="410" y="489" font-size="22" font-weight="bold">-1.06</text>
+    <text x="649" y="494" font-size="30" font-weight="bold">-1.07</text>
+    <text x="289" y="549" font-size="30" font-weight="bold">-1.08</text>
+    <text x="699" y="554" font-size="30" font-weight="bold">-1.09</text>
+    <text x="347" y="641" font-size="30" font-weight="bold">-1.10</text>
+    <text x="553" y="666" font-size="30" font-weight="bold">-1.11</text>
+    <text x="396" y="700" font-size="30" font-weight="bold">-1.12</text>
+    <text x="444" y="758" font-size="30" font-weight="bold">-1.13</text>
+    <text x="493" y="816" font-size="30" font-weight="bold">-1.14</text>
+    <text x="541" y="874" font-size="30" font-weight="bold">-1.15</text>
+    <text x="415" y="410" font-size="15" font-weight="normal">CIRCULATION</text>
+    <text x="352" y="454" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">A</text>
+    <text x="854" y="469" font-size="30" font-weight="bold" fill="#000" paint-order="stroke" stroke="#fff" stroke-width="10" dy="10">E2</text>
+  </g>
+</svg>

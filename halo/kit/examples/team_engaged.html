@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr" data-view-id="view_team_engaged_example">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>team_engaged</title>
+<link rel="stylesheet" href="{{HALO_KIT_URL}}/halo.css">
+<script src="{{HALO_KIT_URL}}/halo-kit.js"></script>
+</head>
+<body>
+<script>
+/* Moment « team_engaged » — « Mon air ». One dial, full height: the ticks go dark as the air runs out, white until
+ * T-5 min, amber to T-0, then red and blinking « SORTEZ ». exit_by is computed by Seraph; the view only counts down.
+ * The dial keeps running between state updates; it is rebuilt only if the team or exit_by changes. */
+const f = Halo.frame(document.body, { title: 'Mon air' });
+let dial = null, dialKey = '';
+
+function draw(s) {
+  const teams = (s.crew && s.crew.teams) || [];
+  const team = teams.find(t => t.status === 'engaged') || teams.find(t => t.status === 'exiting');
+  const key = team ? team.id + team.exit_by : '';
+  if (key === dialKey) return;
+  if (dial) dial.stop();
+  f.clear();
+  dial = team && team.exit_by ? Halo.countdown(f.svg, team.exit_by, { start: team.entered_at, center: { x: Halo.AREA.x + Halo.AREA.w / 2, y: 201 } }) : null;
+  dialKey = key;
+  if (!team) return;
+  // the card: who, where, when out
+  f.panel([
+    { text: team.id + (team.location ? ' · ' + Halo.levelLabel(s, team.location.level) : '') },
+    team.exit_by && { text: 'Sortie ' + Halo.time(team.exit_by) },
+    team.pressure_bar_start && { tone: 'dim', text: team.pressure_bar_start + ' bar au départ' },
+    ...teams.filter(t => t !== team).map(t => ({ tone: 'dim', text: t.id + ' ' + ({ standby: 'en attente', engaged: 'engagé', exiting: 'en sortie', out: 'sorti' })[t.status] }))
+  ]);
+}
+
+Halo.onState(draw);
+Halo.ready();
+</script>
+</body>
+</html>

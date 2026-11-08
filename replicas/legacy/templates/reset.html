@@ -1,0 +1,17 @@
+{% extends app.name ~ "/layout.html" %}
+{% block title %}Réinitialisation{% endblock %}
+{% block content %}
+<div class="login-box reset-box">
+  <div class="login-title">Administration — réinitialisation des données d'exercice</div>
+  {% if done %}<div class="flash" id="flash" role="status">Données réinitialisées à {{ done }}{% if app.reset_scopes %}{% if kept %} (inscriptions conservées){% else %} (inscriptions supprimées){% endif %}{% endif %}.</div>{% endif %}
+  <p>Restaure les données de départ ({{ app.product }}).</p>
+  <form method="post" action="/admin/reset" id="form-reset">
+    {% if app.reset_scopes %}
+    <button type="submit" name="scope" value="seed" id="btn-reset">Réinitialiser (conserver les inscriptions)</button>
+    <button type="submit" name="scope" value="all" id="btn-reset-all">Tout réinitialiser</button>
+    {% else %}
+    <button type="submit" id="btn-reset">Réinitialiser</button>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+__pycache__/
+.venv/
+*.pyc
+.claude/settings.local.json
+.claude/worktrees/
+seraph/state.json
+rosetta/shots/
+rosetta/profiles/
+rosetta/cache/
+gabriel/recordings/
+views/_refs/
+*.db
+*.sqlite
+.DS_Store
+ifc/test/
+ifc/venue/photos/
+
+# added at first commit
+.playwright-mcp/
+*.tsbuildinfo
+.expo/
+**/.claude/settings.local.json

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <!-- Synthetic door plan, level 3, for development. 1 px = 1 unit of H's 0–1000 grid. -->
+  <rect width="1000" height="1000" fill="#ffffff"/>
+  <text x="50" y="60" font-family="Arial" font-size="28" font-weight="bold" fill="#000">PLAN D'INTERVENTION — NIVEAU 3 (EXERCICE)</text>
+  <text x="50" y="100" font-family="Arial" font-size="18" fill="#000">Bâtiment d'exercice · R+5 · Nord en haut</text>
+  <g fill="none" stroke="#000" stroke-width="8">
+    <rect x="50" y="150" width="900" height="700"/>
+    <!-- stair A + elevator (left) -->
+    <rect x="60" y="160" width="140" height="200"/>
+    <rect x="60" y="360" width="140" height="100"/>
+    <!-- open space 3.10 -->
+    <rect x="210" y="160" width="410" height="300"/>
+    <!-- meeting room 3.12 -->
+    <rect x="630" y="160" width="310" height="300"/>
+    <!-- kitchen 3.14 -->
+    <rect x="210" y="570" width="420" height="270"/>
+    <!-- technical room 3.T -->
+    <rect x="640" y="640" width="150" height="200"/>
+    <!-- stair B (bottom right) -->
+    <rect x="800" y="640" width="140" height="200"/>
+  </g>
+  <!-- door gaps (white) -->
+  <g fill="#fff">
+    <rect x="200" y="480" width="12" height="60"/>   <!-- stair A → corridor -->
+    <rect x="380" y="455" width="70" height="12"/>   <!-- 3.10 → corridor -->
+    <rect x="760" y="455" width="70" height="12"/>   <!-- 3.12 → corridor -->
+    <rect x="380" y="564" width="70" height="12"/>   <!-- 3.14 → corridor -->
+    <rect x="680" y="634" width="60" height="12"/>   <!-- 3.T → corridor -->
+    <rect x="840" y="634" width="60" height="12"/>   <!-- stair B → corridor -->
+  </g>
+  <!-- stair hatching -->
+  <g stroke="#000" stroke-width="3">
+    <line x1="70" y1="190" x2="190" y2="190"/><line x1="70" y1="220" x2="190" y2="220"/><line x1="70" y1="250" x2="190" y2="250"/><line x1="70" y1="280" x2="190" y2="280"/><line x1="70" y1="310" x2="190" y2="310"/>
+    <line x1="810" y1="670" x2="930" y2="670"/><line x1="810" y1="700" x2="930" y2="700"/><line x1="810" y1="730" x2="930" y2="730"/><line x1="810" y1="760" x2="930" y2="760"/><line x1="810" y1="790" x2="930" y2="790"/>
+  </g>
+  <g font-family="Arial" font-size="22" fill="#000" text-anchor="middle">
+    <text x="130" y="350">ESC. A</text>
+    <text x="130" y="415">ASC.</text>
+    <text x="415" y="310">3.10 PLATEAU</text>
+    <text x="785" y="310">3.12 RÉUNION</text>
+    <text x="420" y="710">3.14 CUISINE</text>
+    <text x="715" y="745">3.T LOCAL</text>
+    <text x="715" y="772">TECHNIQUE</text>
+    <text x="870" y="830">ESC. B</text>
+    <text x="570" y="522">CIRCULATION</text>
+  </g>
+  <!-- symbols -->
+  <g font-family="Arial" font-size="16" fill="#c00000">
+    <circle cx="130" cy="330" r="10" fill="#c00000"/><text x="150" y="335">CS</text>
+    <rect x="290" y="790" width="20" height="20" fill="#e0a000"/><text x="318" y="806">GAZ</text>
+  </g>
+</svg>

@@ -1,0 +1,55 @@
+{% extends "occupants/layout.html" %}
+{% block title %}{{ b.name }}{% endblock %}
+{% block content %}
+<div class="crumbs">Accueil › <a href="/batiments">Immeubles</a> › {{ b.name }}</div>
+<h1 class="intra-h1" id="batiment-nom">{{ b.name }}</h1>
+<table class="fiche-immeuble" id="fiche-immeuble">
+  <tr><th>Adresse</th><td id="b-adresse">{{ b.address }}</td><th>Commune</th><td id="b-commune">{{ b.commune }}</td></tr>
+  <tr><th>Niveaux</th><td>{{ b.levels }}</td><th>Gestionnaire</th><td>{{ b.manager }}</td></tr>
+</table>
+<div class="intra-tabs"><span class="off">Fiche</span><span class="active">Occupants ({{ rows|length }})</span><span class="off">Lots</span><span class="off">Documents</span></div>
+<table class="gridview" id="occupants">
+  <thead><tr><th>Réf.</th><th>Nom</th><th>Niveau</th><th>Local</th><th>Téléphone</th><th>Langue</th><th>Notes</th><th>Origine</th><th></th></tr></thead>
+  <tbody>
+    {% for o in rows %}
+    {% set p = phone_parts(o.phone_e164) %}
+    <tr data-id="{{ o.id }}">
+      <td class="c-id">{{ o.id }}</td>
+      <td class="c-nom">{{ o.name }}</td>
+      <td class="c-niveau">{{ o.level }}</td>
+      <td class="c-local">{{ o.room }}</td>
+      <td class="c-tel"><span class="tel">{{ p[0] }}<span class="masque">{{ p[1] }}</span>{{ p[2] }}</span></td>
+      <td class="c-langue">{{ o.language }}</td>
+      <td class="c-notes">{{ o.notes or "" }}</td>
+      <td class="c-origine">{{ o.source }}</td>
+      <td class="c-actions"><a href="/batiments/{{ b.id }}/occupants/{{ o.id }}/modifier">Modifier</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="9" class="empty">Aucun occupant.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="note">Numéros masqués à l'écran (RGPD).</div>
+
+<fieldset class="intra-box" id="ajout-occupant">
+  <legend>Ajouter un occupant</legend>
+  {% if error %}<div class="error" role="alert" id="ajout-error">{{ error }}</div>{% endif %}
+  <form method="post" action="/batiments/{{ b.id }}/occupants" id="form-ajout">
+    <table class="form-grid">
+      <tr>
+        <th><label for="nom">Nom</label></th><td><input id="nom" name="nom" size="24" value="{{ form.name or '' }}"></td>
+        <th><label for="telephone">Téléphone</label></th><td><input id="telephone" name="telephone" size="16" value="{{ form.phone_raw or '' }}"></td>
+        <th><label for="niveau">Niveau</label></th>
+        <td><select id="niveau" name="niveau">{% for n, label in levels %}<option value="{{ n }}" {% if form.level == n|string %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></td>
+      </tr>
+      <tr>
+        <th><label for="local">Local</label></th><td><input id="local" name="local" size="8" value="{{ form.room or '' }}"></td>
+        <th><label for="langue">Langue</label></th>
+        <td><select id="langue" name="langue">{% for code, label in languages %}<option value="{{ code }}" {% if form.language == code %}selected{% endif %}>{{ code }} — {{ label }}</option>{% endfor %}</select></td>
+        <th><label for="notes">Notes</label></th><td><input id="notes" name="notes" size="24" value="{{ form.notes or '' }}"></td>
+      </tr>
+    </table>
+    <button type="submit" id="btn-ajouter">Ajouter</button>
+  </form>
+</fieldset>
+{% endblock %}

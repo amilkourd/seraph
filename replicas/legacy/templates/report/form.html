@@ -1,0 +1,42 @@
+{% extends "report/layout.html" %}
+{% block title %}{% if r.id %}Compte rendu {{ r.id }}{% else %}Nouveau compte rendu{% endif %}{% endblock %}
+{% block content %}
+{% set action = "/comptes-rendus/" ~ r.id ~ "/modifier" if r.id else "/comptes-rendus/nouveau" %}
+<div class="panel">
+  <div class="panel-title">Rapport d'intervention {{ r.id or "(nouveau)" }}{% if r.incident_id %} — intervention {{ r.incident_id }}{% endif %}</div>
+  <div class="panel-toolbar">
+    <button type="submit" form="form-cr" class="pbtn" id="btn-enregistrer-haut">Enregistrer</button>
+    <span class="pbtn off">Imprimer</span>
+    <a class="pbtn" href="{{ '/comptes-rendus/' ~ r.id if r.id else '/comptes-rendus' }}">Retour</a>
+    <span class="pbtn off">Contrôler</span>
+  </div>
+  <div class="tabs">
+    <a href="#s-identification">Identification</a>{% for key, label in sections %}<a href="#s-{{ key }}">{{ label }}</a>{% endfor %}<a href="#s-visa">Visa</a>
+  </div>
+  {% if error %}<div class="error" id="form-error" role="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="{{ action }}" id="form-cr" class="cr-form">
+    <div class="band" id="s-identification">Identification</div>
+    <table class="form-grid">
+      <tr><th><label for="intervention" class="req">Numéro de l'intervention :</label></th>
+          <td><input id="intervention" name="intervention" size="14" value="{{ r.incident_id or '' }}"></td>
+          <th>Date de l'intervention :</th><td><span class="ro" id="cr-date">{{ r.incident_at|local if r.incident_at else "" }}</span></td></tr>
+      <tr><th>Adresse :</th><td colspan="3"><span class="ro wide" id="cr-adresse">{{ r.address or "" }}</span></td></tr>
+      <tr><th>Nature :</th><td colspan="3"><span class="ro wide" id="cr-nature">{{ r.nature or "" }}</span></td></tr>
+    </table>
+    {% for key, label in sections %}
+    <div class="band" id="s-{{ key }}">{{ loop.index }}. {{ label }}</div>
+    <div class="section-body">
+      <label for="{{ key }}" class="req">{{ label }} :</label>
+      <textarea id="{{ key }}" name="{{ key }}" rows="5" cols="110">{{ r[key] or "" }}</textarea>
+    </div>
+    {% endfor %}
+    <div class="band" id="s-visa">Visa</div>
+    <table class="form-grid">
+      <tr><th>Rédacteur :</th><td><span class="ro" id="cr-redacteur">{{ r.author or user }}</span></td>
+          <th><label for="fonction">Fonction :</label></th>
+          <td><select id="fonction" name="fonction">{% for f in fonctions %}<option {% if r.fonction == f %}selected{% endif %}>{{ f }}</option>{% endfor %}</select></td></tr>
+    </table>
+    <div class="form-actions"><button type="submit" class="pbtn" id="btn-enregistrer">Enregistrer</button></div>
+  </form>
+</div>
+{% endblock %}

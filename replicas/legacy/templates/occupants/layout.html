@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block layout %}
+<div class="intra">
+  <div class="intra-head">
+    <span class="intra-logo">PATRIMOINE</span><span class="intra-product">Gestion des occupants</span>
+    {% if user %}<span class="intra-user">Connecté : {{ user }} | <a href="/logout">Déconnexion</a></span>{% endif %}
+  </div>
+  {% if user %}
+  <div class="intra-menu">
+    <a href="/batiments" id="menu-immeubles">Immeubles</a><a href="/journal" id="menu-journal">Journal des accès</a>
+    <span class="off">Lots</span><span class="off">Baux</span><span class="off">Interventions techniques</span><span class="off">Éditions</span>
+  </div>
+  {% endif %}
+  <div class="intra-body">
+    {% if flash %}<div class="flash" id="flash" role="status">{{ flash }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </div>
+  <div class="intra-foot">Patrimoine 3.2 — module Occupants · EXERCICE</div>
+</div>
+{% endblock %}

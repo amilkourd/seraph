@@ -1,0 +1,6813 @@
+{
+ "name": "Immeuble d'habitation (maquette TU Wien)",
+ "levels": [
+  {
+   "level": -1,
+   "label": "R-1",
+   "elevation_m": -3.3,
+   "ifc_name": "UG1"
+  },
+  {
+   "level": 0,
+   "label": "RDC",
+   "elevation_m": -0.22,
+   "ifc_name": "EG"
+  },
+  {
+   "level": 1,
+   "label": "R+1",
+   "elevation_m": 2.74,
+   "ifc_name": "OG1"
+  },
+  {
+   "level": 2,
+   "label": "R+2",
+   "elevation_m": 5.7,
+   "ifc_name": "DG1"
+  },
+  {
+   "level": 3,
+   "label": "R+3",
+   "elevation_m": 8.66,
+   "ifc_name": "DG2"
+  }
+ ],
+ "stairs": [
+  {
+   "id": "A",
+   "label": "Escalier A",
+   "status": "unknown",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "levels": [
+    -1,
+    0,
+    1,
+    2,
+    3
+   ],
+   "zones": [
+    {
+     "level": -1,
+     "zone": [
+      [
+       407,
+       441
+      ],
+      [
+       340,
+       497
+      ],
+      [
+       295,
+       443
+      ],
+      [
+       368,
+       382
+      ],
+      [
+       389,
+       407
+      ],
+      [
+       383,
+       412
+      ]
+     ]
+    },
+    {
+     "level": 0,
+     "zone": [
+      [
+       407,
+       441
+      ],
+      [
+       340,
+       497
+      ],
+      [
+       295,
+       443
+      ],
+      [
+       368,
+       382
+      ],
+      [
+       389,
+       407
+      ],
+      [
+       383,
+       412
+      ]
+     ]
+    },
+    {
+     "level": 1,
+     "zone": [
+      [
+       408,
+       440
+      ],
+      [
+       340,
+       497
+      ],
+      [
+       295,
+       443
+      ],
+      [
+       373,
+       377
+      ],
+      [
+       394,
+       403
+      ],
+      [
+       384,
+       412
+      ]
+     ]
+    },
+    {
+     "level": 2,
+     "zone": [
+      [
+       408,
+       440
+      ],
+      [
+       340,
+       497
+      ],
+      [
+       295,
+       443
+      ],
+      [
+       373,
+       377
+      ],
+      [
+       394,
+       403
+      ],
+      [
+       384,
+       412
+      ]
+     ]
+    },
+    {
+     "level": 3,
+     "zone": [
+      [
+       408,
+       440
+      ],
+      [
+       340,
+       497
+      ],
+      [
+       287,
+       434
+      ],
+      [
+       366,
+       368
+      ],
+      [
+       394,
+       403
+      ],
+      [
+       384,
+       412
+      ]
+     ]
+    }
+   ],
+   "linked_levels": [
+    -1,
+    0,
+    1,
+    2,
+    3
+   ]
+  }
+ ],
+ "entrances": [
+  {
+   "id": "E1",
+   "label": "Porte d'entrée, hall de l'escalier",
+   "side": "front",
+   "status": "unknown",
+   "leads_to": "corridor:0",
+   "level": 0,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 367,
+    "y": 336
+   }
+  },
+  {
+   "id": "E2",
+   "label": "Porte de garage, rampe (sous-sol)",
+   "side": "left",
+   "status": "unknown",
+   "leads_to": "room:-1.03",
+   "level": -1,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 854,
+    "y": 469
+   }
+  }
+ ],
+ "hydrants": [],
+ "truck_spot": null,
+ "rooms": [
+  {
+   "id": "-1.01",
+   "level": -1,
+   "label": "-1.01 Caves",
+   "area_m2": 39.8,
+   "use": "caves",
+   "kind": "room",
+   "zone": [
+    [
+     448,
+     314
+    ],
+    [
+     623,
+     168
+    ],
+    [
+     709,
+     268
+    ],
+    [
+     558,
+     394
+    ],
+    [
+     527,
+     357
+    ],
+    [
+     462,
+     411
+    ],
+    [
+     441,
+     385
+    ],
+    [
+     480,
+     352
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Einstellräume",
+   "ifc_guid": "2c_$zv6ob9tRX5aB2_X9UW"
+  },
+  {
+   "id": "-1.02",
+   "level": -1,
+   "label": "-1.02 Ascenseur",
+   "area_m2": 2.6,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     409,
+     347
+    ],
+    [
+     444,
+     318
+    ],
+    [
+     472,
+     352
+    ],
+    [
+     438,
+     381
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Aufzug",
+   "ifc_guid": "3ZH5jX_AH4OOah3MOEJwNm"
+  },
+  {
+   "id": "-1.03",
+   "level": -1,
+   "label": "-1.03 Rampe d'accès",
+   "area_m2": 94.8,
+   "use": "rampe d'accès",
+   "kind": "room",
+   "zone": [
+    [
+     763,
+     607
+    ],
+    [
+     769,
+     599
+    ],
+    [
+     772,
+     595
+    ],
+    [
+     775,
+     590
+    ],
+    [
+     780,
+     581
+    ],
+    [
+     782,
+     576
+    ],
+    [
+     785,
+     566
+    ],
+    [
+     787,
+     556
+    ],
+    [
+     788,
+     551
+    ],
+    [
+     788,
+     541
+    ],
+    [
+     788,
+     536
+    ],
+    [
+     787,
+     526
+    ],
+    [
+     786,
+     520
+    ],
+    [
+     783,
+     511
+    ],
+    [
+     781,
+     506
+    ],
+    [
+     779,
+     501
+    ],
+    [
+     774,
+     492
+    ],
+    [
+     765,
+     480
+    ],
+    [
+     551,
+     224
+    ],
+    [
+     547,
+     227
+    ],
+    [
+     455,
+     117
+    ],
+    [
+     530,
+     60
+    ],
+    [
+     928,
+     522
+    ],
+    [
+     903,
+     611
+    ],
+    [
+     812,
+     688
+    ],
+    [
+     753,
+     616
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Rampe",
+   "ifc_guid": "0DDpKJGAn3FAMw3$7rJzUk"
+  },
+  {
+   "id": "-1.04",
+   "level": -1,
+   "label": "-1.04 Local poussettes",
+   "area_m2": 5.2,
+   "use": "local poussettes",
+   "kind": "room",
+   "zone": [
+    [
+     463,
+     412
+    ],
+    [
+     527,
+     359
+    ],
+    [
+     557,
+     395
+    ],
+    [
+     494,
+     448
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "KIWA",
+   "ifc_guid": "1BX2fNxmbFVu2D$EK4fKpX"
+  },
+  {
+   "id": "-1.05",
+   "level": -1,
+   "label": "-1.05 Place de parking",
+   "area_m2": 15.9,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     516,
+     439
+    ],
+    [
+     628,
+     346
+    ],
+    [
+     681,
+     409
+    ],
+    [
+     569,
+     503
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "293Zapz2b3vwJOQQgLcKgp"
+  },
+  {
+   "id": "-1.06",
+   "level": -1,
+   "label": "-1.06 Local électrique",
+   "area_m2": 4.8,
+   "use": "local électrique",
+   "kind": "room",
+   "zone": [
+    [
+     368,
+     481
+    ],
+    [
+     418,
+     439
+    ],
+    [
+     453,
+     482
+    ],
+    [
+     403,
+     524
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "E-Technik",
+   "ifc_guid": "1mX6a9$5H4fA0D2hkPwyem"
+  },
+  {
+   "id": "-1.07",
+   "level": -1,
+   "label": "-1.07 Place de parking",
+   "area_m2": 14.2,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     616,
+     555
+    ],
+    [
+     618,
+     558
+    ],
+    [
+     616,
+     560
+    ],
+    [
+     569,
+     503
+    ],
+    [
+     681,
+     409
+    ],
+    [
+     728,
+     466
+    ],
+    [
+     635,
+     544
+    ],
+    [
+     633,
+     541
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "2h4OLdyK15ShRQDVBGI5MM"
+  },
+  {
+   "id": "-1.08",
+   "level": -1,
+   "label": "-1.08 Local technique",
+   "area_m2": 23.0,
+   "use": "local technique",
+   "kind": "room",
+   "zone": [
+    [
+     283,
+     624
+    ],
+    [
+     198,
+     523
+    ],
+    [
+     290,
+     447
+    ],
+    [
+     339,
+     505
+    ],
+    [
+     363,
+     484
+    ],
+    [
+     399,
+     527
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Haustechnik",
+   "ifc_guid": "3XeK7K50r1B9xPk3cXMww3"
+  },
+  {
+   "id": "-1.09",
+   "level": -1,
+   "label": "-1.09 Place de parking",
+   "area_m2": 15.7,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     616,
+     560
+    ],
+    [
+     618,
+     558
+    ],
+    [
+     621,
+     561
+    ],
+    [
+     638,
+     547
+    ],
+    [
+     635,
+     544
+    ],
+    [
+     728,
+     466
+    ],
+    [
+     774,
+     520
+    ],
+    [
+     774,
+     522
+    ],
+    [
+     776,
+     534
+    ],
+    [
+     688,
+     607
+    ],
+    [
+     686,
+     605
+    ],
+    [
+     669,
+     619
+    ],
+    [
+     671,
+     621
+    ],
+    [
+     669,
+     623
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "0rvpyWStv9LRGHnggQTpuc"
+  },
+  {
+   "id": "-1.10",
+   "level": -1,
+   "label": "-1.10 Place de parking",
+   "area_m2": 15.1,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     378,
+     554
+    ],
+    [
+     428,
+     614
+    ],
+    [
+     316,
+     708
+    ],
+    [
+     266,
+     648
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "1NfyAHq_b0Vvkyq1a60SIY"
+  },
+  {
+   "id": "-1.11",
+   "level": -1,
+   "label": "-1.11 Garage",
+   "area_m2": 235.5,
+   "use": "garage",
+   "kind": "room",
+   "zone": [
+    [
+     72,
+     416
+    ],
+    [
+     90,
+     402
+    ],
+    [
+     283,
+     634
+    ],
+    [
+     634,
+     340
+    ],
+    [
+     757,
+     487
+    ],
+    [
+     763,
+     495
+    ],
+    [
+     767,
+     504
+    ],
+    [
+     771,
+     513
+    ],
+    [
+     773,
+     517
+    ],
+    [
+     775,
+     527
+    ],
+    [
+     776,
+     531
+    ],
+    [
+     776,
+     536
+    ],
+    [
+     776,
+     546
+    ],
+    [
+     775,
+     556
+    ],
+    [
+     774,
+     560
+    ],
+    [
+     772,
+     570
+    ],
+    [
+     770,
+     574
+    ],
+    [
+     766,
+     583
+    ],
+    [
+     763,
+     587
+    ],
+    [
+     761,
+     591
+    ],
+    [
+     755,
+     599
+    ],
+    [
+     746,
+     607
+    ],
+    [
+     812,
+     688
+    ],
+    [
+     510,
+     940
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "1m4c$phjbFWho7o9ffAUrB"
+  },
+  {
+   "id": "-1.12",
+   "level": -1,
+   "label": "-1.12 Place de parking",
+   "area_m2": 14.2,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     364,
+     765
+    ],
+    [
+     316,
+     708
+    ],
+    [
+     428,
+     614
+    ],
+    [
+     476,
+     672
+    ],
+    [
+     474,
+     673
+    ],
+    [
+     472,
+     671
+    ],
+    [
+     455,
+     685
+    ],
+    [
+     457,
+     687
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "1eedo6u6rBoPXGEHcwAVQe"
+  },
+  {
+   "id": "-1.13",
+   "level": -1,
+   "label": "-1.13 Place de parking",
+   "area_m2": 14.4,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     364,
+     765
+    ],
+    [
+     457,
+     687
+    ],
+    [
+     460,
+     690
+    ],
+    [
+     476,
+     676
+    ],
+    [
+     474,
+     673
+    ],
+    [
+     476,
+     672
+    ],
+    [
+     525,
+     730
+    ],
+    [
+     523,
+     731
+    ],
+    [
+     521,
+     729
+    ],
+    [
+     504,
+     743
+    ],
+    [
+     506,
+     745
+    ],
+    [
+     413,
+     823
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "277zlJ045DKAqRGaBt$VaV"
+  },
+  {
+   "id": "-1.14",
+   "level": -1,
+   "label": "-1.14 Place de parking",
+   "area_m2": 14.5,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     461,
+     881
+    ],
+    [
+     413,
+     823
+    ],
+    [
+     506,
+     745
+    ],
+    [
+     508,
+     748
+    ],
+    [
+     525,
+     734
+    ],
+    [
+     523,
+     731
+    ],
+    [
+     525,
+     730
+    ],
+    [
+     573,
+     788
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "0k3GpM6BDD3xWZcfVq$gmM"
+  },
+  {
+   "id": "-1.15",
+   "level": -1,
+   "label": "-1.15 Place de parking",
+   "area_m2": 14.7,
+   "use": "place de parking",
+   "kind": "room",
+   "zone": [
+    [
+     573,
+     788
+    ],
+    [
+     622,
+     846
+    ],
+    [
+     510,
+     940
+    ],
+    [
+     461,
+     881
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Stellplatz",
+   "ifc_guid": "0EOJuuFBv1BP3Ex$ERjpZM"
+  },
+  {
+   "id": "corridor:-1",
+   "level": -1,
+   "label": "Circulation",
+   "area_m2": 8.2,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     368,
+     382
+    ],
+    [
+     405,
+     351
+    ],
+    [
+     489,
+     452
+    ],
+    [
+     458,
+     478
+    ],
+    [
+     418,
+     431
+    ],
+    [
+     407,
+     441
+    ],
+    [
+     383,
+     412
+    ],
+    [
+     389,
+     407
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "3gUAiLbvj8s8ApRsdcC4lh"
+  },
+  {
+   "id": "0.01",
+   "level": 0,
+   "label": "0.01 Terrasse",
+   "area_m2": 8.0,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     411,
+     263
+    ],
+    [
+     505,
+     188
+    ],
+    [
+     536,
+     226
+    ],
+    [
+     444,
+     303
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "0m9DK39FX6UOJXOFae3JrX"
+  },
+  {
+   "id": "0.02",
+   "level": 0,
+   "label": "0.02 Chambre",
+   "area_m2": 14.6,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     540,
+     388
+    ],
+    [
+     498,
+     337
+    ],
+    [
+     485,
+     348
+    ],
+    [
+     454,
+     310
+    ],
+    [
+     535,
+     243
+    ],
+    [
+     608,
+     331
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "2u0my2cevDvPcB4tbPOPmq"
+  },
+  {
+   "id": "0.03",
+   "level": 0,
+   "label": "0.03 Ascenseur",
+   "area_m2": 2.6,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     438,
+     381
+    ],
+    [
+     409,
+     347
+    ],
+    [
+     444,
+     318
+    ],
+    [
+     472,
+     352
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Aufzug",
+   "ifc_guid": "0mUYZag0LEFOQ6qPd3CZ2M"
+  },
+  {
+   "id": "0.04",
+   "level": 0,
+   "label": "0.04 Salle de bain",
+   "area_m2": 5.6,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     596,
+     411
+    ],
+    [
+     590,
+     404
+    ],
+    [
+     569,
+     422
+    ],
+    [
+     542,
+     390
+    ],
+    [
+     610,
+     333
+    ],
+    [
+     643,
+     372
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "0K2y9h$GvAkO_5flBr25I3"
+  },
+  {
+   "id": "0.05",
+   "level": 0,
+   "label": "0.05 Local poubelles",
+   "area_m2": 5.0,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     228,
+     446
+    ],
+    [
+     326,
+     364
+    ],
+    [
+     345,
+     386
+    ],
+    [
+     247,
+     468
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Müll",
+   "ifc_guid": "2KDJ1MRFfDoBODqhNDWzet"
+  },
+  {
+   "id": "0.06",
+   "level": 0,
+   "label": "0.06 Entrée",
+   "area_m2": 8.4,
+   "use": "entrée",
+   "kind": "room",
+   "zone": [
+    [
+     444,
+     386
+    ],
+    [
+     497,
+     341
+    ],
+    [
+     584,
+     445
+    ],
+    [
+     559,
+     466
+    ],
+    [
+     506,
+     403
+    ],
+    [
+     478,
+     427
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Vorr.",
+   "ifc_guid": "06pIPYtxH80RQ3nZ7QQyNf"
+  },
+  {
+   "id": "0.07",
+   "level": 0,
+   "label": "0.07 Buanderie",
+   "area_m2": 3.0,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     523,
+     480
+    ],
+    [
+     480,
+     429
+    ],
+    [
+     506,
+     407
+    ],
+    [
+     549,
+     459
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "0_p7ACXuP1VxneiKtcqubA"
+  },
+  {
+   "id": "0.08",
+   "level": 0,
+   "label": "0.08 Salle de bain",
+   "area_m2": 5.0,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     295,
+     541
+    ],
+    [
+     247,
+     483
+    ],
+    [
+     288,
+     449
+    ],
+    [
+     321,
+     487
+    ],
+    [
+     313,
+     494
+    ],
+    [
+     329,
+     513
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "2M2xoBssb99wj_h46suHMz"
+  },
+  {
+   "id": "0.09",
+   "level": 0,
+   "label": "0.09 Séjour-cuisine",
+   "area_m2": 34.1,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     753,
+     504
+    ],
+    [
+     629,
+     607
+    ],
+    [
+     532,
+     492
+    ],
+    [
+     588,
+     445
+    ],
+    [
+     577,
+     432
+    ],
+    [
+     645,
+     374
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "3jZsk5m7j9iQ00vVSop8cy"
+  },
+  {
+   "id": "0.10",
+   "level": 0,
+   "label": "0.10 Buanderie",
+   "area_m2": 2.8,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     325,
+     520
+    ],
+    [
+     368,
+     484
+    ],
+    [
+     392,
+     514
+    ],
+    [
+     359,
+     542
+    ],
+    [
+     356,
+     538
+    ],
+    [
+     349,
+     543
+    ],
+    [
+     352,
+     547
+    ],
+    [
+     349,
+     549
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "3QrPUMPbP5yuvU5eYSMWaw"
+  },
+  {
+   "id": "0.11",
+   "level": 0,
+   "label": "0.11 Salle de bain",
+   "area_m2": 6.2,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     428,
+     552
+    ],
+    [
+     370,
+     482
+    ],
+    [
+     410,
+     449
+    ],
+    [
+     468,
+     519
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "1bs1TN8m903QZZdjTP3csa"
+  },
+  {
+   "id": "0.12",
+   "level": 0,
+   "label": "0.12 WC",
+   "area_m2": 1.8,
+   "use": "wc",
+   "kind": "room",
+   "zone": [
+    [
+     351,
+     552
+    ],
+    [
+     361,
+     544
+    ],
+    [
+     383,
+     525
+    ],
+    [
+     405,
+     550
+    ],
+    [
+     372,
+     577
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "19edvl6lL8hBzWjPW3$aJl"
+  },
+  {
+   "id": "0.13",
+   "level": 0,
+   "label": "0.13 Entrée",
+   "area_m2": 10.7,
+   "use": "entrée",
+   "kind": "room",
+   "zone": [
+    [
+     383,
+     572
+    ],
+    [
+     417,
+     543
+    ],
+    [
+     428,
+     556
+    ],
+    [
+     472,
+     519
+    ],
+    [
+     447,
+     489
+    ],
+    [
+     489,
+     454
+    ],
+    [
+     535,
+     509
+    ],
+    [
+     414,
+     610
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Vorr.",
+   "ifc_guid": "1hRh9rUCbDPwLG0KJ2MIvL"
+  },
+  {
+   "id": "0.14",
+   "level": 0,
+   "label": "0.14 Terrasse",
+   "area_m2": 36.4,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     691,
+     678
+    ],
+    [
+     638,
+     615
+    ],
+    [
+     771,
+     504
+    ],
+    [
+     752,
+     482
+    ],
+    [
+     839,
+     409
+    ],
+    [
+     914,
+     496
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "2pkWnmEu9FxQCNSNmrDsNp"
+  },
+  {
+   "id": "0.15",
+   "level": 0,
+   "label": "0.15 Chambre",
+   "area_m2": 15.7,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     263,
+     645
+    ],
+    [
+     177,
+     541
+    ],
+    [
+     245,
+     485
+    ],
+    [
+     331,
+     588
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "0lyf6J9eDDahUwhHtE_sg4"
+  },
+  {
+   "id": "0.16",
+   "level": 0,
+   "label": "0.16 Circulation",
+   "area_m2": 3.2,
+   "use": "circulation",
+   "kind": "room",
+   "zone": [
+    [
+     345,
+     600
+    ],
+    [
+     297,
+     543
+    ],
+    [
+     323,
+     522
+    ],
+    [
+     370,
+     579
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "3Pz7ETaoTA9QoCEAdZya3D"
+  },
+  {
+   "id": "0.17",
+   "level": 0,
+   "label": "0.17 Chambre",
+   "area_m2": 13.5,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     563,
+     663
+    ],
+    [
+     478,
+     561
+    ],
+    [
+     537,
+     512
+    ],
+    [
+     622,
+     613
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "1dfN1r3P9AehOnJ4GptxAp"
+  },
+  {
+   "id": "0.18",
+   "level": 0,
+   "label": "0.18 Chambre",
+   "area_m2": 13.5,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     501,
+     714
+    ],
+    [
+     416,
+     612
+    ],
+    [
+     476,
+     563
+    ],
+    [
+     560,
+     665
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "2_n6AntvPA29XJFV$V9WMI"
+  },
+  {
+   "id": "0.19",
+   "level": 0,
+   "label": "0.19 Séjour-cuisine",
+   "area_m2": 34.3,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     395,
+     803
+    ],
+    [
+     265,
+     647
+    ],
+    [
+     333,
+     590
+    ],
+    [
+     344,
+     604
+    ],
+    [
+     378,
+     576
+    ],
+    [
+     497,
+     718
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "3qjIbsfa14Hev3h2cHc10D"
+  },
+  {
+   "id": "0.20",
+   "level": 0,
+   "label": "0.20 Terrasse",
+   "area_m2": 52.7,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     422,
+     904
+    ],
+    [
+     135,
+     561
+    ],
+    [
+     161,
+     540
+    ],
+    [
+     394,
+     819
+    ],
+    [
+     628,
+     623
+    ],
+    [
+     681,
+     687
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "0HuOPqQf1CJBw0Ee4ayDlp"
+  },
+  {
+   "id": "corridor:0",
+   "level": 0,
+   "label": "Circulation",
+   "area_m2": 7.9,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     368,
+     382
+    ],
+    [
+     405,
+     351
+    ],
+    [
+     486,
+     447
+    ],
+    [
+     454,
+     474
+    ],
+    [
+     418,
+     431
+    ],
+    [
+     407,
+     441
+    ],
+    [
+     383,
+     412
+    ],
+    [
+     389,
+     407
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "1mDF3PHFz6GAcCed3ct7FI"
+  },
+  {
+   "id": "1.01",
+   "level": 1,
+   "label": "1.01 Chambre",
+   "area_m2": 18.5,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     540,
+     388
+    ],
+    [
+     498,
+     337
+    ],
+    [
+     485,
+     348
+    ],
+    [
+     454,
+     310
+    ],
+    [
+     554,
+     226
+    ],
+    [
+     628,
+     314
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "1Mt10mW$r50xXAlVv3oUHS"
+  },
+  {
+   "id": "1.02",
+   "level": 1,
+   "label": "1.02 Ascenseur",
+   "area_m2": 2.6,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     438,
+     381
+    ],
+    [
+     409,
+     347
+    ],
+    [
+     444,
+     318
+    ],
+    [
+     472,
+     352
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Aufzug",
+   "ifc_guid": "21yBcpaB90Gh_S0sKIsAIw"
+  },
+  {
+   "id": "1.03",
+   "level": 1,
+   "label": "1.03 Salle de bain",
+   "area_m2": 7.3,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     596,
+     411
+    ],
+    [
+     590,
+     404
+    ],
+    [
+     569,
+     422
+    ],
+    [
+     542,
+     390
+    ],
+    [
+     630,
+     317
+    ],
+    [
+     663,
+     355
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "2sFHBf0C93mO9_16V$BtG$"
+  },
+  {
+   "id": "1.04",
+   "level": 1,
+   "label": "1.04 Entrée",
+   "area_m2": 8.4,
+   "use": "entrée",
+   "kind": "room",
+   "zone": [
+    [
+     444,
+     386
+    ],
+    [
+     497,
+     341
+    ],
+    [
+     584,
+     445
+    ],
+    [
+     559,
+     466
+    ],
+    [
+     506,
+     403
+    ],
+    [
+     478,
+     427
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Vorr.",
+   "ifc_guid": "3_Nw$RjYLAI8EdErBS$Saj"
+  },
+  {
+   "id": "1.05",
+   "level": 1,
+   "label": "1.05 Balcon",
+   "area_m2": 10.2,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     678,
+     356
+    ],
+    [
+     685,
+     349
+    ],
+    [
+     693,
+     343
+    ],
+    [
+     794,
+     464
+    ],
+    [
+     804,
+     476
+    ],
+    [
+     804,
+     477
+    ],
+    [
+     770,
+     506
+    ],
+    [
+     661,
+     376
+    ],
+    [
+     681,
+     359
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Balkon",
+   "ifc_guid": "3icrQzZ9TE9PQ1539Wsriu"
+  },
+  {
+   "id": "1.06",
+   "level": 1,
+   "label": "1.06 Buanderie",
+   "area_m2": 3.0,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     523,
+     480
+    ],
+    [
+     480,
+     429
+    ],
+    [
+     506,
+     407
+    ],
+    [
+     549,
+     459
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "3wjjRFJMrAowmm2msLcMjy"
+  },
+  {
+   "id": "1.07",
+   "level": 1,
+   "label": "1.07 Salle de bain",
+   "area_m2": 7.1,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     223,
+     454
+    ],
+    [
+     256,
+     427
+    ],
+    [
+     280,
+     455
+    ],
+    [
+     288,
+     449
+    ],
+    [
+     321,
+     487
+    ],
+    [
+     313,
+     494
+    ],
+    [
+     329,
+     513
+    ],
+    [
+     295,
+     541
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "1m98yhs2X4mQSn$PNRBnqx"
+  },
+  {
+   "id": "1.08",
+   "level": 1,
+   "label": "1.08 Séjour-cuisine",
+   "area_m2": 34.1,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     753,
+     504
+    ],
+    [
+     629,
+     607
+    ],
+    [
+     532,
+     492
+    ],
+    [
+     588,
+     445
+    ],
+    [
+     577,
+     432
+    ],
+    [
+     645,
+     374
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "0T_j7vaDLC_OW5Kx5zR93U"
+  },
+  {
+   "id": "1.09",
+   "level": 1,
+   "label": "1.09 Buanderie",
+   "area_m2": 2.8,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     325,
+     520
+    ],
+    [
+     368,
+     484
+    ],
+    [
+     392,
+     514
+    ],
+    [
+     359,
+     542
+    ],
+    [
+     356,
+     538
+    ],
+    [
+     349,
+     543
+    ],
+    [
+     352,
+     547
+    ],
+    [
+     349,
+     549
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "0nUsYnUirCfuADQRrU9jNl"
+  },
+  {
+   "id": "1.10",
+   "level": 1,
+   "label": "1.10 Salle de bain",
+   "area_m2": 6.2,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     370,
+     482
+    ],
+    [
+     410,
+     449
+    ],
+    [
+     468,
+     519
+    ],
+    [
+     428,
+     552
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "1LFLBHb1b2R9SyenDUrwjX"
+  },
+  {
+   "id": "1.11",
+   "level": 1,
+   "label": "1.11 Chambre",
+   "area_m2": 20.0,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     263,
+     645
+    ],
+    [
+     153,
+     512
+    ],
+    [
+     221,
+     456
+    ],
+    [
+     331,
+     588
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "3rFnAI2hT1y8lDFW1BFK95"
+  },
+  {
+   "id": "1.12",
+   "level": 1,
+   "label": "1.12 WC",
+   "area_m2": 1.8,
+   "use": "wc",
+   "kind": "room",
+   "zone": [
+    [
+     351,
+     552
+    ],
+    [
+     361,
+     544
+    ],
+    [
+     383,
+     525
+    ],
+    [
+     405,
+     550
+    ],
+    [
+     372,
+     577
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "0iiG7mvLDCpuTwVtElcNBi"
+  },
+  {
+   "id": "1.13",
+   "level": 1,
+   "label": "1.13 Entrée",
+   "area_m2": 10.7,
+   "use": "entrée",
+   "kind": "room",
+   "zone": [
+    [
+     383,
+     572
+    ],
+    [
+     417,
+     543
+    ],
+    [
+     428,
+     556
+    ],
+    [
+     472,
+     519
+    ],
+    [
+     447,
+     489
+    ],
+    [
+     489,
+     454
+    ],
+    [
+     535,
+     509
+    ],
+    [
+     414,
+     610
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Vorr.",
+   "ifc_guid": "2mh9z6Bd99egUGPaY3IDQ5"
+  },
+  {
+   "id": "1.14",
+   "level": 1,
+   "label": "1.14 Circulation",
+   "area_m2": 3.2,
+   "use": "circulation",
+   "kind": "room",
+   "zone": [
+    [
+     345,
+     600
+    ],
+    [
+     297,
+     543
+    ],
+    [
+     323,
+     522
+    ],
+    [
+     370,
+     579
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "3mnSox3bP7qBDaxAigrzkz"
+  },
+  {
+   "id": "1.15",
+   "level": 1,
+   "label": "1.15 Chambre",
+   "area_m2": 13.5,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     563,
+     663
+    ],
+    [
+     478,
+     561
+    ],
+    [
+     537,
+     512
+    ],
+    [
+     622,
+     613
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "05KnGV$z54U9o$H5vgueGO"
+  },
+  {
+   "id": "1.16",
+   "level": 1,
+   "label": "1.16 Chambre",
+   "area_m2": 13.5,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     501,
+     714
+    ],
+    [
+     416,
+     612
+    ],
+    [
+     476,
+     563
+    ],
+    [
+     560,
+     665
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "2cLbZ_Io54FQOlBSo2fzIJ"
+  },
+  {
+   "id": "1.17",
+   "level": 1,
+   "label": "1.17 Séjour-cuisine",
+   "area_m2": 42.2,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     243,
+     666
+    ],
+    [
+     333,
+     590
+    ],
+    [
+     344,
+     604
+    ],
+    [
+     378,
+     576
+    ],
+    [
+     497,
+     718
+    ],
+    [
+     373,
+     821
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "2AxXfbQI17fh5cLNajE0Pq"
+  },
+  {
+   "id": "1.18",
+   "level": 1,
+   "label": "1.18 Balcon",
+   "area_m2": 20.9,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     371,
+     838
+    ],
+    [
+     561,
+     679
+    ],
+    [
+     603,
+     728
+    ],
+    [
+     595,
+     734
+    ],
+    [
+     412,
+     887
+    ],
+    [
+     405,
+     880
+    ],
+    [
+     405,
+     879
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Balkon",
+   "ifc_guid": "23tX$bRfj7YR5tuqWMin34"
+  },
+  {
+   "id": "corridor:1",
+   "level": 1,
+   "label": "Circulation",
+   "area_m2": 7.6,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     394,
+     403
+    ],
+    [
+     373,
+     377
+    ],
+    [
+     405,
+     351
+    ],
+    [
+     486,
+     447
+    ],
+    [
+     454,
+     474
+    ],
+    [
+     418,
+     431
+    ],
+    [
+     408,
+     440
+    ],
+    [
+     384,
+     412
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "0Md_qk5wn4RRzuOEPx8h$j"
+  },
+  {
+   "id": "2.01",
+   "level": 2,
+   "label": "2.01 Chambre",
+   "area_m2": 13.9,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     538,
+     246
+    ],
+    [
+     608,
+     331
+    ],
+    [
+     540,
+     388
+    ],
+    [
+     498,
+     337
+    ],
+    [
+     485,
+     348
+    ],
+    [
+     457,
+     314
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "05EQt9n318cenZnuAXclI3"
+  },
+  {
+   "id": "2.02",
+   "level": 2,
+   "label": "2.02 Ascenseur",
+   "area_m2": 2.6,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     438,
+     381
+    ],
+    [
+     409,
+     347
+    ],
+    [
+     444,
+     318
+    ],
+    [
+     472,
+     352
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Aufzug",
+   "ifc_guid": "25FuxebzD2wvqk5YMG18vX"
+  },
+  {
+   "id": "2.03",
+   "level": 2,
+   "label": "2.03 Salle de bain",
+   "area_m2": 5.6,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     596,
+     411
+    ],
+    [
+     590,
+     404
+    ],
+    [
+     569,
+     422
+    ],
+    [
+     542,
+     390
+    ],
+    [
+     610,
+     333
+    ],
+    [
+     643,
+     372
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "2vz1tjmXv4CPhxpgEdekDm"
+  },
+  {
+   "id": "2.04",
+   "level": 2,
+   "label": "2.04 Entrée",
+   "area_m2": 8.4,
+   "use": "entrée",
+   "kind": "room",
+   "zone": [
+    [
+     444,
+     386
+    ],
+    [
+     497,
+     341
+    ],
+    [
+     584,
+     445
+    ],
+    [
+     559,
+     466
+    ],
+    [
+     506,
+     403
+    ],
+    [
+     478,
+     427
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Vorr.",
+   "ifc_guid": "3MCfTULCLDEhFPqWN_Fkp$"
+  },
+  {
+   "id": "2.05",
+   "level": 2,
+   "label": "2.05 Balcon",
+   "area_m2": 10.3,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     673,
+     373
+    ],
+    [
+     666,
+     365
+    ],
+    [
+     685,
+     349
+    ],
+    [
+     693,
+     343
+    ],
+    [
+     804,
+     477
+    ],
+    [
+     770,
+     506
+    ],
+    [
+     664,
+     380
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Balkon",
+   "ifc_guid": "2rXqbtL4rFBuIQ8Y1N3U_I"
+  },
+  {
+   "id": "2.06",
+   "level": 2,
+   "label": "2.06 Buanderie",
+   "area_m2": 3.0,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     523,
+     480
+    ],
+    [
+     480,
+     429
+    ],
+    [
+     506,
+     407
+    ],
+    [
+     549,
+     459
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "2ochS5m1D4wwEnNoYjBxAt"
+  },
+  {
+   "id": "2.07",
+   "level": 2,
+   "label": "2.07 Salle de bain",
+   "area_m2": 5.0,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     295,
+     541
+    ],
+    [
+     247,
+     483
+    ],
+    [
+     288,
+     449
+    ],
+    [
+     321,
+     487
+    ],
+    [
+     313,
+     494
+    ],
+    [
+     329,
+     513
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "3oaQDUQar4d9ubpQxLywwo"
+  },
+  {
+   "id": "2.08",
+   "level": 2,
+   "label": "2.08 Séjour-cuisine",
+   "area_m2": 32.7,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     588,
+     445
+    ],
+    [
+     577,
+     432
+    ],
+    [
+     645,
+     374
+    ],
+    [
+     753,
+     504
+    ],
+    [
+     645,
+     594
+    ],
+    [
+     613,
+     555
+    ],
+    [
+     597,
+     568
+    ],
+    [
+     532,
+     492
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "296QwBr4X949BqauNAZK11"
+  },
+  {
+   "id": "2.09",
+   "level": 2,
+   "label": "2.09 Buanderie",
+   "area_m2": 2.8,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     325,
+     520
+    ],
+    [
+     368,
+     484
+    ],
+    [
+     392,
+     514
+    ],
+    [
+     359,
+     542
+    ],
+    [
+     356,
+     538
+    ],
+    [
+     349,
+     543
+    ],
+    [
+     352,
+     547
+    ],
+    [
+     349,
+     549
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "0m7cNpm_550Ql$EJi5Pmf4"
+  },
+  {
+   "id": "2.10",
+   "level": 2,
+   "label": "2.10 Salle de bain",
+   "area_m2": 6.2,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     370,
+     482
+    ],
+    [
+     410,
+     449
+    ],
+    [
+     468,
+     519
+    ],
+    [
+     428,
+     552
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "01TRCmBNX52e8lxTLy5tq_"
+  },
+  {
+   "id": "2.11",
+   "level": 2,
+   "label": "2.11 WC",
+   "area_m2": 1.8,
+   "use": "wc",
+   "kind": "room",
+   "zone": [
+    [
+     351,
+     552
+    ],
+    [
+     361,
+     544
+    ],
+    [
+     383,
+     525
+    ],
+    [
+     405,
+     550
+    ],
+    [
+     372,
+     577
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "1a1utn_R9AbwZkEYJvDfSO"
+  },
+  {
+   "id": "2.12",
+   "level": 2,
+   "label": "2.12 Entrée",
+   "area_m2": 10.7,
+   "use": "entrée",
+   "kind": "room",
+   "zone": [
+    [
+     383,
+     572
+    ],
+    [
+     417,
+     543
+    ],
+    [
+     428,
+     556
+    ],
+    [
+     472,
+     519
+    ],
+    [
+     447,
+     489
+    ],
+    [
+     489,
+     454
+    ],
+    [
+     535,
+     509
+    ],
+    [
+     414,
+     610
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Vorr.",
+   "ifc_guid": "3KlwidggL4cvD9MNVZ8q0B"
+  },
+  {
+   "id": "2.13",
+   "level": 2,
+   "label": "2.13 Chambre",
+   "area_m2": 15.7,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     245,
+     485
+    ],
+    [
+     331,
+     588
+    ],
+    [
+     263,
+     645
+    ],
+    [
+     177,
+     541
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "2XCu2s_hfAMgQrv1sfHNc4"
+  },
+  {
+   "id": "2.14",
+   "level": 2,
+   "label": "2.14 Circulation",
+   "area_m2": 3.2,
+   "use": "circulation",
+   "kind": "room",
+   "zone": [
+    [
+     345,
+     600
+    ],
+    [
+     297,
+     543
+    ],
+    [
+     323,
+     522
+    ],
+    [
+     370,
+     579
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "0khZEyN6f8heJWwZ0GrdK4"
+  },
+  {
+   "id": "2.15",
+   "level": 2,
+   "label": "2.15 Chambre",
+   "area_m2": 14.9,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     551,
+     666
+    ],
+    [
+     469,
+     569
+    ],
+    [
+     537,
+     511
+    ],
+    [
+     619,
+     609
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "3iCBIg2y94geNw5dgD_Yh6"
+  },
+  {
+   "id": "2.16",
+   "level": 2,
+   "label": "2.16 Séjour-cuisine",
+   "area_m2": 34.7,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     265,
+     647
+    ],
+    [
+     333,
+     590
+    ],
+    [
+     344,
+     604
+    ],
+    [
+     378,
+     576
+    ],
+    [
+     417,
+     622
+    ],
+    [
+     421,
+     618
+    ],
+    [
+     416,
+     612
+    ],
+    [
+     467,
+     570
+    ],
+    [
+     523,
+     638
+    ],
+    [
+     367,
+     768
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "12wAJSCVD7ER7s0hVPAfnz"
+  },
+  {
+   "id": "2.17",
+   "level": 2,
+   "label": "2.17 Balcon",
+   "area_m2": 33.7,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     342,
+     804
+    ],
+    [
+     524,
+     652
+    ],
+    [
+     553,
+     686
+    ],
+    [
+     551,
+     688
+    ],
+    [
+     592,
+     737
+    ],
+    [
+     412,
+     887
+    ],
+    [
+     405,
+     880
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Balkon",
+   "ifc_guid": "3LsJ8fXGnEUe3GE2xNrT3R"
+  },
+  {
+   "id": "corridor:2",
+   "level": 2,
+   "label": "Circulation",
+   "area_m2": 7.6,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     394,
+     403
+    ],
+    [
+     373,
+     377
+    ],
+    [
+     405,
+     351
+    ],
+    [
+     486,
+     447
+    ],
+    [
+     454,
+     474
+    ],
+    [
+     418,
+     431
+    ],
+    [
+     408,
+     440
+    ],
+    [
+     384,
+     412
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "1xFhgXylX3vg9kzGu1wdRl"
+  },
+  {
+   "id": "3.01",
+   "level": 3,
+   "label": "3.01 Ascenseur",
+   "area_m2": 2.6,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     438,
+     381
+    ],
+    [
+     409,
+     347
+    ],
+    [
+     444,
+     318
+    ],
+    [
+     472,
+     352
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Aufzug",
+   "ifc_guid": "0oryJKQwr2YwDJPM$Un2f3"
+  },
+  {
+   "id": "3.02",
+   "level": 3,
+   "label": "3.02 Chambre",
+   "area_m2": 17.1,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     557,
+     407
+    ],
+    [
+     544,
+     418
+    ],
+    [
+     491,
+     354
+    ],
+    [
+     572,
+     287
+    ],
+    [
+     656,
+     388
+    ],
+    [
+     588,
+     444
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "2mCIUTQaf90A7q$Ll6Ud14"
+  },
+  {
+   "id": "3.03",
+   "level": 3,
+   "label": "3.03 Circulation",
+   "area_m2": 5.7,
+   "use": "circulation",
+   "kind": "room",
+   "zone": [
+    [
+     408,
+     440
+    ],
+    [
+     384,
+     412
+    ],
+    [
+     394,
+     403
+    ],
+    [
+     373,
+     377
+    ],
+    [
+     405,
+     351
+    ],
+    [
+     462,
+     419
+    ],
+    [
+     426,
+     449
+    ],
+    [
+     414,
+     435
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "0x18s_7f985hp8DCVNPiDP"
+  },
+  {
+   "id": "3.04",
+   "level": 3,
+   "label": "3.04 Terrasse",
+   "area_m2": 8.4,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     170,
+     552
+    ],
+    [
+     160,
+     539
+    ],
+    [
+     278,
+     441
+    ],
+    [
+     304,
+     473
+    ],
+    [
+     186,
+     571
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "2tz1NpDRP6rPsdfiT6XjoL"
+  },
+  {
+   "id": "3.05",
+   "level": 3,
+   "label": "3.05 WC",
+   "area_m2": 1.9,
+   "use": "wc",
+   "kind": "room",
+   "zone": [
+    [
+     471,
+     487
+    ],
+    [
+     491,
+     511
+    ],
+    [
+     456,
+     540
+    ],
+    [
+     436,
+     516
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "29jDs_nhX2yeGZuzPeddQk"
+  },
+  {
+   "id": "3.06",
+   "level": 3,
+   "label": "3.06 Salle de bain",
+   "area_m2": 14.1,
+   "use": "salle de bain",
+   "kind": "room",
+   "zone": [
+    [
+     493,
+     513
+    ],
+    [
+     509,
+     533
+    ],
+    [
+     511,
+     531
+    ],
+    [
+     495,
+     511
+    ],
+    [
+     541,
+     473
+    ],
+    [
+     604,
+     550
+    ],
+    [
+     522,
+     619
+    ],
+    [
+     458,
+     543
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Bad",
+   "ifc_guid": "3d4LthDOn2nP28WhPcTEK7"
+  },
+  {
+   "id": "3.07",
+   "level": 3,
+   "label": "3.07 Terrasse",
+   "area_m2": 9.9,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     643,
+     611
+    ],
+    [
+     633,
+     599
+    ],
+    [
+     614,
+     577
+    ],
+    [
+     741,
+     471
+    ],
+    [
+     770,
+     505
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "0AQIJ$EuDBOQBkBG6LzxHI"
+  },
+  {
+   "id": "3.08",
+   "level": 3,
+   "label": "3.08 Terrasse",
+   "area_m2": 24.2,
+   "use": "extérieur",
+   "kind": "exterior",
+   "zone": [
+    [
+     365,
+     786
+    ],
+    [
+     355,
+     774
+    ],
+    [
+     355,
+     773
+    ],
+    [
+     309,
+     718
+    ],
+    [
+     468,
+     585
+    ],
+    [
+     524,
+     652
+    ],
+    [
+     377,
+     775
+    ],
+    [
+     378,
+     776
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_guid": "34vSCPI4T5zRhpEuzSGKS1"
+  },
+  {
+   "id": "3.10",
+   "level": 3,
+   "label": "3.10 Séjour-cuisine",
+   "area_m2": 42.1,
+   "use": "séjour-cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     203,
+     572
+    ],
+    [
+     314,
+     479
+    ],
+    [
+     339,
+     508
+    ],
+    [
+     384,
+     471
+    ],
+    [
+     427,
+     523
+    ],
+    [
+     428,
+     522
+    ],
+    [
+     427,
+     523
+    ],
+    [
+     467,
+     570
+    ],
+    [
+     311,
+     701
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Wohnküche",
+   "ifc_guid": "3HXPWWm399QxgykeoqSQTp"
+  },
+  {
+   "id": "3.12",
+   "level": 3,
+   "label": "3.12 Chambre",
+   "area_m2": 19.2,
+   "use": "chambre",
+   "kind": "room",
+   "zone": [
+    [
+     550,
+     480
+    ],
+    [
+     658,
+     390
+    ],
+    [
+     724,
+     470
+    ],
+    [
+     617,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Zimmer",
+   "ifc_guid": "3ckEsz8DnBOuVUUaYnCHYG"
+  },
+  {
+   "id": "3.T",
+   "level": 3,
+   "label": "3.T Buanderie",
+   "area_m2": 6.5,
+   "use": "buanderie",
+   "kind": "room",
+   "zone": [
+    [
+     499,
+     455
+    ],
+    [
+     443,
+     387
+    ],
+    [
+     485,
+     351
+    ],
+    [
+     542,
+     419
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "HW",
+   "ifc_guid": "0RylawvdD08g1dPNppLJ2h"
+  },
+  {
+   "id": "corridor:3",
+   "level": 3,
+   "label": "Circulation",
+   "area_m2": 12.1,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     428,
+     519
+    ],
+    [
+     386,
+     469
+    ],
+    [
+     414,
+     446
+    ],
+    [
+     425,
+     459
+    ],
+    [
+     467,
+     425
+    ],
+    [
+     497,
+     461
+    ],
+    [
+     557,
+     411
+    ],
+    [
+     586,
+     446
+    ],
+    [
+     561,
+     467
+    ],
+    [
+     554,
+     459
+    ],
+    [
+     493,
+     509
+    ],
+    [
+     471,
+     483
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "ifc_name": "Gang",
+   "ifc_guid": "1ytdm3Hbv7hgXXk8NHUpwE"
+  }
+ ],
+ "plan": null,
+ "hazards": [],
+ "approach": null,
+ "screenshots": [],
+ "doors": [
+  {
+   "id": "P-1-1",
+   "level": -1,
+   "label": "Porte -1.04 Local poussettes",
+   "between": [
+    "room:-1.04",
+    "corridor:-1"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 474,
+    "y": 432
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P-1-2",
+   "level": -1,
+   "label": "Porte -1.01 Caves",
+   "between": [
+    "room:-1.01",
+    "corridor:-1"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 449,
+    "y": 402
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P-1-3",
+   "level": -1,
+   "label": "Porte -1.02 Ascenseur",
+   "between": [
+    "room:-1.02",
+    "corridor:-1"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 426,
+    "y": 363
+   },
+   "plan_axis": "y",
+   "plan_width": 32
+  },
+  {
+   "id": "P-1-4",
+   "level": -1,
+   "label": "Porte -1.06 Local électrique",
+   "between": [
+    "room:-1.06",
+    "room:-1.08"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 384,
+    "y": 507
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P-1-5",
+   "level": -1,
+   "label": "Porte -1.11 Garage",
+   "between": [
+    "room:-1.11",
+    "corridor:-1"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 474,
+    "y": 470
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-1-6",
+   "level": -1,
+   "label": "Porte -1.06 Local électrique",
+   "between": [
+    "corridor:-1",
+    "room:-1.06"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 438,
+    "y": 462
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "E2",
+   "level": -1,
+   "label": "Porte de garage, rampe (sous-sol)",
+   "between": [
+    "outside",
+    "room:-1.03"
+   ],
+   "external": true,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L-1",
+    "x": 821,
+    "y": 471
+   },
+   "plan_axis": "y",
+   "plan_width": 93
+  },
+  {
+   "id": "P0-8",
+   "level": 0,
+   "label": "Porte 0.16 Circulation",
+   "between": [
+    "room:0.16",
+    "room:0.08"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 310,
+    "y": 531
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-9",
+   "level": 0,
+   "label": "Porte 0.18 Chambre",
+   "between": [
+    "room:0.18",
+    "room:0.13"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 462,
+    "y": 572
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-10",
+   "level": 0,
+   "label": "Porte 0.17 Chambre",
+   "between": [
+    "room:0.17",
+    "room:0.13"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 494,
+    "y": 546
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-11",
+   "level": 0,
+   "label": "Porte 0.12 WC",
+   "between": [
+    "room:0.12",
+    "room:0.16"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 361,
+    "y": 565
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-12",
+   "level": 0,
+   "label": "Porte 0.10 Buanderie",
+   "between": [
+    "room:0.10",
+    "room:0.16"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 334,
+    "y": 534
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-13",
+   "level": 0,
+   "label": "Porte 0.11 Salle de bain",
+   "between": [
+    "room:0.11",
+    "room:0.13"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 440,
+    "y": 544
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-14",
+   "level": 0,
+   "label": "Porte 0.15 Chambre",
+   "between": [
+    "room:0.15",
+    "room:0.16"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 312,
+    "y": 563
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-15",
+   "level": 0,
+   "label": "Porte 0.16 Circulation",
+   "between": [
+    "room:0.16",
+    "room:0.19"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 358,
+    "y": 591
+   },
+   "plan_axis": "x",
+   "plan_width": 27
+  },
+  {
+   "id": "P0-16",
+   "level": 0,
+   "label": "Porte 0.03 Ascenseur",
+   "between": [
+    "corridor:0",
+    "room:0.03"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 426,
+    "y": 363
+   },
+   "plan_axis": "y",
+   "plan_width": 32
+  },
+  {
+   "id": "P0-17",
+   "level": 0,
+   "label": "Porte 0.13 Entrée",
+   "between": [
+    "room:0.13",
+    "corridor:0"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 474,
+    "y": 462
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P0-18",
+   "level": 0,
+   "label": "Porte 0.06 Entrée",
+   "between": [
+    "corridor:0",
+    "room:0.06"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 466,
+    "y": 416
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P0-19",
+   "level": 0,
+   "label": "Porte 0.13 Entrée",
+   "between": [
+    "room:0.13",
+    "room:0.19"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 402,
+    "y": 600
+   },
+   "plan_axis": "y",
+   "plan_width": 27
+  },
+  {
+   "id": "P0-20",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.19",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 322,
+    "y": 726
+   },
+   "plan_axis": "y",
+   "plan_width": 55
+  },
+  {
+   "id": "P0-21",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.15",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 201,
+    "y": 581
+   },
+   "plan_axis": "y",
+   "plan_width": 55
+  },
+  {
+   "id": "P0-22",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.19",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 280,
+    "y": 676
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P0-23",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.15",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 237,
+    "y": 625
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P0-24",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.19",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 450,
+    "y": 765
+   },
+   "plan_axis": "x",
+   "plan_width": 100
+  },
+  {
+   "id": "P0-25",
+   "level": 0,
+   "label": "Porte-fenêtre 0.14 Terrasse",
+   "between": [
+    "room:0.09",
+    "room:0.14"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 685,
+    "y": 569
+   },
+   "plan_axis": "x",
+   "plan_width": 90
+  },
+  {
+   "id": "P0-26",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.18",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 531,
+    "y": 698
+   },
+   "plan_axis": "x",
+   "plan_width": 55
+  },
+  {
+   "id": "P0-27",
+   "level": 0,
+   "label": "Porte-fenêtre 0.20 Terrasse",
+   "between": [
+    "room:0.17",
+    "room:0.20"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 592,
+    "y": 647
+   },
+   "plan_axis": "x",
+   "plan_width": 55
+  },
+  {
+   "id": "E1",
+   "level": 0,
+   "label": "Porte d'entrée, hall de l'escalier",
+   "between": [
+    "outside",
+    "corridor:0"
+   ],
+   "external": true,
+   "fire_rating": "EI2 30-C",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 388,
+    "y": 362
+   },
+   "plan_axis": "x",
+   "plan_width": 34
+  },
+  {
+   "id": "P0-29",
+   "level": 0,
+   "label": "Porte-fenêtre 0.01 Terrasse",
+   "between": [
+    "room:0.02",
+    "room:0.01"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 482,
+    "y": 277
+   },
+   "plan_axis": "x",
+   "plan_width": 55
+  },
+  {
+   "id": "P0-30",
+   "level": 0,
+   "label": "Porte 0.09 Séjour-cuisine",
+   "between": [
+    "room:0.09",
+    "room:0.06"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 568,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 26
+  },
+  {
+   "id": "P0-31",
+   "level": 0,
+   "label": "Porte 0.06 Entrée",
+   "between": [
+    "room:0.06",
+    "room:0.04"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 550,
+    "y": 402
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-32",
+   "level": 0,
+   "label": "Porte 0.06 Entrée",
+   "between": [
+    "room:0.06",
+    "room:0.02"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 519,
+    "y": 365
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-33",
+   "level": 0,
+   "label": "Porte 0.07 Buanderie",
+   "between": [
+    "room:0.07",
+    "room:0.06"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 530,
+    "y": 434
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P0-34",
+   "level": 0,
+   "label": "Porte 0.05 Local poubelles",
+   "between": [
+    "outside",
+    "room:0.05"
+   ],
+   "external": true,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 276,
+    "y": 403
+   },
+   "plan_axis": "x",
+   "plan_width": 122
+  },
+  {
+   "id": "P1-35",
+   "level": 1,
+   "label": "Porte 1.06 Buanderie",
+   "between": [
+    "room:1.06",
+    "room:1.04"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 530,
+    "y": 434
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-36",
+   "level": 1,
+   "label": "Porte 1.04 Entrée",
+   "between": [
+    "room:1.04",
+    "room:1.03"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 550,
+    "y": 402
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-37",
+   "level": 1,
+   "label": "Porte 1.04 Entrée",
+   "between": [
+    "room:1.04",
+    "room:1.01"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 519,
+    "y": 365
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-38",
+   "level": 1,
+   "label": "Porte 1.08 Séjour-cuisine",
+   "between": [
+    "room:1.08",
+    "room:1.04"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 568,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 26
+  },
+  {
+   "id": "P1-39",
+   "level": 1,
+   "label": "Porte-fenêtre 1.05 Balcon",
+   "between": [
+    "room:1.08",
+    "room:1.05"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 691,
+    "y": 419
+   },
+   "plan_axis": "y",
+   "plan_width": 89
+  },
+  {
+   "id": "P1-40",
+   "level": 1,
+   "label": "Porte 1.14 Circulation",
+   "between": [
+    "room:1.14",
+    "room:1.07"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 310,
+    "y": 531
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-41",
+   "level": 1,
+   "label": "Porte 1.16 Chambre",
+   "between": [
+    "room:1.16",
+    "room:1.13"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 462,
+    "y": 572
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-42",
+   "level": 1,
+   "label": "Porte 1.15 Chambre",
+   "between": [
+    "room:1.15",
+    "room:1.13"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 494,
+    "y": 546
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-43",
+   "level": 1,
+   "label": "Porte 1.12 WC",
+   "between": [
+    "room:1.12",
+    "room:1.14"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 361,
+    "y": 565
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-44",
+   "level": 1,
+   "label": "Porte 1.09 Buanderie",
+   "between": [
+    "room:1.09",
+    "room:1.14"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 334,
+    "y": 534
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-45",
+   "level": 1,
+   "label": "Porte 1.10 Salle de bain",
+   "between": [
+    "room:1.10",
+    "room:1.13"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 440,
+    "y": 544
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-46",
+   "level": 1,
+   "label": "Porte 1.11 Chambre",
+   "between": [
+    "room:1.11",
+    "room:1.14"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 312,
+    "y": 563
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P1-47",
+   "level": 1,
+   "label": "Porte 1.14 Circulation",
+   "between": [
+    "room:1.14",
+    "room:1.17"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 358,
+    "y": 591
+   },
+   "plan_axis": "x",
+   "plan_width": 27
+  },
+  {
+   "id": "P1-48",
+   "level": 1,
+   "label": "Porte 1.04 Entrée",
+   "between": [
+    "corridor:1",
+    "room:1.04"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 466,
+    "y": 416
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P1-49",
+   "level": 1,
+   "label": "Porte 1.13 Entrée",
+   "between": [
+    "room:1.13",
+    "corridor:1"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 474,
+    "y": 462
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P1-50",
+   "level": 1,
+   "label": "Porte 1.02 Ascenseur",
+   "between": [
+    "corridor:1",
+    "room:1.02"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 426,
+    "y": 363
+   },
+   "plan_axis": "y",
+   "plan_width": 32
+  },
+  {
+   "id": "P1-51",
+   "level": 1,
+   "label": "Porte 1.13 Entrée",
+   "between": [
+    "room:1.13",
+    "room:1.17"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 402,
+    "y": 600
+   },
+   "plan_axis": "y",
+   "plan_width": 27
+  },
+  {
+   "id": "P1-52",
+   "level": 1,
+   "label": "Porte-fenêtre 1.18 Balcon",
+   "between": [
+    "room:1.16",
+    "room:1.18"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 531,
+    "y": 699
+   },
+   "plan_axis": "x",
+   "plan_width": 55
+  },
+  {
+   "id": "P1-53",
+   "level": 1,
+   "label": "Porte-fenêtre 1.18 Balcon",
+   "between": [
+    "room:1.17",
+    "room:1.18"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 450,
+    "y": 765
+   },
+   "plan_axis": "x",
+   "plan_width": 100
+  },
+  {
+   "id": "P2-54",
+   "level": 2,
+   "label": "Porte-fenêtre 2.05 Balcon",
+   "between": [
+    "room:2.08",
+    "room:2.05"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 691,
+    "y": 419
+   },
+   "plan_axis": "y",
+   "plan_width": 89
+  },
+  {
+   "id": "P2-55",
+   "level": 2,
+   "label": "Porte 2.06 Buanderie",
+   "between": [
+    "room:2.06",
+    "room:2.04"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 530,
+    "y": 434
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-56",
+   "level": 2,
+   "label": "Porte 2.04 Entrée",
+   "between": [
+    "room:2.04",
+    "room:2.03"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 550,
+    "y": 402
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-57",
+   "level": 2,
+   "label": "Porte 2.04 Entrée",
+   "between": [
+    "room:2.04",
+    "room:2.01"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 519,
+    "y": 365
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-58",
+   "level": 2,
+   "label": "Porte 2.08 Séjour-cuisine",
+   "between": [
+    "room:2.08",
+    "room:2.04"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 568,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 26
+  },
+  {
+   "id": "P2-59",
+   "level": 2,
+   "label": "Porte 2.12 Entrée",
+   "between": [
+    "room:2.12",
+    "corridor:2"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 474,
+    "y": 462
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P2-60",
+   "level": 2,
+   "label": "Porte 2.14 Circulation",
+   "between": [
+    "room:2.14",
+    "room:2.07"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 310,
+    "y": 531
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-61",
+   "level": 2,
+   "label": "Porte 2.15 Chambre",
+   "between": [
+    "room:2.15",
+    "room:2.12"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 494,
+    "y": 546
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-62",
+   "level": 2,
+   "label": "Porte 2.11 WC",
+   "between": [
+    "room:2.11",
+    "room:2.14"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 361,
+    "y": 565
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-63",
+   "level": 2,
+   "label": "Porte 2.09 Buanderie",
+   "between": [
+    "room:2.09",
+    "room:2.14"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 334,
+    "y": 534
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-64",
+   "level": 2,
+   "label": "Porte 2.10 Salle de bain",
+   "between": [
+    "room:2.10",
+    "room:2.12"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 440,
+    "y": 544
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-65",
+   "level": 2,
+   "label": "Porte 2.13 Chambre",
+   "between": [
+    "room:2.13",
+    "room:2.14"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 312,
+    "y": 563
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P2-66",
+   "level": 2,
+   "label": "Porte 2.14 Circulation",
+   "between": [
+    "room:2.14",
+    "room:2.16"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 358,
+    "y": 591
+   },
+   "plan_axis": "x",
+   "plan_width": 27
+  },
+  {
+   "id": "P2-67",
+   "level": 2,
+   "label": "Porte 2.04 Entrée",
+   "between": [
+    "corridor:2",
+    "room:2.04"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 466,
+    "y": 416
+   },
+   "plan_axis": "y",
+   "plan_width": 30
+  },
+  {
+   "id": "P2-68",
+   "level": 2,
+   "label": "Porte 2.12 Entrée",
+   "between": [
+    "room:2.12",
+    "room:2.16"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 402,
+    "y": 600
+   },
+   "plan_axis": "y",
+   "plan_width": 27
+  },
+  {
+   "id": "P2-69",
+   "level": 2,
+   "label": "Porte-fenêtre 2.17 Balcon",
+   "between": [
+    "room:2.16",
+    "room:2.17"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 422,
+    "y": 731
+   },
+   "plan_axis": "x",
+   "plan_width": 100
+  },
+  {
+   "id": "P2-70",
+   "level": 2,
+   "label": "Porte 2.02 Ascenseur",
+   "between": [
+    "corridor:2",
+    "room:2.02"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 426,
+    "y": 363
+   },
+   "plan_axis": "y",
+   "plan_width": 32
+  },
+  {
+   "id": "P3-71",
+   "level": 3,
+   "label": "Porte 3.01 Ascenseur",
+   "between": [
+    "room:3.01",
+    "room:3.03"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 426,
+    "y": 363
+   },
+   "plan_axis": "y",
+   "plan_width": 32
+  },
+  {
+   "id": "P3-72",
+   "level": 3,
+   "label": "Porte 3.03 Circulation",
+   "between": [
+    "room:3.03",
+    "corridor:3"
+   ],
+   "fire_rating": "EI2 30-C-Sm",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 453,
+    "y": 432
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "Tür-018",
+   "level": 3,
+   "label": "Porte 3.T Buanderie",
+   "between": [
+    "corridor:3",
+    "room:3.T"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 487,
+    "y": 444
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P3-74",
+   "level": 3,
+   "label": "Porte-fenêtre 3.08 Terrasse",
+   "between": [
+    "room:3.10",
+    "room:3.08"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 365,
+    "y": 664
+   },
+   "plan_axis": "x",
+   "plan_width": 100
+  },
+  {
+   "id": "P3-75",
+   "level": 3,
+   "label": "Porte-fenêtre 3.07 Terrasse",
+   "between": [
+    "room:3.12",
+    "room:3.07"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 690,
+    "y": 507
+   },
+   "plan_axis": "x",
+   "plan_width": 55
+  },
+  {
+   "id": "P3-76",
+   "level": 3,
+   "label": "Porte-fenêtre 3.04 Terrasse",
+   "between": [
+    "room:3.10",
+    "room:3.04"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 237,
+    "y": 535
+   },
+   "plan_axis": "x",
+   "plan_width": 55
+  },
+  {
+   "id": "Tür-020",
+   "level": 3,
+   "label": "Porte 3.06 Salle de bain",
+   "between": [
+    "corridor:3",
+    "room:3.06"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 506,
+    "y": 500
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "Tür-019",
+   "level": 3,
+   "label": "Porte 3.05 WC",
+   "between": [
+    "corridor:3",
+    "room:3.05"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 480,
+    "y": 496
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "P3-79",
+   "level": 3,
+   "label": "Porte 3.12 Chambre",
+   "between": [
+    "corridor:3",
+    "room:3.12"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 573,
+    "y": 459
+   },
+   "plan_axis": "x",
+   "plan_width": 25
+  },
+  {
+   "id": "P3-80",
+   "level": 3,
+   "label": "Porte 3.02 Chambre",
+   "between": [
+    "corridor:3",
+    "room:3.02"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 568,
+    "y": 422
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  },
+  {
+   "id": "Tür-021",
+   "level": 3,
+   "label": "Porte 3.10 Séjour-cuisine",
+   "between": [
+    "room:3.10",
+    "corridor:3"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 414,
+    "y": 505
+   },
+   "plan_axis": "y",
+   "plan_width": 25
+  }
+ ],
+ "materials": [
+  {
+   "element": "facade",
+   "level": -1,
+   "material": "Béton armé (dalle du garage)",
+   "ifc_material": "Stahlbeton Decke Garage",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": -1,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": -1,
+   "material": "Béton armé (mur du garage)",
+   "ifc_material": "Stahlbeton Wand Garage",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": -1,
+   "material": "Béton armé (dalle)",
+   "ifc_material": "Stahlbeton Decke",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": -1,
+   "material": "Aluminium",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": -1,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 0,
+   "material": "Aluminium",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 0,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 0,
+   "material": "Béton armé (dalle)",
+   "ifc_material": "Stahlbeton Decke",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 0,
+   "material": "Béton armé (dalle du garage)",
+   "ifc_material": "Stahlbeton Decke Garage",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 0,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 0,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 1,
+   "material": "Béton armé (dalle)",
+   "ifc_material": "Stahlbeton Decke",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 1,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "roof",
+   "level": 2,
+   "material": "Béton armé (toiture)",
+   "ifc_material": "Stahlbeton Dach",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "roof",
+   "level": 2,
+   "material": "Béton armé (dalle)",
+   "ifc_material": "Stahlbeton Decke",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 2,
+   "material": "Béton armé (dalle)",
+   "ifc_material": "Stahlbeton Decke",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 2,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "roof",
+   "level": 3,
+   "material": "Béton armé (toiture)",
+   "ifc_material": "Stahlbeton Dach",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "roof",
+   "level": 3,
+   "material": "Béton armé (dalle)",
+   "ifc_material": "Stahlbeton Decke",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 3,
+   "material": "Béton armé (mur)",
+   "ifc_material": "Stahlbeton Wand",
+   "fire_rating": "REI 90",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2024-06-14T07:38:14Z"
+   }
+  }
+ ],
+ "graph": {
+  "nodes": [
+   "outside",
+   "entrance:E1",
+   "entrance:E2",
+   "stair:A",
+   "level:0",
+   "level:1",
+   "level:2",
+   "level:3",
+   "level:-1",
+   "corridor:0",
+   "corridor:1",
+   "corridor:2",
+   "corridor:3",
+   "corridor:-1",
+   "room:0.01",
+   "room:0.02",
+   "room:0.03",
+   "room:0.04",
+   "room:0.05",
+   "room:0.06",
+   "room:0.07",
+   "room:0.08",
+   "room:0.09",
+   "room:0.10",
+   "room:0.11",
+   "room:0.12",
+   "room:0.13",
+   "room:0.14",
+   "room:0.15",
+   "room:0.16",
+   "room:0.17",
+   "room:0.18",
+   "room:0.19",
+   "room:0.20",
+   "room:1.01",
+   "room:1.02",
+   "room:1.03",
+   "room:1.04",
+   "room:1.05",
+   "room:1.06",
+   "room:1.07",
+   "room:1.08",
+   "room:1.09",
+   "room:1.10",
+   "room:1.11",
+   "room:1.12",
+   "room:1.13",
+   "room:1.14",
+   "room:1.15",
+   "room:1.16",
+   "room:1.17",
+   "room:1.18",
+   "room:2.01",
+   "room:2.02",
+   "room:2.03",
+   "room:2.04",
+   "room:2.05",
+   "room:2.06",
+   "room:2.07",
+   "room:2.08",
+   "room:2.09",
+   "room:2.10",
+   "room:2.11",
+   "room:2.12",
+   "room:2.13",
+   "room:2.14",
+   "room:2.15",
+   "room:2.16",
+   "room:2.17",
+   "room:3.01",
+   "room:3.02",
+   "room:3.03",
+   "room:3.04",
+   "room:3.05",
+   "room:3.06",
+   "room:3.07",
+   "room:3.08",
+   "room:3.10",
+   "room:3.12",
+   "room:3.T",
+   "room:-1.01",
+   "room:-1.02",
+   "room:-1.03",
+   "room:-1.04",
+   "room:-1.05",
+   "room:-1.06",
+   "room:-1.07",
+   "room:-1.08",
+   "room:-1.09",
+   "room:-1.10",
+   "room:-1.11",
+   "room:-1.12",
+   "room:-1.13",
+   "room:-1.14",
+   "room:-1.15"
+  ],
+  "edges": [
+   [
+    "outside",
+    "room:0.01",
+    0.0
+   ],
+   [
+    "outside",
+    "room:0.05",
+    0.0
+   ],
+   [
+    "outside",
+    "room:0.14",
+    0.0
+   ],
+   [
+    "outside",
+    "room:0.20",
+    0.0
+   ],
+   [
+    "entrance:E1",
+    "outside",
+    0.0
+   ],
+   [
+    "entrance:E2",
+    "outside",
+    0.0
+   ],
+   [
+    "entrance:E2",
+    "room:-1.03",
+    5.0
+   ],
+   [
+    "level:0",
+    "stair:A",
+    7.8
+   ],
+   [
+    "level:1",
+    "stair:A",
+    13.8
+   ],
+   [
+    "level:2",
+    "stair:A",
+    19.7
+   ],
+   [
+    "level:3",
+    "room:3.03",
+    1.0
+   ],
+   [
+    "level:3",
+    "stair:A",
+    25.6
+   ],
+   [
+    "level:-1",
+    "stair:A",
+    1.7
+   ],
+   [
+    "corridor:0",
+    "entrance:E1",
+    2.3
+   ],
+   [
+    "corridor:0",
+    "level:0",
+    1.4
+   ],
+   [
+    "corridor:0",
+    "room:0.03",
+    2.5
+   ],
+   [
+    "corridor:0",
+    "room:0.06",
+    3.3
+   ],
+   [
+    "corridor:0",
+    "room:0.13",
+    5.1
+   ],
+   [
+    "corridor:1",
+    "level:1",
+    1.3
+   ],
+   [
+    "corridor:1",
+    "room:1.02",
+    2.6
+   ],
+   [
+    "corridor:1",
+    "room:1.04",
+    3.2
+   ],
+   [
+    "corridor:1",
+    "room:1.13",
+    5.1
+   ],
+   [
+    "corridor:2",
+    "level:2",
+    1.3
+   ],
+   [
+    "corridor:2",
+    "room:2.02",
+    2.6
+   ],
+   [
+    "corridor:2",
+    "room:2.04",
+    3.2
+   ],
+   [
+    "corridor:2",
+    "room:2.12",
+    5.1
+   ],
+   [
+    "corridor:3",
+    "room:3.02",
+    5.5
+   ],
+   [
+    "corridor:3",
+    "room:3.03",
+    3.3
+   ],
+   [
+    "corridor:3",
+    "room:3.05",
+    2.0
+   ],
+   [
+    "corridor:3",
+    "room:3.06",
+    3.4
+   ],
+   [
+    "corridor:3",
+    "room:3.10",
+    6.8
+   ],
+   [
+    "corridor:3",
+    "room:3.12",
+    5.7
+   ],
+   [
+    "corridor:3",
+    "room:3.T",
+    2.3
+   ],
+   [
+    "corridor:-1",
+    "level:-1",
+    1.4
+   ],
+   [
+    "corridor:-1",
+    "room:-1.01",
+    7.0
+   ],
+   [
+    "corridor:-1",
+    "room:-1.02",
+    2.6
+   ],
+   [
+    "corridor:-1",
+    "room:-1.04",
+    3.5
+   ],
+   [
+    "corridor:-1",
+    "room:-1.06",
+    3.0
+   ],
+   [
+    "corridor:-1",
+    "room:-1.11",
+    9.2
+   ],
+   [
+    "room:0.01",
+    "room:0.02",
+    3.5
+   ],
+   [
+    "room:0.02",
+    "room:0.06",
+    3.2
+   ],
+   [
+    "room:0.04",
+    "room:0.06",
+    3.1
+   ],
+   [
+    "room:0.06",
+    "room:0.07",
+    2.1
+   ],
+   [
+    "room:0.06",
+    "room:0.09",
+    5.8
+   ],
+   [
+    "room:0.08",
+    "room:0.16",
+    2.9
+   ],
+   [
+    "room:0.09",
+    "room:0.14",
+    6.8
+   ],
+   [
+    "room:0.10",
+    "room:0.16",
+    2.1
+   ],
+   [
+    "room:0.11",
+    "room:0.13",
+    2.7
+   ],
+   [
+    "room:0.12",
+    "room:0.16",
+    1.8
+   ],
+   [
+    "room:0.13",
+    "room:0.17",
+    3.7
+   ],
+   [
+    "room:0.13",
+    "room:0.18",
+    4.0
+   ],
+   [
+    "room:0.13",
+    "room:0.19",
+    6.5
+   ],
+   [
+    "room:0.15",
+    "room:0.16",
+    2.9
+   ],
+   [
+    "room:0.15",
+    "room:0.20",
+    14.1
+   ],
+   [
+    "room:0.16",
+    "room:0.19",
+    4.9
+   ],
+   [
+    "room:0.17",
+    "room:0.20",
+    7.0
+   ],
+   [
+    "room:0.18",
+    "room:0.20",
+    4.7
+   ],
+   [
+    "room:0.19",
+    "room:0.20",
+    7.0
+   ],
+   [
+    "room:1.01",
+    "room:1.04",
+    3.6
+   ],
+   [
+    "room:1.03",
+    "room:1.04",
+    3.6
+   ],
+   [
+    "room:1.04",
+    "room:1.06",
+    2.1
+   ],
+   [
+    "room:1.04",
+    "room:1.08",
+    5.8
+   ],
+   [
+    "room:1.05",
+    "room:1.08",
+    4.7
+   ],
+   [
+    "room:1.07",
+    "room:1.14",
+    3.5
+   ],
+   [
+    "room:1.09",
+    "room:1.14",
+    2.1
+   ],
+   [
+    "room:1.10",
+    "room:1.13",
+    2.7
+   ],
+   [
+    "room:1.11",
+    "room:1.14",
+    3.4
+   ],
+   [
+    "room:1.12",
+    "room:1.14",
+    1.8
+   ],
+   [
+    "room:1.13",
+    "room:1.15",
+    3.7
+   ],
+   [
+    "room:1.13",
+    "room:1.16",
+    4.0
+   ],
+   [
+    "room:1.13",
+    "room:1.17",
+    6.9
+   ],
+   [
+    "room:1.14",
+    "room:1.17",
+    5.2
+   ],
+   [
+    "room:1.16",
+    "room:1.18",
+    6.2
+   ],
+   [
+    "room:1.17",
+    "room:1.18",
+    5.3
+   ],
+   [
+    "room:2.01",
+    "room:2.04",
+    3.1
+   ],
+   [
+    "room:2.03",
+    "room:2.04",
+    3.1
+   ],
+   [
+    "room:2.04",
+    "room:2.06",
+    2.1
+   ],
+   [
+    "room:2.04",
+    "room:2.08",
+    5.8
+   ],
+   [
+    "room:2.05",
+    "room:2.08",
+    4.6
+   ],
+   [
+    "room:2.07",
+    "room:2.14",
+    2.9
+   ],
+   [
+    "room:2.09",
+    "room:2.14",
+    2.1
+   ],
+   [
+    "room:2.10",
+    "room:2.12",
+    2.7
+   ],
+   [
+    "room:2.11",
+    "room:2.14",
+    1.8
+   ],
+   [
+    "room:2.12",
+    "room:2.15",
+    3.6
+   ],
+   [
+    "room:2.12",
+    "room:2.16",
+    5.5
+   ],
+   [
+    "room:2.13",
+    "room:2.14",
+    2.9
+   ],
+   [
+    "room:2.14",
+    "room:2.16",
+    4.1
+   ],
+   [
+    "room:2.16",
+    "room:2.17",
+    5.0
+   ],
+   [
+    "room:3.01",
+    "room:3.03",
+    2.2
+   ],
+   [
+    "room:3.04",
+    "room:3.10",
+    4.9
+   ],
+   [
+    "room:3.07",
+    "room:3.12",
+    3.5
+   ],
+   [
+    "room:3.08",
+    "room:3.10",
+    5.3
+   ],
+   [
+    "room:-1.03",
+    "room:-1.11",
+    15.0
+   ],
+   [
+    "room:-1.05",
+    "room:-1.07",
+    2.8
+   ],
+   [
+    "room:-1.05",
+    "room:-1.11",
+    8.0
+   ],
+   [
+    "room:-1.06",
+    "room:-1.08",
+    4.7
+   ],
+   [
+    "room:-1.07",
+    "room:-1.09",
+    2.9
+   ],
+   [
+    "room:-1.07",
+    "room:-1.11",
+    6.8
+   ],
+   [
+    "room:-1.09",
+    "room:-1.11",
+    6.6
+   ],
+   [
+    "room:-1.10",
+    "room:-1.11",
+    7.1
+   ],
+   [
+    "room:-1.10",
+    "room:-1.12",
+    2.8
+   ],
+   [
+    "room:-1.11",
+    "room:-1.12",
+    5.7
+   ],
+   [
+    "room:-1.11",
+    "room:-1.13",
+    5.4
+   ],
+   [
+    "room:-1.11",
+    "room:-1.14",
+    6.4
+   ],
+   [
+    "room:-1.11",
+    "room:-1.15",
+    8.2
+   ],
+   [
+    "room:-1.12",
+    "room:-1.13",
+    2.7
+   ],
+   [
+    "room:-1.13",
+    "room:-1.14",
+    2.8
+   ],
+   [
+    "room:-1.14",
+    "room:-1.15",
+    2.8
+   ]
+  ]
+ },
+ "model": {
+  "provenance": "architect",
+  "provenance_fr": "Maquette IFC réelle (TU Wien) — adresse fictive, exercice",
+  "level_plans": [
+   {
+    "level": -1,
+    "url": "http://localhost:8000/building/files/levels/L-1.svg",
+    "image_id": "ifc-L-1"
+   },
+   {
+    "level": 0,
+    "url": "http://localhost:8000/building/files/levels/L0.svg",
+    "image_id": "ifc-L0"
+   },
+   {
+    "level": 1,
+    "url": "http://localhost:8000/building/files/levels/L1.svg",
+    "image_id": "ifc-L1"
+   },
+   {
+    "level": 2,
+    "url": "http://localhost:8000/building/files/levels/L2.svg",
+    "image_id": "ifc-L2"
+   },
+   {
+    "level": 3,
+    "url": "http://localhost:8000/building/files/levels/L3.svg",
+    "image_id": "ifc-L3"
+   }
+  ],
+  "stats": {
+   "levels": 5,
+   "stairs": 1,
+   "doors": 81,
+   "rooms": 70
+  },
+  "extractor": {
+   "name": "seraph_ifc.extract",
+   "version": "1.0.0"
+  },
+  "source_ifc": {
+   "file": "RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc",
+   "sha256": "759c5e5f516eb23eb4a9a5f113e626e35e995029ca153ee759ac94a59043652e",
+   "schema": "IFC4",
+   "bytes": 13512479,
+   "credit": "TU Wien, Research Unit Digital Building Process — CC BY 4.0",
+   "url": "https://researchdata.tuwien.ac.at/records/wzp90-dmf60"
+  },
+  "second_route": {
+   "kind": "facade_ladder",
+   "reason": "Un seul escalier, encloisonné et mis en surpression ; second moyen de sauvetage par la façade (balcons, terrasses) avec les échelles des pompiers."
+  },
+  "facade_rescue_points": {
+   "1": [
+    "room:1.05",
+    "room:1.18"
+   ],
+   "2": [
+    "room:2.05",
+    "room:2.17"
+   ],
+   "3": [
+    "room:3.04",
+    "room:3.08",
+    "room:3.07"
+   ]
+  },
+  "checks": {
+   "passed": true,
+   "failed": []
+  }
+ }
+}

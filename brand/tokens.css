@@ -1,0 +1,70 @@
+/*
+ * Seraph — art direction tokens. Reference page: brand/index.html. Ring: brand/seraph-field.js.
+ * One colour and one tint scale per module (50 = lightest, 950 = darkest). Values match SeraphField.scales.
+ * Fonts (Google Fonts, also in next/font/google): Archivo (wdth 62..125), Geist, Geist Mono.
+ */
+:root {
+  /* Halo — thermal white (also the neutrals of the whole system) */
+  --halo-50: #f5f5f4;  --halo-100: #e7e6e4; --halo-200: #d0cecb; --halo-300: #b2afab; --halo-400: #8f8c88;
+  --halo-500: #6e6b67; --halo-600: #54524f; --halo-700: #3d3c3a; --halo-800: #282726; --halo-900: #171615;
+  --halo-950: #0b0a0a;
+  --halo: var(--halo-50);
+
+  /* Seraph — blackbody, 800 → 3000 K */
+  --seraph-50: #fff4ec;  --seraph-100: #ffe3cc; --seraph-200: #ffc496; --seraph-300: #ff9c5a; --seraph-400: #ff7a2e;
+  --seraph-500: #f2560f; --seraph-600: #c93c08; --seraph-700: #9a2a07; --seraph-800: #6b1d06; --seraph-900: #3e1004;
+  --seraph-950: #210802;
+  --seraph: var(--seraph-500);
+
+  /* Gabriel — blue flame, CH* 431 nm */
+  --gabriel-50: #eef2ff;  --gabriel-100: #dce3ff; --gabriel-200: #bccbff; --gabriel-300: #92a8ff; --gabriel-400: #6b84ff;
+  --gabriel-500: #4a5ff5; --gabriel-600: #3644d6; --gabriel-700: #2a33a8; --gabriel-800: #1f2677; --gabriel-900: #131846;
+  --gabriel-950: #0a0c26;
+  --gabriel: var(--gabriel-400);
+
+  /* Rosetta — ironbow thermal magenta */
+  --rosetta-50: #fdf0fa;  --rosetta-100: #fadcf3; --rosetta-200: #f5b9e7; --rosetta-300: #ee8ad6; --rosetta-400: #e45cc2;
+  --rosetta-500: #d036a8; --rosetta-600: #ad2389; --rosetta-700: #851a6a; --rosetta-800: #5c134a; --rosetta-900: #360b2c;
+  --rosetta-950: #1d0518;
+  --rosetta: var(--rosetta-400);
+
+  /* Silex — green flame, C2 516 nm */
+  --silex-50: #ecfdf4;  --silex-100: #d2f9e4; --silex-200: #a6f2ca; --silex-300: #6ee6a9; --silex-400: #3fd68a;
+  --silex-500: #1fbb6e; --silex-600: #149658; --silex-700: #117447; --silex-800: #0d5235; --silex-900: #08311f;
+  --silex-950: #041b11;
+  --silex: var(--silex-400);
+
+  /* Type families */
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;  /* titles; caps lockups at font-stretch 125% */
+  --font-text: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (desktop max; scale down with clamp) */
+  --type-h1: 84px;    /* Archivo 520, wdth 108, tracking -0.035em, line-height 0.98 */
+  --type-h2: 44px;    /* Archivo 520, wdth 108, tracking -0.025em, line-height 1.05 */
+  --type-h3: 22px;    /* Archivo 600, wdth 112, tracking -0.01em */
+  --type-body: 16px;  /* Geist 400, line-height 1.55 */
+  --type-lead: 19px;  /* Geist 400, line-height 1.45 */
+  --type-label: 12px; /* Geist Mono 500, caps, tracking 0.08em */
+}
+
+/* Caps lockup: the wordmark style. */
+.lockup {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 760;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+/* Static grain for flat surfaces without a live ring. */
+.grain { position: relative; isolation: isolate; }
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}

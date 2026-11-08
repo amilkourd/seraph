@@ -1,0 +1,18 @@
+{% extends app.name ~ "/layout.html" %}
+{% block title %}Identification{% endblock %}
+{% block content %}
+<div class="login-box">
+  <div class="login-title">Identification — {{ app.product }}</div>
+  <form method="post" action="/login" class="login-form" id="form-login">
+    <input type="hidden" name="next" value="{{ next }}">
+    {% if error %}<div class="error" id="login-error" role="alert">{{ error }}</div>{% endif %}
+    <table class="form-grid">
+      <tr><th><label for="username">Identifiant</label></th>
+          <td><input type="text" id="username" name="username" value="{{ username }}" autocomplete="username" size="22" autofocus></td></tr>
+      <tr><th><label for="password">Mot de passe</label></th>
+          <td><input type="password" id="password" name="password" autocomplete="current-password" size="22"></td></tr>
+      <tr><th></th><td><button type="submit" id="btn-connexion">Connexion</button></td></tr>
+    </table>
+  </form>
+</div>
+{% endblock %}

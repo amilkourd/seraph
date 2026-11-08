@@ -1,0 +1,24 @@
+{% extends "occupants/layout.html" %}
+{% block title %}Occupant {{ o.id }}{% endblock %}
+{% block content %}
+<div class="crumbs">Accueil › <a href="/batiments">Immeubles</a> › <a href="/batiments/{{ building_id }}">Bâtiment</a> › {{ o.id }}</div>
+<h1 class="intra-h1">Occupant {{ o.id }}</h1>
+<fieldset class="intra-box">
+  <legend>Modifier l'occupant</legend>
+  {% if error %}<div class="error" role="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="/batiments/{{ building_id }}/occupants/{{ o.id }}/modifier" id="form-modifier">
+    <table class="form-grid">
+      <tr><th><label for="nom">Nom</label></th><td><input id="nom" name="nom" size="30" value="{{ form.name or '' }}"></td></tr>
+      <tr><th><label for="telephone">Téléphone</label></th><td><input id="telephone" name="telephone" size="16" value="{{ form.phone_raw or '' }}"></td></tr>
+      <tr><th><label for="niveau">Niveau</label></th><td><select id="niveau" name="niveau">{% for n, label in levels %}<option value="{{ n }}" {% if form.level == n|string %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></td></tr>
+      <tr><th><label for="local">Local</label></th><td><input id="local" name="local" size="8" value="{{ form.room or '' }}"></td></tr>
+      <tr><th><label for="langue">Langue</label></th><td><select id="langue" name="langue">{% for code, label in languages %}<option value="{{ code }}" {% if form.language == code %}selected{% endif %}>{{ code }} — {{ label }}</option>{% endfor %}</select></td></tr>
+      <tr><th><label for="notes">Notes</label></th><td><input id="notes" name="notes" size="30" value="{{ form.notes or '' }}"></td></tr>
+    </table>
+    <button type="submit" id="btn-enregistrer">Enregistrer</button> <a href="/batiments/{{ building_id }}">Annuler</a>
+  </form>
+  <form method="post" action="/batiments/{{ building_id }}/occupants/{{ o.id }}/supprimer" class="danger-form">
+    <button type="submit" id="btn-supprimer">Supprimer l'occupant</button>
+  </form>
+</fieldset>
+{% endblock %}

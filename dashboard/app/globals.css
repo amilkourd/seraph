@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+/* Seraph art direction (brand/tokens.css) on the reference layout: paper panels with registration
+   crosses, floating over a soot dot-matrix field. Stage is a fixed 1920×1080, scaled to the screen. */
+:root {
+  /* neutrals = the Halo scale (brand/tokens.css) */
+  --suie: #0b0a0a;   /* halo-950 */
+  --cendre: #171615; /* halo-900 */
+  --fumee: #3d3c3a;  /* halo-700 */
+  --gris: #8f8c88;   /* halo-400 */
+  --brume: #d0cecb;  /* halo-200 */
+  --blanc: #ffffff;
+
+  --paper: #f5f5f4;   /* halo-50 */
+  --paper-2: #e7e6e4; /* halo-100 */
+  --card: #ecebe9;    /* between halo-50 and halo-100 */
+  --ink: #0b0a0a;     /* halo-950 */
+  --ink-2: #54524f;   /* halo-600 */
+  --ink-3: #6e6b67;   /* halo-500 */
+  --rule: rgba(11, 10, 10, 0.14);
+
+  /* module identities */
+  --seraph: #f2560f;  /* seraph-500, blackbody */
+  --gabriel: #6b84ff; /* gabriel-400, CH* 431 nm */
+  --rosetta: #e45cc2; /* rosetta-400 */
+  --silex: #3fd68a;   /* silex-400, C2 516 nm */
+
+  /* signals: the only colours that carry meaning, always with a label */
+  --sur: #3fd68a;     /* safe, free route, ready (silex-400) */
+  --propose: #6b84ff; /* Seraph proposes, waiting for the COS (gabriel-400) */
+  --alerte: #ff9c5a;  /* warning, smoke (seraph-300) */
+  --danger: #f2560f;  /* fire, danger (seraph-500) */
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-jetbrains);
+  --font-display: var(--font-archivo);
+  --color-suie: var(--suie);
+  --color-cendre: var(--cendre);
+  --color-fumee: var(--fumee);
+  --color-gris: var(--gris);
+  --color-brume: var(--brume);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-sur: var(--sur);
+  --color-propose: var(--propose);
+  --color-alerte: var(--alerte);
+  --color-danger: var(--danger);
+  --color-seraph: var(--seraph);
+  --color-gabriel: var(--gabriel);
+  --color-rosetta: var(--rosetta);
+  --color-silex: var(--silex);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #050505;
+  color: var(--brume);
+  font-family: var(--font-geist), "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  background: #050505;
+}
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 50% 50%;
+}
+
+@layer components {
+/* ───── paper panel ───── */
+/* « Le noir d'abord » (brand/index.html): surfaces are dark, the light is rare. Inside .panel and .dark the paper
+   tokens flip, so the same utilities (text-ink, bg-paper, border-rule…) read as light-on-dark. */
+.panel,
+.dark {
+  --paper: #0b0a0a;  /* halo-950 */
+  --paper-2: #171615; /* halo-900 */
+  --card: #161514;   /* the brand's raised surface */
+  --ink: #ffffff;
+  --ink-2: #dcdad6;
+  --ink-3: #8f8c88;  /* halo-400 */
+  --rule: rgba(220, 218, 214, 0.14);
+}
+.panel {
+  position: absolute;
+  background: rgba(11, 10, 10, 0.94);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--rule);
+}
+
+/* card inside the panel: a flat grey field, like the reference */
+.card {
+  position: relative;
+  background: var(--card);
+}
+
+/* Type: Archivo for titles, Geist for text, JetBrains Mono for labels and figures — in sentence case, no forced capitals */
+.t-display {
+  font-family: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  font-stretch: 108%;
+  font-weight: 520;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+.label {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.t-num {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.mono {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.lockup {
+  font-family: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  font-stretch: 125%;
+  font-weight: 760;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 11px;
+  border: 1px solid var(--rule);
+  border-radius: 999px; /* the brand's pills */
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: var(--ink-2);
+  background: var(--paper);
+}
+.chip.solid { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.chip.danger { background: var(--danger); border-color: var(--danger); color: var(--ink); }
+.chip.propose { background: var(--propose); border-color: var(--propose); color: var(--ink); }
+.chip.dark { background: rgba(11, 10, 10, 0.92); border-color: rgba(220, 218, 214, 0.2); color: var(--brume); }
+
+/* status square: colour + the label next to it carries meaning */
+.sq {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
+.sq.blanc { background: var(--blanc); box-shadow: inset 0 0 0 1px var(--ink-3); }
+.sq.gris { background: transparent; box-shadow: inset 0 0 0 2px var(--gris); }
+.sq.sur { background: var(--sur); }
+.sq.propose { background: var(--propose); }
+.sq.alerte { background: var(--alerte); }
+.sq.danger { background: var(--danger); }
+.sq.rosetta { background: var(--rosetta); }
+
+.pulse { animation: pulse 1.2s var(--ease) infinite; }
+@keyframes pulse {
+  50% { opacity: 0.25; }
+}
+
+.fade-top {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 56px);
+}
+
+mark.src {
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--propose);
+}
+
+.scroll-none {
+  scrollbar-width: none;
+}
+.scroll-none::-webkit-scrollbar { display: none; }
+
+.dither {
+  background-color: #1a1918;
+  background-image: radial-gradient(rgba(220, 218, 214, 0.28) 1px, transparent 1.4px);
+  background-size: 5px 5px;
+}
+
+.bar-build {
+  background: repeating-linear-gradient(-45deg, var(--propose) 0 8px, transparent 8px 16px);
+  background-size: 200% 100%;
+  animation: build 1.6s linear infinite;
+}
+@keyframes build {
+  to { background-position: -45px 0; }
+}
+
+/* ───── 3D building overlays: flat pastilles and black tags (the reference's « N:570 ») ───── */
+.b3-tag {
+  padding: 5px 9px;
+  background: #0b0b0b;
+  color: #fff;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.b3-tag.b3-fire { color: #f2560f; }
+.b3-tag.b3-warn { color: #ff9c5a; }
+.b3-tag.b3-dim { color: #8e8c87; }
+.b3-anchor { position: relative; width: 0; height: 0; }
+.b3-anchor > * { position: absolute; top: 0; left: 0; transform: translateY(-50%); }
+.b3-anchor > .b3-level { left: auto; right: 16px; }
+.b3-anchor > .b3-center { transform: translate(-50%, -100%); }
+.b3-anchor > .b3-mark { left: -9px; }
+.b3-level { display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; background: transparent; color: #8e8c87; font-size: 18px; white-space: nowrap; }
+.b3-level .b3-fire { color: #f2560f; }
+.b3-level .b3-warn { color: #ff9c5a; }
+.b3-dot-sm { width: 13px; height: 13px; border-width: 2px; }
+.b3-level-hi { color: #fff; }
+.b3-mark { display: flex; align-items: center; gap: 8px; }
+.b3-dot { display: block; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #000; flex: none; }
+.b3-dot-life { background: #3fd68a; }
+.b3-dot-warn { background: #ff9c5a; }
+.b3-dot-fire { background: #f2560f; box-shadow: 0 0 0 0 rgba(242, 86, 15, 0.8); animation: b3-ping 1.6s ease-out infinite; }
+.b3-dot-dim { background: #000; border-color: #8e8c87; }
+.b3-team { display: block; width: 16px; height: 16px; background: #fff; border: 3px solid #000; transform: rotate(45deg); flex: none; }
+@keyframes b3-ping {
+  to { box-shadow: 0 0 0 16px rgba(242, 86, 15, 0); }
+}
+
+/* callouts, after the reference: framed label, light title bar, mono caps lines */
+.b3-note { position: absolute; left: 0; top: 0; width: 268px; padding: 8px 10px 10px; background: #000; color: #dcdad5; }
+.b3-note-head { display: flex; align-items: baseline; justify-content: space-between; margin: -2px -4px 8px; padding: 4px 8px; background: #d0cecb; color: #0b0a0a; }
+.b3-note-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-archivo), "Helvetica Neue", Arial, sans-serif; font-stretch: 108%; font-weight: 600; font-size: 20px; letter-spacing: -0.01em; }
+.b3-note-title i { display: block; width: 9px; height: 9px; flex: none; }
+.b3-note-idx { font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 11px; font-weight: 500; letter-spacing: 0; }
+.b3-note-line { font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 12px; font-weight: 500; letter-spacing: 0; line-height: 1.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.b3-note-frame { fill: none; stroke: #dcdad5; stroke-width: 1.2; }
+.b3-note-leader { fill: none; stroke: #dcdad5; stroke-width: 1.2; }
+.b3-note-leader-dark { stroke: #0b0a0a; stroke-width: 1.6; }
+.b3-note-mark { fill: #000; stroke: #dcdad5; stroke-width: 1.4; }
+}

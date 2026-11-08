@@ -1,0 +1,63 @@
+{
+  "name": "Bâtiment d'exercice",
+  "address_placeholder": "DEMO_ADDRESS (hackathon venue, from .env)",
+  "levels": [
+    {"level": 0, "label": "RDC"}, {"level": 1, "label": "R+1"}, {"level": 2, "label": "R+2"},
+    {"level": 3, "label": "R+3"}, {"level": 4, "label": "R+4"}, {"level": 5, "label": "R+5"}
+  ],
+  "stairs": [
+    {"id": "A", "label": "Escalier A (nord)", "status": "clear"},
+    {"id": "B", "label": "Escalier B (sud)", "status": "smoke"}
+  ],
+  "entrances": [
+    {"id": "E1", "label": "Entrée principale boulevard", "side": "front", "status": "usable", "leads_to": "stair:B",
+     "point": {"image_id": "sv-front-01", "x": 512, "y": 640}},
+    {"id": "E2", "label": "Porte latérale rue", "side": "left", "status": "usable", "leads_to": "stair:A",
+     "point": {"image_id": "earth-left-01", "x": 300, "y": 700}}
+  ],
+  "hydrants": [{"id": "H1", "label": "Poteau incendie rue latérale", "distance_m": 40,
+                "point": {"image_id": "sv-left-01", "x": 820, "y": 760}}],
+  "truck_spot": {"label": "Rue latérale, devant E2", "point": {"image_id": "earth-top-01", "x": 260, "y": 520}},
+  "plan": {
+    "image_id": "plan-l3-01", "level": 3, "file": "plan-level3.svg",
+    "points": [
+      {"name": "stair:A", "label": "Escalier A", "point": {"image_id": "plan-l3-01", "x": 130, "y": 260}},
+      {"name": "stair:B", "label": "Escalier B", "point": {"image_id": "plan-l3-01", "x": 870, "y": 740}},
+      {"name": "elevator", "label": "Ascenseur", "point": {"image_id": "plan-l3-01", "x": 130, "y": 410}},
+      {"name": "room:3.10", "label": "3.10 Plateau", "point": {"image_id": "plan-l3-01", "x": 415, "y": 310}},
+      {"name": "room:3.12", "label": "3.12 Réunion", "point": {"image_id": "plan-l3-01", "x": 785, "y": 310}},
+      {"name": "room:3.14", "label": "3.14 Cuisine", "point": {"image_id": "plan-l3-01", "x": 420, "y": 700}},
+      {"name": "room:3.T", "label": "3.T Local technique", "point": {"image_id": "plan-l3-01", "x": 715, "y": 740}},
+      {"name": "corridor", "label": "Circulation", "point": {"image_id": "plan-l3-01", "x": 570, "y": 515}},
+      {"name": "riser", "label": "Colonne sèche", "point": {"image_id": "plan-l3-01", "x": 130, "y": 330}},
+      {"name": "gas_cutoff", "label": "Coupure gaz", "point": {"image_id": "plan-l3-01", "x": 300, "y": 800}}
+    ],
+    "zones": [
+      {"name": "stair:A", "polygon": [[60,160],[200,160],[200,360],[60,360]]},
+      {"name": "elevator", "polygon": [[60,360],[200,360],[200,460],[60,460]]},
+      {"name": "room:3.10", "polygon": [[210,160],[620,160],[620,460],[210,460]]},
+      {"name": "room:3.12", "polygon": [[630,160],[940,160],[940,460],[630,460]]},
+      {"name": "corridor", "polygon": [[200,465],[940,465],[940,565],[200,565]]},
+      {"name": "room:3.14", "polygon": [[210,570],[630,570],[630,840],[210,840]]},
+      {"name": "room:3.T", "polygon": [[640,640],[790,640],[790,840],[640,840]]},
+      {"name": "stair:B", "polygon": [[800,640],[940,640],[940,840],[800,840]]}
+    ]
+  },
+  "graph": {
+    "_comment": "Seraph routes on this graph (code, not a model). Edges are undirected. Plan-level adjacency for level 3; stairs connect every level.",
+    "nodes": ["truck", "outside", "entrance:E1", "entrance:E2", "stair:A", "stair:B", "level:0", "level:1", "level:2", "level:3", "level:4", "level:5",
+              "corridor:3", "room:3.10", "room:3.12", "room:3.14", "room:3.T"],
+    "edges": [
+      ["truck", "entrance:E2"], ["truck", "entrance:E1"], ["outside", "entrance:E1"], ["outside", "entrance:E2"],
+      ["entrance:E1", "stair:B"], ["entrance:E2", "stair:A"],
+      ["stair:A", "level:0"], ["stair:A", "level:1"], ["stair:A", "level:2"], ["stair:A", "level:3"], ["stair:A", "level:4"], ["stair:A", "level:5"],
+      ["stair:B", "level:0"], ["stair:B", "level:1"], ["stair:B", "level:2"], ["stair:B", "level:3"], ["stair:B", "level:4"], ["stair:B", "level:5"],
+      ["level:3", "corridor:3"], ["corridor:3", "room:3.10"], ["corridor:3", "room:3.12"], ["corridor:3", "room:3.14"], ["corridor:3", "room:3.T"]
+    ]
+  },
+  "hazards_initial": [
+    {"id": "HZ-1", "kind": "fire", "where": {"level": 3, "room": "3.T"}, "severity": "high"},
+    {"id": "HZ-2", "kind": "smoke", "where": {"stair": "B"}, "severity": "high"}
+  ],
+  "approach_expected": {"best_entrance_id": "E2", "reason": "E2 donne directement sur l'escalier A, dégagé ; E1 donne sur le hall de l'escalier B, enfumé."}
+}

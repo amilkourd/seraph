@@ -1,0 +1,40 @@
+{% extends "dispatch/layout.html" %}
+{% block title %}Suivi des interventions{% endblock %}
+{% block wintitle %}Suivi des interventions{% endblock %}
+{% block content %}
+<form method="get" action="/interventions" class="filter-bar" id="form-filtre">
+  <label for="statut">Statut</label>
+  <select id="statut" name="statut">
+    <option value="" {% if not statut %}selected{% endif %}>Tous</option>
+    {% for s in statuses %}<option value="{{ s }}" {% if statut == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <button type="submit">Filtrer</button>
+  <span class="counters">EN COURS : {{ counts["En cours"] }} · CLÔTURÉES : {{ counts["Clôturée"] }}</span>
+</form>
+<table class="suivi" id="interventions">
+  <thead>
+    <tr><th>N°</th><th>Déclarée le</th><th>Adresse</th><th>Commune</th><th>Nature</th><th>Niveau</th><th>Moyens</th><th>Statut</th></tr>
+  </thead>
+  {% for status in statuses %}
+  {% set group = rows|selectattr("status", "equalto", status)|list %}
+  {% if group %}
+  <tbody>
+    <tr class="cat"><td colspan="8">{% if status == "En cours" %}Interventions en cours : {{ group|length }}{% else %}Interventions clôturées : {{ group|length }}{% endif %}</td></tr>
+    {% for r in group %}
+    <tr class="inc {{ 'open' if r.status == 'En cours' else 'closed' }}" data-id="{{ r.id }}">
+      <td class="c-num"><a href="/interventions/{{ r.id }}">{{ r.id }}</a></td>
+      <td class="c-date">{{ r.declared_at|local }}</td>
+      <td class="c-adresse">{{ r.address }}</td>
+      <td class="c-commune">{{ r.commune }}</td>
+      <td class="c-nature">{{ r.nature }}</td>
+      <td class="c-niveau">{{ r.level }}</td>
+      <td class="c-moyens">{{ r.means }}</td>
+      <td class="c-statut">{{ r.status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  {% endif %}
+  {% endfor %}
+  {% if not rows %}<tbody><tr><td colspan="8" class="empty">Aucune intervention.</td></tr></tbody>{% endif %}
+</table>
+{% endblock %}

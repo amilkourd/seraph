@@ -1,0 +1,32 @@
+{% extends "occupants/public.html" %}
+{% block title %}Inscription des occupants{% endblock %}
+{% block content %}
+<h1>Inscription des occupants</h1>
+{% if error %}<div class="error" role="alert" id="inscription-error">{{ error }}</div>{% endif %}
+<form method="post" action="/inscription" id="form-inscription" class="pub-form">
+  <label for="nom">Nom et prénom</label>
+  <input id="nom" name="nom" autocomplete="name" required maxlength="80" value="{{ form.name or '' }}">
+  <label for="telephone">Téléphone portable</label>
+  <input id="telephone" name="telephone" type="tel" inputmode="tel" autocomplete="tel" required value="{{ form.phone_raw or '' }}">
+  <div class="pub-row">
+    <div>
+      <label for="niveau">Étage</label>
+      <select id="niveau" name="niveau" required>
+        <option value="" {% if not form.level %}selected{% endif %} disabled>—</option>
+        {% for n, label in levels %}<option value="{{ n }}" {% if form.level == n|string %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="local">Salle</label>
+      <input id="local" name="local" required maxlength="20" value="{{ form.room or '' }}">
+    </div>
+  </div>
+  <label for="langue">Langue de l'appel</label>
+  <select id="langue" name="langue">{% for code, label in languages %}<option value="{{ code }}" {% if form.language == code %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <label class="consent" for="consentement">
+    <input type="checkbox" id="consentement" name="consentement" value="oui" required>
+    <span>{{ consent }}</span>
+  </label>
+  <button type="submit" id="btn-inscription">Valider mon inscription</button>
+</form>
+{% endblock %}

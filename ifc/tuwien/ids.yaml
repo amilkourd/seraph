@@ -1,0 +1,78 @@
+# The demo building: a real architect's IFC (TU Wien) placed at a fictional address (DEMO_ADDRESS, « exercice »).
+# Source: TU Wien « Real-World Escape Route Test Model » v2.0.0, IFC4 (Archicad), CC BY 4.0.
+#   https://researchdata.tuwien.ac.at/records/wzp90-dmf60 — credit: TU Wien, Research Unit Digital Building Process.
+# The IFC itself is not in git (ifc/test/ is ignored). Download it to ifc/test/tuwien/ then:
+#   uv run ifc-extract test/tuwien/RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc --ids tuwien/ids.yaml -o out/
+#
+# Nothing here adds a fact to the building: it maps ids, translates labels, and records two decisions:
+# the front façade and the second escape route. Every geometry, door, material and fire rating comes from the IFC.
+
+name: "Immeuble d'habitation (maquette TU Wien)"
+provenance: architect
+provenance_fr: "Maquette IFC réelle (TU Wien) — adresse fictive, exercice"
+credit: "TU Wien, Research Unit Digital Building Process — CC BY 4.0"
+source_url: "https://researchdata.tuwien.ac.at/records/wzp90-dmf60"
+
+# The street door into the stair hall is the front.
+front: north
+
+# One stairwell only (the IFC marks the stair and its corridor AirPressurization + FireExit,
+# Pset_SpaceFireSafetyRequirements). The second way out of each flat is the façade: balconies and terraces
+# reached by the fire service's ladders. Declared here so the escape-route check can count it.
+second_route:
+  kind: facade_ladder
+  reason: "Un seul escalier, encloisonné et mis en surpression ; second moyen de sauvetage par la façade (balcons, terrasses) avec les échelles des pompiers."
+
+# Entrances by door GlobalId.
+entrances:
+  05Uy6XEwH8xQ3S6JVqcjn5: E1     # Tür-001, street door into the stair hall (Gang, RDC)
+  0wQtCaPs9F5Qq8dcGYJTgl: E2     # Tür-001, garage door at the foot of the ramp (UG1)
+entrance_labels:
+  E1: "Porte d'entrée, hall de l'escalier"
+  E2: "Porte de garage, rampe (sous-sol)"
+
+# Scenario ids on the top flat (R+3, IFC storey DG2), by space GlobalId.
+rooms:
+  3HXPWWm399QxgykeoqSQTp: "3.10"   # Wohnküche → séjour-cuisine
+  3ckEsz8DnBOuVUUaYnCHYG: "3.12"   # Zimmer → chambre
+  0RylawvdD08g1dPNppLJ2h: "3.T"    # HW (Hauswirtschaftsraum) → buanderie
+
+# French display labels for the German names (IFC LongName). The IFC name stays in rooms[].ifc_name.
+labels:
+  Zimmer: "Chambre"
+  Wohnküche: "Séjour-cuisine"
+  Bad: "Salle de bain"
+  WC: "WC"
+  HW: "Buanderie"
+  "Vorr.": "Entrée"
+  Gang: "Circulation"
+  Aufzug: "Ascenseur"
+  Treppenlauf: "Escalier"
+  Garage: "Garage"
+  Stellplatz: "Place de parking"
+  Rampe: "Rampe d'accès"
+  KIWA: "Local poussettes"
+  Einstellräume: "Caves"
+  E-Technik: "Local électrique"
+  Haustechnik: "Local technique"
+  Müll: "Local poubelles"
+  Terrasse: "Terrasse"
+  Balkon: "Balcon"
+
+# French names for the IFC's materials (the IFC name stays in materials[].ifc_material).
+materials:
+  Stahlbeton: "Béton armé"
+  Stahlbeton Wand: "Béton armé (mur)"
+  Stahlbeton Wand Garage: "Béton armé (mur du garage)"
+  Stahlbeton Decke: "Béton armé (dalle)"
+  Stahlbeton Decke Garage: "Béton armé (dalle du garage)"
+  Stahlbeton Dach: "Béton armé (toiture)"
+  WU-Beton: "Béton étanche"
+  Stampfbeton: "Béton maigre"
+  Gipskarton: "Plaque de plâtre"
+  Brettschichtholz: "Bois lamellé-collé"
+  Vollholz: "Bois massif"
+  Holzwerkstoff: "Panneau de bois"
+  Profilit: "Verre profilé"
+  Aluminium: "Aluminium"
+  Stahl: "Acier"

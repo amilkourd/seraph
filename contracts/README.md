@@ -1,0 +1,38 @@
+# Contracts (owned by Amil — read, never edit)
+
+| File | What |
+|---|---|
+| `types.ts` | Every message and the full `IncidentState`. TS imports it; Python mirrors it with Pydantic |
+| `api.md` | Every HTTP / WebSocket / SSE endpoint, who serves it, who calls it |
+| `rosetta-endpoints.md` | The 8 computer-use endpoints: params, output, source, limits |
+| `halo-views.md` | How a Halo view is built, served, fed and replaced; the kit contract |
+| `fixtures/` | Everything needed to work without the other services (mock mode): `building.json` (incl. the route graph; replaced by `ifc/out/building.json` once the venue IFC passes its checks — `docs/10-ifc.md`), `plan-level3.svg`, `occupants.json`, `radio.jsonl`, `calls.jsonl`, `endpoints/*.json` (one mock result per Rosetta endpoint), `state-sample.json` (a full `IncidentState` mid-incident: build Halo views and the dashboard against it) |
+
+## Services and ports (local)
+| Service | Port | Base URL env |
+|---|---|---|
+| talkie (Next.js) | 3000 | `TALKIE_URL` |
+| halo (Next.js) | 3001 | `HALO_URL` |
+| dashboard (Next.js) | 3002 | `DASHBOARD_URL` |
+| seraph (FastAPI) | 8000 | `SERAPH_URL`, `SERAPH_WS_URL` |
+| rosetta (FastAPI) | 8001 | `ROSETTA_URL` |
+| silex (FastAPI + views) | 8002 | `SILEX_URL` |
+| replicas: dispatch | 8101 | `DISPATCH_URL` |
+| replicas: report | 8102 | `REPORT_URL` |
+| replicas: occupants | 8103 | `OCCUPANTS_URL` |
+| gabriel (LiveKit workers) | — | connects to LiveKit Cloud and `SERAPH_WS_URL` |
+
+Phones reach talkie and halo through a public HTTPS URL (Vercel or a tunnel): `TALKIE_PUBLIC_URL`, `HALO_PUBLIC_URL`.
+Halo loads views from Silex, so Silex is exposed too: `SILEX_PUBLIC_URL`. Rosetta's browser runs on the laptop, so
+the replicas need **no** tunnel.
+
+## LiveKit rooms
+- `crew` — every firefighter + command (phone B talkie, Amil as COS) + Gabriel's radio agent. One channel.
+- `call-<call_id>` — one room per phone call (SIP participant or web caller) + one Gabriel call agent.
+- Participant identity = call sign (`COS`, `Tête`, `Binôme 1`…) or `occupant:<id>` / `caller:<call_id>`.
+- Data topics: `ptt` (talkie: `{kind:"eot", speaker}` on button release), `seraph` (Gabriel publishes the text it
+  speaks so phones can display it).
+
+## Ids
+`INC-0001`, `CALL-07`, `OCC-01`, `B1`, `gate_<ulid>`, `run_<ulid>`, `view_<moment>_<n>`, `req_<ulid>`.
+All times ISO 8601 UTC with `Z`. UI shows Europe/Paris local time.

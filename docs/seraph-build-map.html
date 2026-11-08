@@ -1,0 +1,497 @@
+<title>Seraph Build Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (max 1080px), a wide architecture diagram that scrolls on phones,
+   then reference tables. Fire-service signage feel: condensed headings, signal red used only
+   for Rosetta (the computer-use layer, the moat), amber only for « confirmez » gates. */
+:root {
+  --bg: #f4f5f6;
+  --surface: #ffffff;
+  --fg: #16191d;
+  --muted: #5b626b;
+  --line: #d5d9de;
+  --accent: #c8102e;        /* signal red: Rosetta / computer use */
+  --accent-tint: #c8102e14;
+  --gate: #a8650b;          /* amber: confirmation gates */
+  --gate-tint: #a8650b18;
+  --ok: #1f7a4d;
+  --font-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111316; --surface: #1a1d21; --fg: #e8eaed; --muted: #a0a7b0; --line: #343a41;
+    --accent: #ff5468; --accent-tint: #ff546822; --gate: #e9a23b; --gate-tint: #e9a23b22; --ok: #4cc38a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111316; --surface: #1a1d21; --fg: #e8eaed; --muted: #a0a7b0; --line: #343a41;
+  --accent: #ff5468; --accent-tint: #ff546822; --gate: #e9a23b; --gate-tint: #e9a23b22; --ok: #4cc38a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 48px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1 { font-size: clamp(40px, 7vw, 64px); line-height: 0.95; font-weight: 700; }
+h2 { font-size: 32px; font-weight: 700; line-height: 1.05; }
+h3 { font-size: 21px; font-weight: 600; line-height: 1.15; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.section { display: grid; gap: 18px; min-width: 0; }
+.section > header { display: grid; gap: 6px; border-top: 3px solid var(--fg); padding-top: 12px; }
+.lede { font-size: 18px; max-width: 62ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--font-mono); font-size: 12.5px; border: 1px solid var(--line); background: var(--surface); padding: 5px 10px; border-radius: 4px; }
+.chip.red { border-color: var(--accent); color: var(--accent); background: var(--accent-tint); }
+.mono { font-family: var(--font-mono); font-size: 13px; }
+.radio { font-family: var(--font-mono); font-size: 13.5px; background: var(--surface); border-left: 3px solid var(--fg); padding: 6px 10px; display: block; }
+.radio.catch { border-left-color: var(--accent); }
+.radio.gate { border-left-color: var(--gate); }
+
+/* Modules */
+.modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.module { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.module.brain { border-color: var(--fg); border-width: 2px; }
+.module.cu { border-color: var(--accent); background: var(--accent-tint); }
+.module strong { font-family: var(--font-display); font-size: 24px; font-weight: 700; line-height: 1; }
+.module .role { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.module.cu .role { color: var(--accent); }
+.module span:last-child { font-size: 14px; }
+
+/* Diagram */
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.diagram svg { display: block; min-width: 900px; width: 100%; height: auto; }
+.d-box { fill: var(--surface); stroke: var(--fg); stroke-width: 1.25; }
+.d-box.brain { stroke-width: 2.5; }
+.d-box.cu { fill: var(--accent-tint); stroke: var(--accent); stroke-width: 2; }
+.d-box.side { fill: var(--bg); stroke: var(--muted); stroke-dasharray: 4 3; }
+.d-name { font-family: var(--font-display); font-weight: 700; font-size: 18px; fill: var(--fg); }
+.d-sub { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); }
+.d-line { font-family: var(--font-body); font-size: 11.5px; fill: var(--fg); }
+.d-ep { font-family: var(--font-mono); font-size: 10.5px; fill: var(--accent); }
+.d-cap { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); letter-spacing: 0.06em; }
+.d-edge { fill: none; stroke: var(--muted); stroke-width: 1.25; }
+.d-edge.cu { stroke: var(--accent); }
+.d-lbl { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+.d-arrow { fill: var(--muted); }
+.d-arrow-cu { fill: var(--accent); }
+
+/* Flows */
+.flows { display: grid; gap: 14px; }
+.flow { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 14px; }
+.flow .n { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1; color: var(--muted); grid-row: span 3; }
+.flow .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 18px; margin-top: 6px; }
+.flow dl { margin: 0; display: grid; gap: 2px; min-width: 0; }
+.flow dt { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.flow dd { margin: 0; min-width: 0; }
+.flow dd .ep { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.ep { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); white-space: nowrap; }
+td.time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { font-family: var(--font-mono); font-size: 11px; padding: 2px 6px; border-radius: 3px; border: 1px solid var(--line); white-space: nowrap; }
+.tag.real { border-color: var(--ok); color: var(--ok); }
+.tag.rep { border-color: var(--muted); color: var(--muted); }
+.tag.w { border-color: var(--gate); color: var(--gate); background: var(--gate-tint); }
+.tag.gate { border-color: var(--gate); color: var(--gate); background: var(--gate-tint); }
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; }
+.rule strong { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.cut li { color: var(--muted); }
+.note { font-size: 13.5px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+
+  <header class="section" style="gap:14px">
+    <span class="eyebrow">H Company × 42AI · computer-use hackathon · submit Sun 13:30</span>
+    <h1>Seraph build map</h1>
+    <p class="lede">Firefighters carry one app: a talkie, and Halo on the forearm. Behind it, Seraph listens and decides. Gabriel handles the radio and the phone calls, Rosetta turns screens with no API into an API, and Silex builds a new tool when a situation needs one.</p>
+    <div class="chips">
+      <span class="chip">Phone A = Halo</span>
+      <span class="chip">Phone B = talkie</span>
+      <span class="chip">Judges' phones = occupants, calls in and out</span>
+      <span class="chip">Laptop = command post</span>
+      <span class="chip red">Computer use only on software we don't own</span>
+    </div>
+  </header>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">Five parts</span>
+      <h2>The names</h2>
+    </header>
+    <div class="modules">
+      <div class="module brain"><span class="role">Brain</span><strong>Seraph</strong><span>Turns speech into events, catches what humans miss, holds the « confirmez » gate, picks what Halo shows.</span></div>
+      <div class="module"><span class="role">Radio and calls</span><strong>Gabriel</strong><span>Speaks on the LiveKit channels, takes the 112 calls and calls every occupant.</span></div>
+      <div class="module"><span class="role">Forearm screen</span><strong>Halo</strong><span>Phone A on the forearm. Shows the right thing at the right moment: a simple animated scheme Silex builds for that moment, fed by the live state.</span></div>
+      <div class="module cu"><span class="role">Computer use</span><strong>Rosetta</strong><span>Endpoints over screens that have no API, run by H agents on real sites and legacy software. Also hands its screenshots to Seraph as references for Halo.</span></div>
+      <div class="module"><span class="role">Tool creation</span><strong>Silex</strong><span>Has Devin build each Halo view when Seraph asks for it, from the UI kit, the live data and Rosetta's screenshots. Also builds new Rosetta endpoints.</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">The whole system</span>
+      <h2>How it works</h2>
+    </header>
+    <div class="diagram" role="img" aria-label="Seraph architecture: phones talk to Gabriel, Seraph calls Rosetta endpoints, H agents operate screens without APIs, Silex has Devin build Halo views and new endpoints">
+      <svg viewBox="0 0 1000 490" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+          <marker id="arc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow-cu"/></marker>
+        </defs>
+
+        <!-- Silex (top) -->
+        <rect class="d-box side" x="440" y="16" width="360" height="64" rx="6"/>
+        <text class="d-name" x="456" y="40">Silex</text>
+        <text class="d-sub" x="506" y="40">tool creation · Devin</text>
+        <text class="d-line" x="456" y="58">Has Devin build each Halo view when it's needed.</text>
+        <text class="d-line" x="456" y="73">Turns a first agent run into a stable Rosetta endpoint.</text>
+
+        <!-- Column captions -->
+        <text class="d-cap" x="20" y="102">FIELD</text>
+        <text class="d-cap" x="230" y="102">RADIO AND CALLS</text>
+        <text class="d-cap" x="440" y="102">BRAIN</text>
+        <text class="d-cap" x="650" y="102">COMPUTER USE · THE API</text>
+        <text class="d-cap" x="830" y="102">SCREENS WITHOUT API</text>
+
+        <!-- Field -->
+        <rect class="d-box" x="20" y="110" width="170" height="66" rx="6"/>
+        <text class="d-name" x="34" y="134">Talkie</text>
+        <text class="d-line" x="34" y="152">Phone B · push-to-talk</text>
+        <text class="d-line" x="34" y="167">3 channels</text>
+
+        <rect class="d-box" x="20" y="202" width="170" height="66" rx="6"/>
+        <text class="d-name" x="34" y="226">Occupants</text>
+        <text class="d-line" x="34" y="244">Judges' phones</text>
+        <text class="d-line" x="34" y="259">112 in, calls out</text>
+
+        <rect class="d-box" x="20" y="294" width="170" height="66" rx="6"/>
+        <text class="d-name" x="34" y="318">Halo</text>
+        <text class="d-line" x="34" y="336">Phone A on the forearm</text>
+        <text class="d-line" x="34" y="351">animated schemes, arrows</text>
+
+        <!-- Gabriel -->
+        <rect class="d-box" x="230" y="110" width="170" height="250" rx="6"/>
+        <text class="d-name" x="244" y="134">Gabriel</text>
+        <text class="d-sub" x="244" y="150">radio + calls</text>
+        <text class="d-line" x="244" y="178">LiveKit: 1 room = 1 channel</text>
+        <text class="d-line" x="244" y="204">Gladia: every speaker live,</text>
+        <text class="d-line" x="244" y="219">fr · es · en, fire jargon</text>
+        <text class="d-line" x="244" y="245">TTS: Gabriel speaks</text>
+        <text class="d-line" x="244" y="260">on the channel</text>
+        <text class="d-line" x="244" y="286">Call agents: one per</text>
+        <text class="d-line" x="244" y="301">caller, all in parallel</text>
+        <text class="d-line" x="244" y="327">Phone line in and out</text>
+
+        <!-- Seraph -->
+        <rect class="d-box brain" x="440" y="110" width="170" height="250" rx="6"/>
+        <text class="d-name" x="454" y="134">Seraph</text>
+        <text class="d-sub" x="454" y="150">the brain</text>
+        <text class="d-line" x="454" y="178">Speech → events</text>
+        <text class="d-line" x="454" y="200">Catches what humans miss</text>
+        <text class="d-line" x="454" y="222">« Confirmez » gate</text>
+        <text class="d-line" x="454" y="244">Decides what to show</text>
+        <text class="d-line" x="454" y="266">Streams live state</text>
+
+        <!-- Rosetta endpoints -->
+        <rect class="d-box cu" x="650" y="110" width="150" height="250" rx="6"/>
+        <text class="d-name" x="664" y="134">Rosetta</text>
+        <text class="d-sub" x="664" y="150">endpoints = skills</text>
+        <text class="d-ep" x="664" y="178">georisques.risks()</text>
+        <text class="d-ep" x="664" y="198">maps.building()</text>
+        <text class="d-ep" x="664" y="218">weather.wind()</text>
+        <text class="d-ep" x="664" y="238">plan.read()</text>
+        <text class="d-ep" x="664" y="258">dispatch.read()</text>
+        <text class="d-ep" x="664" y="278">dispatch.write_112()</text>
+        <text class="d-ep" x="664" y="298">report.fill()</text>
+        <text class="d-ep" x="664" y="318">occupants.list()</text>
+        <text class="d-sub" x="664" y="344">+ any source Silex adds</text>
+
+        <!-- Screens -->
+        <rect class="d-box cu" x="830" y="110" width="150" height="250" rx="6"/>
+        <text class="d-name" x="844" y="134">H agents</text>
+        <text class="d-sub" x="844" y="150">computer use + vision</text>
+        <text class="d-cap" x="844" y="176">REAL SITES</text>
+        <text class="d-line" x="844" y="192">Géorisques</text>
+        <text class="d-line" x="844" y="207">Google Maps / Earth</text>
+        <text class="d-line" x="844" y="222">Météo-France</text>
+        <text class="d-cap" x="844" y="246">VISION</text>
+        <text class="d-line" x="844" y="262">Photo of the door plan</text>
+        <text class="d-cap" x="844" y="286">REPLICAS, LEGACY UI</text>
+        <text class="d-line" x="844" y="302">Dispatch software</text>
+        <text class="d-line" x="844" y="317">Report software</text>
+        <text class="d-line" x="844" y="332">Building manager</text>
+
+        <!-- Dashboard -->
+        <rect class="d-box" x="650" y="404" width="330" height="62" rx="6"/>
+        <text class="d-name" x="664" y="428">Dashboard · command post</text>
+        <text class="d-line" x="664" y="447">Plan, channels, agents working live, endpoint counter</text>
+
+        <!-- Edges: field ↔ Gabriel -->
+        <path class="d-edge" d="M190 143H230" marker-start="url(#ar)" marker-end="url(#ar)"/>
+        <path class="d-edge" d="M190 235H230" marker-start="url(#ar)" marker-end="url(#ar)"/>
+        <!-- Gabriel ↔ Seraph -->
+        <path class="d-edge" d="M400 235H440" marker-start="url(#ar)" marker-end="url(#ar)"/>
+        <text class="d-lbl" x="420" y="227" text-anchor="middle">text</text>
+        <!-- Seraph ↔ Rosetta -->
+        <path class="d-edge cu" d="M610 235H650" marker-start="url(#arc)" marker-end="url(#arc)"/>
+        <text class="d-lbl" x="630" y="227" text-anchor="middle">call</text>
+        <text class="d-lbl" x="630" y="252" text-anchor="middle">shots</text>
+        <!-- Rosetta ↔ screens -->
+        <path class="d-edge cu" d="M800 235H830" marker-start="url(#arc)" marker-end="url(#arc)"/>
+        <!-- Seraph → Halo -->
+        <path class="d-edge" d="M470 360V390H105V360" marker-end="url(#ar)"/>
+        <text class="d-lbl" x="288" y="384" text-anchor="middle">views + live state → Halo</text>
+        <!-- Seraph → dashboard -->
+        <path class="d-edge" d="M590 360V435H650" marker-end="url(#ar)"/>
+        <text class="d-lbl" x="598" y="428">stream</text>
+        <!-- Silex → Seraph / Rosetta -->
+        <path class="d-edge" d="M525 80V110" marker-end="url(#ar)"/>
+        <text class="d-lbl" x="532" y="99">new view</text>
+        <path class="d-edge cu" d="M725 80V110" marker-end="url(#arc)"/>
+        <text class="d-lbl" x="732" y="99">new endpoint</text>
+      </svg>
+    </div>
+    <p class="note">Red = Rosetta, the computer-use layer, the part nobody else has. Everything to its left is our own clean app and talks through normal APIs.</p>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">In demo order</span>
+      <h2>What Seraph does</h2>
+    </header>
+    <div class="flows">
+
+      <article class="flow">
+        <span class="n">1</span>
+        <h3>Briefing on the way</h3>
+        <p>While the truck drives, Rosetta reads five sources in parallel. Gabriel speaks a 20-second summary and Halo animates the same thing: the building, the street, the truck and an arrow to the best way in.</p>
+        <div class="grid">
+          <dl><dt>Trigger</dt><dd>The incident appears in the dispatch software.</dd></dl>
+          <dl><dt>Rosetta</dt><dd><span class="ep">dispatch.read · maps.building · georisques.risks · weather.wind · plan.read</span></dd></dl>
+          <dl><dt>Radio</dt><dd><span class="radio">« Tête de Gabriel : R+5, entrée par la porte latérale gauche, hydrant côté rue, deux escaliers A et B, vent d'ouest. »</span></dd></dl>
+          <dl><dt>Halo</dt><dd>At dispatch, Seraph asks Silex for the approach view and gives Devin Rosetta's Earth and Street View screenshots as references. The drive is the build window: building block, street, truck, an animated arrow to the door, each element tagged with its source.</dd></dl>
+        </div>
+      </article>
+
+      <article class="flow">
+        <span class="n">2</span>
+        <h3>Every occupant on the line</h3>
+        <p>The incident gets its own Gabriel line. 112 calls for this address are routed to it, and Gabriel calls every occupant listed in the building manager's software. One agent per call, all in parallel, in the caller's language. Each call asks where they are, how many people, smoke, mobility, injuries.</p>
+        <div class="grid">
+          <dl><dt>Rosetta</dt><dd><span class="ep">occupants.list</span> for the numbers, <span class="ep">dispatch.write_112</span> for each call, positions from <span class="ep">plan.read</span></dd></dl>
+          <dl><dt>To the crew</dt><dd><span class="radio">« Six appels en cours. Priorité : deux personnes 3e étage salle 12, fumée sous la porte, une en fauteuil. »</span><span class="radio catch">« Escalier B enfumé, passez par le A. »</span></dd></dl>
+          <dl><dt>Back to callers</dt><dd><span class="radio gate">« Gabriel, évacuez le 3e par l'escalier A. »</span> Gabriel tells every caller on the 3rd floor at once.</dd></dl>
+        </div>
+        <p class="note">Seraph never decides whether people stay or leave. The commander decides on the radio and Gabriel passes it on. At Grenfell, lifting « stay put » too late cost lives.</p>
+      </article>
+
+      <article class="flow">
+        <span class="n">3</span>
+        <h3>A new view, asked on the radio</h3>
+        <p>The commander asks for a tool that isn't on Halo yet. Silex has Devin build it from the UI kit, Seraph pushes it to Halo, then keeps it up to date from the radio.</p>
+        <div class="grid">
+          <dl><dt>Trigger</dt><dd><span class="radio">« Gabriel, il me faut le tableau ARI. »</span></dd></dl>
+          <dl><dt>Then</dt><dd><span class="radio">« Binôme 2 engagé, 300 bars. »</span> Seraph logs it and computes the exit time.</dd></dl>
+          <dl><dt>Alarm</dt><dd><span class="radio catch">« Binôme 2 de Gabriel, sortie dans 5 minutes. »</span></dd></dl>
+        </div>
+        <p class="note">Backup: if Devin hasn't delivered in 4 minutes, the facts show as a plain list on Halo, labelled, until the view lands.</p>
+      </article>
+
+      <article class="flow">
+        <span class="n">4</span>
+        <h3>Learning a source live</h3>
+        <p>A judge asks something no endpoint covers. An H agent works out the right official site on screen, slowly and visibly. Silex has Devin compile that run into a tested Rosetta endpoint, and the next ask takes seconds.</p>
+        <div class="grid">
+          <dl><dt>First time</dt><dd>About 60–90 s of exploration, shown on the dashboard.</dd></dl>
+          <dl><dt>Silex</dt><dd>Devin writes the skill, its inputs, a success check and a test.</dd></dl>
+          <dl><dt>Next time</dt><dd>A normal call. Counter goes 8 → 9 endpoints. Marked unverified until you approve the source.</dd></dl>
+        </div>
+      </article>
+
+      <article class="flow">
+        <span class="n">5</span>
+        <h3>The report writes itself</h3>
+        <p>At the end, Rosetta fills the intervention report in the legacy report software from the radio log, then waits for confirmation.</p>
+        <div class="grid">
+          <dl><dt>Trigger</dt><dd><span class="radio">« Gabriel, fais le rapport. »</span></dd></dl>
+          <dl><dt>Rosetta</dt><dd><span class="ep">report.fill</span></dd></dl>
+          <dl><dt>Gate</dt><dd><span class="radio gate">« Rapport prêt, confirmez l'envoi. »</span></dd></dl>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">The range we allow</span>
+      <h2>Rosetta, kept in bounds</h2>
+    </header>
+    <div class="rules">
+      <div class="rule"><strong>Never on our own apps</strong><span>Talkie, Halo, Seraph and the dashboard talk by API. Agents only touch software we don't own.</span></div>
+      <div class="rule"><strong>Eight endpoints, no more</strong><span>Anything else goes through « learn a source » and stays unverified until you approve it.</span></div>
+      <div class="rule"><strong>Public sites are read-only</strong><span>Writes happen only in the two replicas.</span></div>
+      <div class="rule"><strong>Irreversible waits</strong><span>Sending the report waits for « confirmez » on the radio or the dashboard.</span></div>
+      <div class="rule"><strong>Quote, never invent</strong><span>Safety facts are read from the source and Gabriel names it.</span></div>
+      <div class="rule"><strong>Bounded in time</strong><span>30 s timeout per call, cached answers show their age, every run has a replay link.</span></div>
+      <div class="rule"><strong>Commander decides, Gabriel relays</strong><span>Stay or leave is never Seraph's call. Gabriel passes the commander's order to every caller.</span></div>
+      <div class="rule"><strong>Occupant data only during an incident</strong><span>Read from the building manager's software, used for this incident only, every access logged.</span></div>
+      <div class="rule"><strong>Code draws the arrow</strong><span>Access and routes come from a calculation that avoids smoke and fire, never from the model's guess.</span></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Endpoint</th><th>Source</th><th>Kind</th><th>Access</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td class="ep">georisques.risks(address)</td><td>Géorisques</td><td><span class="tag real">real site</span></td><td>read</td><td>Industrial and natural risks near the address</td></tr>
+          <tr><td class="ep">maps.building(address)</td><td>Google Maps, Street View, Google Earth 3D</td><td><span class="tag real">real site</span></td><td>read, vision</td><td>Screenshots from every side, kept as references for Halo; doors, gates, hydrant and truck spot pointed out by Holo</td></tr>
+          <tr><td class="ep">weather.wind(town)</td><td>Météo-France</td><td><span class="tag real">real site</span></td><td>read</td><td>Wind direction and speed</td></tr>
+          <tr><td class="ep">plan.read(photo)</td><td>Photo of the plan posted at the venue's door</td><td><span class="tag real">real photo</span></td><td>read, vision</td><td>Stairs, exits, rooms, cut-offs pointed out by Holo; code turns them into zones</td></tr>
+          <tr><td class="ep">dispatch.read(incident)</td><td>Dispatch software</td><td><span class="tag rep">replica</span></td><td>read</td><td>Address, type of fire, caller notes</td></tr>
+          <tr><td class="ep">dispatch.write_112(call)</td><td>Dispatch software</td><td><span class="tag rep">replica</span></td><td><span class="tag w">write</span></td><td>Each 112 call logged on the incident</td></tr>
+          <tr><td class="ep">report.fill(log)</td><td>Intervention report software</td><td><span class="tag rep">replica</span></td><td><span class="tag gate">write + confirm</span></td><td>The finished report</td></tr>
+          <tr><td class="ep">occupants.list(building)</td><td>Building manager's software (hotel, landlord, venue security)</td><td><span class="tag rep">replica</span></td><td>read</td><td>Occupants, rooms and phone numbers</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The replicas stand for the systems fire services already run (NexSIS-style dispatch, report tools). In a deployment Rosetta uses theirs as they are, with no integration.</p>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">Phone A</span>
+      <h2>Halo views</h2>
+    </header>
+    <div class="two">
+      <div class="panel">
+        <h3>How a view works</h3>
+        <ul>
+          <li>Nothing is prebuilt. Seraph decides what the firefighter needs right now and asks Silex for that view.</li>
+          <li>Devin builds it from the UI kit, the live data and Rosetta's screenshots, used as visual references: the facade from Earth, the photo of the plan.</li>
+          <li>Each view is a simple animated scheme, not raw data: a block, a street, a staircase, an arrow. It can be interactive: tap a floor, a door, a team.</li>
+          <li>Holo points at things on the screenshots. Seraph computes positions and the route, and the view only displays them, so no model guesses the arrow.</li>
+          <li>The view is wired to the live state and moves on its own. Gabriel says the same thing on the radio at the same moment. Every element shows its source.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>The right thing at the right moment</h3>
+        <ul>
+          <li><strong>Dispatch</strong>: Silex starts the approach view with Earth and Street View screenshots. The drive is its build window.</li>
+          <li><strong>Arrival</strong>: block, street, truck, the arrow to the door.</li>
+          <li><strong>Plan read</strong>: the inside route, smoke shaded, the arrow along it.</li>
+          <li><strong>Calls coming in</strong>: who is where, floor by floor.</li>
+          <li><strong>« Binôme engagé »</strong>: team tracking with exit times.</li>
+          <li><strong>Anything the commander asks</strong>: a new view, built on request.</li>
+        </ul>
+        <p class="note">If a view isn't ready in time, the facts show as a plain list on Halo, labelled, until Devin delivers.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">Claude Code sessions, one folder each</span>
+      <h2>Who builds what</h2>
+    </header>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Session</th><th>Folder</th><th>Builds</th><th>Done when</th><th>Start</th></tr></thead>
+        <tbody>
+          <tr><td><strong>talkie</strong></td><td class="mono">talkie/</td><td>Push-to-talk app and the call page for occupants</td><td>Two phones talk, a caller reaches Gabriel</td><td class="time">now</td></tr>
+          <tr><td><strong>voice</strong></td><td class="mono">seraph-voice/</td><td>Gabriel: LiveKit agent, Gladia per speaker, TTS, call agents and phone line (LiveKit SIP + Twilio)</td><td>A phone speaks and Gabriel answers on that channel</td><td class="time">now</td></tr>
+          <tr><td><strong>brain</strong></td><td class="mono">orchestrator/</td><td>Seraph: events, catches, gate, view router, state stream</td><td>All test messages replay correctly</td><td class="time">now</td></tr>
+          <tr><td><strong>replicas</strong></td><td class="mono">apps/</td><td>Dispatch and report software, old-school UI, no API</td><td>Both usable by hand through a public URL</td><td class="time">now</td></tr>
+          <tr><td><strong>silex</strong></td><td class="mono">silex/</td><td>Rosetta's endpoint registry and skills, Silex's UI kit and learn pipeline, MCP</td><td>Eight endpoints callable</td><td class="time">now</td></tr>
+          <tr><td><strong>pipboy</strong></td><td class="mono">pipboy/</td><td>Halo shell that loads whatever Silex builds and feeds it live state, plus the plain-list fallback</td><td>A view built by Devin lands on phone A and moves live from test data</td><td class="time">now</td></tr>
+          <tr><td><strong>h-agents</strong></td><td class="mono">h-agents/</td><td>Rosetta: own agent loop (Holo + a browser on the laptop), agent cam streamed to the dashboard, Holo pointing on screenshots, screenshots handed to Seraph as references</td><td>An endpoint returns clean JSON from a real site</td><td class="time">~01:30</td></tr>
+          <tr><td><strong>dashboard</strong></td><td class="mono">dashboard/</td><td>Command post screen</td><td>Test data animates every panel</td><td class="time">~02:00</td></tr>
+          <tr><td><strong>devin</strong></td><td class="mono">devin-bridge/ eval/</td><td>Silex: every Halo view built by Devin on Seraph's request, with Rosetta's screenshots as references; new endpoints; eval</td><td>A dispatch ends in a view on phone A before « arrival »</td><td class="time">~01:30</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Session and folder names are unchanged from the build.</p>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">Sunday</span>
+      <h2>Timeline to 14:00</h2>
+    </header>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Time</th><th>Milestone</th><th>If it isn't there</th></tr></thead>
+        <tbody>
+          <tr><td class="time">01:00</td><td>Repo set up, first six sessions launched, phone number bought and connected to LiveKit</td><td>—</td></tr>
+          <tr><td class="time">03:00</td><td><strong>Gate 1</strong>: a phone talks, Gabriel answers on the channel</td><td>Fall back to clip upload and laptop speaker</td></tr>
+          <tr><td class="time">05:00</td><td><strong>Gate 2</strong>: briefing on the radio and an approach view built by Silex during the « drive »</td><td>Drop weather, keep Géorisques, Maps, plan</td></tr>
+          <tr><td class="time">07:00</td><td><strong>Gate 3</strong>: calls in and out, summary to the crew, plan shading, the stair B catch</td><td>Call page in the app instead of real phone calls; typed positions instead of vision</td></tr>
+          <tr><td class="time">08:00</td><td>Photograph the plan posted at the venue entrance (ask the venue first)</td><td>Use a public listing floor plan</td></tr>
+          <tr><td class="time">09:00</td><td><strong>Gate 4</strong>: ARI board by radio via Silex, report by Rosetta</td><td>Plain list on Halo, labelled</td></tr>
+          <tr><td class="time">10:00</td><td><strong>Feature freeze</strong></td><td>—</td></tr>
+          <tr><td class="time">10:00–12:00</td><td>Timings per endpoint, slides, backup video by 12:00, five rehearsals with two strangers</td><td>—</td></tr>
+          <tr><td class="time">13:30</td><td><strong>Submit</strong></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">Three minutes</span>
+      <h2>The demo</h2>
+    </header>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr><td class="time">0:00–0:20</td><td>Grenfell, 72 dead. What callers told the control room didn't reach the crews in time.</td></tr>
+          <tr><td class="time">0:20–0:50</td><td>Briefing on the way: Gabriel says « porte latérale gauche » while Halo draws the arrow to it; Rosetta's agents work Maps and Earth on the big screen. The incident started 15 minutes earlier, so Silex built this view during the « drive »; the dashboard shows the Devin session.</td></tr>
+          <tr><td class="time">0:50–1:30</td><td>Judges' phones ring: Gabriel calls every occupant, one judge calls 112 in English. Summary on the radio, plan shading, « passez par le A », then the commander's order goes back to every caller.</td></tr>
+          <tr><td class="time">1:30–2:10</td><td>« Tableau ARI » on the radio. Silex has Devin build it, it lands on Halo, then the low-air alarm.</td></tr>
+          <tr><td class="time">2:10–2:30</td><td>« Fais le rapport »: Rosetta fills the report in the legacy software.</td></tr>
+          <tr><td class="time">2:30–3:00</td><td>Counter: eight sources without an API, eight Rosetta endpoints. « Seraph transforme n'importe quel écran en API. »</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <header>
+      <span class="eyebrow">Out of scope tonight</span>
+      <h2>Not building</h2>
+    </header>
+    <ul class="cut">
+      <li>The holographic helmet</li>
+      <li>Victim tracking (SINUS-style register)</li>
+      <li>Hazmat beyond a single card</li>
+      <li>Several simultaneous incidents</li>
+      <li>Native apps: everything is web on the phones</li>
+      <li>Access to real fire-service systems</li>
+      <li>A database of residents' phone numbers: the list comes from the building manager</li>
+    </ul>
+  </section>
+
+</div>
+

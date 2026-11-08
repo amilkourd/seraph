@@ -1,0 +1,130 @@
+Seraph IFC extraction — seraph_ifc.extract 1.0.0
+file      dev.ifc  (0.36 MB, IFC4, sha256 1d27a308b7b3617a…)
+building  Bâtiment d'exercice  ·  Bâtiment fictif — maquette IFC d'exercice
+
+CHECKS
+  [ok] every door links 2 nodes
+  [ok] every room reachable from outside
+  [ok] ≥ 2 escape routes from every occupied level
+         RDC: 2 independent escape route(s)
+         R+1: 2 independent escape route(s)
+         R+2: 2 independent escape route(s)
+         R+3: 2 independent escape route(s)
+         R+4: 2 independent escape route(s)
+         R+5: 2 independent escape route(s)
+  [ok] stairs serve every level they are on
+
+LEVELS
+  RDC   elev   0.00 m  ifc 'RDC'
+        0.10         0.10 Hall d'accueil                room        199.8 m²  0sZpLcmHn4uu1cXbfYJSDd
+        0.14         0.14 Salle polyvalente             room        186.5 m²  3HWklnyjfBqRC_ObL5TgMJ
+        0.ASC        0.ASC Ascenseur                    elevator      6.3 m²  3gHPIHzET0bwkM8YziOdLt
+        corridor:0   Circulation                        corridor     85.5 m²  3E8Ngcasf4yRXg7JVYbPbA
+  R+1   elev   3.00 m  ifc 'R+1'
+        1.10         1.10 Plateau                       room        199.8 m²  3gXt$0lVHFkPtv1UI8ax2O
+        1.14         1.14 Plateau                       room        186.5 m²  3l1pOLplX2HPVlNszZQsPa
+        1.ASC        1.ASC Ascenseur                    elevator      6.3 m²  2V4U9oeMLDPx$R9OdFiB_V
+        corridor:1   Circulation                        corridor     85.5 m²  1HDL7E1Kn7sQAA5q7HDTwa
+  R+2   elev   6.00 m  ifc 'R+2'
+        2.01         2.01 Bureau                        room        113.4 m²  00ioSpdIzFNAr9emue6nZD
+        2.02         2.02 Bureau                        room         86.4 m²  2$KRQ9sJ94yv5WEdL1HvZr
+        2.14         2.14 Plateau                       room        186.5 m²  2IALdyjVrET9o9y_wQf4ZU
+        2.ASC        2.ASC Ascenseur                    elevator      6.3 m²  2tavzu8lrEIuF36bUvWhqT
+        corridor:2   Circulation                        corridor     85.5 m²  1BYHaw17PCOg2SiJOFvfpR
+  R+3   elev   9.00 m  ifc 'R+3'
+        3.10         3.10 Plateau                       room        113.4 m²  34TaUTXl56z8EHGnVB0fAz
+        3.12         3.12 Réunion                       room         86.4 m²  1lVvHSJg9BchO16ubv8fUE
+        3.14         3.14 Cuisine                       room        146.2 m²  2g_vFXJRD6ygUsCcnoYroY
+        3.ASC        3.ASC Ascenseur                    elevator      6.3 m²  3D4drOQwn1ERIhCZ75PwEr
+        3.T          3.T Local technique                room         40.3 m²  1ggzr9iFHFPxl3_WFNONAe
+        corridor:3   Circulation                        corridor     85.5 m²  2kUtuwpub8zBemj_s1XxJe
+  R+4   elev  12.00 m  ifc 'R+4'
+        4.02         4.02 Plateau                       room        113.4 m²  0chBrAELzFY9_F2RCudo8K
+        4.05         4.05 Réunion                       room         86.4 m²  2X5n$_pBD61vEAkvfIXafe
+        4.14         4.14 Plateau                       room        186.5 m²  00iunfVwL4exlyE8o3ySjs
+        4.ASC        4.ASC Ascenseur                    elevator      6.3 m²  1GKS4URWj8Mhn$is_YXvyh
+        corridor:4   Circulation                        corridor     85.5 m²  3UxKrQoEnEFAqBuTmskGwL
+  R+5   elev  15.00 m  ifc 'R+5'
+        5.01         5.01 Plateau                       room        199.8 m²  3_HedKmGz6LRO_sraGwCmt
+        5.14         5.14 Plateau                       room        186.5 m²  3Ve7VNmyv09BS0uTBagKRI
+        5.ASC        5.ASC Ascenseur                    elevator      6.3 m²  1VElbb_pPE9usJ91Ualie9
+        corridor:5   Circulation                        corridor     85.5 m²  0NNXqmukXCBvGZmmjIw_b9
+
+STAIRS
+  stair:A   'Escalier A (nord)'          levels [0, 1, 2, 3, 4, 5]
+  stair:B   'Escalier B (sud)'           levels [0, 1, 2, 3, 4, 5]
+
+ENTRANCES
+  entrance:E1   'Entrée principale boulevard'      side front  level 0  → stair:B
+  entrance:E2   'Porte latérale rue'               side left   level 0  → stair:A
+
+DOORS (36 linked, 0 unlinked) + 0 openings without a door
+  P-A-0      L0         corridor:0 ↔ stair:A            EI 30        Porte escalier A (RDC)
+  P-ASC-0    L0         corridor:0 ↔ room:0.ASC                      Porte 0.ASC Ascenseur
+  P-B-0      L0            stair:B ↔ corridor:0         EI 30        Porte escalier B (RDC)
+  P-0.10     L0         corridor:0 ↔ room:0.10                       Porte 0.10 Hall d'accueil
+  P-0.14     L0          room:0.14 ↔ corridor:0                      Porte 0.14 Salle polyvalente
+  E1         L0            outside ↔ stair:B                         Entrée principale boulevard
+  E2         L0            outside ↔ stair:A                         Porte latérale rue
+  P-A-1      L1         corridor:1 ↔ stair:A            EI 30        Porte escalier A (R+1)
+  P-ASC-1    L1         corridor:1 ↔ room:1.ASC                      Porte 1.ASC Ascenseur
+  P-B-1      L1            stair:B ↔ corridor:1         EI 30        Porte escalier B (R+1)
+  P-1.10     L1         corridor:1 ↔ room:1.10                       Porte 1.10 Plateau
+  P-1.14     L1          room:1.14 ↔ corridor:1                      Porte 1.14 Plateau
+  P-A-2      L2         corridor:2 ↔ stair:A            EI 30        Porte escalier A (R+2)
+  P-ASC-2    L2         corridor:2 ↔ room:2.ASC                      Porte 2.ASC Ascenseur
+  P-B-2      L2            stair:B ↔ corridor:2         EI 30        Porte escalier B (R+2)
+  P-2.01     L2         corridor:2 ↔ room:2.01                       Porte 2.01 Bureau
+  P-2.02     L2         corridor:2 ↔ room:2.02                       Porte 2.02 Bureau
+  P-2.14     L2          room:2.14 ↔ corridor:2                      Porte 2.14 Plateau
+  P-A-3      L3         corridor:3 ↔ stair:A            EI 30        Porte escalier A (R+3)
+  P-ASC-3    L3         corridor:3 ↔ room:3.ASC                      Porte 3.ASC Ascenseur
+  P-B-3      L3            stair:B ↔ corridor:3         EI 30        Porte escalier B (R+3)
+  P-3.10     L3         corridor:3 ↔ room:3.10                       Porte 3.10 Plateau
+  P-3.12     L3         corridor:3 ↔ room:3.12                       Porte 3.12 Réunion
+  P-3.14     L3          room:3.14 ↔ corridor:3                      Porte 3.14 Cuisine
+  P-3.T      L3           room:3.T ↔ corridor:3         EI 30        Porte 3.T Local technique
+  P-A-4      L4         corridor:4 ↔ stair:A            EI 30        Porte escalier A (R+4)
+  P-ASC-4    L4         corridor:4 ↔ room:4.ASC                      Porte 4.ASC Ascenseur
+  P-B-4      L4            stair:B ↔ corridor:4         EI 30        Porte escalier B (R+4)
+  P-4.02     L4         corridor:4 ↔ room:4.02                       Porte 4.02 Plateau
+  P-4.05     L4         corridor:4 ↔ room:4.05                       Porte 4.05 Réunion
+  P-4.14     L4          room:4.14 ↔ corridor:4                      Porte 4.14 Plateau
+  P-A-5      L5         corridor:5 ↔ stair:A            EI 30        Porte escalier A (R+5)
+  P-ASC-5    L5         corridor:5 ↔ room:5.ASC                      Porte 5.ASC Ascenseur
+  P-B-5      L5            stair:B ↔ corridor:5         EI 30        Porte escalier B (R+5)
+  P-5.01     L5         corridor:5 ↔ room:5.01                       Porte 5.01 Plateau
+  P-5.14     L5          room:5.14 ↔ corridor:5                      Porte 5.14 Plateau
+
+MATERIALS (from the IFC only; absent = absent)
+  L0  facade 'Pierre de taille'                                        
+  L0  slab   'Béton armé'                                 REI 60       
+  L0  wall   'Béton armé'                                 REI 60       
+  L0  wall   'Plaque de plâtre sur ossature métallique'                
+  L1  facade 'Pierre de taille'                                        
+  L1  slab   'Béton armé'                                 REI 60       
+  L1  wall   'Béton armé'                                 REI 60       
+  L1  wall   'Plaque de plâtre sur ossature métallique'                
+  L2  facade 'Pierre de taille'                                        
+  L2  slab   'Béton armé'                                 REI 60       
+  L2  wall   'Béton armé'                                 REI 60       
+  L2  wall   'Plaque de plâtre sur ossature métallique'                
+  L3  facade 'Pierre de taille'                                        
+  L3  slab   'Béton armé'                                 REI 60       
+  L3  wall   'Bloc béton'                                 EI 60        room 3.T
+  L3  wall   'Béton armé'                                 REI 60       
+  L3  wall   'Plaque de plâtre sur ossature métallique'                
+  L4  facade 'Pierre de taille'                                        
+  L4  slab   'Béton armé'                                 REI 60       
+  L4  wall   'Béton armé'                                 REI 60       
+  L4  wall   'Plaque de plâtre sur ossature métallique'                
+  L5  facade 'Pierre de taille'                                        
+  L5  slab   'Béton armé'                                 REI 60       
+  L5  wall   'Béton armé'                                 REI 60       
+  L5  wall   'Plaque de plâtre sur ossature métallique'                
+
+GRAPH  39 nodes, 44 edges (lengths in m; stairs ×2.0 rise)
+
+IGNORED (not needed by a firefighter)
+  nothing
+  escape / fire psets present: none

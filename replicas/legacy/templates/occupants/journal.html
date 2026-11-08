@@ -1,0 +1,12 @@
+{% extends "occupants/layout.html" %}
+{% block title %}Journal des accès{% endblock %}
+{% block content %}
+<div class="crumbs">Accueil › Journal des accès</div>
+<h1 class="intra-h1">Journal des accès aux données occupants</h1>
+<table class="gridview" id="journal">
+  <thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Détail</th><th>Poste</th></tr></thead>
+  <tbody>
+    {% for r in rows %}<tr><td>{{ r.at|local("%d/%m/%Y %H:%M:%S") }}</td><td>{{ r.user }}</td><td>{{ r.action }}</td><td>{{ r.detail }}</td><td>{{ r.ip }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

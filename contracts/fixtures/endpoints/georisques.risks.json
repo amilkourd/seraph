@@ -1,0 +1,40 @@
+{
+  "run_id": "run_mock_georisques_risks",
+  "endpoint": "georisques.risks",
+  "status": "ok",
+  "live": false,
+  "output": {
+    "risks": [
+      {
+        "label": "Inondation par remontée de nappe",
+        "category": "naturel"
+      },
+      {
+        "label": "Retrait-gonflement des argiles",
+        "category": "naturel"
+      }
+    ],
+    "url": "https://www.georisques.gouv.fr/"
+  },
+  "screenshots": [
+    {
+      "image_id": "georisques-01",
+      "url": "http://localhost:8001/shots/georisques-01.jpg",
+      "caption": "Résultats Géorisques pour l'adresse",
+      "side": "top",
+      "width": 1280,
+      "height": 800,
+      "taken_at": "2026-11-08T00:00:00Z"
+    }
+  ],
+  "source": {
+    "kind": "georisques",
+    "label": "Géorisques",
+    "confirmed": true,
+    "at": "2026-11-08T00:00:00Z",
+    "url": "https://www.georisques.gouv.fr/"
+  },
+  "duration_ms": 1200,
+  "started_at": "2026-11-08T00:00:00Z",
+  "ended_at": "2026-11-08T00:00:00Z"
+}

@@ -1,0 +1,39 @@
+{% extends "report/layout.html" %}
+{% block title %}Compte rendu {{ r.id }}{% endblock %}
+{% block content %}
+<div class="panel">
+  <div class="panel-title">Rapport d'intervention {{ r.id }} — {{ r.status|upper }}</div>
+  <div class="panel-toolbar">
+    {% if r.status == "Brouillon" %}
+    <a class="pbtn" href="/comptes-rendus/{{ r.id }}/modifier" id="btn-modifier">Modifier</a>
+    <form method="post" action="/comptes-rendus/{{ r.id }}/transmettre" class="inline" id="form-transmettre">
+      <button type="submit" class="pbtn primary" id="btn-transmettre">Transmettre</button>
+    </form>
+    {% else %}
+    <span class="pbtn off">Modifier</span><span class="pbtn off">Transmettre</span>
+    {% endif %}
+    <span class="pbtn off">Imprimer</span>
+    <a class="pbtn" href="/comptes-rendus">Retour</a>
+  </div>
+  {% if error %}<div class="error" id="view-error" role="alert">{{ error }}</div>{% endif %}
+  <div class="band">Identification</div>
+  <table class="form-grid ro-grid" id="cr-entete">
+    <tr><th>N° compte rendu :</th><td><span class="ro" id="cr-numero">{{ r.id }}</span></td>
+        <th>État :</th><td><span class="ro etat-{{ 'sent' if r.status == 'Transmis' else 'draft' }}" id="cr-etat">{{ r.status }}</span></td></tr>
+    <tr><th>N° intervention :</th><td><span class="ro" id="cr-intervention">{{ r.incident_id }}</span></td>
+        <th>Date de l'intervention :</th><td><span class="ro" id="cr-date">{{ r.incident_at|local if r.incident_at else "" }}</span></td></tr>
+    <tr><th>Adresse :</th><td colspan="3"><span class="ro wide" id="cr-adresse">{{ r.address }}</span></td></tr>
+    <tr><th>Nature :</th><td colspan="3"><span class="ro wide" id="cr-nature">{{ r.nature }}</span></td></tr>
+  </table>
+  {% for key, label in sections %}
+  <div class="band" id="s-{{ key }}">{{ loop.index }}. {{ label }}</div>
+  <div class="section-text" id="cr-{{ key }}">{{ r[key] or "" }}</div>
+  {% endfor %}
+  <div class="band">Visa</div>
+  <table class="form-grid ro-grid">
+    <tr><th>Rédacteur :</th><td><span class="ro" id="cr-redacteur">{{ r.author }} ({{ r.fonction }})</span></td>
+        <th>Modifié le :</th><td><span class="ro">{{ r.updated_at|local }}</span></td></tr>
+    <tr><th>Transmis le :</th><td><span class="ro" id="cr-transmis">{{ r.transmitted_at|local if r.transmitted_at else "—" }}</span></td><th></th><td></td></tr>
+  </table>
+</div>
+{% endblock %}

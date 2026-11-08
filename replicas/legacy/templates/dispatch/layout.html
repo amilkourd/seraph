@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block layout %}
+<div class="xp-window">
+  <div class="xp-titlebar">
+    <span class="xp-title">{% block wintitle %}Alerte / Interventions{% endblock %}</span>
+    <span class="xp-meta">Poste CTA-03 · {{ now_local() }} · version 4.8.2</span>
+  </div>
+  <div class="xp-menubar">
+    {% if user %}
+    <a href="/interventions" id="menu-suivi">Suivi des interventions</a>
+    <a href="/interventions/nouvelle" id="menu-nouvelle">Nouvelle intervention</a>
+    <span class="xp-menu-right">Opérateur : <b>{{ user|upper }}</b> · <a href="/logout">Déconnexion</a></span>
+    {% else %}
+    <span>Logiciel de traitement de l'alerte</span>
+    {% endif %}
+  </div>
+  <div class="xp-body">
+    {% if flash %}<div class="flash" id="flash" role="status">{{ flash }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </div>
+  <div class="xp-statusbar">
+    <span>CTA-CODIS (fictif)</span><span>Opérateur : {{ user or "non identifié" }}</span><span>EXERCICE</span>
+  </div>
+</div>
+{% endblock %}

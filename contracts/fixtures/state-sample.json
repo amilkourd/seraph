@@ -1,0 +1,981 @@
+{
+  "incident": {
+    "id": "INC-0001",
+    "address": "DEMO_ADDRESS",
+    "nature": "Feu de local technique, fumée importante",
+    "origin": {
+      "floor": 3,
+      "room": "3.T"
+    },
+    "declared_at": "2026-11-08T00:25:00Z",
+    "status": "on_scene",
+    "exercise": true
+  },
+  "building": {
+    "name": "Bâtiment d'exercice",
+    "levels": [
+      {
+        "level": 0,
+        "label": "RDC"
+      },
+      {
+        "level": 1,
+        "label": "R+1"
+      },
+      {
+        "level": 2,
+        "label": "R+2"
+      },
+      {
+        "level": 3,
+        "label": "R+3"
+      },
+      {
+        "level": 4,
+        "label": "R+4"
+      },
+      {
+        "level": 5,
+        "label": "R+5"
+      }
+    ],
+    "stairs": [
+      {
+        "id": "A",
+        "label": "Escalier A (nord)",
+        "status": "clear",
+        "source": {
+          "kind": "plan",
+          "label": "plan",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      },
+      {
+        "id": "B",
+        "label": "Escalier B (sud)",
+        "status": "smoke",
+        "source": {
+          "kind": "call",
+          "label": "appel Tom Becker",
+          "confirmed": false,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      }
+    ],
+    "entrances": [
+      {
+        "id": "E1",
+        "label": "Entrée principale boulevard",
+        "side": "front",
+        "status": "usable",
+        "point": {
+          "image_id": "sv-front-01",
+          "x": 512,
+          "y": 640
+        },
+        "source": {
+          "kind": "earth",
+          "label": "Earth",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      },
+      {
+        "id": "E2",
+        "label": "Porte latérale rue",
+        "side": "left",
+        "status": "usable",
+        "point": {
+          "image_id": "earth-left-01",
+          "x": 300,
+          "y": 700
+        },
+        "source": {
+          "kind": "earth",
+          "label": "Earth",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      }
+    ],
+    "hydrants": [
+      {
+        "id": "H1",
+        "label": "Poteau incendie rue latérale",
+        "distance_m": 40,
+        "point": {
+          "image_id": "sv-left-01",
+          "x": 820,
+          "y": 760
+        },
+        "source": {
+          "kind": "streetview",
+          "label": "Street View",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      }
+    ],
+    "truck_spot": {
+      "label": "Rue latérale, devant E2",
+      "point": {
+        "image_id": "earth-top-01",
+        "x": 260,
+        "y": 520
+      },
+      "source": {
+        "kind": "earth",
+        "label": "Earth",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      }
+    },
+    "rooms": [
+      {
+        "id": "3.10",
+        "level": 3,
+        "label": "room:3.10",
+        "zone": [
+          [
+            210,
+            160
+          ],
+          [
+            620,
+            160
+          ],
+          [
+            620,
+            460
+          ],
+          [
+            210,
+            460
+          ]
+        ],
+        "source": {
+          "kind": "plan",
+          "label": "plan",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      },
+      {
+        "id": "3.12",
+        "level": 3,
+        "label": "room:3.12",
+        "zone": [
+          [
+            630,
+            160
+          ],
+          [
+            940,
+            160
+          ],
+          [
+            940,
+            460
+          ],
+          [
+            630,
+            460
+          ]
+        ],
+        "source": {
+          "kind": "plan",
+          "label": "plan",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      },
+      {
+        "id": "3.14",
+        "level": 3,
+        "label": "room:3.14",
+        "zone": [
+          [
+            210,
+            570
+          ],
+          [
+            630,
+            570
+          ],
+          [
+            630,
+            840
+          ],
+          [
+            210,
+            840
+          ]
+        ],
+        "source": {
+          "kind": "plan",
+          "label": "plan",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      },
+      {
+        "id": "3.T",
+        "level": 3,
+        "label": "room:3.T",
+        "zone": [
+          [
+            640,
+            640
+          ],
+          [
+            790,
+            640
+          ],
+          [
+            790,
+            840
+          ],
+          [
+            640,
+            840
+          ]
+        ],
+        "source": {
+          "kind": "plan",
+          "label": "plan",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      }
+    ],
+    "plan": {
+      "image_id": "plan-l3-01",
+      "url": "http://localhost:8001/shots/plan-l3-01.jpg",
+      "level": 3,
+      "points": [
+        {
+          "name": "stair:A",
+          "label": "Escalier A",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 130,
+            "y": 260
+          }
+        },
+        {
+          "name": "stair:B",
+          "label": "Escalier B",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 870,
+            "y": 740
+          }
+        },
+        {
+          "name": "elevator",
+          "label": "Ascenseur",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 130,
+            "y": 410
+          }
+        },
+        {
+          "name": "room:3.10",
+          "label": "3.10 Plateau",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 415,
+            "y": 310
+          }
+        },
+        {
+          "name": "room:3.12",
+          "label": "3.12 Réunion",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 785,
+            "y": 310
+          }
+        },
+        {
+          "name": "room:3.14",
+          "label": "3.14 Cuisine",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 420,
+            "y": 700
+          }
+        },
+        {
+          "name": "room:3.T",
+          "label": "3.T Local technique",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 715,
+            "y": 740
+          }
+        },
+        {
+          "name": "corridor",
+          "label": "Circulation",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 570,
+            "y": 515
+          }
+        },
+        {
+          "name": "riser",
+          "label": "Colonne sèche",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 130,
+            "y": 330
+          }
+        },
+        {
+          "name": "gas_cutoff",
+          "label": "Coupure gaz",
+          "point": {
+            "image_id": "plan-l3-01",
+            "x": 300,
+            "y": 800
+          }
+        }
+      ]
+    },
+    "hazards": [
+      {
+        "id": "HZ-1",
+        "kind": "fire",
+        "where": {
+          "level": 3,
+          "room": "3.T"
+        },
+        "severity": "high",
+        "source": {
+          "kind": "dispatch",
+          "label": "alerte",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        },
+        "reported_at": "2026-11-08T00:25:00Z"
+      },
+      {
+        "id": "HZ-2",
+        "kind": "smoke",
+        "where": {
+          "stair": "B"
+        },
+        "severity": "high",
+        "source": {
+          "kind": "radio",
+          "label": "Tête",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        },
+        "reported_at": "2026-11-08T00:33:00Z"
+      },
+      {
+        "id": "HZ-3",
+        "kind": "smoke",
+        "where": {
+          "level": 3,
+          "room": "corridor"
+        },
+        "severity": "high",
+        "source": {
+          "kind": "radio",
+          "label": "Binôme 1",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        },
+        "reported_at": "2026-11-08T00:38:00Z"
+      }
+    ],
+    "approach": {
+      "best_entrance_id": "E2",
+      "reason": "E2 donne directement sur l'escalier A, dégagé ; E1 donne sur le hall de l'escalier B, enfumé.",
+      "source": {
+        "kind": "seraph",
+        "label": "calcul",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      }
+    },
+    "screenshots": [
+      {
+        "image_id": "sv-front-01",
+        "url": "http://localhost:8001/shots/sv-front-01.jpg",
+        "caption": "Façade boulevard (Street View)",
+        "side": "front",
+        "width": 1280,
+        "height": 800,
+        "taken_at": "2026-11-08T00:00:00Z"
+      },
+      {
+        "image_id": "sv-left-01",
+        "url": "http://localhost:8001/shots/sv-left-01.jpg",
+        "caption": "Rue latérale (Street View)",
+        "side": "left",
+        "width": 1280,
+        "height": 800,
+        "taken_at": "2026-11-08T00:00:00Z"
+      },
+      {
+        "image_id": "earth-left-01",
+        "url": "http://localhost:8001/shots/earth-left-01.jpg",
+        "caption": "Côté rue latérale (Google Earth 3D)",
+        "side": "left",
+        "width": 1280,
+        "height": 800,
+        "taken_at": "2026-11-08T00:00:00Z"
+      },
+      {
+        "image_id": "earth-rear-01",
+        "url": "http://localhost:8001/shots/earth-rear-01.jpg",
+        "caption": "Arrière (Google Earth 3D)",
+        "side": "rear",
+        "width": 1280,
+        "height": 800,
+        "taken_at": "2026-11-08T00:00:00Z"
+      },
+      {
+        "image_id": "earth-top-01",
+        "url": "http://localhost:8001/shots/earth-top-01.jpg",
+        "caption": "Vue du dessus (Google Earth)",
+        "side": "top",
+        "width": 1280,
+        "height": 800,
+        "taken_at": "2026-11-08T00:00:00Z"
+      },
+      {
+        "image_id": "plan-l3-01",
+        "url": "http://localhost:8001/shots/plan-l3-01.jpg",
+        "caption": "Plan d'intervention niveau 3 (photo)",
+        "side": "plan",
+        "width": 1000,
+        "height": 1000,
+        "taken_at": "2026-11-08T00:00:00Z"
+      }
+    ]
+  },
+  "occupants": [
+    {
+      "id": "OCC-01",
+      "name": "Léa Martin",
+      "phone_masked": "+3310•••••01",
+      "level": 3,
+      "room": "3.12",
+      "status": "sheltering",
+      "language": "fr",
+      "last_update": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "call",
+        "label": "appel Léa Martin",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      },
+      "mobility_issue": false,
+      "people_count": 2,
+      "smoke_seen": true,
+      "call_id": "CALL-01"
+    },
+    {
+      "id": "OCC-02",
+      "name": "Karim Benali",
+      "phone_masked": "+3310•••••02",
+      "level": 3,
+      "room": "3.10",
+      "status": "no_answer",
+      "language": "fr",
+      "last_update": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "occupants",
+        "label": "gestionnaire",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      },
+      "mobility_issue": false
+    },
+    {
+      "id": "OCC-03",
+      "name": "Sophie Durand",
+      "phone_masked": "+3310•••••03",
+      "level": 4,
+      "room": "4.05",
+      "status": "sheltering",
+      "language": "fr",
+      "last_update": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "call",
+        "label": "appel Sophie Durand",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      },
+      "mobility_issue": false,
+      "people_count": 1,
+      "smoke_seen": false,
+      "call_id": "CALL-03"
+    },
+    {
+      "id": "OCC-04",
+      "name": "Tom Becker",
+      "phone_masked": "+3310•••••04",
+      "level": 4,
+      "room": "4.02",
+      "status": "moving",
+      "language": "en",
+      "last_update": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "call",
+        "label": "appel Tom Becker",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      },
+      "mobility_issue": false,
+      "people_count": 1,
+      "smoke_seen": false,
+      "heading_to": "stair:B",
+      "call_id": "CALL-04"
+    },
+    {
+      "id": "OCC-05",
+      "name": "Inès Rahmani",
+      "phone_masked": "+3310•••••05",
+      "level": 2,
+      "room": "2.01",
+      "status": "needs_help",
+      "language": "fr",
+      "last_update": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "call",
+        "label": "appel Inès Rahmani",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      },
+      "mobility_issue": true,
+      "people_count": 1,
+      "smoke_seen": false,
+      "call_id": "CALL-05"
+    },
+    {
+      "id": "OCC-06",
+      "name": "Lucía García",
+      "phone_masked": "+3310•••••06",
+      "level": 5,
+      "room": "5.01",
+      "status": "sheltering",
+      "language": "es",
+      "last_update": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "call",
+        "label": "appel Lucía García",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      },
+      "mobility_issue": false,
+      "people_count": 1,
+      "smoke_seen": false,
+      "call_id": "CALL-06"
+    }
+  ],
+  "calls": [
+    {
+      "call_id": "CALL-01",
+      "direction": "out",
+      "occupant_id": "OCC-01",
+      "number_masked": "+3310•••••01",
+      "channel": "phone",
+      "status": "active",
+      "language": "fr",
+      "started_at": "2026-11-08T00:32:00Z",
+      "summary_fr": null,
+      "voice": {
+        "emotion": "fear",
+        "sentiment": "negative",
+        "text": "Il y a de la fumée sous la porte, on n'ose pas sortir.",
+        "at": "2026-11-08T00:33:20Z"
+      },
+      "urgency": {
+        "level": 3,
+        "reasons_fr": [
+          "fumée sous la porte",
+          "peur dans la voix"
+        ],
+        "raised_by_voice": false,
+        "computed_at": "2026-11-08T00:34:00Z"
+      }
+    },
+    {
+      "call_id": "CALL-02",
+      "direction": "out",
+      "occupant_id": "OCC-02",
+      "number_masked": "+3310•••••02",
+      "channel": "phone",
+      "status": "no_answer",
+      "language": "fr",
+      "started_at": "2026-11-08T00:32:00Z",
+      "summary_fr": null,
+      "urgency": {
+        "level": 3,
+        "reasons_fr": [
+          "sans nouvelles, étage du feu"
+        ],
+        "raised_by_voice": false,
+        "computed_at": "2026-11-08T00:34:00Z"
+      }
+    },
+    {
+      "call_id": "CALL-03",
+      "direction": "out",
+      "occupant_id": "OCC-03",
+      "number_masked": "+3310•••••03",
+      "channel": "phone",
+      "status": "active",
+      "language": "fr",
+      "started_at": "2026-11-08T00:32:00Z",
+      "summary_fr": null,
+      "voice": {
+        "emotion": "relief",
+        "sentiment": "positive",
+        "text": "Je suis en 4.05, pas de fumée ici.",
+        "at": "2026-11-08T00:33:10Z"
+      },
+      "urgency": {
+        "level": 2,
+        "reasons_fr": [
+          "4e, pas de fumée"
+        ],
+        "raised_by_voice": false,
+        "computed_at": "2026-11-08T00:34:00Z"
+      }
+    },
+    {
+      "call_id": "CALL-04",
+      "direction": "out",
+      "occupant_id": "OCC-04",
+      "number_masked": "+3310•••••04",
+      "channel": "phone",
+      "status": "active",
+      "language": "en",
+      "started_at": "2026-11-08T00:32:00Z",
+      "summary_fr": null,
+      "voice": {
+        "emotion": "neutral",
+        "sentiment": "neutral",
+        "text": "I'm on the fourth floor, I'm heading down the south stairs right now.",
+        "at": "2026-11-08T00:33:30Z"
+      },
+      "urgency": {
+        "level": 3,
+        "reasons_fr": [
+          "descend vers l'escalier B, enfumé"
+        ],
+        "raised_by_voice": false,
+        "computed_at": "2026-11-08T00:34:00Z"
+      }
+    },
+    {
+      "call_id": "CALL-05",
+      "direction": "out",
+      "occupant_id": "OCC-05",
+      "number_masked": "+3310•••••05",
+      "channel": "phone",
+      "status": "active",
+      "language": "fr",
+      "started_at": "2026-11-08T00:32:00Z",
+      "summary_fr": null,
+      "voice": {
+        "emotion": "distress",
+        "sentiment": "negative",
+        "text": "Je suis en fauteuil roulant, je ne peux pas descendre seule.",
+        "at": "2026-11-08T00:33:40Z"
+      },
+      "urgency": {
+        "level": 3,
+        "reasons_fr": [
+          "fauteuil roulant, ne peut pas descendre seule",
+          "détresse dans la voix"
+        ],
+        "raised_by_voice": false,
+        "computed_at": "2026-11-08T00:34:00Z"
+      }
+    },
+    {
+      "call_id": "CALL-06",
+      "direction": "out",
+      "occupant_id": "OCC-06",
+      "number_masked": "+3310•••••06",
+      "channel": "phone",
+      "status": "active",
+      "language": "es",
+      "started_at": "2026-11-08T00:32:00Z",
+      "summary_fr": null,
+      "voice": {
+        "emotion": "fear",
+        "sentiment": "negative",
+        "text": "Estoy en el quinto piso, no veo humo. ¿Qué tengo que hacer?",
+        "at": "2026-11-08T00:33:50Z"
+      },
+      "urgency": {
+        "level": 3,
+        "reasons_fr": [
+          "5e, pas de fumée",
+          "peur dans la voix"
+        ],
+        "raised_by_voice": true,
+        "computed_at": "2026-11-08T00:34:00Z"
+      }
+    }
+  ],
+  "crew": {
+    "teams": [
+      {
+        "id": "B1",
+        "label": "Binôme 1",
+        "status": "engaged",
+        "entered_at": "2026-11-08T00:36:00Z",
+        "pressure_bar_start": 300,
+        "exit_by": "2026-11-08T00:51:00Z",
+        "location": {
+          "level": 3,
+          "room": "corridor"
+        },
+        "last_update": "2026-11-08T00:38:00Z"
+      },
+      {
+        "id": "B2",
+        "label": "Binôme 2",
+        "status": "standby",
+        "last_update": "2026-11-08T00:36:00Z"
+      }
+    ]
+  },
+  "environment": {
+    "wind": {
+      "dir_deg": 270,
+      "dir_label": "ouest",
+      "speed_kmh": 20,
+      "source": {
+        "kind": "meteo",
+        "label": "Météo-France",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      }
+    },
+    "risks": [
+      {
+        "label": "Inondation par remontée de nappe",
+        "category": "naturel",
+        "source": {
+          "kind": "georisques",
+          "label": "Géorisques",
+          "confirmed": true,
+          "at": "2026-11-08T00:40:00Z"
+        }
+      }
+    ]
+  },
+  "routes": [
+    {
+      "id": "RT-1",
+      "purpose": "approach",
+      "from": "truck",
+      "to": "level:3",
+      "via": [
+        "truck",
+        "entrance:E2",
+        "stair:A",
+        "level:3"
+      ],
+      "avoids": [
+        "HZ-2"
+      ],
+      "computed_at": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "seraph",
+        "label": "calcul",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      }
+    },
+    {
+      "id": "RT-2",
+      "purpose": "to_victim",
+      "from": "level:3",
+      "to": "room:3.12",
+      "via": [
+        "level:3",
+        "corridor:3",
+        "room:3.12"
+      ],
+      "avoids": [
+        "HZ-1"
+      ],
+      "computed_at": "2026-11-08T00:40:00Z",
+      "source": {
+        "kind": "seraph",
+        "label": "calcul",
+        "confirmed": true,
+        "at": "2026-11-08T00:40:00Z"
+      }
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "gate_01",
+      "kind": "reroute_occupant",
+      "summary_fr": "Tom Becker, 4e, descend par l'escalier B. B est enfumé. Je lui dis de prendre l'escalier A ?",
+      "confirmer": "COS",
+      "status": "pending",
+      "created_at": "2026-11-08T00:39:30Z"
+    }
+  ],
+  "halo": {
+    "current_view": {
+      "view_id": "view_approach_1",
+      "url": "http://localhost:8002/views/view_approach_1/",
+      "moment": "approach",
+      "built_by": "devin",
+      "since": "2026-11-08T00:31:00Z"
+    },
+    "requests": [
+      {
+        "request_id": "req_01",
+        "moment": "approach",
+        "purpose_fr": "Par où j'entre",
+        "status": "ready",
+        "view_id": "view_approach_1",
+        "url": "http://localhost:8002/views/view_approach_1/",
+        "devin_session_url": "https://app.devin.ai/sessions/example",
+        "requested_at": "2026-11-08T00:26:00Z",
+        "ready_at": "2026-11-08T00:31:00Z"
+      },
+      {
+        "request_id": "req_02",
+        "moment": "team_engaged",
+        "purpose_fr": "Mon air",
+        "status": "building",
+        "requested_at": "2026-11-08T00:36:10Z"
+      }
+    ]
+  },
+  "rosetta": {
+    "endpoints": [
+      {
+        "name": "dispatch.read",
+        "kind": "replica",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 6200
+      },
+      {
+        "name": "maps.building",
+        "kind": "real",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 71000
+      },
+      {
+        "name": "georisques.risks",
+        "kind": "real",
+        "verified": true,
+        "status": "ok",
+        "last_live": false,
+        "last_duration_ms": 1200
+      },
+      {
+        "name": "weather.wind",
+        "kind": "real",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 18000
+      },
+      {
+        "name": "plan.read",
+        "kind": "real",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 24000
+      },
+      {
+        "name": "occupants.list",
+        "kind": "replica",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 9400
+      },
+      {
+        "name": "dispatch.write_112",
+        "kind": "replica",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 7800
+      },
+      {
+        "name": "report.fill",
+        "kind": "replica",
+        "verified": true,
+        "status": "ok",
+        "last_live": true,
+        "last_duration_ms": 0
+      }
+    ],
+    "counter": {
+      "sources_without_api": 8,
+      "endpoints": 8
+    }
+  },
+  "timeline": [
+    {
+      "t": "2026-11-08T00:25:00Z",
+      "kind": "seraph",
+      "text_fr": "Incident INC-0001 déclenché (exercice)."
+    },
+    {
+      "t": "2026-11-08T00:27:10Z",
+      "kind": "rosetta",
+      "text_fr": "Plan niveau 3 lu : escaliers A et B, salles 3.10 à 3.T."
+    },
+    {
+      "t": "2026-11-08T00:28:30Z",
+      "kind": "radio",
+      "text_fr": "Seraph → Tête : entrée par E2, escalier A dégagé, hydrant à 40 m."
+    },
+    {
+      "t": "2026-11-08T00:33:40Z",
+      "kind": "call",
+      "text_fr": "Appel Léa Martin : deux personnes en 3.12, fumée sous la porte."
+    },
+    {
+      "t": "2026-11-08T00:39:30Z",
+      "kind": "gate",
+      "text_fr": "Proposition : rediriger Tom Becker vers l'escalier A."
+    }
+  ],
+  "alerts": [
+    {
+      "alert_id": "al_01",
+      "level": "warning",
+      "text_fr": "Personne à mobilité réduite au 2e (2.01)",
+      "created_at": "2026-11-08T00:35:00Z",
+      "spoken": true
+    },
+    {
+      "alert_id": "al_02",
+      "level": "warning",
+      "text_fr": "Sans nouvelles : Karim Benali, 3.10",
+      "created_at": "2026-11-08T00:37:00Z",
+      "spoken": true
+    }
+  ]
+}

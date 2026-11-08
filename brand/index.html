@@ -1,0 +1,488 @@
+<title>Seraph Art Direction</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Layout: a contact sheet of rings. Full-bleed ring plates with small captions, text in a narrow column between them. */
+  :root {
+    --bg: var(--halo-950, #0b0a0a);
+    --surface: var(--halo-900, #171615);
+    --line: rgba(220, 218, 214, 0.12);
+    --muted: var(--halo-400, #8f8c88);
+    --text: var(--halo-200, #d0cecb);
+    --strong: #ffffff;
+    --scrim: rgba(11, 10, 10, 0.72);
+    --display: var(--font-display, "Archivo", "Helvetica Neue", Arial, sans-serif);
+    --body: var(--font-text, "Geist", "Helvetica Neue", Arial, sans-serif);
+    --mono: var(--font-mono, "Geist Mono", ui-monospace, Menlo, monospace);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--strong); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--strong); outline-offset: 3px; }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+  h1, h2, h3 { color: var(--strong); text-wrap: balance; margin: 0; font-family: var(--display); }
+  h1 { font-size: clamp(38px, 6.4vw, 84px); font-weight: 520; font-stretch: 108%; letter-spacing: -0.035em; line-height: 0.98; }
+  h2 { font-size: clamp(28px, 3.6vw, 44px); font-weight: 520; font-stretch: 108%; letter-spacing: -0.025em; line-height: 1.05; }
+  h3 { font-size: 22px; font-weight: 600; font-stretch: 112%; letter-spacing: -0.01em; }
+  p { margin: 0; }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 160ms, color 160ms, border-color 160ms;
+  }
+  .btn:hover { border-color: rgba(255, 255, 255, 0.4); }
+  .btn[aria-pressed="true"] { background: var(--strong); color: var(--bg); border-color: var(--strong); }
+  .btn .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; height: clamp(560px, 80vh, 780px); overflow: hidden; background: #000; }
+  .hero-ring { position: absolute; inset: 0; }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, var(--scrim) 0%, rgba(11, 10, 10, 0.35) 38%, rgba(11, 10, 10, 0) 62%);
+  }
+  .hud {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .hud-tl { top: max(20px, env(safe-area-inset-top, 0px)); left: max(20px, env(safe-area-inset-left, 0px)); }
+  .hud-tl .lockup { font-size: 22px; color: var(--strong); }
+  .hud-tr { top: max(20px, env(safe-area-inset-top, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); text-align: right; align-items: flex-end; }
+  .hud-tr strong { color: var(--strong); font-weight: 500; }
+  .hero-copy { position: absolute; z-index: 2; left: 0; right: 0; bottom: 40px; }
+  .hero-copy .inner { max-width: 640px; display: grid; gap: 18px; }
+  .hero-copy .lede { font-size: 18px; color: var(--text); max-width: 46ch; }
+
+  .picker { border-bottom: 1px solid var(--line); }
+  .picker .wrap { padding-block: 18px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+  .picker .row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* ---------- Sections ---------- */
+  section { padding-block: clamp(64px, 9vw, 120px); border-bottom: 1px solid var(--line); }
+  .sec-head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 56px); max-width: 760px; }
+  .sec-head p:not(.label) { max-width: 62ch; }
+
+  .rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px); }
+  .rule { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); align-content: start; }
+  .rule h3 { font-size: 20px; }
+
+  .plate { position: relative; overflow: hidden; background: #000; border-radius: 4px; max-width: 100%; }
+  .plate .cap {
+    position: absolute;
+    z-index: 2;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .cap.tl { top: 12px; left: 14px; }
+  .cap.tr { top: 12px; right: 14px; text-align: right; }
+
+  /* Modules */
+  .modules { display: grid; gap: clamp(48px, 7vw, 88px); }
+  .module { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); gap: clamp(20px, 4vw, 48px); align-items: start; }
+  .module .plate { aspect-ratio: 4 / 3; }
+  .module-info { display: grid; gap: 18px; min-width: 0; }
+  .module-head { display: grid; gap: 6px; }
+  .module-head .ref { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .module-head h3 { font-size: clamp(28px, 3vw, 36px); font-stretch: 112%; }
+  .core { display: flex; align-items: center; gap: 14px; }
+  .core i { width: 56px; height: 56px; border-radius: 50%; display: block; flex: none; }
+  .core div { display: grid; gap: 2px; }
+  .core code { font-family: var(--mono); font-size: 14px; color: var(--strong); }
+  .core span { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .why { color: var(--text); max-width: 52ch; }
+  .scale { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 4px; }
+  .step {
+    display: grid;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+    min-width: 0;
+  }
+  .step i { display: block; height: 56px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); }
+  .step b { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--strong); }
+  .step span { font-family: var(--mono); font-size: 10px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+  .step.is-core i { outline: 2px solid var(--strong); outline-offset: 2px; }
+  .step:hover i { border-color: rgba(255, 255, 255, 0.5); }
+  .module-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* Type */
+  .families { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 40px); margin-bottom: clamp(40px, 6vw, 72px); }
+  .family { display: grid; gap: 12px; padding-top: 16px; border-top: 1px solid var(--line); align-content: start; }
+  .family .glyphs { color: var(--strong); line-height: 1; }
+  .g-display { font-family: var(--display); font-stretch: 125%; font-weight: 760; font-size: clamp(44px, 5vw, 64px); text-transform: uppercase; }
+  .g-text { font-family: var(--body); font-weight: 500; font-size: clamp(44px, 5vw, 64px); letter-spacing: -0.02em; }
+  .g-mono { font-family: var(--mono); font-weight: 500; font-size: clamp(40px, 4.4vw, 56px); }
+  .typescale { display: grid; }
+  .ts { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 20px; align-items: baseline; padding-block: 22px; border-top: 1px solid var(--line); }
+  .ts:last-child { border-bottom: 1px solid var(--line); }
+  .ts .meta { display: grid; gap: 4px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
+  .ts .meta b { color: var(--strong); font-weight: 500; font-size: 12px; }
+  .ts .sample { color: var(--strong); min-width: 0; overflow-wrap: anywhere; }
+  .s-lockup { font-family: var(--display); font-stretch: 125%; font-weight: 760; text-transform: uppercase; font-size: clamp(20px, 2.2vw, 28px); letter-spacing: 0.01em; }
+  .s-h1 { font-family: var(--display); font-stretch: 108%; font-weight: 520; font-size: clamp(38px, 6vw, 84px); letter-spacing: -0.035em; line-height: 0.98; }
+  .s-h2 { font-family: var(--display); font-stretch: 108%; font-weight: 520; font-size: clamp(28px, 3.6vw, 44px); letter-spacing: -0.025em; line-height: 1.05; }
+  .s-h3 { font-family: var(--display); font-stretch: 112%; font-weight: 600; font-size: 22px; letter-spacing: -0.01em; }
+  .s-lead { font-family: var(--body); font-size: 19px; line-height: 1.45; max-width: 52ch; }
+  .s-body { font-family: var(--body); font-size: 16px; line-height: 1.55; max-width: 62ch; color: var(--text); }
+  .s-label { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .cover { margin-top: clamp(48px, 7vw, 88px); display: grid; gap: 14px; }
+  .cover .plate { aspect-ratio: 16 / 9; }
+  .cover-mark { position: absolute; z-index: 2; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: clamp(16px, 2.2vw, 26px); color: var(--strong); }
+  .cover-mark small { display: block; font-family: var(--mono); font-stretch: 100%; font-weight: 400; font-size: 0.42em; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.7); margin-top: 0.7em; }
+  .cover-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; font-size: 15px; }
+
+  /* Motion */
+  .motion { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 clamp(20px, 3vw, 40px); }
+  .mo { display: grid; gap: 6px; padding-block: 18px; border-top: 1px solid var(--line); align-content: start; }
+  .mo .num { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; color: var(--strong); font-variant-numeric: tabular-nums; }
+
+  footer .wrap { padding-block: 40px 56px; display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; align-items: baseline; }
+  footer code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  .toast {
+    position: fixed;
+    z-index: 20;
+    left: 50%;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--strong);
+    color: var(--bg);
+    padding: 10px 16px;
+    border-radius: 999px;
+  }
+
+  @media (max-width: 960px) {
+    .module { grid-template-columns: minmax(0, 1fr); }
+    .rules, .motion { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .families, .cover-notes { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .hud-tl span:not(.lockup) { display: none; }
+    .hero::after { background: linear-gradient(0deg, var(--scrim) 0%, rgba(11, 10, 10, 0.4) 40%, rgba(11, 10, 10, 0) 65%); }
+    .hero-copy { bottom: 28px; }
+    .hero-copy .lede { font-size: 16px; }
+    .rules, .motion { grid-template-columns: minmax(0, 1fr); }
+    .scale { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 12px; }
+    .ts { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  }
+</style>
+
+<header class="hero" id="top">
+  <div class="hero-ring" id="hero-ring" aria-hidden="true"></div>
+  <div class="hud hud-tl">
+    <span class="lockup">Seraph</span>
+    <span>Direction artistique · v0.2 · 8 nov. 2026</span>
+  </div>
+  <div class="hud hud-tr">
+    <strong id="hud-name">Halo</strong>
+    <span id="hud-ref">Blanc thermique</span>
+  </div>
+  <div class="hero-copy">
+    <div class="wrap">
+      <div class="inner">
+        <p class="label">Seraph · direction artistique</p>
+        <h1>Une lumière nette dans la fumée.</h1>
+        <p class="lede">Un seul visuel pour tout l'écosystème : un anneau de lumière dans le noir, net d'un côté, flou de l'autre, toujours avec du grain. Chaque module a sa couleur.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="picker">
+  <div class="wrap">
+    <p class="label">Module</p>
+    <div class="row" id="picker" role="group" aria-label="Module"></div>
+  </div>
+</div>
+
+<main>
+  <section id="principe">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Le principe</p>
+        <h2>Un anneau, cinq couleurs.</h2>
+      </div>
+      <div class="rules">
+        <article class="rule">
+          <p class="label">Fond</p>
+          <h3>Le noir d'abord.</h3>
+          <p>Tout part d'un fond sombre et flou, comme de la fumée. La lumière est rare, donc elle compte.</p>
+        </article>
+        <article class="rule">
+          <p class="label">Netteté</p>
+          <h3>Un seul bord net.</h3>
+          <p>L'anneau est net là où il est proche et se perd dans le flou de l'autre côté. Le texte se pose dans le noir, jamais sur le bord net.</p>
+        </article>
+        <article class="rule">
+          <p class="label">Grain</p>
+          <h3>Toujours du grain.</h3>
+          <p>Le grain donne la matière, celle d'un capteur thermique, et empêche les dégradés de faire des paliers à l'écran.</p>
+        </article>
+        <article class="rule">
+          <p class="label">Couleur</p>
+          <h3>Une couleur par module.</h3>
+          <p>La forme ne change jamais. La couleur dit de quel module on parle. Chaque couleur vient de quelque chose qui brûle ou qui mesure la chaleur.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="modules">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Couleurs</p>
+        <h2>Une couleur et une échelle de teinte par module.</h2>
+        <p>Onze teintes par module, de 50 (la plus claire) à 950 (la plus sombre). La teinte encadrée est la couleur du module. Cliquez une teinte pour copier son code.</p>
+      </div>
+      <div class="modules" id="modules-list"></div>
+    </div>
+  </section>
+
+  <section id="typographie">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Typographie</p>
+        <h2>Archivo pour nommer, Geist pour lire, Geist Mono pour les étiquettes.</h2>
+        <p>Trois familles, toutes sur Google Fonts et dans <code style="font-family:var(--mono);font-size:0.9em">next/font/google</code>.</p>
+      </div>
+      <div class="families">
+        <div class="family">
+          <p class="label">Titres · Archivo</p>
+          <div class="glyphs g-display">Aa 125</div>
+          <p>Grotesque à largeur variable. En capitales élargies (wdth 125) pour le logo et les blocs-titres, à wdth 108 en minuscules pour les grands titres.</p>
+        </div>
+        <div class="family">
+          <p class="label">Texte · Geist</p>
+          <div class="glyphs g-text">Aa 016</div>
+          <p>Le texte courant. Neutre et très lisible, il laisse la place à l'anneau.</p>
+        </div>
+        <div class="family">
+          <p class="label">Étiquettes · Geist Mono</p>
+          <div class="glyphs g-mono">Aa 0°C</div>
+          <p>Étiquettes, unités, heures, chiffres. Toujours en capitales espacées, chiffres tabulaires.</p>
+        </div>
+      </div>
+
+      <div class="typescale">
+        <div class="ts"><div class="meta"><b>Logo</b><span>Archivo 760 · wdth 125</span><span>14–28 px · +0.01em · caps</span></div><div class="sample s-lockup">Seraph · Gabriel · Halo · Rosetta · Silex</div></div>
+        <div class="ts"><div class="meta"><b>Titre 1</b><span>Archivo 520 · wdth 108</span><span>84 px · −0.035em</span></div><div class="sample s-h1">N'importe quel écran en API.</div></div>
+        <div class="ts"><div class="meta"><b>Titre 2</b><span>Archivo 520 · wdth 108</span><span>44 px · −0.025em</span></div><div class="sample s-h2">La bonne information au bon moment.</div></div>
+        <div class="ts"><div class="meta"><b>Titre 3</b><span>Archivo 600 · wdth 112</span><span>22 px · −0.01em</span></div><div class="sample s-h3">À la voix et à l'image</div></div>
+        <div class="ts"><div class="meta"><b>Chapeau</b><span>Geist 400</span><span>19 px · interligne 1.45</span></div><div class="sample s-lead">Seraph transforme n'importe quel écran en API, et met la bonne information sur le poignet du pompier, au bon moment, à la voix et à l'image.</div></div>
+        <div class="ts"><div class="meta"><b>Texte</b><span>Geist 400</span><span>16 px · interligne 1.55</span></div><div class="sample s-body">Seraph transforme n'importe quel écran en API, et met la bonne information sur le poignet du pompier, au bon moment, à la voix et à l'image.</div></div>
+        <div class="ts"><div class="meta"><b>Étiquette</b><span>Geist Mono 500</span><span>12 px · +0.08em · caps</span></div><div class="sample s-label">Paris · 8 nov. 2026 · 02:14 · 650 °C</div></div>
+      </div>
+
+      <div class="cover">
+        <div class="plate" id="cover-plate">
+          <span class="cap tl">Couverture</span>
+          <div class="cover-mark lockup">Seraph<small>Wordmark provisoire · logo à venir</small></div>
+        </div>
+        <div class="cover-notes">
+          <p>Le logo est blanc, toujours. Il se pose dans le noir, à l'intérieur de l'anneau.</p>
+          <p>Jamais sur le bord net de l'anneau.</p>
+          <p>Petit : au plus un huitième de la largeur. C'est l'anneau qui parle.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mouvement">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Mouvement</p>
+        <h2>L'anneau respire, il ne tourne pas.</h2>
+      </div>
+      <div class="motion">
+        <div class="mo"><span class="num">20–60 s</span><h3>Dérive</h3><p>Les périodes de mouvement. Si on remarque le mouvement, c'est trop rapide.</p></div>
+        <div class="mo"><span class="num">600 ms</span><h3>Changement</h3><p>D'un module à l'autre, la couleur passe en fondu. La forme ne bouge pas.</p></div>
+        <div class="mo"><span class="num">24 i/s</span><h3>Grain</h3><p>Le grain se renouvelle comme une pellicule.</p></div>
+        <div class="mo"><span class="num">0</span><h3>Mouvement réduit</h3><p>Si l'appareil le demande, une seule image fixe.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="lockup" style="font-size:16px;color:#fff">Seraph</span>
+    <code>brand/tokens.css · brand/seraph-field.js</code>
+    <p class="label">Direction artistique v0.2 · Paris, 8 nov. 2026 · logo à venir</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="seraph-field.js"></script>
+<script>
+(function () {
+  'use strict';
+  if (!window.SeraphField) return;
+  var SF = window.SeraphField;
+  var ORDER = ['halo', 'seraph', 'gabriel', 'rosetta', 'silex'];
+
+  var WHY = {
+    halo: 'Le mode « blanc chaud » des caméras thermiques : plus c\'est chaud, plus c\'est blanc. Ses gris servent aussi de neutres à tout le système.',
+    seraph: 'Saraph, en hébreu : brûler. La couleur de la matière chauffée, de la braise vers 800 K au jaune vers 3000 K.',
+    gabriel: 'Le bleu d\'une flamme propre, émis par le radical CH* à 431 nm, à la base de la flamme.',
+    rosetta: 'Le magenta de la palette « ironbow » des caméras thermiques, celle qui rend visible ce que l\'œil ne voit pas.',
+    silex: 'Le vert de la bande C₂ à 516 nm, au cœur d\'une flamme de gaz. Le silex, c\'est la pierre qui fait l\'étincelle.'
+  };
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = 0;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 1600);
+  }
+  function copy(text, done) {
+    var fallback = function () {
+      var tmp = document.createElement('textarea');
+      tmp.value = text;
+      tmp.setAttribute('readonly', '');
+      tmp.style.position = 'fixed';
+      tmp.style.opacity = '0';
+      document.body.appendChild(tmp);
+      tmp.select();
+      var copied = false;
+      try { copied = document.execCommand('copy'); } catch (e) {}
+      tmp.remove();
+      toast(copied ? done : 'Copie bloquée par le navigateur');
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast(done); }, fallback);
+      else fallback();
+    } catch (e) { fallback(); }
+  }
+  function tokens(name) {
+    var s = SF.scales[name];
+    var lines = SF.steps.map(function (k) { return '  --' + name + '-' + k + ': ' + s.steps[k] + ';'; });
+    lines.push('  --' + name + ': var(--' + name + '-' + s.core + ');');
+    return '/* ' + s.label + ' — ' + s.ref + ' */\n' + lines.join('\n');
+  }
+
+  // ---------- hero ----------
+  var heroEl = document.getElementById('hero-ring');
+  function framing() {
+    return heroEl.clientWidth / heroEl.clientHeight > 1.2 ? { offset: [-0.42, 0], zoom: 1.15 } : { offset: [0, -0.3], zoom: 1.05 };
+  }
+  var fr = framing();
+  var hero = SF.mount(heroEl, { module: 'halo', offset: fr.offset, zoom: fr.zoom });
+  window.addEventListener('resize', function () { var f = framing(); hero.set({ offset: f.offset, zoom: f.zoom }); });
+
+  var picker = document.getElementById('picker');
+  ORDER.forEach(function (name, i) {
+    var s = SF.scales[name];
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn';
+    b.setAttribute('data-module', name);
+    b.setAttribute('aria-pressed', String(i === 0));
+    b.innerHTML = '<span class="dot" style="background:' + s.steps[s.core] + '"></span>' + s.label;
+    picker.appendChild(b);
+  });
+  function pick(name) {
+    hero.set({ module: name });
+    document.getElementById('hud-name').textContent = SF.scales[name].label;
+    document.getElementById('hud-ref').textContent = SF.scales[name].ref;
+    picker.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-module') === name));
+    });
+  }
+  picker.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-module]');
+    if (b) pick(b.getAttribute('data-module'));
+  });
+
+  // ---------- modules ----------
+  var list = document.getElementById('modules-list');
+  ORDER.forEach(function (name) {
+    var s = SF.scales[name];
+    var row = document.createElement('article');
+    row.className = 'module';
+    var steps = SF.steps.map(function (k) {
+      return '<button type="button" class="step' + (k === s.core ? ' is-core' : '') + '" data-hex="' + s.steps[k] + '" aria-label="' + s.label + ' ' + k + ' ' + s.steps[k] + '">' +
+        '<i style="background:' + s.steps[k] + '"></i><b>' + k + '</b><span>' + s.steps[k].slice(1) + '</span></button>';
+    }).join('');
+    row.innerHTML =
+      '<div class="plate"><span class="cap tl">' + s.label + '</span><span class="cap tr">' + s.ref + '</span></div>' +
+      '<div class="module-info">' +
+        '<div class="module-head"><span class="ref">' + s.ref + '</span><h3>' + s.label + '</h3></div>' +
+        '<div class="core"><i style="background:' + s.steps[s.core] + '"></i><div><code>--' + name + '</code><span>' + s.label + ' ' + s.core + ' · ' + s.steps[s.core] + '</span></div></div>' +
+        '<p class="why">' + WHY[name] + '</p>' +
+        '<div class="scale">' + steps + '</div>' +
+        '<div class="module-actions"><button type="button" class="btn" data-tokens="' + name + '">Copier les tokens CSS</button></div>' +
+      '</div>';
+    list.appendChild(row);
+    SF.mount(row.querySelector('.plate'), { module: name, zoom: 1.05, maxDpr: 1.25, fps: 30 });
+  });
+  list.addEventListener('click', function (e) {
+    var st = e.target.closest('.step');
+    if (st) { copy(st.getAttribute('data-hex'), st.getAttribute('data-hex') + ' copié'); return; }
+    var tk = e.target.closest('[data-tokens]');
+    if (tk) copy(tokens(tk.getAttribute('data-tokens')), 'Tokens ' + SF.scales[tk.getAttribute('data-tokens')].label + ' copiés');
+  });
+
+  // ---------- cover ----------
+  SF.mount(document.getElementById('cover-plate'), { module: 'halo', zoom: 1.35, offset: [0.02, 0] });
+})();
+</script>
