@@ -1,0 +1,3870 @@
+{
+ "name": "Bâtiment d'exercice",
+ "levels": [
+  {
+   "level": 0,
+   "label": "RDC",
+   "elevation_m": 0.0,
+   "ifc_name": "RDC",
+   "outline": [
+    {
+     "outer": [
+      [
+       940,
+       840
+      ],
+      [
+       60,
+       840
+      ],
+      [
+       60,
+       160
+      ],
+      [
+       940,
+       160
+      ]
+     ],
+     "holes": []
+    }
+   ],
+   "outline_m": [
+    {
+     "outer": [
+      [
+       26.4,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       20.4
+      ],
+      [
+       26.4,
+       20.4
+      ]
+     ],
+     "holes": []
+    }
+   ],
+   "outline_source": "slab",
+   "slab_thickness_m": 0.2
+  },
+  {
+   "level": 1,
+   "label": "R+1",
+   "elevation_m": 3.0,
+   "ifc_name": "R+1",
+   "outline": [
+    {
+     "outer": [
+      [
+       940,
+       160
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       60,
+       840
+      ],
+      [
+       60,
+       160
+      ]
+     ],
+     "holes": [
+      [
+       [
+        802,
+        838
+       ],
+       [
+        938,
+        838
+       ],
+       [
+        938,
+        562
+       ],
+       [
+        802,
+        562
+       ]
+      ],
+      [
+       [
+        198,
+        162
+       ],
+       [
+        62,
+        162
+       ],
+       [
+        62,
+        358
+       ],
+       [
+        198,
+        358
+       ]
+      ],
+      [
+       [
+        128,
+        458
+       ],
+       [
+        128,
+        362
+       ],
+       [
+        62,
+        362
+       ],
+       [
+        62,
+        458
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_m": [
+    {
+     "outer": [
+      [
+       26.4,
+       20.4
+      ],
+      [
+       26.4,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       20.4
+      ]
+     ],
+     "holes": [
+      [
+       [
+        22.25,
+        0.05
+       ],
+       [
+        26.35,
+        0.05
+       ],
+       [
+        26.35,
+        8.35
+       ],
+       [
+        22.25,
+        8.35
+       ]
+      ],
+      [
+       [
+        4.15,
+        20.35
+       ],
+       [
+        0.05,
+        20.35
+       ],
+       [
+        0.05,
+        14.45
+       ],
+       [
+        4.15,
+        14.45
+       ]
+      ],
+      [
+       [
+        2.05,
+        11.45
+       ],
+       [
+        2.05,
+        14.35
+       ],
+       [
+        0.05,
+        14.35
+       ],
+       [
+        0.05,
+        11.45
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_source": "slab",
+   "slab_thickness_m": 0.2
+  },
+  {
+   "level": 2,
+   "label": "R+2",
+   "elevation_m": 6.0,
+   "ifc_name": "R+2",
+   "outline": [
+    {
+     "outer": [
+      [
+       940,
+       160
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       60,
+       840
+      ],
+      [
+       60,
+       160
+      ]
+     ],
+     "holes": [
+      [
+       [
+        802,
+        838
+       ],
+       [
+        938,
+        838
+       ],
+       [
+        938,
+        562
+       ],
+       [
+        802,
+        562
+       ]
+      ],
+      [
+       [
+        198,
+        162
+       ],
+       [
+        62,
+        162
+       ],
+       [
+        62,
+        358
+       ],
+       [
+        198,
+        358
+       ]
+      ],
+      [
+       [
+        128,
+        458
+       ],
+       [
+        128,
+        362
+       ],
+       [
+        62,
+        362
+       ],
+       [
+        62,
+        458
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_m": [
+    {
+     "outer": [
+      [
+       26.4,
+       20.4
+      ],
+      [
+       26.4,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       20.4
+      ]
+     ],
+     "holes": [
+      [
+       [
+        22.25,
+        0.05
+       ],
+       [
+        26.35,
+        0.05
+       ],
+       [
+        26.35,
+        8.35
+       ],
+       [
+        22.25,
+        8.35
+       ]
+      ],
+      [
+       [
+        4.15,
+        20.35
+       ],
+       [
+        0.05,
+        20.35
+       ],
+       [
+        0.05,
+        14.45
+       ],
+       [
+        4.15,
+        14.45
+       ]
+      ],
+      [
+       [
+        2.05,
+        11.45
+       ],
+       [
+        2.05,
+        14.35
+       ],
+       [
+        0.05,
+        14.35
+       ],
+       [
+        0.05,
+        11.45
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_source": "slab",
+   "slab_thickness_m": 0.2
+  },
+  {
+   "level": 3,
+   "label": "R+3",
+   "elevation_m": 9.0,
+   "ifc_name": "R+3",
+   "outline": [
+    {
+     "outer": [
+      [
+       940,
+       160
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       60,
+       840
+      ],
+      [
+       60,
+       160
+      ]
+     ],
+     "holes": [
+      [
+       [
+        802,
+        838
+       ],
+       [
+        938,
+        838
+       ],
+       [
+        938,
+        562
+       ],
+       [
+        802,
+        562
+       ]
+      ],
+      [
+       [
+        198,
+        162
+       ],
+       [
+        62,
+        162
+       ],
+       [
+        62,
+        358
+       ],
+       [
+        198,
+        358
+       ]
+      ],
+      [
+       [
+        128,
+        458
+       ],
+       [
+        128,
+        362
+       ],
+       [
+        62,
+        362
+       ],
+       [
+        62,
+        458
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_m": [
+    {
+     "outer": [
+      [
+       26.4,
+       20.4
+      ],
+      [
+       26.4,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       20.4
+      ]
+     ],
+     "holes": [
+      [
+       [
+        22.25,
+        0.05
+       ],
+       [
+        26.35,
+        0.05
+       ],
+       [
+        26.35,
+        8.35
+       ],
+       [
+        22.25,
+        8.35
+       ]
+      ],
+      [
+       [
+        4.15,
+        20.35
+       ],
+       [
+        0.05,
+        20.35
+       ],
+       [
+        0.05,
+        14.45
+       ],
+       [
+        4.15,
+        14.45
+       ]
+      ],
+      [
+       [
+        2.05,
+        11.45
+       ],
+       [
+        2.05,
+        14.35
+       ],
+       [
+        0.05,
+        14.35
+       ],
+       [
+        0.05,
+        11.45
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_source": "slab",
+   "slab_thickness_m": 0.2
+  },
+  {
+   "level": 4,
+   "label": "R+4",
+   "elevation_m": 12.0,
+   "ifc_name": "R+4",
+   "outline": [
+    {
+     "outer": [
+      [
+       940,
+       160
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       60,
+       840
+      ],
+      [
+       60,
+       160
+      ]
+     ],
+     "holes": [
+      [
+       [
+        802,
+        838
+       ],
+       [
+        938,
+        838
+       ],
+       [
+        938,
+        562
+       ],
+       [
+        802,
+        562
+       ]
+      ],
+      [
+       [
+        198,
+        162
+       ],
+       [
+        62,
+        162
+       ],
+       [
+        62,
+        358
+       ],
+       [
+        198,
+        358
+       ]
+      ],
+      [
+       [
+        128,
+        458
+       ],
+       [
+        128,
+        362
+       ],
+       [
+        62,
+        362
+       ],
+       [
+        62,
+        458
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_m": [
+    {
+     "outer": [
+      [
+       26.4,
+       20.4
+      ],
+      [
+       26.4,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       20.4
+      ]
+     ],
+     "holes": [
+      [
+       [
+        22.25,
+        0.05
+       ],
+       [
+        26.35,
+        0.05
+       ],
+       [
+        26.35,
+        8.35
+       ],
+       [
+        22.25,
+        8.35
+       ]
+      ],
+      [
+       [
+        4.15,
+        20.35
+       ],
+       [
+        0.05,
+        20.35
+       ],
+       [
+        0.05,
+        14.45
+       ],
+       [
+        4.15,
+        14.45
+       ]
+      ],
+      [
+       [
+        2.05,
+        11.45
+       ],
+       [
+        2.05,
+        14.35
+       ],
+       [
+        0.05,
+        14.35
+       ],
+       [
+        0.05,
+        11.45
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_source": "slab",
+   "slab_thickness_m": 0.2
+  },
+  {
+   "level": 5,
+   "label": "R+5",
+   "elevation_m": 15.0,
+   "ifc_name": "R+5",
+   "outline": [
+    {
+     "outer": [
+      [
+       940,
+       160
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       60,
+       840
+      ],
+      [
+       60,
+       160
+      ]
+     ],
+     "holes": [
+      [
+       [
+        802,
+        838
+       ],
+       [
+        938,
+        838
+       ],
+       [
+        938,
+        562
+       ],
+       [
+        802,
+        562
+       ]
+      ],
+      [
+       [
+        198,
+        162
+       ],
+       [
+        62,
+        162
+       ],
+       [
+        62,
+        358
+       ],
+       [
+        198,
+        358
+       ]
+      ],
+      [
+       [
+        128,
+        458
+       ],
+       [
+        128,
+        362
+       ],
+       [
+        62,
+        362
+       ],
+       [
+        62,
+        458
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_m": [
+    {
+     "outer": [
+      [
+       26.4,
+       20.4
+      ],
+      [
+       26.4,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       20.4
+      ]
+     ],
+     "holes": [
+      [
+       [
+        22.25,
+        0.05
+       ],
+       [
+        26.35,
+        0.05
+       ],
+       [
+        26.35,
+        8.35
+       ],
+       [
+        22.25,
+        8.35
+       ]
+      ],
+      [
+       [
+        4.15,
+        20.35
+       ],
+       [
+        0.05,
+        20.35
+       ],
+       [
+        0.05,
+        14.45
+       ],
+       [
+        4.15,
+        14.45
+       ]
+      ],
+      [
+       [
+        2.05,
+        11.45
+       ],
+       [
+        2.05,
+        14.35
+       ],
+       [
+        0.05,
+        14.35
+       ],
+       [
+        0.05,
+        11.45
+       ]
+      ]
+     ]
+    }
+   ],
+   "outline_source": "slab",
+   "slab_thickness_m": 0.2
+  }
+ ],
+ "stairs": [
+  {
+   "id": "A",
+   "label": "Escalier A (nord)",
+   "status": "unknown",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "levels": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "zones": [
+    {
+     "level": 0,
+     "zone": [
+      [
+       60,
+       160
+      ],
+      [
+       200,
+       160
+      ],
+      [
+       200,
+       360
+      ],
+      [
+       60,
+       360
+      ]
+     ]
+    },
+    {
+     "level": 1,
+     "zone": [
+      [
+       60,
+       160
+      ],
+      [
+       200,
+       160
+      ],
+      [
+       200,
+       360
+      ],
+      [
+       60,
+       360
+      ]
+     ]
+    },
+    {
+     "level": 2,
+     "zone": [
+      [
+       60,
+       160
+      ],
+      [
+       200,
+       160
+      ],
+      [
+       200,
+       360
+      ],
+      [
+       60,
+       360
+      ]
+     ]
+    },
+    {
+     "level": 3,
+     "zone": [
+      [
+       60,
+       160
+      ],
+      [
+       200,
+       160
+      ],
+      [
+       200,
+       360
+      ],
+      [
+       60,
+       360
+      ]
+     ]
+    },
+    {
+     "level": 4,
+     "zone": [
+      [
+       60,
+       160
+      ],
+      [
+       200,
+       160
+      ],
+      [
+       200,
+       360
+      ],
+      [
+       60,
+       360
+      ]
+     ]
+    },
+    {
+     "level": 5,
+     "zone": [
+      [
+       60,
+       160
+      ],
+      [
+       200,
+       160
+      ],
+      [
+       200,
+       360
+      ],
+      [
+       60,
+       360
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "label": "Escalier B (sud)",
+   "status": "unknown",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "levels": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "zones": [
+    {
+     "level": 0,
+     "zone": [
+      [
+       800,
+       560
+      ],
+      [
+       940,
+       560
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       800,
+       840
+      ]
+     ]
+    },
+    {
+     "level": 1,
+     "zone": [
+      [
+       800,
+       560
+      ],
+      [
+       940,
+       560
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       800,
+       840
+      ]
+     ]
+    },
+    {
+     "level": 2,
+     "zone": [
+      [
+       800,
+       560
+      ],
+      [
+       940,
+       560
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       800,
+       840
+      ]
+     ]
+    },
+    {
+     "level": 3,
+     "zone": [
+      [
+       800,
+       560
+      ],
+      [
+       940,
+       560
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       800,
+       840
+      ]
+     ]
+    },
+    {
+     "level": 4,
+     "zone": [
+      [
+       800,
+       560
+      ],
+      [
+       940,
+       560
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       800,
+       840
+      ]
+     ]
+    },
+    {
+     "level": 5,
+     "zone": [
+      [
+       800,
+       560
+      ],
+      [
+       940,
+       560
+      ],
+      [
+       940,
+       840
+      ],
+      [
+       800,
+       840
+      ]
+     ]
+    }
+   ]
+  }
+ ],
+ "entrances": [
+  {
+   "id": "E1",
+   "label": "Entrée principale boulevard",
+   "side": "front",
+   "status": "unknown",
+   "leads_to": "stair:B",
+   "level": 0,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 899,
+    "y": 867
+   }
+  },
+  {
+   "id": "E2",
+   "label": "Porte latérale rue",
+   "side": "left",
+   "status": "unknown",
+   "leads_to": "stair:A",
+   "level": 0,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 25,
+    "y": 241
+   }
+  }
+ ],
+ "hydrants": [],
+ "truck_spot": null,
+ "rooms": [
+  {
+   "id": "0.10",
+   "level": 0,
+   "label": "0.10 Hall d'accueil",
+   "area_m2": 199.8,
+   "use": "accueil",
+   "kind": "room",
+   "zone": [
+    [
+     200,
+     160
+    ],
+    [
+     940,
+     160
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     200,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "0sZpLcmHn4uu1cXbfYJSDd"
+  },
+  {
+   "id": "0.14",
+   "level": 0,
+   "label": "0.14 Salle polyvalente",
+   "area_m2": 186.5,
+   "use": "salle",
+   "kind": "room",
+   "zone": [
+    [
+     800,
+     560
+    ],
+    [
+     800,
+     840
+    ],
+    [
+     60,
+     840
+    ],
+    [
+     60,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3HWklnyjfBqRC_ObL5TgMJ"
+  },
+  {
+   "id": "0.ASC",
+   "level": 0,
+   "label": "0.ASC Ascenseur",
+   "area_m2": 6.3,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     60,
+     360
+    ],
+    [
+     130,
+     360
+    ],
+    [
+     130,
+     460
+    ],
+    [
+     60,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3gHPIHzET0bwkM8YziOdLt"
+  },
+  {
+   "id": "corridor:0",
+   "level": 0,
+   "label": "Circulation",
+   "area_m2": 85.5,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     130,
+     360
+    ],
+    [
+     200,
+     360
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     940,
+     560
+    ],
+    [
+     60,
+     560
+    ],
+    [
+     60,
+     460
+    ],
+    [
+     130,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3E8Ngcasf4yRXg7JVYbPbA"
+  },
+  {
+   "id": "1.10",
+   "level": 1,
+   "label": "1.10 Plateau",
+   "area_m2": 199.8,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     200,
+     160
+    ],
+    [
+     940,
+     160
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     200,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3gXt$0lVHFkPtv1UI8ax2O"
+  },
+  {
+   "id": "1.14",
+   "level": 1,
+   "label": "1.14 Plateau",
+   "area_m2": 186.5,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     800,
+     560
+    ],
+    [
+     800,
+     840
+    ],
+    [
+     60,
+     840
+    ],
+    [
+     60,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3l1pOLplX2HPVlNszZQsPa"
+  },
+  {
+   "id": "1.ASC",
+   "level": 1,
+   "label": "1.ASC Ascenseur",
+   "area_m2": 6.3,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     60,
+     360
+    ],
+    [
+     130,
+     360
+    ],
+    [
+     130,
+     460
+    ],
+    [
+     60,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2V4U9oeMLDPx$R9OdFiB_V"
+  },
+  {
+   "id": "corridor:1",
+   "level": 1,
+   "label": "Circulation",
+   "area_m2": 85.5,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     130,
+     360
+    ],
+    [
+     200,
+     360
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     940,
+     560
+    ],
+    [
+     60,
+     560
+    ],
+    [
+     60,
+     460
+    ],
+    [
+     130,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "1HDL7E1Kn7sQAA5q7HDTwa"
+  },
+  {
+   "id": "2.01",
+   "level": 2,
+   "label": "2.01 Bureau",
+   "area_m2": 113.4,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     620,
+     160
+    ],
+    [
+     620,
+     460
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     200,
+     160
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "00ioSpdIzFNAr9emue6nZD"
+  },
+  {
+   "id": "2.02",
+   "level": 2,
+   "label": "2.02 Bureau",
+   "area_m2": 86.4,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     940,
+     160
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     620,
+     460
+    ],
+    [
+     620,
+     160
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2$KRQ9sJ94yv5WEdL1HvZr"
+  },
+  {
+   "id": "2.14",
+   "level": 2,
+   "label": "2.14 Plateau",
+   "area_m2": 186.5,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     800,
+     560
+    ],
+    [
+     800,
+     840
+    ],
+    [
+     60,
+     840
+    ],
+    [
+     60,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2IALdyjVrET9o9y_wQf4ZU"
+  },
+  {
+   "id": "2.ASC",
+   "level": 2,
+   "label": "2.ASC Ascenseur",
+   "area_m2": 6.3,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     60,
+     360
+    ],
+    [
+     130,
+     360
+    ],
+    [
+     130,
+     460
+    ],
+    [
+     60,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2tavzu8lrEIuF36bUvWhqT"
+  },
+  {
+   "id": "corridor:2",
+   "level": 2,
+   "label": "Circulation",
+   "area_m2": 85.5,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     130,
+     360
+    ],
+    [
+     200,
+     360
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     940,
+     560
+    ],
+    [
+     60,
+     560
+    ],
+    [
+     60,
+     460
+    ],
+    [
+     130,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "1BYHaw17PCOg2SiJOFvfpR"
+  },
+  {
+   "id": "3.10",
+   "level": 3,
+   "label": "3.10 Plateau",
+   "area_m2": 113.4,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     620,
+     160
+    ],
+    [
+     620,
+     460
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     200,
+     160
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "34TaUTXl56z8EHGnVB0fAz"
+  },
+  {
+   "id": "3.12",
+   "level": 3,
+   "label": "3.12 Réunion",
+   "area_m2": 86.4,
+   "use": "salle de réunion",
+   "kind": "room",
+   "zone": [
+    [
+     940,
+     160
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     620,
+     460
+    ],
+    [
+     620,
+     160
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "1lVvHSJg9BchO16ubv8fUE"
+  },
+  {
+   "id": "3.14",
+   "level": 3,
+   "label": "3.14 Cuisine",
+   "area_m2": 146.2,
+   "use": "cuisine",
+   "kind": "room",
+   "zone": [
+    [
+     640,
+     560
+    ],
+    [
+     640,
+     840
+    ],
+    [
+     60,
+     840
+    ],
+    [
+     60,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2g_vFXJRD6ygUsCcnoYroY"
+  },
+  {
+   "id": "3.ASC",
+   "level": 3,
+   "label": "3.ASC Ascenseur",
+   "area_m2": 6.3,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     60,
+     360
+    ],
+    [
+     130,
+     360
+    ],
+    [
+     130,
+     460
+    ],
+    [
+     60,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3D4drOQwn1ERIhCZ75PwEr"
+  },
+  {
+   "id": "3.T",
+   "level": 3,
+   "label": "3.T Local technique",
+   "area_m2": 40.3,
+   "use": "local technique",
+   "kind": "room",
+   "zone": [
+    [
+     640,
+     560
+    ],
+    [
+     800,
+     560
+    ],
+    [
+     800,
+     840
+    ],
+    [
+     640,
+     840
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "1ggzr9iFHFPxl3_WFNONAe"
+  },
+  {
+   "id": "corridor:3",
+   "level": 3,
+   "label": "Circulation",
+   "area_m2": 85.5,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     130,
+     360
+    ],
+    [
+     200,
+     360
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     940,
+     560
+    ],
+    [
+     60,
+     560
+    ],
+    [
+     60,
+     460
+    ],
+    [
+     130,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2kUtuwpub8zBemj_s1XxJe"
+  },
+  {
+   "id": "4.02",
+   "level": 4,
+   "label": "4.02 Plateau",
+   "area_m2": 113.4,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     620,
+     160
+    ],
+    [
+     620,
+     460
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     200,
+     160
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "0chBrAELzFY9_F2RCudo8K"
+  },
+  {
+   "id": "4.05",
+   "level": 4,
+   "label": "4.05 Réunion",
+   "area_m2": 86.4,
+   "use": "salle de réunion",
+   "kind": "room",
+   "zone": [
+    [
+     940,
+     160
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     620,
+     460
+    ],
+    [
+     620,
+     160
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "2X5n$_pBD61vEAkvfIXafe"
+  },
+  {
+   "id": "4.14",
+   "level": 4,
+   "label": "4.14 Plateau",
+   "area_m2": 186.5,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     800,
+     560
+    ],
+    [
+     800,
+     840
+    ],
+    [
+     60,
+     840
+    ],
+    [
+     60,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "00iunfVwL4exlyE8o3ySjs"
+  },
+  {
+   "id": "4.ASC",
+   "level": 4,
+   "label": "4.ASC Ascenseur",
+   "area_m2": 6.3,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     60,
+     360
+    ],
+    [
+     130,
+     360
+    ],
+    [
+     130,
+     460
+    ],
+    [
+     60,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "1GKS4URWj8Mhn$is_YXvyh"
+  },
+  {
+   "id": "corridor:4",
+   "level": 4,
+   "label": "Circulation",
+   "area_m2": 85.5,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     130,
+     360
+    ],
+    [
+     200,
+     360
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     940,
+     560
+    ],
+    [
+     60,
+     560
+    ],
+    [
+     60,
+     460
+    ],
+    [
+     130,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3UxKrQoEnEFAqBuTmskGwL"
+  },
+  {
+   "id": "5.01",
+   "level": 5,
+   "label": "5.01 Plateau",
+   "area_m2": 199.8,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     200,
+     160
+    ],
+    [
+     940,
+     160
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     200,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3_HedKmGz6LRO_sraGwCmt"
+  },
+  {
+   "id": "5.14",
+   "level": 5,
+   "label": "5.14 Plateau",
+   "area_m2": 186.5,
+   "use": "bureaux",
+   "kind": "room",
+   "zone": [
+    [
+     800,
+     560
+    ],
+    [
+     800,
+     840
+    ],
+    [
+     60,
+     840
+    ],
+    [
+     60,
+     560
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "3Ve7VNmyv09BS0uTBagKRI"
+  },
+  {
+   "id": "5.ASC",
+   "level": 5,
+   "label": "5.ASC Ascenseur",
+   "area_m2": 6.3,
+   "use": "ascenseur",
+   "kind": "elevator",
+   "zone": [
+    [
+     60,
+     360
+    ],
+    [
+     130,
+     360
+    ],
+    [
+     130,
+     460
+    ],
+    [
+     60,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "1VElbb_pPE9usJ91Ualie9"
+  },
+  {
+   "id": "corridor:5",
+   "level": 5,
+   "label": "Circulation",
+   "area_m2": 85.5,
+   "use": "circulation",
+   "kind": "corridor",
+   "zone": [
+    [
+     130,
+     360
+    ],
+    [
+     200,
+     360
+    ],
+    [
+     200,
+     460
+    ],
+    [
+     940,
+     460
+    ],
+    [
+     940,
+     560
+    ],
+    [
+     60,
+     560
+    ],
+    [
+     60,
+     460
+    ],
+    [
+     130,
+     460
+    ]
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "ifc_guid": "0NNXqmukXCBvGZmmjIw_b9"
+  }
+ ],
+ "plan": null,
+ "hazards": [],
+ "approach": null,
+ "screenshots": [],
+ "doors": [
+  {
+   "id": "P-A-0",
+   "level": 0,
+   "label": "Porte escalier A (RDC)",
+   "between": [
+    "corridor:0",
+    "stair:A"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 165,
+    "y": 360
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-ASC-0",
+   "level": 0,
+   "label": "Porte 0.ASC Ascenseur",
+   "between": [
+    "corridor:0",
+    "room:0.ASC"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 130,
+    "y": 410
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-B-0",
+   "level": 0,
+   "label": "Porte escalier B (RDC)",
+   "between": [
+    "stair:B",
+    "corridor:0"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 870,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-0.10",
+   "level": 0,
+   "label": "Porte 0.10 Hall d'accueil",
+   "between": [
+    "corridor:0",
+    "room:0.10"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 570,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 47
+  },
+  {
+   "id": "P-0.14",
+   "level": 0,
+   "label": "Porte 0.14 Salle polyvalente",
+   "between": [
+    "room:0.14",
+    "corridor:0"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 430,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 47
+  },
+  {
+   "id": "E1",
+   "level": 0,
+   "label": "Entrée principale boulevard",
+   "between": [
+    "outside",
+    "stair:B"
+   ],
+   "external": true,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 870,
+    "y": 840
+   },
+   "plan_axis": "x",
+   "plan_width": 47
+  },
+  {
+   "id": "E2",
+   "level": 0,
+   "label": "Porte latérale rue",
+   "between": [
+    "outside",
+    "stair:A"
+   ],
+   "external": true,
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L0",
+    "x": 60,
+    "y": 260
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-A-1",
+   "level": 1,
+   "label": "Porte escalier A (R+1)",
+   "between": [
+    "corridor:1",
+    "stair:A"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 165,
+    "y": 360
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-ASC-1",
+   "level": 1,
+   "label": "Porte 1.ASC Ascenseur",
+   "between": [
+    "corridor:1",
+    "room:1.ASC"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 130,
+    "y": 410
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-B-1",
+   "level": 1,
+   "label": "Porte escalier B (R+1)",
+   "between": [
+    "stair:B",
+    "corridor:1"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 870,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-1.10",
+   "level": 1,
+   "label": "Porte 1.10 Plateau",
+   "between": [
+    "corridor:1",
+    "room:1.10"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 570,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-1.14",
+   "level": 1,
+   "label": "Porte 1.14 Plateau",
+   "between": [
+    "room:1.14",
+    "corridor:1"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L1",
+    "x": 430,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-A-2",
+   "level": 2,
+   "label": "Porte escalier A (R+2)",
+   "between": [
+    "corridor:2",
+    "stair:A"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 165,
+    "y": 360
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-ASC-2",
+   "level": 2,
+   "label": "Porte 2.ASC Ascenseur",
+   "between": [
+    "corridor:2",
+    "room:2.ASC"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 130,
+    "y": 410
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-B-2",
+   "level": 2,
+   "label": "Porte escalier B (R+2)",
+   "between": [
+    "stair:B",
+    "corridor:2"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 870,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-2.01",
+   "level": 2,
+   "label": "Porte 2.01 Bureau",
+   "between": [
+    "corridor:2",
+    "room:2.01"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 410,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-2.02",
+   "level": 2,
+   "label": "Porte 2.02 Bureau",
+   "between": [
+    "corridor:2",
+    "room:2.02"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 780,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-2.14",
+   "level": 2,
+   "label": "Porte 2.14 Plateau",
+   "between": [
+    "room:2.14",
+    "corridor:2"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L2",
+    "x": 430,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-A-3",
+   "level": 3,
+   "label": "Porte escalier A (R+3)",
+   "between": [
+    "corridor:3",
+    "stair:A"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 165,
+    "y": 360
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-ASC-3",
+   "level": 3,
+   "label": "Porte 3.ASC Ascenseur",
+   "between": [
+    "corridor:3",
+    "room:3.ASC"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 130,
+    "y": 410
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-B-3",
+   "level": 3,
+   "label": "Porte escalier B (R+3)",
+   "between": [
+    "stair:B",
+    "corridor:3"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 870,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-3.10",
+   "level": 3,
+   "label": "Porte 3.10 Plateau",
+   "between": [
+    "corridor:3",
+    "room:3.10"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 410,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-3.12",
+   "level": 3,
+   "label": "Porte 3.12 Réunion",
+   "between": [
+    "corridor:3",
+    "room:3.12"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 780,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-3.14",
+   "level": 3,
+   "label": "Porte 3.14 Cuisine",
+   "between": [
+    "room:3.14",
+    "corridor:3"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 350,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-3.T",
+   "level": 3,
+   "label": "Porte 3.T Local technique",
+   "between": [
+    "room:3.T",
+    "corridor:3"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L3",
+    "x": 720,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-A-4",
+   "level": 4,
+   "label": "Porte escalier A (R+4)",
+   "between": [
+    "corridor:4",
+    "stair:A"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L4",
+    "x": 165,
+    "y": 360
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-ASC-4",
+   "level": 4,
+   "label": "Porte 4.ASC Ascenseur",
+   "between": [
+    "corridor:4",
+    "room:4.ASC"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L4",
+    "x": 130,
+    "y": 410
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-B-4",
+   "level": 4,
+   "label": "Porte escalier B (R+4)",
+   "between": [
+    "stair:B",
+    "corridor:4"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L4",
+    "x": 870,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-4.02",
+   "level": 4,
+   "label": "Porte 4.02 Plateau",
+   "between": [
+    "corridor:4",
+    "room:4.02"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L4",
+    "x": 410,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-4.05",
+   "level": 4,
+   "label": "Porte 4.05 Réunion",
+   "between": [
+    "corridor:4",
+    "room:4.05"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L4",
+    "x": 780,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-4.14",
+   "level": 4,
+   "label": "Porte 4.14 Plateau",
+   "between": [
+    "room:4.14",
+    "corridor:4"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L4",
+    "x": 430,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-A-5",
+   "level": 5,
+   "label": "Porte escalier A (R+5)",
+   "between": [
+    "corridor:5",
+    "stair:A"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L5",
+    "x": 165,
+    "y": 360
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-ASC-5",
+   "level": 5,
+   "label": "Porte 5.ASC Ascenseur",
+   "between": [
+    "corridor:5",
+    "room:5.ASC"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L5",
+    "x": 130,
+    "y": 410
+   },
+   "plan_axis": "y",
+   "plan_width": 33
+  },
+  {
+   "id": "P-B-5",
+   "level": 5,
+   "label": "Porte escalier B (R+5)",
+   "between": [
+    "stair:B",
+    "corridor:5"
+   ],
+   "fire_rating": "EI 30",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L5",
+    "x": 870,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 33
+  },
+  {
+   "id": "P-5.01",
+   "level": 5,
+   "label": "Porte 5.01 Plateau",
+   "between": [
+    "corridor:5",
+    "room:5.01"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L5",
+    "x": 570,
+    "y": 460
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  },
+  {
+   "id": "P-5.14",
+   "level": 5,
+   "label": "Porte 5.14 Plateau",
+   "between": [
+    "room:5.14",
+    "corridor:5"
+   ],
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "plan_point": {
+    "image_id": "ifc-L5",
+    "x": 430,
+    "y": 560
+   },
+   "plan_axis": "x",
+   "plan_width": 30
+  }
+ ],
+ "materials": [
+  {
+   "element": "facade",
+   "level": 0,
+   "material": "Pierre de taille",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 0,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 0,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 0,
+   "material": "Plaque de plâtre sur ossature métallique",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 1,
+   "material": "Pierre de taille",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 1,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 1,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 1,
+   "material": "Plaque de plâtre sur ossature métallique",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 2,
+   "material": "Pierre de taille",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 2,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 2,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 2,
+   "material": "Plaque de plâtre sur ossature métallique",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 3,
+   "material": "Pierre de taille",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 3,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 3,
+   "material": "Bloc béton",
+   "fire_rating": "EI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   },
+   "room": "3.T"
+  },
+  {
+   "element": "wall",
+   "level": 3,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 3,
+   "material": "Plaque de plâtre sur ossature métallique",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 4,
+   "material": "Pierre de taille",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 4,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 4,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 4,
+   "material": "Plaque de plâtre sur ossature métallique",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "facade",
+   "level": 5,
+   "material": "Pierre de taille",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "slab",
+   "level": 5,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 5,
+   "material": "Béton armé",
+   "fire_rating": "REI 60",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  },
+  {
+   "element": "wall",
+   "level": 5,
+   "material": "Plaque de plâtre sur ossature métallique",
+   "source": {
+    "kind": "ifc",
+    "label": "maquette",
+    "confirmed": true,
+    "at": "2026-11-08T03:21:24Z"
+   }
+  }
+ ],
+ "graph": {
+  "nodes": [
+   "outside",
+   "entrance:E1",
+   "entrance:E2",
+   "stair:A",
+   "stair:B",
+   "level:0",
+   "level:1",
+   "level:2",
+   "level:3",
+   "level:4",
+   "level:5",
+   "corridor:0",
+   "corridor:1",
+   "corridor:2",
+   "corridor:3",
+   "corridor:4",
+   "corridor:5",
+   "room:0.10",
+   "room:0.14",
+   "room:0.ASC",
+   "room:1.10",
+   "room:1.14",
+   "room:1.ASC",
+   "room:2.01",
+   "room:2.02",
+   "room:2.14",
+   "room:2.ASC",
+   "room:3.10",
+   "room:3.12",
+   "room:3.14",
+   "room:3.ASC",
+   "room:3.T",
+   "room:4.02",
+   "room:4.05",
+   "room:4.14",
+   "room:4.ASC",
+   "room:5.01",
+   "room:5.14",
+   "room:5.ASC"
+  ],
+  "edges": [
+   [
+    "entrance:E1",
+    "outside",
+    0.0
+   ],
+   [
+    "entrance:E1",
+    "stair:B",
+    4.2
+   ],
+   [
+    "entrance:E2",
+    "outside",
+    0.0
+   ],
+   [
+    "entrance:E2",
+    "stair:A",
+    2.1
+   ],
+   [
+    "level:0",
+    "stair:A",
+    3.2
+   ],
+   [
+    "level:0",
+    "stair:B",
+    4.2
+   ],
+   [
+    "level:1",
+    "stair:A",
+    9.2
+   ],
+   [
+    "level:1",
+    "stair:B",
+    10.2
+   ],
+   [
+    "level:2",
+    "stair:A",
+    15.2
+   ],
+   [
+    "level:2",
+    "stair:B",
+    16.2
+   ],
+   [
+    "level:3",
+    "stair:A",
+    21.2
+   ],
+   [
+    "level:3",
+    "stair:B",
+    22.2
+   ],
+   [
+    "level:4",
+    "stair:A",
+    27.2
+   ],
+   [
+    "level:4",
+    "stair:B",
+    28.2
+   ],
+   [
+    "level:5",
+    "stair:A",
+    33.2
+   ],
+   [
+    "level:5",
+    "stair:B",
+    34.2
+   ],
+   [
+    "corridor:0",
+    "level:0",
+    10.2
+   ],
+   [
+    "corridor:0",
+    "room:0.10",
+    7.6
+   ],
+   [
+    "corridor:0",
+    "room:0.14",
+    6.4
+   ],
+   [
+    "corridor:0",
+    "room:0.ASC",
+    11.8
+   ],
+   [
+    "corridor:1",
+    "level:1",
+    10.2
+   ],
+   [
+    "corridor:1",
+    "room:1.10",
+    7.6
+   ],
+   [
+    "corridor:1",
+    "room:1.14",
+    6.4
+   ],
+   [
+    "corridor:1",
+    "room:1.ASC",
+    11.8
+   ],
+   [
+    "corridor:2",
+    "level:2",
+    10.2
+   ],
+   [
+    "corridor:2",
+    "room:2.01",
+    6.8
+   ],
+   [
+    "corridor:2",
+    "room:2.02",
+    13.7
+   ],
+   [
+    "corridor:2",
+    "room:2.14",
+    6.4
+   ],
+   [
+    "corridor:2",
+    "room:2.ASC",
+    11.8
+   ],
+   [
+    "corridor:3",
+    "level:3",
+    10.2
+   ],
+   [
+    "corridor:3",
+    "room:3.10",
+    6.8
+   ],
+   [
+    "corridor:3",
+    "room:3.12",
+    13.7
+   ],
+   [
+    "corridor:3",
+    "room:3.14",
+    8.3
+   ],
+   [
+    "corridor:3",
+    "room:3.ASC",
+    11.8
+   ],
+   [
+    "corridor:3",
+    "room:3.T",
+    11.7
+   ],
+   [
+    "corridor:4",
+    "level:4",
+    10.2
+   ],
+   [
+    "corridor:4",
+    "room:4.02",
+    6.8
+   ],
+   [
+    "corridor:4",
+    "room:4.05",
+    13.7
+   ],
+   [
+    "corridor:4",
+    "room:4.14",
+    6.4
+   ],
+   [
+    "corridor:4",
+    "room:4.ASC",
+    11.8
+   ],
+   [
+    "corridor:5",
+    "level:5",
+    10.2
+   ],
+   [
+    "corridor:5",
+    "room:5.01",
+    7.6
+   ],
+   [
+    "corridor:5",
+    "room:5.14",
+    6.4
+   ],
+   [
+    "corridor:5",
+    "room:5.ASC",
+    11.8
+   ]
+  ]
+ },
+ "model": {
+  "provenance": "fictional",
+  "provenance_fr": "Bâtiment fictif — maquette IFC d'exercice",
+  "level_plans": [
+   {
+    "level": 0,
+    "url": "http://localhost:8000/building/files/levels/L0.svg",
+    "image_id": "ifc-L0"
+   },
+   {
+    "level": 1,
+    "url": "http://localhost:8000/building/files/levels/L1.svg",
+    "image_id": "ifc-L1"
+   },
+   {
+    "level": 2,
+    "url": "http://localhost:8000/building/files/levels/L2.svg",
+    "image_id": "ifc-L2"
+   },
+   {
+    "level": 3,
+    "url": "http://localhost:8000/building/files/levels/L3.svg",
+    "image_id": "ifc-L3"
+   },
+   {
+    "level": 4,
+    "url": "http://localhost:8000/building/files/levels/L4.svg",
+    "image_id": "ifc-L4"
+   },
+   {
+    "level": 5,
+    "url": "http://localhost:8000/building/files/levels/L5.svg",
+    "image_id": "ifc-L5"
+   }
+  ],
+  "stats": {
+   "levels": 6,
+   "stairs": 2,
+   "doors": 36,
+   "rooms": 22
+  },
+  "extractor": {
+   "name": "seraph_ifc.extract",
+   "version": "1.2.0"
+  },
+  "plan_frame": {
+   "size": 1000,
+   "px_per_m": 33.3333,
+   "rotation_deg": 0.0,
+   "origin_px": [
+    60.0,
+    840.0
+   ],
+   "width_m": 26.4,
+   "depth_m": 20.4
+  },
+  "source_ifc": {
+   "file": "dev.ifc",
+   "sha256": "1d27a308b7b3617a084b487138f17a6b742f103356cf7bd559d7eda187297464",
+   "schema": "IFC4",
+   "bytes": 358239
+  },
+  "ladder_points": {},
+  "checks": {
+   "passed": true,
+   "failed": []
+  }
+ },
+ "units": [
+  {
+   "id": "U0.1",
+   "level": 0,
+   "label": "Locaux",
+   "rooms": [
+    "0.10"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-0.10"
+   ]
+  },
+  {
+   "id": "U0.2",
+   "level": 0,
+   "label": "Locaux",
+   "rooms": [
+    "0.14"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-0.14"
+   ]
+  },
+  {
+   "id": "U1.1",
+   "level": 1,
+   "label": "Locaux",
+   "rooms": [
+    "1.10"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-1.10"
+   ]
+  },
+  {
+   "id": "U1.2",
+   "level": 1,
+   "label": "Locaux",
+   "rooms": [
+    "1.14"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-1.14"
+   ]
+  },
+  {
+   "id": "U2.1",
+   "level": 2,
+   "label": "Locaux",
+   "rooms": [
+    "2.01"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-2.01"
+   ]
+  },
+  {
+   "id": "U2.2",
+   "level": 2,
+   "label": "Locaux",
+   "rooms": [
+    "2.02"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-2.02"
+   ]
+  },
+  {
+   "id": "U2.3",
+   "level": 2,
+   "label": "Locaux",
+   "rooms": [
+    "2.14"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-2.14"
+   ]
+  },
+  {
+   "id": "U3.1",
+   "level": 3,
+   "label": "Locaux",
+   "rooms": [
+    "3.10"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-3.10"
+   ]
+  },
+  {
+   "id": "U3.2",
+   "level": 3,
+   "label": "Locaux",
+   "rooms": [
+    "3.12"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-3.12"
+   ]
+  },
+  {
+   "id": "U3.3",
+   "level": 3,
+   "label": "Logement",
+   "rooms": [
+    "3.14"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-3.14"
+   ]
+  },
+  {
+   "id": "U3.4",
+   "level": 3,
+   "label": "Locaux",
+   "rooms": [
+    "3.T"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-3.T"
+   ]
+  },
+  {
+   "id": "U4.1",
+   "level": 4,
+   "label": "Locaux",
+   "rooms": [
+    "4.02"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-4.02"
+   ]
+  },
+  {
+   "id": "U4.2",
+   "level": 4,
+   "label": "Locaux",
+   "rooms": [
+    "4.05"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-4.05"
+   ]
+  },
+  {
+   "id": "U4.3",
+   "level": 4,
+   "label": "Locaux",
+   "rooms": [
+    "4.14"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-4.14"
+   ]
+  },
+  {
+   "id": "U5.1",
+   "level": 5,
+   "label": "Locaux",
+   "rooms": [
+    "5.01"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-5.01"
+   ]
+  },
+  {
+   "id": "U5.2",
+   "level": 5,
+   "label": "Locaux",
+   "rooms": [
+    "5.14"
+   ],
+   "outdoor": [],
+   "entry": [
+    "P-5.14"
+   ]
+  }
+ ]
+}

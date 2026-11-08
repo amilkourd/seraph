@@ -1,2 +1,7 @@
 data/access.log.jsonl
+data/.lock
+data/buildings/*.new/
+data/buildings/*.old/
 .cache/
+# third-party IFC (CC BY, 13.5 MB): not in git, download it (ifc/tuwien/ids.yaml says where)
+data/buildings/tuwien-*/source.ifc

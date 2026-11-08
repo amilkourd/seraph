@@ -1,6 +1,6 @@
 [project]
 name = "seraph-ifc"
-version = "1.0.0"
+version = "1.2.0"
 description = "Seraph building model: any IFC → building.json (route graph in metres, rooms, doors, stairs, materials), level plans, checks"
 requires-python = ">=3.12"
 dependencies = [

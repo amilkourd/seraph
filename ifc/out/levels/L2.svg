@@ -3,76 +3,74 @@
   <rect width="1000" height="1000" fill="#ffffff"/>
   <text x="40" y="70" font-family="Arial" font-size="44" font-weight="bold" fill="#000">R+2</text>
   <g fill="none" stroke="#000" stroke-width="8" stroke-linejoin="miter">
-    <polygon points="538,246 608,331 540,388 498,337 485,348 457,314"/>
-    <polygon points="438,381 409,347 444,318 472,352"/>
-    <polygon points="596,411 590,404 569,422 542,390 610,333 643,372"/>
-    <polygon points="444,386 497,341 584,445 559,466 506,403 478,427"/>
-    <polygon points="673,373 666,365 685,349 693,343 804,477 770,506 664,380"/>
-    <polygon points="523,480 480,429 506,407 549,459"/>
-    <polygon points="295,541 247,483 288,449 321,487 313,494 329,513"/>
-    <polygon points="588,445 577,432 645,374 753,504 645,594 613,555 597,568 532,492"/>
-    <polygon points="325,520 368,484 392,514 359,542 356,538 349,543 352,547 349,549"/>
-    <polygon points="370,482 410,449 468,519 428,552"/>
-    <polygon points="351,552 361,544 383,525 405,550 372,577"/>
-    <polygon points="383,572 417,543 428,556 472,519 447,489 489,454 535,509 414,610"/>
-    <polygon points="245,485 331,588 263,645 177,541"/>
-    <polygon points="345,600 297,543 323,522 370,579"/>
-    <polygon points="551,666 469,569 537,511 619,609"/>
-    <polygon points="265,647 333,590 344,604 378,576 417,622 421,618 416,612 467,570 523,638 367,768"/>
-    <polygon points="342,804 524,652 553,686 551,688 592,737 412,887 405,880"/>
-    <polygon points="394,403 373,377 405,351 486,447 454,474 418,431 408,440 384,412"/>
-    <polygon points="408,440 340,497 295,443 373,377 394,403 384,412"/>
+    <polygon points="253,722 253,581 368,581 368,666 389,666 389,723"/>
+    <polygon points="463,673 463,729 405,729 405,672"/>
+    <polygon points="332,512 332,523 368,523 368,577 253,577 253,512"/>
+    <polygon points="461,662 371,662 372,488 414,488 414,594 461,594"/>
+    <polygon points="225,486 225,499 193,499 180,499 181,274 239,275 239,486"/>
+    <polygon points="461,504 461,590 418,590 418,504"/>
+    <polygon points="736,632 735,730 666,730 667,664 679,664 679,632"/>
+    <polygon points="368,485 368,508 253,507 254,291 435,291 435,356 461,356 461,485"/>
+    <polygon points="689,629 618,629 618,579 674,579 674,586 684,586 684,579 689,579"/>
+    <polygon points="614,629 547,628 547,512 614,512"/>
+    <polygon points="689,576 674,575 674,576 635,576 635,533 690,533"/>
+    <polygon points="676,529 618,529 618,508 543,508 543,558 473,558 473,465 676,466"/>
+    <polygon points="739,730 739,556 853,556 853,730"/>
+    <polygon points="736,533 736,629 693,629 693,533"/>
+    <polygon points="587,298 588,462 473,461 473,297"/>
+    <polygon points="853,553 739,553 740,529 683,529 683,452 676,452 676,462 591,462 591,349 853,349"/>
+    <polygon points="907,334 602,334 602,276 605,276 606,194 907,194 908,207 907,207"/>
+    <polygon points="524,687 524,729 470,729 470,568 524,568 524,639 542,639 542,687"/>
+    <polygon points="542,639 656,639 656,729 524,729 524,687 542,687"/>
   </g>
   <g stroke="#000" stroke-width="3">
-    <line x1="307" y1="395" x2="396" y2="395"/>
-    <line x1="307" y1="413" x2="396" y2="413"/>
-    <line x1="307" y1="431" x2="396" y2="431"/>
-    <line x1="307" y1="449" x2="396" y2="449"/>
-    <line x1="307" y1="467" x2="396" y2="467"/>
-    <line x1="307" y1="485" x2="396" y2="485"/>
+    <line x1="536" y1="657" x2="644" y2="657"/>
+    <line x1="536" y1="675" x2="644" y2="675"/>
+    <line x1="536" y1="693" x2="644" y2="693"/>
+    <line x1="536" y1="711" x2="644" y2="711"/>
   </g>
   <g>
-    <rect x="684" y="374" width="14" height="89" fill="#fff"/>
-    <circle cx="691" cy="419" r="6" fill="#c00000"/>
-    <rect x="523" y="421" width="14" height="26" fill="#fff"/>
-    <rect x="543" y="389" width="14" height="26" fill="#fff"/>
-    <rect x="512" y="352" width="14" height="26" fill="#fff"/>
-    <rect x="555" y="453" width="26" height="14" fill="#fff"/>
-    <rect x="459" y="455" width="30" height="14" fill="#fff"/>
-    <circle cx="474" cy="462" r="6" fill="#c00000"/>
-    <rect x="297" y="524" width="26" height="14" fill="#fff"/>
-    <rect x="481" y="539" width="26" height="14" fill="#fff"/>
-    <rect x="354" y="552" width="14" height="26" fill="#fff"/>
-    <rect x="327" y="521" width="14" height="26" fill="#fff"/>
-    <rect x="427" y="537" width="26" height="14" fill="#fff"/>
-    <rect x="305" y="550" width="14" height="26" fill="#fff"/>
-    <rect x="344" y="584" width="27" height="14" fill="#fff"/>
-    <rect x="459" y="401" width="14" height="30" fill="#fff"/>
-    <circle cx="466" cy="416" r="6" fill="#c00000"/>
-    <rect x="395" y="586" width="14" height="27" fill="#fff"/>
-    <rect x="372" y="724" width="100" height="14" fill="#fff"/>
-    <circle cx="422" cy="731" r="6" fill="#c00000"/>
-    <rect x="419" y="347" width="14" height="32" fill="#fff"/>
+    <rect x="238" y="369" width="14" height="114" fill="#fff"/>
+    <circle cx="245" cy="426" r="6" fill="#c00000"/>
+    <rect x="409" y="527" width="14" height="32" fill="#fff"/>
+    <rect x="363" y="543" width="14" height="32" fill="#fff"/>
+    <rect x="363" y="605" width="14" height="32" fill="#fff"/>
+    <rect x="382" y="480" width="34" height="14" fill="#fff"/>
+    <rect x="474" y="555" width="39" height="14" fill="#fff"/>
+    <circle cx="494" cy="562" r="6" fill="#c00000"/>
+    <rect x="697" y="624" width="32" height="14" fill="#fff"/>
+    <rect x="528" y="456" width="32" height="14" fill="#fff"/>
+    <rect x="684" y="538" width="14" height="32" fill="#fff"/>
+    <rect x="684" y="591" width="14" height="32" fill="#fff"/>
+    <rect x="579" y="503" width="32" height="14" fill="#fff"/>
+    <rect x="731" y="582" width="14" height="32" fill="#fff"/>
+    <rect x="698" y="524" width="35" height="14" fill="#fff"/>
+    <rect x="458" y="596" width="14" height="39" fill="#fff"/>
+    <circle cx="465" cy="615" r="6" fill="#c00000"/>
+    <rect x="672" y="468" width="14" height="35" fill="#fff"/>
+    <rect x="704" y="334" width="129" height="14" fill="#fff"/>
+    <circle cx="768" cy="341" r="6" fill="#c00000"/>
+    <rect x="453" y="680" width="14" height="41" fill="#fff"/>
   </g>
   <g font-family="Arial" fill="#000" text-anchor="middle">
-    <text x="536" y="323" font-size="30" font-weight="bold">2.01</text>
-    <text x="441" y="355" font-size="18" font-weight="bold">ASC.</text>
-    <text x="593" y="389" font-size="30" font-weight="bold">2.03</text>
-    <text x="487" y="395" font-size="30" font-weight="bold">2.04</text>
-    <text x="732" y="435" font-size="30" font-weight="bold">2.05</text>
-    <text x="514" y="451" font-size="21" font-weight="bold">2.06</text>
-    <text x="290" y="503" font-size="26" font-weight="bold">2.07</text>
-    <text x="642" y="498" font-size="30" font-weight="bold">2.08</text>
-    <text x="359" y="523" font-size="20" font-weight="bold">2.09</text>
-    <text x="419" y="510" font-size="30" font-weight="bold">2.10</text>
-    <text x="378" y="556" font-size="15" font-weight="bold">2.11</text>
-    <text x="496" y="515" font-size="30" font-weight="bold">2.12</text>
-    <text x="254" y="575" font-size="30" font-weight="bold">2.13</text>
-    <text x="334" y="568" font-size="22" font-weight="bold">2.14</text>
-    <text x="544" y="599" font-size="30" font-weight="bold">2.15</text>
-    <text x="375" y="684" font-size="30" font-weight="bold">2.16</text>
-    <text x="467" y="780" font-size="30" font-weight="bold">2.17</text>
-    <text x="419" y="410" font-size="14" font-weight="normal">CIRCULATION</text>
-    <text x="353" y="452" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">A</text>
+    <text x="315" y="665" font-size="30" font-weight="bold">2.01</text>
+    <text x="434" y="706" font-size="16" font-weight="bold">ASC.</text>
+    <text x="308" y="556" font-size="30" font-weight="bold">2.03</text>
+    <text x="406" y="638" font-size="29" font-weight="bold">2.04</text>
+    <text x="209" y="391" font-size="17" font-weight="bold">2.05</text>
+    <text x="440" y="551" font-size="12" font-weight="bold">2.06</text>
+    <text x="703" y="690" font-size="21" font-weight="bold">2.07</text>
+    <text x="351" y="408" font-size="30" font-weight="bold">2.08</text>
+    <text x="653" y="612" font-size="22" font-weight="bold">2.09</text>
+    <text x="581" y="577" font-size="20" font-weight="bold">2.10</text>
+    <text x="662" y="559" font-size="15" font-weight="bold">2.11</text>
+    <text x="508" y="528" font-size="30" font-weight="bold">2.12</text>
+    <text x="796" y="653" font-size="30" font-weight="bold">2.13</text>
+    <text x="714" y="585" font-size="12" font-weight="bold">2.14</text>
+    <text x="530" y="390" font-size="30" font-weight="bold">2.15</text>
+    <text x="767" y="449" font-size="30" font-weight="bold">2.16</text>
+    <text x="756" y="274" font-size="30" font-weight="bold">2.17</text>
+    <text x="502" y="666" font-size="12" font-weight="normal">CIRCULATION</text>
+    <text x="594" y="700" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">A</text>
   </g>
 </svg>

@@ -9,12 +9,10 @@
 
 name: "Immeuble d'habitation (maquette TU Wien)"
 provenance: architect
-provenance_fr: "Maquette IFC réelle (TU Wien) — adresse fictive, exercice"
+provenance_fr: "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice"
 credit: "TU Wien, Research Unit Digital Building Process — CC BY 4.0"
 source_url: "https://researchdata.tuwien.ac.at/records/wzp90-dmf60"
 
-# The street door into the stair hall is the front.
-front: north
 
 # One stairwell only (the IFC marks the stair and its corridor AirPressurization + FireExit,
 # Pset_SpaceFireSafetyRequirements). The second way out of each flat is the façade: balconies and terraces

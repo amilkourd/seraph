@@ -72,7 +72,7 @@ def escape_routes(building: dict[str, Any], minimum: int = 2) -> Check:
     rooms = building.get("rooms", [])
     model = building.get("model") or {}
     facade_ok = (model.get("second_route") or {}).get("kind") == "facade_ladder"
-    facade = model.get("facade_rescue_points") or {}
+    facade = model.get("ladder_points") or {}
     details: list[str] = []
     ok = True
     for lv in building.get("levels", []):

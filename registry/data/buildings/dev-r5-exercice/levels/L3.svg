@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <!-- Seraph · plan from the IFC · level 3 (R+3) · frame = rooms[].zone -->
+  <rect width="1000" height="1000" fill="#ffffff"/>
+  <text x="40" y="70" font-family="Arial" font-size="44" font-weight="bold" fill="#000">R+3</text>
+  <g fill="none" stroke="#000" stroke-width="8" stroke-linejoin="miter">
+    <polygon points="620,160 620,460 200,460 200,160"/>
+    <polygon points="940,160 940,460 620,460 620,160"/>
+    <polygon points="640,560 640,840 60,840 60,560"/>
+    <polygon points="60,360 130,360 130,460 60,460"/>
+    <polygon points="640,560 800,560 800,840 640,840"/>
+    <polygon points="130,360 200,360 200,460 940,460 940,560 60,560 60,460 130,460"/>
+    <polygon points="60,160 200,160 200,360 60,360"/>
+    <polygon points="800,560 940,560 940,840 800,840"/>
+  </g>
+  <g stroke="#000" stroke-width="3">
+    <line x1="72" y1="185" x2="188" y2="185"/>
+    <line x1="72" y1="210" x2="188" y2="210"/>
+    <line x1="72" y1="235" x2="188" y2="235"/>
+    <line x1="72" y1="260" x2="188" y2="260"/>
+    <line x1="72" y1="285" x2="188" y2="285"/>
+    <line x1="72" y1="310" x2="188" y2="310"/>
+    <line x1="72" y1="335" x2="188" y2="335"/>
+    <line x1="812" y1="595" x2="928" y2="595"/>
+    <line x1="812" y1="630" x2="928" y2="630"/>
+    <line x1="812" y1="665" x2="928" y2="665"/>
+    <line x1="812" y1="700" x2="928" y2="700"/>
+    <line x1="812" y1="735" x2="928" y2="735"/>
+    <line x1="812" y1="770" x2="928" y2="770"/>
+    <line x1="812" y1="805" x2="928" y2="805"/>
+  </g>
+  <g>
+    <rect x="148" y="353" width="33" height="14" fill="#fff"/>
+    <circle cx="165" cy="360" r="6" fill="#c00000"/>
+    <rect x="123" y="394" width="14" height="33" fill="#fff"/>
+    <rect x="854" y="553" width="33" height="14" fill="#fff"/>
+    <circle cx="870" cy="560" r="6" fill="#c00000"/>
+    <rect x="395" y="453" width="30" height="14" fill="#fff"/>
+    <rect x="765" y="453" width="30" height="14" fill="#fff"/>
+    <rect x="335" y="553" width="30" height="14" fill="#fff"/>
+    <rect x="705" y="553" width="30" height="14" fill="#fff"/>
+    <circle cx="720" cy="560" r="6" fill="#c00000"/>
+  </g>
+  <g font-family="Arial" fill="#000" text-anchor="middle">
+    <text x="410" y="320" font-size="30" font-weight="bold">3.10</text>
+    <text x="780" y="320" font-size="30" font-weight="bold">3.12</text>
+    <text x="350" y="710" font-size="30" font-weight="bold">3.14</text>
+    <text x="95" y="417" font-size="21" font-weight="bold">ASC.</text>
+    <text x="720" y="710" font-size="30" font-weight="bold">3.T</text>
+    <text x="166" y="511" font-size="22" font-weight="normal">CIRCULATION</text>
+    <text x="130" y="274" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">A</text>
+    <text x="870" y="714" font-size="40" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="10">B</text>
+  </g>
+</svg>

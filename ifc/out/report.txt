@@ -1,6 +1,6 @@
-Seraph IFC extraction — seraph_ifc.extract 1.0.0
+Seraph IFC extraction — seraph_ifc.extract 1.2.0
 file      RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc  (13.51 MB, IFC4, sha256 759c5e5f516eb23e…)
-building  Immeuble d'habitation (maquette TU Wien)  ·  Maquette IFC réelle (TU Wien) — adresse fictive, exercice
+building  Immeuble d'habitation (maquette TU Wien)  ·  Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice
 
 CHECKS
   [ok] every door links 2 nodes
@@ -95,7 +95,7 @@ LEVELS
   R+3   elev   8.66 m  ifc 'DG2'
         3.01         3.01 Ascenseur                     elevator      2.6 m²  0oryJKQwr2YwDJPM$Un2f3
         3.02         3.02 Chambre                       room         17.1 m²  2mCIUTQaf90A7q$Ll6Ud14
-        3.03         3.03 Circulation                   room          5.7 m²  0x18s_7f985hp8DCVNPiDP
+        3.03         3.03 Circulation                   room         12.1 m²  1ytdm3Hbv7hgXXk8NHUpwE
         3.04         3.04 Terrasse                      exterior      8.4 m²  2tz1NpDRP6rPsdfiT6XjoL
         3.05         3.05 WC                            room          1.9 m²  29jDs_nhX2yeGZuzPeddQk
         3.06         3.06 Salle de bain                 room         14.1 m²  3d4LthDOn2nP28WhPcTEK7
@@ -104,7 +104,7 @@ LEVELS
         3.10         3.10 Séjour-cuisine                room         42.1 m²  3HXPWWm399QxgykeoqSQTp
         3.12         3.12 Chambre                       room         19.2 m²  3ckEsz8DnBOuVUUaYnCHYG
         3.T          3.T Buanderie                      room          6.5 m²  0RylawvdD08g1dPNppLJ2h
-        corridor:3   Circulation                        corridor     12.1 m²  1ytdm3Hbv7hgXXk8NHUpwE
+        corridor:3   Circulation                        corridor      5.7 m²  0x18s_7f985hp8DCVNPiDP
   (storey 'UG2' at -4.29 m holds no room, corridor or stair: not a level)
   (storey 'DA' at 11.84 m holds no room, corridor or stair: not a level)
 
@@ -114,10 +114,23 @@ STAIRS
 ENTRANCES
   entrance:E1   "Porte d'entrée, hall de l'escalier" side front  level 0  → corridor:0
   entrance:E2   'Porte de garage, rampe (sous-sol)' side left   level -1  → room:-1.03
-FAÇADE RESCUE POINTS (balconies, terraces, French windows above the ground: ladders, never exits)
-  level 1: room:1.05, room:1.18
-  level 2: room:2.05, room:2.17
-  level 3: room:3.04, room:3.08, room:3.07
+LADDER POINTS (balconies, terraces, French windows above the ground: rescue by ladder, never exits)
+  level 1: ladder:1.05, ladder:1.18
+  level 2: ladder:2.05, ladder:2.17
+  level 3: ladder:3.04, ladder:3.08, ladder:3.07
+
+UNITS (rooms reached through one door from the common circulation)
+  U-1.1    Locaux    L-1  entry P-1-2            rooms -1.01
+  U-1.2    Locaux    L-1  entry P-1-5            rooms -1.03, -1.05, -1.07, -1.09, -1.10, -1.11, -1.12, -1.13, -1.14, -1.15
+  U-1.3    Locaux    L-1  entry P-1-1            rooms -1.04
+  U-1.4    Locaux    L-1  entry P-1-6            rooms -1.06, -1.08
+  U0.1     Logement  L0   entry P0-18            rooms 0.02, 0.04, 0.06, 0.07, 0.09  · outdoor 0.01, 0.14
+  U0.2     Logement  L0   entry P0-17            rooms 0.08, 0.10, 0.11, 0.12, 0.13, 0.15, 0.16, 0.17, 0.18, 0.19  · outdoor 0.20
+  U1.1     Logement  L1   entry P1-48            rooms 1.01, 1.03, 1.04, 1.06, 1.08  · outdoor 1.05
+  U1.2     Logement  L1   entry P1-49            rooms 1.07, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17  · outdoor 1.18
+  U2.1     Logement  L2   entry P2-67            rooms 2.01, 2.03, 2.04, 2.06, 2.08  · outdoor 2.05
+  U2.2     Logement  L2   entry P2-59            rooms 2.07, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16  · outdoor 2.17
+  U3.1     Logement  L3   entry P3-72            rooms 3.02, 3.03, 3.05, 3.06, 3.10, 3.12, 3.T  · outdoor 3.04, 3.07, 3.08
 
 DOORS (81 linked, 0 unlinked) + 20 openings without a door
   P-1-1      L-1        room:-1.04 ↔ corridor:-1        EI2 30-C-Sm  Porte -1.04 Local poussettes
@@ -190,17 +203,17 @@ DOORS (81 linked, 0 unlinked) + 20 openings without a door
   P2-68      L2          room:2.12 ↔ room:2.16                       Porte 2.12 Entrée
   P2-69      L2          room:2.16 ↔ room:2.17          EI 30        Porte-fenêtre 2.17 Balcon
   P2-70      L2         corridor:2 ↔ room:2.02                       Porte 2.02 Ascenseur
-  P3-71      L3          room:3.01 ↔ room:3.03                       Porte 3.01 Ascenseur
-  P3-72      L3          room:3.03 ↔ corridor:3         EI2 30-C-Sm  Porte 3.03 Circulation
-  Tür-018    L3         corridor:3 ↔ room:3.T                        Porte 3.T Buanderie
+  P3-71      L3          room:3.01 ↔ corridor:3                      Porte 3.01 Ascenseur
+  P3-72      L3         corridor:3 ↔ room:3.03          EI2 30-C-Sm  Porte 3.03 Circulation
+  Tür-018    L3          room:3.03 ↔ room:3.T                        Porte 3.03 Circulation
   P3-74      L3          room:3.10 ↔ room:3.08          EI 30        Porte-fenêtre 3.08 Terrasse
   P3-75      L3          room:3.12 ↔ room:3.07          EI 30        Porte-fenêtre 3.07 Terrasse
   P3-76      L3          room:3.10 ↔ room:3.04          EI 30        Porte-fenêtre 3.04 Terrasse
-  Tür-020    L3         corridor:3 ↔ room:3.06                       Porte 3.06 Salle de bain
-  Tür-019    L3         corridor:3 ↔ room:3.05                       Porte 3.05 WC
-  P3-79      L3         corridor:3 ↔ room:3.12                       Porte 3.12 Chambre
-  P3-80      L3         corridor:3 ↔ room:3.02                       Porte 3.02 Chambre
-  Tür-021    L3          room:3.10 ↔ corridor:3                      Porte 3.10 Séjour-cuisine
+  Tür-020    L3          room:3.03 ↔ room:3.06                       Porte 3.03 Circulation
+  Tür-019    L3          room:3.03 ↔ room:3.05                       Porte 3.03 Circulation
+  P3-79      L3          room:3.03 ↔ room:3.12                       Porte 3.03 Circulation
+  P3-80      L3          room:3.03 ↔ room:3.02                       Porte 3.03 Circulation
+  Tür-021    L3          room:3.10 ↔ room:3.03                       Porte 3.10 Séjour-cuisine
   opening    L-1        room:-1.11 ↔ room:-1.03
   opening    L-1       corridor:-1 ↔ stair:A
   opening    L-1        room:-1.13 ↔ room:-1.12
@@ -212,7 +225,7 @@ DOORS (81 linked, 0 unlinked) + 20 openings without a door
   opening    L0         corridor:0 ↔ stair:A
   opening    L1         corridor:1 ↔ stair:A
   opening    L2            stair:A ↔ corridor:2
-  opening    L3          room:3.03 ↔ stair:A
+  opening    L3         corridor:3 ↔ stair:A
   inside     L-1        room:-1.13 ↔ room:-1.11
   inside     L-1        room:-1.12 ↔ room:-1.11
   inside     L-1        room:-1.09 ↔ room:-1.11
@@ -245,7 +258,7 @@ MATERIALS (from the IFC only; absent = absent)
   L3  roof   'Béton armé (dalle)'                         REI 90       
   L3  wall   'Béton armé (mur)'                           REI 90       
 
-GRAPH  95 nodes, 108 edges (lengths in m; stairs ×2.0 rise)
+GRAPH  102 nodes, 115 edges (lengths in m; stairs ×2.0 rise)
 
 IGNORED (not needed by a firefighter)
   IfcFurnishingElement 21, IfcFurniture 21, IfcSanitaryTerminal 40, IfcFlowTerminal 40, IfcDistributionElement 44, IfcCovering 76, IfcRailing 25, IfcWindow 36, IfcColumn 8, IfcBeam 5, IfcPlate 2

@@ -1,4 +1,4 @@
-Seraph IFC extraction — seraph_ifc.extract 1.0.0
+Seraph IFC extraction — seraph_ifc.extract 1.2.0
 file      dev.ifc  (0.36 MB, IFC4, sha256 1d27a308b7b3617a…)
 building  Bâtiment d'exercice  ·  Bâtiment fictif — maquette IFC d'exercice
 
@@ -57,6 +57,24 @@ STAIRS
 ENTRANCES
   entrance:E1   'Entrée principale boulevard'      side front  level 0  → stair:B
   entrance:E2   'Porte latérale rue'               side left   level 0  → stair:A
+
+UNITS (rooms reached through one door from the common circulation)
+  U0.1     Locaux    L0   entry P-0.10           rooms 0.10
+  U0.2     Locaux    L0   entry P-0.14           rooms 0.14
+  U1.1     Locaux    L1   entry P-1.10           rooms 1.10
+  U1.2     Locaux    L1   entry P-1.14           rooms 1.14
+  U2.1     Locaux    L2   entry P-2.01           rooms 2.01
+  U2.2     Locaux    L2   entry P-2.02           rooms 2.02
+  U2.3     Locaux    L2   entry P-2.14           rooms 2.14
+  U3.1     Locaux    L3   entry P-3.10           rooms 3.10
+  U3.2     Locaux    L3   entry P-3.12           rooms 3.12
+  U3.3     Logement  L3   entry P-3.14           rooms 3.14
+  U3.4     Locaux    L3   entry P-3.T            rooms 3.T
+  U4.1     Locaux    L4   entry P-4.02           rooms 4.02
+  U4.2     Locaux    L4   entry P-4.05           rooms 4.05
+  U4.3     Locaux    L4   entry P-4.14           rooms 4.14
+  U5.1     Locaux    L5   entry P-5.01           rooms 5.01
+  U5.2     Locaux    L5   entry P-5.14           rooms 5.14
 
 DOORS (36 linked, 0 unlinked) + 0 openings without a door
   P-A-0      L0         corridor:0 ↔ stair:A            EI 30        Porte escalier A (RDC)

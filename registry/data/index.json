@@ -1,0 +1,131 @@
+{
+ "buildings": {
+  "dev-r5-exercice": {
+   "addresses": [
+    {
+     "ban_id": null,
+     "ban_uuid": null,
+     "key": "1 rue de l exercice 75009 paris",
+     "label": "1 rue de l'Exercice, 75009 Paris",
+     "lat": null,
+     "lon": null,
+     "source": "manual"
+    }
+   ],
+   "building_id": "dev-r5-exercice",
+   "exercise": true,
+   "id_kind": "manual",
+   "model": {
+    "building_sha256": "ae2e1d4411eec87657a035fa9eb99c4de86ba0dc209e277da4478ae34e8a8e6b",
+    "checks": {
+     "failed": [],
+     "passed": true
+    },
+    "extractor": {
+     "name": "seraph_ifc.extract",
+     "version": "1.2.0"
+    },
+    "files": [
+     "building.json",
+     "levels/L0.svg",
+     "levels/L1.svg",
+     "levels/L2.svg",
+     "levels/L3.svg",
+     "levels/L4.svg",
+     "levels/L5.svg",
+     "report.txt",
+     "source.ifc"
+    ],
+    "ids_sha256": null,
+    "ifc_bytes": 358239,
+    "ifc_file": "dev.ifc",
+    "ifc_schema": "IFC4",
+    "ifc_sha256": "1d27a308b7b3617a084b487138f17a6b742f103356cf7bd559d7eda187297464",
+    "levels": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "stats": {
+     "doors": 36,
+     "levels": 6,
+     "rooms": 22,
+     "stairs": 2
+    }
+   },
+   "name": "Bâtiment d'exercice",
+   "provenance": "fictional",
+   "provenance_fr": "Bâtiment fictif — maquette IFC d'exercice",
+   "registered_at": "2026-11-08T03:41:38Z",
+   "rnb_ids": [],
+   "updated_at": "2026-11-08T03:50:01Z"
+  },
+  "tuwien-escape-route-v2": {
+   "addresses": [
+    {
+     "ban_id": null,
+     "ban_uuid": null,
+     "key": "2 rue madame 64000 pau",
+     "label": "2 rue Madame, 64000 Pau",
+     "lat": null,
+     "lon": null,
+     "source": "manual"
+    }
+   ],
+   "building_id": "tuwien-escape-route-v2",
+   "exercise": true,
+   "id_kind": "manual",
+   "model": {
+    "building_sha256": "a510adcaafa116bda72209272115786107d327301b8d714afcd6d578e64a1b8c",
+    "checks": {
+     "failed": [],
+     "passed": true
+    },
+    "credit": "TU Wien, Research Unit Digital Building Process — CC BY 4.0",
+    "extractor": {
+     "name": "seraph_ifc.extract",
+     "version": "1.2.0"
+    },
+    "files": [
+     "building.json",
+     "ids.yaml",
+     "levels/L-1.svg",
+     "levels/L0.svg",
+     "levels/L1.svg",
+     "levels/L2.svg",
+     "levels/L3.svg",
+     "report.txt",
+     "source.ifc"
+    ],
+    "ids_sha256": "60459d1ba8127c8975d75d1c81b7c9d370c343919660e06db8c811e4913587e3",
+    "ifc_bytes": 13512479,
+    "ifc_file": "RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc",
+    "ifc_schema": "IFC4",
+    "ifc_sha256": "759c5e5f516eb23eb4a9a5f113e626e35e995029ca153ee759ac94a59043652e",
+    "levels": [
+     -1,
+     0,
+     1,
+     2,
+     3
+    ],
+    "stats": {
+     "doors": 81,
+     "levels": 5,
+     "rooms": 70,
+     "stairs": 1
+    }
+   },
+   "name": "Immeuble d'habitation (maquette TU Wien)",
+   "provenance": "architect",
+   "provenance_fr": "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice",
+   "registered_at": "2026-11-08T03:41:41Z",
+   "rnb_ids": [],
+   "updated_at": "2026-11-08T03:50:01Z"
+  }
+ },
+ "format": 1
+}

@@ -2,12 +2,14 @@
 Thick outlines, room ids, doors, stairs, entrances. Black on white, like the plan posted at the door."""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from html import escape
-from typing import Any
+from typing import Any, Optional
 
+from shapely.affinity import rotate
 from shapely.geometry import Polygon
-from shapely.ops import polylabel
+from shapely.ops import polylabel, unary_union
 
 SIZE = 1000
 MARGIN = 60
@@ -15,21 +17,52 @@ MARGIN = 60
 
 @dataclass(frozen=True)
 class Frame:
-    """Building footprint (metres) → 0–1000 plan frame, y down, aspect kept, centred."""
+    """World plan coordinates (metres) → the 0–1000 frame shared by every level, every zone and every consumer.
+
+    The building is turned by `theta` (radians, counter-clockwise) around (cx, cy) so that its walls run along the
+    axes and its front façade (E1) is at the bottom, then fitted in 1000×1000 with a 60-unit margin, y down, aspect
+    kept. `to_m` gives the same turned coordinates in metres, origin at the bottom-left of the building."""
+    theta: float
+    cx: float
+    cy: float
     x0: float
     y0: float
     x1: float
     y1: float
 
+    @classmethod
+    def fit(cls, polys, theta: float = 0.0, centre: Optional[tuple[float, float]] = None) -> "Frame":
+        u = unary_union(list(polys))
+        cx, cy = centre or (u.centroid.x, u.centroid.y)
+        x0, y0, x1, y1 = rotate(u, theta, origin=(cx, cy), use_radians=True).bounds
+        return cls(theta, cx, cy, x0, y0, x1, y1)
+
+    def rot(self, x: float, y: float) -> tuple[float, float]:
+        c, s = math.cos(self.theta), math.sin(self.theta)
+        dx, dy = x - self.cx, y - self.cy
+        return self.cx + c * dx - s * dy, self.cy + s * dx + c * dy
+
     @property
     def scale(self) -> float:
         return (SIZE - 2 * MARGIN) / max(self.x1 - self.x0, self.y1 - self.y0, 1e-6)
 
-    def to_plan(self, x: float, y: float) -> tuple[int, int]:
+    @property
+    def offset(self) -> tuple[float, float]:
         s = self.scale
-        ox = (SIZE - (self.x1 - self.x0) * s) / 2
-        oy = (SIZE - (self.y1 - self.y0) * s) / 2
-        return round(ox + (x - self.x0) * s), round(oy + (self.y1 - y) * s)
+        return (SIZE - (self.x1 - self.x0) * s) / 2, (SIZE - (self.y1 - self.y0) * s) / 2
+
+    def to_plan_f(self, x: float, y: float) -> tuple[float, float]:
+        xr, yr = self.rot(x, y)
+        ox, oy = self.offset
+        return ox + (xr - self.x0) * self.scale, oy + (self.y1 - yr) * self.scale
+
+    def to_plan(self, x: float, y: float) -> tuple[int, int]:
+        px, py = self.to_plan_f(x, y)
+        return round(px), round(py)
+
+    def to_m(self, x: float, y: float) -> tuple[float, float]:
+        xr, yr = self.rot(x, y)
+        return round(xr - self.x0, 2), round(yr - self.y0, 2)
 
     def polygon(self, coords) -> list[list[int]]:
         out: list[list[int]] = []
@@ -40,6 +73,58 @@ class Frame:
         if len(out) > 1 and out[0] == out[-1]:
             out.pop()
         return out
+
+    def polygon_m(self, coords) -> list[list[float]]:
+        out = [list(self.to_m(x, y)) for x, y in coords]
+        if len(out) > 1 and out[0] == out[-1]:
+            out.pop()
+        return out
+
+    def side(self, x: float, y: float) -> str:
+        """Which side of the turned building a point is on: bottom (front), top, left or right."""
+        xr, yr = self.rot(x, y)
+        d = {"bottom": yr - self.y0, "top": self.y1 - yr, "left": xr - self.x0, "right": self.x1 - xr}
+        return min(d, key=d.get)
+
+    def info(self) -> dict[str, Any]:
+        """How to go from metres (`*_m` fields) to the 0–1000 frame: x = origin_x + x_m·px_per_m,
+        y = origin_y − y_m·px_per_m."""
+        ox, oy = self.offset
+        return {"size": SIZE, "px_per_m": round(self.scale, 4), "rotation_deg": round(math.degrees(self.theta), 2),
+                "origin_px": [round(ox, 2), round(oy + (self.y1 - self.y0) * self.scale, 2)],
+                "width_m": round(self.x1 - self.x0, 2), "depth_m": round(self.y1 - self.y0, 2)}
+
+
+def dominant_angle(polys) -> float:
+    """Rotation (radians) that brings the building's main wall direction onto the x axis: length-weighted
+    histogram of polygon edge directions, modulo 90°."""
+    hist: dict[float, float] = {}
+    for p in polys:
+        cs = list(p.exterior.coords)
+        for (ax, ay), (bx, by) in zip(cs, cs[1:]):
+            length = math.hypot(bx - ax, by - ay)
+            if length < 0.3:
+                continue
+            a = round((math.degrees(math.atan2(by - ay, bx - ax)) % 90.0) * 2) / 2 % 90.0
+            hist[a] = hist.get(a, 0.0) + length
+    if not hist:
+        return 0.0
+    best = max(hist, key=hist.get)
+    num = den = 0.0
+    for a, w in hist.items():
+        d = ((a - best + 45) % 90) - 45
+        if abs(d) <= 1.0:
+            num += (best + d) * w
+            den += w
+    ang = num / den
+    if ang > 45:
+        ang -= 90
+    return -math.radians(ang)
+
+
+def front_turn(frame: Frame, x: float, y: float) -> float:
+    """Extra quarter turns so that the façade holding (x, y) ends at the bottom of the plan."""
+    return {"bottom": 0.0, "top": math.pi, "left": math.pi / 2, "right": -math.pi / 2}[frame.side(x, y)]
 
 
 def _pts(poly: list[list[int]]) -> str:

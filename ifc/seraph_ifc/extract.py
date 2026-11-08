@@ -66,7 +66,6 @@ DOOR_TOL = 0.5          # m: a door links the spaces whose footprint is this clo
 FACADE_TOL = 0.7        # m: a door this close to the level outline is on the outer wall
 NESTED = 0.6            # a space with this share of its area inside another space is part of it
 STAIR_FACTOR = 2.0      # m walked on a stair per m of rise (flights + landings), for edge lengths only
-COMPASS = ["north", "east", "south", "west"]   # clockwise
 SIDE_FR = {"front": "façade principale", "left": "côté gauche", "right": "côté droit", "rear": "arrière"}
 IGNORED = ["IfcFurnishingElement", "IfcFurniture", "IfcSanitaryTerminal", "IfcFlowTerminal", "IfcFlowSegment",
            "IfcFlowFitting", "IfcDistributionElement", "IfcBuildingElementProxy", "IfcCovering", "IfcRailing",
@@ -240,14 +239,14 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
         "fictional": "Bâtiment fictif — maquette IFC d'exercice",
     }.get(provenance, "Maquette IFC")
     name = name or ids.get("name")
-    front = ids.get("front") or prov_pset.get("front")
 
     # Geometry for the elements we keep.
     spaces_el = f.by_type("IfcSpace")
     doors_el = f.by_type("IfcDoor")
     stairs_el = f.by_type("IfcStair") or f.by_type("IfcStairFlight")
     walls_el = f.by_type("IfcWall") + f.by_type("IfcCurtainWall")
-    geo = shapes(f, spaces_el + doors_el + stairs_el + (walls_el if len(walls_el) < 5000 else []))
+    slabs_el = f.by_type("IfcSlab")
+    geo = shapes(f, spaces_el + doors_el + stairs_el + slabs_el + (walls_el if len(walls_el) < 5000 else []))
 
     def elev(s) -> float:
         if s.Elevation is not None:
@@ -353,7 +352,12 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
     for s in sps:
         by_level[s.level].append(s)
     for n, here in by_level.items():
-        cs = sorted((s for s in here if s.kind == "corridor"), key=lambda s: -s.poly.area)
+        # The common circulation: flagged FireExit in the IFC, else the one the stair opens on, else the largest.
+        stairs_here = [o for o in here if o.kind == "stair"]
+        cs = sorted((s for s in here if s.kind == "corridor"), key=lambda s: (
+            pset_value(s.el, "Pset_SpaceFireSafetyRequirements", "FireExit") is not True,
+            not any(o.poly.distance(s.poly) <= DOOR_TOL for o in stairs_here),
+            -s.poly.area))
         if cs:
             cs[0].room_id = cs[0].node = f"corridor:{n}"
             for s in cs[1:]:
@@ -378,18 +382,14 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
                 s.room_id = rid
             s.node = s.room_id if s.room_id.startswith("corridor:") else f"room:{s.room_id}"
 
-    # Plan frame: every level drawn with the same transform.
+    # Plan frame, step 1: the building's own axes (step 2, the front at the bottom, needs E1: see Entrances).
     footprint = unary_union([s.poly for s in sps]) if sps else None
     if footprint is None or footprint.is_empty:
         raise SystemExit(f"{path}: no spaces with geometry — nothing to route on")
-    x0, y0, x1, y1 = footprint.bounds
-    frame = plans.Frame(x0, y0, x1, y1)
+    theta0 = plans.dominant_angle([s.poly for s in sps])
+    centre = (footprint.centroid.x, footprint.centroid.y)
     outlines = {n: unary_union([s.poly for s in here]).buffer(0.3, join_style="mitre")
                 for n, here in by_level.items()}
-
-    def compass(x: float, y: float) -> str:
-        d = {"south": y - y0, "north": y1 - y, "west": x - x0, "east": x1 - x}
-        return min(d, key=d.get)
 
     # Doors → links.
     boundaries: dict[int, list] = defaultdict(list)
@@ -489,24 +489,25 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
             if l.get("adjacency") and s is not None and s.kind == "stair":
                 linked_levels[s.stair_key].add(s.level)
 
-    # Entrances: ids from the door name (E1…), ids.yaml, or numbered front → left → right → rear.
+    # Entrances: ids from the door name (E1…) or ids.yaml. E1 is the main entrance: its façade is the front, and the
+    # plan is turned so the front is at the bottom (frame step 2). Others: numbered front → left → right → rear.
     ext = [l for l in links if l["external"] and not l.get("facade_only") and not l.get("outdoor_only")]
-    if not front and ext:
-        main = max(ext, key=lambda l: (l["width"] or 0, -abs(l["level"])))
-        front = compass(*main["point"])
-    front = front or "south"
-    fi = COMPASS.index(front) if front in COMPASS else 2
-    rel_side = {COMPASS[fi]: "front", COMPASS[(fi + 1) % 4]: "left", COMPASS[(fi + 2) % 4]: "rear",
-                COMPASS[(fi + 3) % 4]: "right"}
     emap = {str(k): str(v) for k, v in (ids.get("entrances") or {}).items()}
     used_e: set[str] = set()
     for l in ext:
-        l["side"] = rel_side[compass(*l["point"])]
         eid = emap.get(l["el"].GlobalId) or emap.get(l["name"]) or \
             (l["name"] if ENTRANCE_NAME_RE.match(l["name"]) else None)
         l["eid"] = eid if eid not in used_e else None
         if l["eid"]:
             used_e.add(l["eid"])
+    frame0 = plans.Frame.fit([s.poly for s in sps], theta0, centre)
+    main = next((l for l in ext if l["eid"] == "E1"), None) or (
+        max(ext, key=lambda l: (l["level"] == 0, l["width"] or 0)) if ext else None)
+    theta = theta0 + (plans.front_turn(frame0, *main["point"]) if main else 0.0)
+    frame = plans.Frame.fit([s.poly for s in sps], theta, centre)
+    side_of = {"bottom": "front", "left": "left", "right": "right", "top": "rear"}
+    for l in ext:
+        l["side"] = side_of[frame.side(*l["point"])]
     order = {"front": 0, "left": 1, "right": 2, "rear": 3}
     k = 1
     for l in sorted((l for l in ext if not l["eid"]), key=lambda l: (order[l["side"]], -(l["width"] or 0))):
@@ -549,7 +550,7 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
                     edge("outside", a.node, 0.0)
                 continue
             if l.get("facade_only"):
-                node = f"facade:{l['id']}"
+                node = f"ladder:{l['id']}"           # French window above ground: ladder rescue point
                 edge(a.node, node, dist(pt, a.centre))
                 facade_nodes[l["level"]].append(node)
                 continue
@@ -571,8 +572,9 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
         if s.kind == "exterior":
             if s.level == 0:
                 edge(s.node, "outside", 0.0)       # a ground-floor terrace is outdoors
-            else:
-                facade_nodes[s.level].append(s.node)
+            else:                                  # balcony / terrace above ground: ladder rescue point, dead end
+                edge(s.node, f"ladder:{s.room_id}", 0.0)
+                facade_nodes[s.level].append(f"ladder:{s.room_id}")
     for n in elevation:
         if any(f"level:{n}" in k_ for k_ in edges):
             continue
@@ -581,16 +583,26 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
         for s in hub:
             edge(f"level:{n}", s.node, 0.0)
 
-    node_order = {"outside": 0, "entrance": 1, "stair": 2, "level": 3, "corridor": 4, "room": 5, "facade": 6}
+    node_order = {"outside": 0, "entrance": 1, "stair": 2, "level": 3, "corridor": 4, "room": 5, "ladder": 6}
     nodes = sorted({n for k_ in edges for n in k_} | {s.node for s in sps} | {"outside"},
                    key=lambda n: (node_order.get(n.split(":")[0], 9), _natural(n)))
     graph = {"nodes": nodes, "edges": [[a, b, l] for (a, b), l in sorted(edges.items(), key=lambda t: (
         node_order.get(t[0][0].split(":")[0], 9), _natural(t[0][0]), _natural(t[0][1])))]}
 
     # Contract objects.
-    levels_out = [{"level": n, "label": level_label(n), "elevation_m": round(z, 2),
-                   "ifc_name": next((s.Name for s in storeys if level_of_storey[s.id()] == n), None)}
-                  for n, z in sorted(elevation.items())]
+    levels_out = []
+    for n, z in sorted(elevation.items()):
+        outline, source, thickness = _level_outline(n, z, slabs_el, geo, sps, elevation)
+        levels_out.append({
+            "level": n, "label": level_label(n), "elevation_m": round(z, 2),
+            "ifc_name": next((s.Name for s in storeys if level_of_storey[s.id()] == n), None),
+            "outline": [{"outer": frame.polygon(p.exterior.coords),
+                         "holes": [frame.polygon(h.coords) for h in p.interiors]} for p in outline],
+            "outline_m": [{"outer": frame.polygon_m(p.exterior.coords),
+                           "holes": [frame.polygon_m(h.coords) for h in p.interiors]} for p in outline],
+            "outline_source": source,
+            **({"slab_thickness_m": thickness} if thickness else {}),
+        })
     rooms_out = []
     for s in sorted((s for s in sps if s.kind != "stair"), key=lambda s: (s.level, _natural(s.room_id))):
         rooms_out.append({"id": s.room_id, "level": s.level, "label": s.label, "area_m2": round(s.poly.area, 1),
@@ -619,7 +631,8 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
         ext_ = list(l["a"].poly.exterior.coords)
         best = min(zip(ext_, ext_[1:]), key=lambda e: Point(e[0]).distance(q) + Point(e[1]).distance(q) -
                    Point(e[0]).distance(Point(e[1])))
-        return "x" if abs(best[1][0] - best[0][0]) >= abs(best[1][1] - best[0][1]) else "y"
+        (ax_, ay_), (bx_, by_) = frame.to_plan_f(*best[0]), frame.to_plan_f(*best[1])
+        return "x" if abs(bx_ - ax_) >= abs(by_ - ay_) else "y"
 
     entrances_out, doors_out = [], []
     for l in links:
@@ -635,12 +648,12 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
             continue
         if l["external"] and l.get("facade_only"):
             doors_out.append({"id": l["id"], "level": n, "label": f"Porte-fenêtre {a.label}",
-                              "between": [a.node, f"facade:{l['id']}"], "external": True, **fr, "source": src,
+                              "between": [a.node, f"ladder:{l['id']}"], "external": True, **fr, "source": src,
                               **common})
             continue
         if l["external"]:
             eid = l["eid"]
-            cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+            cx, cy = centre
             vx, vy = l["point"][0] - cx, l["point"][1] - cy
             norm = math.hypot(vx, vy) or 1
             out_pt = (l["point"][0] + vx / norm * 1.2, l["point"][1] + vy / norm * 1.2)
@@ -686,12 +699,14 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
             "stats": {"levels": len(levels_out), "stairs": len(stairs_out), "doors": len(doors_out),
                       "rooms": len([r for r in rooms_out if r["kind"] in ("room", "elevator")])},
             "extractor": {"name": EXTRACTOR, "version": __version__},
+            "plan_frame": frame.info(),
             "source_ifc": {"file": path.name, "sha256": sha, "schema": f.schema, "bytes": path.stat().st_size,
                            **({"credit": ids["credit"]} if ids.get("credit") else {}),
                            **({"url": ids["source_url"]} if ids.get("source_url") else {})},
             **({"second_route": second_route} if second_route else {}),
-            "facade_rescue_points": {str(n): v for n, v in sorted(facade_nodes.items())},
+            "ladder_points": {str(n): v for n, v in sorted(facade_nodes.items())},
         },
+        "units": _units(sps, links),
     }
     results = checks.run_all(building, unlinked)
     building["model"]["checks"] = {"passed": all(c.ok for c in results),
@@ -701,6 +716,84 @@ def extract(path: Path, ids: Optional[dict] = None, base_url: str = DEFAULT_BASE
         [d for d in doors_out if d["level"] == lv["level"]], entrances_out) for lv in levels_out}
     report = _report(f, path, sha, building, results, unlinked, notes, dropped, elev, links)
     return Result(building=building, svgs=svgs, report=report, checks=results, unlinked=unlinked)
+
+
+def _level_outline(n: int, z: float, slabs_el, geo, sps: list[Sp], elevation: dict[int, float]):
+    """The level's floor as it is: the union of the slabs whose top is at the level's elevation (with their own
+    openings), or the union of the level's spaces when the IFC has no such slab. Stair and lift shafts that go on
+    from the level below are cut out (a no-op where the slab already has the hole).
+    → (polygons, "slab" | "spaces", median slab thickness in m or None)."""
+    found, depths = [], []
+    for el in slabs_el:
+        g = geo.get(el.id())
+        if g is None or g.footprint is None or not (z - 0.30 <= g.zmax <= z + 0.10):
+            continue
+        found.append(g.footprint)
+        depths.append(g.zmax - g.zmin)
+    here = [s for s in sps if s.level == n]
+    if found:
+        floor, source = unary_union(found), "slab"
+    else:   # spaces stop at the wall faces: close the wall gaps (≤ 0.6 m) to get the floor
+        floor = unary_union([s.poly for s in here]).buffer(0.3, join_style="mitre").buffer(-0.3, join_style="mitre")
+        source = "spaces"
+    below = [s for s in sps if s.level == n - 1]
+    for s in here:
+        if s.kind not in ("stair", "elevator"):
+            continue
+        if any(o.kind == s.kind and o.poly.intersection(s.poly).area > 0.5 * s.poly.area for o in below):
+            floor = floor.difference(s.poly.buffer(-0.05, join_style="mitre"))
+    floor = floor.buffer(0.01, join_style="mitre").buffer(-0.01, join_style="mitre").simplify(0.02)
+    polys = [p for p in (floor.geoms if hasattr(floor, "geoms") else [floor]) if p.area >= 0.5]
+    depths.sort()
+    thickness = round(depths[len(depths) // 2], 2) if depths else None
+    return sorted(polys, key=lambda p: -p.area), source, thickness
+
+
+UNIT_HOME_RE = re.compile(r"(chambre|s[ée]jour|cuisine|salon|bedroom|living|kitchen|zimmer|wohn)", re.I)
+
+
+def _units(sps: list[Sp], links: list[dict]) -> list[dict[str, Any]]:
+    """Groups of rooms behind one door from the common circulation (a flat, a set of cellars). Computed from the
+    door topology only: « Logement » when it has a bedroom or a living room, « Locaux » otherwise."""
+    rooms = {s.node: s for s in sps if s.kind in ("room", "exterior")}
+    adj: dict[str, set[str]] = defaultdict(set)
+    entry: dict[str, set[str]] = defaultdict(set)
+    for l in links:
+        a, b = l["a"], l["b"]
+        if b is None:
+            continue
+        if a.node in rooms and b.node in rooms:
+            adj[a.node].add(b.node)
+            adj[b.node].add(a.node)
+        for x, y in ((a, b), (b, a)):
+            if x.node in rooms and y.kind in ("corridor", "stair"):
+                entry[x.node].add(l.get("id") or l["name"])
+    seen: set[str] = set()
+    out = []
+    for level in sorted({s.level for s in rooms.values()}):
+        k = 0
+        for start in sorted((n for n, s in rooms.items() if s.level == level), key=lambda n: _natural(n)):
+            if start in seen:
+                continue
+            comp, stack = [], [start]
+            while stack:
+                n = stack.pop()
+                if n in seen:
+                    continue
+                seen.add(n)
+                comp.append(n)
+                stack += [m for m in adj[n] if m not in seen]
+            members = [rooms[n] for n in comp]
+            inside = [s for s in members if s.kind == "room"]
+            if not inside:
+                continue
+            k += 1
+            home = any(UNIT_HOME_RE.search(s.display or "") for s in inside)
+            out.append({"id": f"U{level}.{k}", "level": level, "label": "Logement" if home else "Locaux",
+                        "rooms": sorted((s.room_id for s in inside), key=_natural),
+                        "outdoor": sorted((s.room_id for s in members if s.kind == "exterior"), key=_natural),
+                        "entry": sorted({d for s in inside for d in entry[s.node]}, key=_natural)})
+    return out
 
 
 def _overlap(a: Polygon, b: Polygon) -> float:
@@ -812,11 +905,16 @@ def _report(f, path, sha, b, results, unlinked, notes, dropped, elev, links) -> 
     w("ENTRANCES")
     for e in b["entrances"]:
         w(f"  entrance:{e['id']:4} {e['label']!r:34} side {e['side']:5}  level {e['level']}  → {e['leads_to']}")
-    fp = b["model"].get("facade_rescue_points") or {}
+    fp = b["model"].get("ladder_points") or {}
     if fp:
-        w("FAÇADE RESCUE POINTS (balconies, terraces, French windows above the ground: ladders, never exits)")
+        w("LADDER POINTS (balconies, terraces, French windows above the ground: rescue by ladder, never exits)")
         for n, nodes in fp.items():
             w(f"  level {n}: {', '.join(nodes)}")
+    w("")
+    w("UNITS (rooms reached through one door from the common circulation)")
+    for u in b.get("units", []):
+        w(f"  {u['id']:8} {u['label']:9} L{u['level']:<3} entry {', '.join(u['entry']) or '-':16} "
+          f"rooms {', '.join(u['rooms'])}" + (f"  · outdoor {', '.join(u['outdoor'])}" if u['outdoor'] else ""))
     w("")
     opens = [l for l in links if l.get("adjacency")]
     w(f"DOORS ({len(b['doors'])} linked, {len(unlinked)} unlinked) + {len(opens)} openings without a door")

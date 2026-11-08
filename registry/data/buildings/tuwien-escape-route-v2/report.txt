@@ -1,0 +1,268 @@
+Seraph IFC extraction — seraph_ifc.extract 1.2.0
+file      RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc  (13.51 MB, IFC4, sha256 759c5e5f516eb23e…)
+building  Immeuble d'habitation (maquette TU Wien)  ·  Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice
+
+CHECKS
+  [ok] every door links 2 nodes
+  [ok] every room reachable from outside
+  [ok] ≥ 2 escape routes from every occupied level
+         R-1: 2 independent escape route(s)
+         RDC: 6 independent escape route(s)
+         R+1: 1 escape route(s) + façade, 2 ladder rescue point(s) (second_route: facade_ladder)
+         R+2: 1 escape route(s) + façade, 2 ladder rescue point(s) (second_route: facade_ladder)
+         R+3: 1 escape route(s) + façade, 3 ladder rescue point(s) (second_route: facade_ladder)
+  [ok] stairs serve every level they are on
+
+LEVELS
+  R-1   elev  -3.30 m  ifc 'UG1'
+        -1.01        -1.01 Caves                        room         39.8 m²  2c_$zv6ob9tRX5aB2_X9UW
+        -1.02        -1.02 Ascenseur                    elevator      2.6 m²  3ZH5jX_AH4OOah3MOEJwNm
+        -1.03        -1.03 Rampe d'accès                room         94.8 m²  0DDpKJGAn3FAMw3$7rJzUk
+        -1.04        -1.04 Local poussettes             room          5.2 m²  1BX2fNxmbFVu2D$EK4fKpX
+        -1.05        -1.05 Place de parking             room         15.9 m²  293Zapz2b3vwJOQQgLcKgp
+        -1.06        -1.06 Local électrique             room          4.8 m²  1mX6a9$5H4fA0D2hkPwyem
+        -1.07        -1.07 Place de parking             room         14.2 m²  2h4OLdyK15ShRQDVBGI5MM
+        -1.08        -1.08 Local technique              room         23.0 m²  3XeK7K50r1B9xPk3cXMww3
+        -1.09        -1.09 Place de parking             room         15.7 m²  0rvpyWStv9LRGHnggQTpuc
+        -1.10        -1.10 Place de parking             room         15.1 m²  1NfyAHq_b0Vvkyq1a60SIY
+        -1.11        -1.11 Garage                       room        235.5 m²  1m4c$phjbFWho7o9ffAUrB
+        -1.12        -1.12 Place de parking             room         14.2 m²  1eedo6u6rBoPXGEHcwAVQe
+        -1.13        -1.13 Place de parking             room         14.4 m²  277zlJ045DKAqRGaBt$VaV
+        -1.14        -1.14 Place de parking             room         14.5 m²  0k3GpM6BDD3xWZcfVq$gmM
+        -1.15        -1.15 Place de parking             room         14.7 m²  0EOJuuFBv1BP3Ex$ERjpZM
+        corridor:-1  Circulation                        corridor      8.2 m²  3gUAiLbvj8s8ApRsdcC4lh
+  RDC   elev  -0.22 m  ifc 'EG'
+        0.01         0.01 Terrasse                      exterior      8.0 m²  0m9DK39FX6UOJXOFae3JrX
+        0.02         0.02 Chambre                       room         14.6 m²  2u0my2cevDvPcB4tbPOPmq
+        0.03         0.03 Ascenseur                     elevator      2.6 m²  0mUYZag0LEFOQ6qPd3CZ2M
+        0.04         0.04 Salle de bain                 room          5.6 m²  0K2y9h$GvAkO_5flBr25I3
+        0.05         0.05 Local poubelles               exterior      5.0 m²  2KDJ1MRFfDoBODqhNDWzet
+        0.06         0.06 Entrée                        room          8.4 m²  06pIPYtxH80RQ3nZ7QQyNf
+        0.07         0.07 Buanderie                     room          3.0 m²  0_p7ACXuP1VxneiKtcqubA
+        0.08         0.08 Salle de bain                 room          5.0 m²  2M2xoBssb99wj_h46suHMz
+        0.09         0.09 Séjour-cuisine                room         34.1 m²  3jZsk5m7j9iQ00vVSop8cy
+        0.10         0.10 Buanderie                     room          2.8 m²  3QrPUMPbP5yuvU5eYSMWaw
+        0.11         0.11 Salle de bain                 room          6.2 m²  1bs1TN8m903QZZdjTP3csa
+        0.12         0.12 WC                            room          1.8 m²  19edvl6lL8hBzWjPW3$aJl
+        0.13         0.13 Entrée                        room         10.7 m²  1hRh9rUCbDPwLG0KJ2MIvL
+        0.14         0.14 Terrasse                      exterior     36.4 m²  2pkWnmEu9FxQCNSNmrDsNp
+        0.15         0.15 Chambre                       room         15.7 m²  0lyf6J9eDDahUwhHtE_sg4
+        0.16         0.16 Circulation                   room          3.2 m²  3Pz7ETaoTA9QoCEAdZya3D
+        0.17         0.17 Chambre                       room         13.5 m²  1dfN1r3P9AehOnJ4GptxAp
+        0.18         0.18 Chambre                       room         13.5 m²  2_n6AntvPA29XJFV$V9WMI
+        0.19         0.19 Séjour-cuisine                room         34.3 m²  3qjIbsfa14Hev3h2cHc10D
+        0.20         0.20 Terrasse                      exterior     52.7 m²  0HuOPqQf1CJBw0Ee4ayDlp
+        corridor:0   Circulation                        corridor      7.9 m²  1mDF3PHFz6GAcCed3ct7FI
+  R+1   elev   2.74 m  ifc 'OG1'
+        1.01         1.01 Chambre                       room         18.5 m²  1Mt10mW$r50xXAlVv3oUHS
+        1.02         1.02 Ascenseur                     elevator      2.6 m²  21yBcpaB90Gh_S0sKIsAIw
+        1.03         1.03 Salle de bain                 room          7.3 m²  2sFHBf0C93mO9_16V$BtG$
+        1.04         1.04 Entrée                        room          8.4 m²  3_Nw$RjYLAI8EdErBS$Saj
+        1.05         1.05 Balcon                        exterior     10.2 m²  3icrQzZ9TE9PQ1539Wsriu
+        1.06         1.06 Buanderie                     room          3.0 m²  3wjjRFJMrAowmm2msLcMjy
+        1.07         1.07 Salle de bain                 room          7.1 m²  1m98yhs2X4mQSn$PNRBnqx
+        1.08         1.08 Séjour-cuisine                room         34.1 m²  0T_j7vaDLC_OW5Kx5zR93U
+        1.09         1.09 Buanderie                     room          2.8 m²  0nUsYnUirCfuADQRrU9jNl
+        1.10         1.10 Salle de bain                 room          6.2 m²  1LFLBHb1b2R9SyenDUrwjX
+        1.11         1.11 Chambre                       room         20.0 m²  3rFnAI2hT1y8lDFW1BFK95
+        1.12         1.12 WC                            room          1.8 m²  0iiG7mvLDCpuTwVtElcNBi
+        1.13         1.13 Entrée                        room         10.7 m²  2mh9z6Bd99egUGPaY3IDQ5
+        1.14         1.14 Circulation                   room          3.2 m²  3mnSox3bP7qBDaxAigrzkz
+        1.15         1.15 Chambre                       room         13.5 m²  05KnGV$z54U9o$H5vgueGO
+        1.16         1.16 Chambre                       room         13.5 m²  2cLbZ_Io54FQOlBSo2fzIJ
+        1.17         1.17 Séjour-cuisine                room         42.2 m²  2AxXfbQI17fh5cLNajE0Pq
+        1.18         1.18 Balcon                        exterior     20.9 m²  23tX$bRfj7YR5tuqWMin34
+        corridor:1   Circulation                        corridor      7.6 m²  0Md_qk5wn4RRzuOEPx8h$j
+  R+2   elev   5.70 m  ifc 'DG1'
+        2.01         2.01 Chambre                       room         13.9 m²  05EQt9n318cenZnuAXclI3
+        2.02         2.02 Ascenseur                     elevator      2.6 m²  25FuxebzD2wvqk5YMG18vX
+        2.03         2.03 Salle de bain                 room          5.6 m²  2vz1tjmXv4CPhxpgEdekDm
+        2.04         2.04 Entrée                        room          8.4 m²  3MCfTULCLDEhFPqWN_Fkp$
+        2.05         2.05 Balcon                        exterior     10.3 m²  2rXqbtL4rFBuIQ8Y1N3U_I
+        2.06         2.06 Buanderie                     room          3.0 m²  2ochS5m1D4wwEnNoYjBxAt
+        2.07         2.07 Salle de bain                 room          5.0 m²  3oaQDUQar4d9ubpQxLywwo
+        2.08         2.08 Séjour-cuisine                room         32.7 m²  296QwBr4X949BqauNAZK11
+        2.09         2.09 Buanderie                     room          2.8 m²  0m7cNpm_550Ql$EJi5Pmf4
+        2.10         2.10 Salle de bain                 room          6.2 m²  01TRCmBNX52e8lxTLy5tq_
+        2.11         2.11 WC                            room          1.8 m²  1a1utn_R9AbwZkEYJvDfSO
+        2.12         2.12 Entrée                        room         10.7 m²  3KlwidggL4cvD9MNVZ8q0B
+        2.13         2.13 Chambre                       room         15.7 m²  2XCu2s_hfAMgQrv1sfHNc4
+        2.14         2.14 Circulation                   room          3.2 m²  0khZEyN6f8heJWwZ0GrdK4
+        2.15         2.15 Chambre                       room         14.9 m²  3iCBIg2y94geNw5dgD_Yh6
+        2.16         2.16 Séjour-cuisine                room         34.7 m²  12wAJSCVD7ER7s0hVPAfnz
+        2.17         2.17 Balcon                        exterior     33.7 m²  3LsJ8fXGnEUe3GE2xNrT3R
+        corridor:2   Circulation                        corridor      7.6 m²  1xFhgXylX3vg9kzGu1wdRl
+  R+3   elev   8.66 m  ifc 'DG2'
+        3.01         3.01 Ascenseur                     elevator      2.6 m²  0oryJKQwr2YwDJPM$Un2f3
+        3.02         3.02 Chambre                       room         17.1 m²  2mCIUTQaf90A7q$Ll6Ud14
+        3.03         3.03 Circulation                   room         12.1 m²  1ytdm3Hbv7hgXXk8NHUpwE
+        3.04         3.04 Terrasse                      exterior      8.4 m²  2tz1NpDRP6rPsdfiT6XjoL
+        3.05         3.05 WC                            room          1.9 m²  29jDs_nhX2yeGZuzPeddQk
+        3.06         3.06 Salle de bain                 room         14.1 m²  3d4LthDOn2nP28WhPcTEK7
+        3.07         3.07 Terrasse                      exterior      9.9 m²  0AQIJ$EuDBOQBkBG6LzxHI
+        3.08         3.08 Terrasse                      exterior     24.2 m²  34vSCPI4T5zRhpEuzSGKS1
+        3.10         3.10 Séjour-cuisine                room         42.1 m²  3HXPWWm399QxgykeoqSQTp
+        3.12         3.12 Chambre                       room         19.2 m²  3ckEsz8DnBOuVUUaYnCHYG
+        3.T          3.T Buanderie                      room          6.5 m²  0RylawvdD08g1dPNppLJ2h
+        corridor:3   Circulation                        corridor      5.7 m²  0x18s_7f985hp8DCVNPiDP
+  (storey 'UG2' at -4.29 m holds no room, corridor or stair: not a level)
+  (storey 'DA' at 11.84 m holds no room, corridor or stair: not a level)
+
+STAIRS
+  stair:A   'Escalier A'                 levels [-1, 0, 1, 2, 3]  (linked without a door on [-1, 0, 1, 2, 3])
+
+ENTRANCES
+  entrance:E1   "Porte d'entrée, hall de l'escalier" side front  level 0  → corridor:0
+  entrance:E2   'Porte de garage, rampe (sous-sol)' side left   level -1  → room:-1.03
+LADDER POINTS (balconies, terraces, French windows above the ground: rescue by ladder, never exits)
+  level 1: ladder:1.05, ladder:1.18
+  level 2: ladder:2.05, ladder:2.17
+  level 3: ladder:3.04, ladder:3.08, ladder:3.07
+
+UNITS (rooms reached through one door from the common circulation)
+  U-1.1    Locaux    L-1  entry P-1-2            rooms -1.01
+  U-1.2    Locaux    L-1  entry P-1-5            rooms -1.03, -1.05, -1.07, -1.09, -1.10, -1.11, -1.12, -1.13, -1.14, -1.15
+  U-1.3    Locaux    L-1  entry P-1-1            rooms -1.04
+  U-1.4    Locaux    L-1  entry P-1-6            rooms -1.06, -1.08
+  U0.1     Logement  L0   entry P0-18            rooms 0.02, 0.04, 0.06, 0.07, 0.09  · outdoor 0.01, 0.14
+  U0.2     Logement  L0   entry P0-17            rooms 0.08, 0.10, 0.11, 0.12, 0.13, 0.15, 0.16, 0.17, 0.18, 0.19  · outdoor 0.20
+  U1.1     Logement  L1   entry P1-48            rooms 1.01, 1.03, 1.04, 1.06, 1.08  · outdoor 1.05
+  U1.2     Logement  L1   entry P1-49            rooms 1.07, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17  · outdoor 1.18
+  U2.1     Logement  L2   entry P2-67            rooms 2.01, 2.03, 2.04, 2.06, 2.08  · outdoor 2.05
+  U2.2     Logement  L2   entry P2-59            rooms 2.07, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16  · outdoor 2.17
+  U3.1     Logement  L3   entry P3-72            rooms 3.02, 3.03, 3.05, 3.06, 3.10, 3.12, 3.T  · outdoor 3.04, 3.07, 3.08
+
+DOORS (81 linked, 0 unlinked) + 20 openings without a door
+  P-1-1      L-1        room:-1.04 ↔ corridor:-1        EI2 30-C-Sm  Porte -1.04 Local poussettes
+  P-1-2      L-1        room:-1.01 ↔ corridor:-1        EI2 30-C-Sm  Porte -1.01 Caves
+  P-1-3      L-1        room:-1.02 ↔ corridor:-1                     Porte -1.02 Ascenseur
+  P-1-4      L-1        room:-1.06 ↔ room:-1.08         EI2 30-C-Sm  Porte -1.06 Local électrique
+  P-1-5      L-1        room:-1.11 ↔ corridor:-1        EI2 30-C-Sm  Porte -1.11 Garage
+  P-1-6      L-1       corridor:-1 ↔ room:-1.06         EI2 30-C-Sm  Porte -1.06 Local électrique
+  E2         L-1           outside ↔ room:-1.03                      Porte de garage, rampe (sous-sol)
+  P0-8       L0          room:0.16 ↔ room:0.08                       Porte 0.16 Circulation
+  P0-9       L0          room:0.18 ↔ room:0.13                       Porte 0.18 Chambre
+  P0-10      L0          room:0.17 ↔ room:0.13                       Porte 0.17 Chambre
+  P0-11      L0          room:0.12 ↔ room:0.16                       Porte 0.12 WC
+  P0-12      L0          room:0.10 ↔ room:0.16                       Porte 0.10 Buanderie
+  P0-13      L0          room:0.11 ↔ room:0.13                       Porte 0.11 Salle de bain
+  P0-14      L0          room:0.15 ↔ room:0.16                       Porte 0.15 Chambre
+  P0-15      L0          room:0.16 ↔ room:0.19                       Porte 0.16 Circulation
+  P0-16      L0         corridor:0 ↔ room:0.03                       Porte 0.03 Ascenseur
+  P0-17      L0          room:0.13 ↔ corridor:0         EI2 30-C-Sm  Porte 0.13 Entrée
+  P0-18      L0         corridor:0 ↔ room:0.06          EI2 30-C-Sm  Porte 0.06 Entrée
+  P0-19      L0          room:0.13 ↔ room:0.19                       Porte 0.13 Entrée
+  P0-20      L0          room:0.19 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  P0-21      L0          room:0.15 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  P0-22      L0          room:0.19 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  P0-23      L0          room:0.15 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  P0-24      L0          room:0.19 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  P0-25      L0          room:0.09 ↔ room:0.14          EI 30        Porte-fenêtre 0.14 Terrasse
+  P0-26      L0          room:0.18 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  P0-27      L0          room:0.17 ↔ room:0.20          EI 30        Porte-fenêtre 0.20 Terrasse
+  E1         L0            outside ↔ corridor:0         EI2 30-C     Porte d'entrée, hall de l'escalier
+  P0-29      L0          room:0.02 ↔ room:0.01          EI 30        Porte-fenêtre 0.01 Terrasse
+  P0-30      L0          room:0.09 ↔ room:0.06                       Porte 0.09 Séjour-cuisine
+  P0-31      L0          room:0.06 ↔ room:0.04                       Porte 0.06 Entrée
+  P0-32      L0          room:0.06 ↔ room:0.02                       Porte 0.06 Entrée
+  P0-33      L0          room:0.07 ↔ room:0.06                       Porte 0.07 Buanderie
+  P0-34      L0            outside ↔ room:0.05                       Porte 0.05 Local poubelles
+  P1-35      L1          room:1.06 ↔ room:1.04                       Porte 1.06 Buanderie
+  P1-36      L1          room:1.04 ↔ room:1.03                       Porte 1.04 Entrée
+  P1-37      L1          room:1.04 ↔ room:1.01                       Porte 1.04 Entrée
+  P1-38      L1          room:1.08 ↔ room:1.04                       Porte 1.08 Séjour-cuisine
+  P1-39      L1          room:1.08 ↔ room:1.05          EI 30        Porte-fenêtre 1.05 Balcon
+  P1-40      L1          room:1.14 ↔ room:1.07                       Porte 1.14 Circulation
+  P1-41      L1          room:1.16 ↔ room:1.13                       Porte 1.16 Chambre
+  P1-42      L1          room:1.15 ↔ room:1.13                       Porte 1.15 Chambre
+  P1-43      L1          room:1.12 ↔ room:1.14                       Porte 1.12 WC
+  P1-44      L1          room:1.09 ↔ room:1.14                       Porte 1.09 Buanderie
+  P1-45      L1          room:1.10 ↔ room:1.13                       Porte 1.10 Salle de bain
+  P1-46      L1          room:1.11 ↔ room:1.14                       Porte 1.11 Chambre
+  P1-47      L1          room:1.14 ↔ room:1.17                       Porte 1.14 Circulation
+  P1-48      L1         corridor:1 ↔ room:1.04          EI2 30-C-Sm  Porte 1.04 Entrée
+  P1-49      L1          room:1.13 ↔ corridor:1         EI2 30-C-Sm  Porte 1.13 Entrée
+  P1-50      L1         corridor:1 ↔ room:1.02                       Porte 1.02 Ascenseur
+  P1-51      L1          room:1.13 ↔ room:1.17                       Porte 1.13 Entrée
+  P1-52      L1          room:1.16 ↔ room:1.18          EI 30        Porte-fenêtre 1.18 Balcon
+  P1-53      L1          room:1.17 ↔ room:1.18          EI 30        Porte-fenêtre 1.18 Balcon
+  P2-54      L2          room:2.08 ↔ room:2.05          EI 30        Porte-fenêtre 2.05 Balcon
+  P2-55      L2          room:2.06 ↔ room:2.04                       Porte 2.06 Buanderie
+  P2-56      L2          room:2.04 ↔ room:2.03                       Porte 2.04 Entrée
+  P2-57      L2          room:2.04 ↔ room:2.01                       Porte 2.04 Entrée
+  P2-58      L2          room:2.08 ↔ room:2.04                       Porte 2.08 Séjour-cuisine
+  P2-59      L2          room:2.12 ↔ corridor:2         EI2 30-C-Sm  Porte 2.12 Entrée
+  P2-60      L2          room:2.14 ↔ room:2.07                       Porte 2.14 Circulation
+  P2-61      L2          room:2.15 ↔ room:2.12                       Porte 2.15 Chambre
+  P2-62      L2          room:2.11 ↔ room:2.14                       Porte 2.11 WC
+  P2-63      L2          room:2.09 ↔ room:2.14                       Porte 2.09 Buanderie
+  P2-64      L2          room:2.10 ↔ room:2.12                       Porte 2.10 Salle de bain
+  P2-65      L2          room:2.13 ↔ room:2.14                       Porte 2.13 Chambre
+  P2-66      L2          room:2.14 ↔ room:2.16                       Porte 2.14 Circulation
+  P2-67      L2         corridor:2 ↔ room:2.04          EI2 30-C-Sm  Porte 2.04 Entrée
+  P2-68      L2          room:2.12 ↔ room:2.16                       Porte 2.12 Entrée
+  P2-69      L2          room:2.16 ↔ room:2.17          EI 30        Porte-fenêtre 2.17 Balcon
+  P2-70      L2         corridor:2 ↔ room:2.02                       Porte 2.02 Ascenseur
+  P3-71      L3          room:3.01 ↔ corridor:3                      Porte 3.01 Ascenseur
+  P3-72      L3         corridor:3 ↔ room:3.03          EI2 30-C-Sm  Porte 3.03 Circulation
+  Tür-018    L3          room:3.03 ↔ room:3.T                        Porte 3.03 Circulation
+  P3-74      L3          room:3.10 ↔ room:3.08          EI 30        Porte-fenêtre 3.08 Terrasse
+  P3-75      L3          room:3.12 ↔ room:3.07          EI 30        Porte-fenêtre 3.07 Terrasse
+  P3-76      L3          room:3.10 ↔ room:3.04          EI 30        Porte-fenêtre 3.04 Terrasse
+  Tür-020    L3          room:3.03 ↔ room:3.06                       Porte 3.03 Circulation
+  Tür-019    L3          room:3.03 ↔ room:3.05                       Porte 3.03 Circulation
+  P3-79      L3          room:3.03 ↔ room:3.12                       Porte 3.03 Circulation
+  P3-80      L3          room:3.03 ↔ room:3.02                       Porte 3.03 Circulation
+  Tür-021    L3          room:3.10 ↔ room:3.03                       Porte 3.10 Séjour-cuisine
+  opening    L-1        room:-1.11 ↔ room:-1.03
+  opening    L-1       corridor:-1 ↔ stair:A
+  opening    L-1        room:-1.13 ↔ room:-1.12
+  opening    L-1        room:-1.13 ↔ room:-1.14
+  opening    L-1        room:-1.12 ↔ room:-1.10
+  opening    L-1        room:-1.09 ↔ room:-1.07
+  opening    L-1        room:-1.15 ↔ room:-1.14
+  opening    L-1        room:-1.05 ↔ room:-1.07
+  opening    L0         corridor:0 ↔ stair:A
+  opening    L1         corridor:1 ↔ stair:A
+  opening    L2            stair:A ↔ corridor:2
+  opening    L3         corridor:3 ↔ stair:A
+  inside     L-1        room:-1.13 ↔ room:-1.11
+  inside     L-1        room:-1.12 ↔ room:-1.11
+  inside     L-1        room:-1.09 ↔ room:-1.11
+  inside     L-1        room:-1.10 ↔ room:-1.11
+  inside     L-1        room:-1.15 ↔ room:-1.11
+  inside     L-1        room:-1.05 ↔ room:-1.11
+  inside     L-1        room:-1.07 ↔ room:-1.11
+  inside     L-1        room:-1.14 ↔ room:-1.11
+
+MATERIALS (from the IFC only; absent = absent)
+  L-1  facade 'Béton armé (dalle du garage)'               REI 90       
+  L-1  facade 'Béton armé (mur)'                           REI 90       
+  L-1  facade 'Béton armé (mur du garage)'                 REI 90       
+  L-1  slab   'Béton armé (dalle)'                                      
+  L-1  wall   'Aluminium'                                               
+  L-1  wall   'Béton armé (mur)'                           REI 90       
+  L0  facade 'Aluminium'                                               
+  L0  facade 'Béton armé (mur)'                           REI 90       
+  L0  slab   'Béton armé (dalle)'                                      
+  L0  slab   'Béton armé (dalle du garage)'                            
+  L0  wall   'Béton armé (mur)'                                        
+  L0  wall   'Béton armé (mur)'                           REI 90       
+  L1  slab   'Béton armé (dalle)'                                      
+  L1  wall   'Béton armé (mur)'                           REI 90       
+  L2  roof   'Béton armé (toiture)'                       REI 90       
+  L2  roof   'Béton armé (dalle)'                         REI 90       
+  L2  slab   'Béton armé (dalle)'                                      
+  L2  wall   'Béton armé (mur)'                           REI 90       
+  L3  roof   'Béton armé (toiture)'                       REI 90       
+  L3  roof   'Béton armé (dalle)'                         REI 90       
+  L3  wall   'Béton armé (mur)'                           REI 90       
+
+GRAPH  102 nodes, 115 edges (lengths in m; stairs ×2.0 rise)
+
+IGNORED (not needed by a firefighter)
+  IfcFurnishingElement 21, IfcFurniture 21, IfcSanitaryTerminal 40, IfcFlowTerminal 40, IfcDistributionElement 44, IfcCovering 76, IfcRailing 25, IfcWindow 36, IfcColumn 8, IfcBeam 5, IfcPlate 2
+  escape / fire psets present: {'Pset_SpaceFireSafetyRequirements': 103}
+
+NOTES
+  space 'Aufzug' skipped: on a storey that is not a level
