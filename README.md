@@ -32,7 +32,7 @@ It didn't travel.
 
 | While the truck drives | With the people inside | During the attack | At the end |
 |---|---|---|---|
-| H agents read every screen that matters, live: dispatch, Maps / Street View / Earth, Géorisques, Météo-France, the posted plan, the occupant list | Gabriel calls every occupant and takes the 112 calls, one agent per call, in fr / en / es. Each call becomes a line on the radio and a dot on the building | Halo, a phone on the forearm, shows the one thing that matters now: the way in, who is where, the air left. Each view is built for that moment by Devin | The report fills itself in the legacy report software, after the commander confirms |
+| H agents read every screen that matters, live: dispatch, Maps / Street View / Earth, Géorisques, Météo-France, the posted plan, the occupant list | Gabriel calls every occupant and takes the 112 calls, one agent per call, in fr / en / es. Each call becomes a line on the radio and a dot on the building | Halo, a phone on the forearm, shows the one thing that matters now: the way in, who is where, where the fire and smoke are reported. Each view is built for that moment by Devin | The report fills itself in the legacy report software, after the commander confirms |
 
 The commander stays in charge. Seraph proposes on the radio (« Je lui dis de rester chez lui, porte fermée, et
 d'aller sur le balcon ? ») and acts only on « Seraph, confirme ».
@@ -163,6 +163,7 @@ Tests: `cd seraph && uv run pytest -q` · `cd registry && uv run pytest -q` · `
   not that building.
 - Learning a new source live (`/explore`: an H agent finds the answer on screen, then Devin compiles it into a new
   endpoint) is a stretch goal.
+- Air tracking for teams under breathing apparatus is cut from this version: teams are tracked by position only.
 
 ## How this repo was built
 
