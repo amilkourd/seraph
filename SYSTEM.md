@@ -76,7 +76,8 @@ on every screen.
 
 ## How Seraph works
 A loop: **input → event → state → rules → actions → stream.**
-- **Inputs:** the building model loaded at start (`ifc/out/building.json`), radio transcripts and call facts (from Gabriel), endpoint results (Rosetta), view news (Silex),
+- **Inputs:** the building model loaded at start (`ifc/out/building.json`, no incident in it: fire and smoke come only
+  from the alert record, calls and the radio), radio transcripts and call facts (from Gabriel), endpoint results (Rosetta), view news (Silex),
   dashboard clicks, Halo taps.
 - **Events:** an LLM with a strict JSON schema turns each radio line into one event (`question`, `hazard`,
   `team_update`, `view_request`, `order_to_occupants`, `confirm`, `cancel`, `report_request`, `sitrep_request`,

@@ -3,15 +3,16 @@
 These are what make the jury trust Seraph. Each one must be visible in the demo.
 
 1. **The commander decides, Gabriel relays.** Seraph never decides on its own whether people stay or leave, which
-   stair they take, or where a team goes. It proposes on the radio (« Je lui dis de prendre A ? ») and acts only
-   after « Seraph, confirme » or the dashboard's Confirmer. Standing instructions (e.g. « si fumée devant la porte,
-   rester dans la pièce porte fermée ») are proposed once at incident start and need the same confirmation.
+   stair they take, or where a team goes. It proposes on the radio (« Je lui dis de rester dans son logement, porte fermée ? ») and acts only
+   after « Seraph, confirme » or the dashboard's Confirmer. Standing instructions (e.g. « si fumée dans l'escalier ou
+   devant la porte, rester chez soi, porte fermée ») are proposed once at incident start and need the same confirmation.
    At Grenfell, lifting « stay put » too late cost lives: decisions must flow both ways, fast, and stay human.
 2. **Code computes positions and routes; models never guess the arrow.** Holo points at things on screenshots;
    code turns points into zones and computes routes on the building graph, avoiding hazards. Halo views only draw
    what the state contains.
 3. **Quote, never invent.** Safety facts are read from a source and Seraph names it on the radio when it matters
-   (« selon le plan », « selon l'appel »). Every element on Halo and the dashboard carries its source tag; inferred
+   (« selon le plan », « selon l'appel »). No fire or smoke is drawn or said before a source reports it (the alert
+   record, a call, the crew radio): nothing is pre-placed. Every element on Halo and the dashboard carries its source tag; inferred
    facts look different from confirmed ones.
    Emotion heard in a caller's voice (Gladia) is inferred: it raises a call's urgency, labelled « selon la voix »,
    and never becomes an instruction, a position or a reason to skip a gate. Learned sources say « source non vérifiée » until Amil approves them.

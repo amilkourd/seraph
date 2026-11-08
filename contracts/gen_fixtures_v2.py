@@ -141,11 +141,9 @@ for rid in ["-1.01", "-1.02", "-1.03", "-1.04", "-1.06", "-1.08", "-1.11", "corr
     plan_zones.append({"name": name, "polygon": ROOMS[rid]["zone"]})
 PLAN_SHOT = shot(PLAN_ID, "Plan affiché niveau R-1 (maquette IFC, rendu)", "plan", 1000, 1000)
 
-HAZARDS_INITIAL = [
-    {"id": "HZ-1", "kind": "fire", "where": {"level": -1, "room": "-1.11"}, "severity": "high"},
-    {"id": "HZ-2", "kind": "smoke", "where": {"stair": "A"}, "severity": "high"},
-]
-APPROACH_REASON = "E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu."
+# No hazard is pre-placed (Amil's rule): each one arrives through a source — dispatch.read (nature + caller notes,
+# « selon l'alerte »), a call (calls.jsonl, « selon l'appel ») or the crew radio (radio.jsonl, « selon Tête »).
+APPROACH_REASON = "E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu selon l'alerte."
 
 # ───────── building.json fixture ─────────
 fb = copy.deepcopy(ifc)
@@ -160,7 +158,6 @@ fb["footprint"] = FOOTPRINT
 fb["plan"] = {"image_id": PLAN_ID, "level": -1, "file": "levels/L-1.svg", "points": plan_points, "zones": plan_zones}
 out = {"name": fb.pop("name"), "address_placeholder": "DEMO_ADDRESS (.env: « 96 Boulevard Bessières, 75017 Paris », maquette TU Wien placée à cette adresse, exercice)"}
 out.update(fb)
-out["hazards_initial"] = HAZARDS_INITIAL
 out["approach_expected"] = {"best_entrance_id": "E1", "reason": APPROACH_REASON}
 dump(FX / "building.json", out)
 (FX / "levels").mkdir(exist_ok=True)
@@ -229,15 +226,15 @@ from seraph.models import Hazard, Source
 
 kit = B.load(FX / "building.json")
 AT = "2026-11-08T00:40:00Z"
-hazards = [
+hazards = [   # every one traced to a timeline entry below; the alert reported them first (dispatch.read, 00:26)
     {"id": "HZ-1", "kind": "fire", "where": {"level": -1, "room": "-1.11"}, "severity": "high",
-     "source": src("dispatch", "alerte"), "reported_at": "2026-11-08T00:25:00Z"},
+     "source": src("radio", "Tête", "2026-11-08T00:33:00Z"), "reported_at": "2026-11-08T00:26:10Z"},
     {"id": "HZ-2", "kind": "smoke", "where": {"stair": "A"}, "severity": "high",
-     "source": src("dispatch", "alerte"), "reported_at": "2026-11-08T00:25:00Z"},
+     "source": src("radio", "Tête", "2026-11-08T00:33:00Z"), "reported_at": "2026-11-08T00:26:10Z"},
     {"id": "HZ-3", "kind": "smoke", "where": {"entrance": "E2"}, "severity": "medium",
-     "source": src("radio", "Tête"), "reported_at": "2026-11-08T00:33:00Z"},
+     "source": src("call", "appel 112", "2026-11-08T00:34:10Z"), "reported_at": "2026-11-08T00:26:10Z"},
     {"id": "HZ-4", "kind": "smoke", "where": {"level": 3, "room": "corridor"}, "severity": "high",
-     "source": src("radio", "Binôme 1"), "reported_at": "2026-11-08T00:38:00Z"},
+     "source": src("radio", "Binôme 1", "2026-11-08T00:38:00Z"), "reported_at": "2026-11-08T00:38:00Z"},
 ]
 hz_models = [Hazard.model_validate(h) for h in hazards]
 
@@ -266,11 +263,11 @@ routes = [
 assert routes[0]["via"][:3] == ["outside", "entrance:E1", "corridor:0"], routes[0]["via"]
 
 sb = copy.deepcopy(out)
-for k in ("address_placeholder", "hazards_initial", "approach_expected"):
+for k in ("address_placeholder", "approach_expected"):
     sb.pop(k)
 sb.pop("plan")
 sb["stairs"][0]["status"] = "smoke"
-sb["stairs"][0]["source"] = src("dispatch", "alerte")
+sb["stairs"][0]["source"] = src("radio", "Tête", "2026-11-08T00:33:00Z")
 for e in sb["entrances"]:
     e["status"] = "usable" if e["id"] == "E1" else "unknown"
     e["source"] = src("earth", "Earth")
@@ -350,7 +347,7 @@ calls = [
 ]
 
 STANDING_FR = "Consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte fermée."
-TOM_GATE = "Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ?"
+TOM_GATE = "Tom Becker, 2e, descend par l'escalier A, enfumé selon Tête, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ?"
 LUCIA_GATE = "Je dis à Lucía García : « Sortez par la terrasse. »"
 gates = [
     {"gate_id": "gate_00", "kind": "relay_order", "summary_fr": STANDING_FR, "confirmer": "COS", "status": "confirmed",
@@ -403,9 +400,17 @@ state = {
     "timeline": [
         {"t": "2026-11-08T00:25:00Z", "kind": "seraph", "text_fr": "Incident INC-0001 déclenché (exercice)."},
         {"t": "2026-11-08T00:25:40Z", "kind": "gate", "text_fr": "Confirmé par le COS (voix) : " + STANDING_FR},
+        {"t": "2026-11-08T00:26:10Z", "kind": "rosetta", "text_fr": "Alerte lue : feu de véhicule en parking souterrain (R-1), fumée dans la cage d'escalier, fumée à la rampe du parking.",
+         "source": src("dispatch", "alerte", "2026-11-08T00:26:10Z")},
         {"t": "2026-11-08T00:27:10Z", "kind": "rosetta", "text_fr": "Plan R-1 lu : escalier A, garage, local électrique, rampe E2."},
-        {"t": "2026-11-08T00:28:30Z", "kind": "radio", "text_fr": "Seraph → Tête : entrée par E1, évitez E2 (garage en feu), seul escalier enfumé, hydrant à 30 m."},
+        {"t": "2026-11-08T00:28:30Z", "kind": "radio", "text_fr": "Seraph → Tête : entrée par E1, évitez E2 (garage en feu selon l'alerte), seul escalier, enfumé selon l'alerte, hydrant à 30 m."},
+        {"t": "2026-11-08T00:33:00Z", "kind": "radio", "text_fr": "Tête : feu de véhicule au parking, fumée dans la cage d'escalier.",
+         "source": src("radio", "Tête", "2026-11-08T00:33:00Z")},
         {"t": "2026-11-08T00:33:40Z", "kind": "call", "text_fr": "Appel Léa Martin : deux personnes chambre 3.12, fumée sous la porte."},
+        {"t": "2026-11-08T00:34:10Z", "kind": "call", "text_fr": "Appel 112, anglais : témoin dehors, fumée épaisse qui sort de la rampe du parking.",
+         "source": src("call", "appel 112", "2026-11-08T00:34:10Z")},
+        {"t": "2026-11-08T00:38:00Z", "kind": "radio", "text_fr": "Binôme 1 : au 3e, circulation enfumée, progression vers la 3.12.",
+         "source": src("radio", "Binôme 1", "2026-11-08T00:38:00Z")},
         {"t": "2026-11-08T00:39:30Z", "kind": "gate", "text_fr": "Proposition : " + TOM_GATE},
         {"t": "2026-11-08T00:39:40Z", "kind": "gate", "text_fr": "Confirmé par le COS (voix) : Tom Becker reste dans son logement, balcon 2.17, point échelle."},
         {"t": "2026-11-08T00:40:00Z", "kind": "gate", "text_fr": "Proposition : " + LUCIA_GATE},

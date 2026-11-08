@@ -3577,22 +3577,8 @@
     "image_id": "earth-top-01",
     "polygon": [[422, 468], [422, 360], [625, 360], [625, 498], [613, 498], [613, 611], [555, 611], [555, 587], [411, 586], [411, 468]]
   },
-  "hazards_initial": [
-    {
-      "id": "HZ-1",
-      "kind": "fire",
-      "where": {"level": -1, "room": "-1.11"},
-      "severity": "high"
-    },
-    {
-      "id": "HZ-2",
-      "kind": "smoke",
-      "where": {"stair": "A"},
-      "severity": "high"
-    }
-  ],
   "approach_expected": {
     "best_entrance_id": "E1",
-    "reason": "E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu."
+    "reason": "E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu selon l'alerte."
   }
 }

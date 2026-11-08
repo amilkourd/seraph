@@ -31,13 +31,25 @@ adresse d'exercice » on every screen (the real building at that address is not 
 - **Origin: a car on fire in the underground garage `-1.11`** (R-1). Smoke leaves by the ramp (`-1.03` → E2) and,
   through the garage fire door **P-1-5** (EI2 30-C-Sm, self-closing, found wedged open), fills `corridor:-1`,
   which opens on `stair:A` with no door. The single stair fills with smoke from the bottom up.
-- Starting hazards (`hazards_initial`, source « alerte »): `HZ-1` fire `{level:-1, room:"-1.11"}` high ·
-  `HZ-2` smoke `{stair:"A"}` high (112 callers: « fumée dans la cage d'escalier »).
+- **No hazard is pre-placed.** Fire and smoke appear on a screen only once a source reports them, and every line
+  that uses one says its source (« selon l'alerte », « selon l'appel », « selon Tête »). See the table below.
 - **Best entrance (code): E1.** E2's path to the stair crosses the garage on fire (impassable); E1 opens on the stair
-  hall at RDC. Expected reason: « E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu. »
+  hall at RDC. Expected reason: « E1 donne sur le hall de l'escalier A ; E2, la rampe, passe par le garage en feu
+  selon l'alerte. »
   The stair is the same for both (one stair, in smoke): the fire decides, not the stair.
 - Rescue before attack: B1 goes **up** stair A from E1 under ARI (sauvetages). The attack on the car (B2) can use
   the ramp later; that is not in the demo.
+
+## How each hazard arrives (and is said)
+| Hazard | First source | Then | Said as |
+|---|---|---|---|
+| Fire, garage `{level:-1, room:"-1.11"}` | `dispatch.read`: nature « Feu de véhicule en parking souterrain », level -1 | R02 Tête « feu de véhicule au parking » (crew) | « selon l'alerte », then « selon Tête » |
+| Smoke, `stair:A` | `dispatch.read` caller note « Fumée dans la cage d'escalier » | CALL-02 Tom « There's some smoke » · R02 Tête « fumée dans la cage d'escalier » | « selon l'alerte », then « selon Tête » |
+| Smoke, `entrance:E2` (ramp) | `dispatch.read` caller note « Fumée qui sort de la rampe du parking » | CALL-03 112 witness | « selon l'alerte », « selon l'appel » |
+| Smoke, R+3 landing `corridor` (level 3) | R04 Binôme 1 « circulation enfumée » | — | « selon binôme 1 » |
+| Stair A cleared | R13 Tête « escalier A désenfumé » | — | « selon Tête » |
+Code maps the words to ids: « parking / garage » on level -1 → `-1.11` (IFC label Garage); « cage d'escalier » →
+`stair:A` (the only stair); « rampe » → `entrance:E2`. A hazard keeps its latest source; the stair status follows it.
 
 ## The Grenfell link (say it, show it)
 Grenfell Tower had **one staircase**. Residents were told to stay put; the advice was only lifted at 02:47, nearly
@@ -69,8 +81,8 @@ the room id comes from the occupant record.
    facts `heading_to: "stair:A"`, `current_action: "moving"`.
 2. Catch (code): an occupant heads into a node with a hazard and **there is no other stair**. Seraph proposes, on
    the radio and on the dashboard (gate `reroute_occupant`):
-   « COS de Seraph : Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester chez
-   lui, porte fermée, et d'aller sur le balcon ? »
+   « COS de Seraph : Tom Becker, 2e, descend par l'escalier A, enfumé selon l'alerte, seul escalier. Je lui dis de
+   rester dans son logement, porte fermée, et d'aller sur le balcon ? » (« selon Tête » once R02 is said)
 3. COS: « Seraph, confirme. » → Gabriel tells Tom, in English (below). Seraph sets Tom `sheltering`,
    `heading_to: "ladder:2.17"`, adds route `evacuation` `room:2.16 → room:2.17 → ladder:2.17`, raises an alert
    « Échelle : balcon 2.17, 2e, Tom Becker », and tells the crew « Reçu. Tom Becker reste dans son logement, balcon 2.17 :

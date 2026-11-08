@@ -107,7 +107,7 @@ sequenceDiagram
   S->>R: dispatch.write_112 (log the call on the incident)
   S->>Crew: say « Appel : deux personnes chambre 3.12, fumée sous la porte. »
   S->>S: catch: caller 2nd floor going down stair A, stair A = smoke, only stair
-  S->>Crew: say « COS de Seraph : Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? »
+  S->>Crew: say « COS de Seraph : Tom Becker, 2e, descend par l'escalier A, enfumé selon l'alerte, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? »
   Crew->>S: « Seraph, confirme. » (gate released)
   S->>G: say to that call, in English: « … go back into your flat now and close the door … go out on your balcony … »
 ```
