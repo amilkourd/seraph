@@ -9,7 +9,6 @@ function levelLabel(s: State, n?: number) {
   const l = (s?.building?.levels ?? []).find((x: any) => x.level === n);
   return l ? l.label : n == null ? '' : `N${n}`;
 }
-const hhmm = (iso: string) => { const d = new Date(iso); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 
 // a hazard line, built from the state like the kit's Halo.hazardLine: « signalé » until the crew confirms it
 const WORD: Record<string, [string, string]> = { fire: ['Feu', 'signalé'], smoke: ['Fumée', 'signalée'], gas: ['Gaz', 'signalé'], electric: ['Élec.', 'signalé'] };
@@ -67,11 +66,8 @@ export function factsFor(moment: string, s: State | null): Line[] {
     case 'team_engaged': {
       const t = (s.crew?.teams ?? []).find((x: any) => x.status === 'engaged' || x.status === 'exiting');
       if (!t) return [{ text: 'Aucun binôme engagé', tone: 'dim' }];
-      return [
-        { text: t.location?.level != null ? `${t.id} · ${levelLabel(s, t.location.level)}` : t.id, big: true },
-        t.exit_by && { text: `Sortie ${hhmm(t.exit_by)}` },
-        t.pressure_bar_start && { text: `${t.pressure_bar_start} bar au départ`, tone: 'dim' },
-      ].filter(Boolean) as Line[];
+      // air tracking is cut from the demo: a team is a position only
+      return [{ text: t.location?.level != null ? `${t.id} · ${levelLabel(s, t.location.level)}` : t.id, big: true }];
     }
     case 'dispatch':
       return [

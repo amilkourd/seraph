@@ -32,7 +32,7 @@
  * screen (phone / simulator); tap the top-left / top-right corner to go to the previous / next view.
  * ?live=http://localhost:8000 follows Seraph's stream instead of the fixture (and Seraph's moment, in single mode).
  * Dev only: times are made live and the plan image points at the fixture. */
-const VIEWS = ['approach', 'inside_route', 'occupants', 'team_engaged'];
+const VIEWS = ['approach', 'inside_route', 'occupants'];   // team_engaged parked: air tracking cut from the demo
 const KIT = new URL('..', location.href).href.replace(/\/$/, '');
 const FIXTURE = new URL('../../../contracts/fixtures/state-sample.json', location.href).href;
 const PLAN = new URL('../../../contracts/fixtures/plan-level3.svg', location.href).href;
@@ -77,8 +77,6 @@ const ACTIONS = {
     else hz.push({ id: 'HZ-T', kind: 'smoke', where: { stair: 'A' }, severity: 'high', reported_at: iso(Date.now()),
       source: { kind: 'call', label: 'appel', confirmed: false, at: iso(Date.now()) } });
   },
-  'Air → T-5 dans 5 s': () => state.crew.teams.forEach(t => { if (t.exit_by) t.exit_by = iso(Date.now() + 5 * 60e3 + 5e3); }),
-  'Air → T-0 dans 5 s': () => state.crew.teams.forEach(t => { if (t.exit_by) t.exit_by = iso(Date.now() + 5e3); }),
   '3.10 répond : 1 pers.': () => {
     const o = state.occupants.find(o => o.id === 'OCC-02');
     Object.assign(o, { status: 'sheltering', people_count: 1, source: { kind: 'call', label: 'appel Karim Benali', confirmed: true, at: iso(Date.now()) } });

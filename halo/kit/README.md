@@ -5,8 +5,9 @@ A view loads `{{HALO_KIT_URL}}/halo-kit.js` and `{{HALO_KIT_URL}}/halo.css` and 
 
 **Read `RULES.md` first.** Every view must pass `node halo/kit/check-view.mjs <view.html>`.
 
-Start from an example, never from scratch: `examples/approach.html`, `inside_route.html`, `occupants.html`,
-`team_engaged.html`. Preview: `examples/index.html` (all four, with live state buttons) or `?v=<view>` full screen.
+Start from an example, never from scratch: `examples/approach.html`, `inside_route.html`, `occupants.html`.
+Preview: `examples/index.html` (all three, with live state buttons) or `?v=<view>` full screen.
+`examples/parked/team_engaged.html` and `countdown`/`teamCard` are parked: air tracking is cut from the demo.
 
 ## The look
 

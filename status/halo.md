@@ -1,5 +1,5 @@
 # halo — status
-Updated: 05:50
+Updated: 06:00
 
 ## Running
 - Kit preview (dev only): `python3 -m http.server 3091 --bind 127.0.0.1 --directory <repo>` →
@@ -70,6 +70,10 @@ Updated: 05:50
   Stair smoke only from a hazard, not from `stairs[].status`. RULES.md 16; check-view rejects a fire/smoke drawn
   without its hazard and any typed « Feu », « Fumée » or level name. Tags also avoid marker discs; cap 16.
   Native vue de secours builds hazard lines the same way.
+
+- 06:00 air tracking cut (scenario v2, 806c92a): `team_engaged` example parked in `halo/kit/examples/parked/`,
+  removed from the preview harness and the app's stand-ins; the vue de secours shows a team as a position only.
+  `Halo.countdown` / `teamCard` stay in the kit, unused.
 
 ## In progress
 - **Phone A**: not run yet on the real phone (needs Amil): Expo Go from the App Store, same Wi-Fi as the laptop,
