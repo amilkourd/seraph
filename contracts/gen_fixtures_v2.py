@@ -237,7 +237,9 @@ hazards = [   # every one traced to a timeline entry below; the alert reported t
      "source": src("radio", "Tête", "2026-11-08T00:33:00Z"), "reported_at": "2026-11-08T00:26:10Z"},
     {"id": "HZ-3", "kind": "smoke", "where": {"entrance": "E2"}, "severity": "medium",
      "source": src("call", "appel 112", "2026-11-08T00:34:10Z"), "reported_at": "2026-11-08T00:26:10Z"},
-    {"id": "HZ-4", "kind": "smoke", "where": {"level": 3, "room": "corridor"}, "severity": "high",
+    {"id": "HZ-4", "kind": "smoke", "where": {"level": 3}, "severity": "medium",
+     "source": src("call", "appel Léa Martin", "2026-11-08T00:33:40Z"), "reported_at": "2026-11-08T00:33:40Z"},
+    {"id": "HZ-5", "kind": "smoke", "where": {"level": 3, "room": "corridor"}, "severity": "high",
      "source": src("radio", "Binôme 1", "2026-11-08T00:38:00Z"), "reported_at": "2026-11-08T00:38:00Z"},
 ]
 hz_models = [Hazard.model_validate(h) for h in hazards]
@@ -410,7 +412,8 @@ state = {
         {"t": "2026-11-08T00:28:30Z", "kind": "radio", "text_fr": "Seraph → Tête : entrée par E1, évitez E2 (garage en feu selon l'alerte), seul escalier, enfumé selon l'alerte, hydrant à 30 m."},
         {"t": "2026-11-08T00:33:00Z", "kind": "radio", "text_fr": "Tête : feu de véhicule au parking, fumée dans la cage d'escalier.",
          "source": src("radio", "Tête", "2026-11-08T00:33:00Z")},
-        {"t": "2026-11-08T00:33:40Z", "kind": "call", "text_fr": "Appel Léa Martin : deux personnes chambre 3.12, fumée sous la porte."},
+        {"t": "2026-11-08T00:33:40Z", "kind": "call", "text_fr": "Appel Léa Martin : deux personnes chambre 3.12, fumée sous la porte.",
+         "source": src("call", "appel Léa Martin", "2026-11-08T00:33:40Z")},
         {"t": "2026-11-08T00:34:10Z", "kind": "call", "text_fr": "Appel 112, anglais : témoin dehors, fumée épaisse qui sort de la rampe du parking.",
          "source": src("call", "appel 112", "2026-11-08T00:34:10Z")},
         {"t": "2026-11-08T00:38:00Z", "kind": "radio", "text_fr": "Binôme 1 : au 3e, circulation enfumée, progression vers la 3.12.",

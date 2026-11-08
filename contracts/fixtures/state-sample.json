@@ -3579,6 +3579,14 @@
       {
         "id": "HZ-4",
         "kind": "smoke",
+        "where": {"level": 3},
+        "severity": "medium",
+        "source": {"kind": "call", "label": "appel Léa Martin", "confirmed": false, "at": "2026-11-08T00:33:40Z"},
+        "reported_at": "2026-11-08T00:33:40Z"
+      },
+      {
+        "id": "HZ-5",
+        "kind": "smoke",
         "where": {"level": 3, "room": "corridor"},
         "severity": "high",
         "source": {"kind": "radio", "label": "Binôme 1", "confirmed": true, "at": "2026-11-08T00:38:00Z"},
@@ -3960,7 +3968,8 @@
         "level:-1"
       ],
       "avoids": [
-        "HZ-3"
+        "HZ-3",
+        "HZ-4"
       ],
       "computed_at": "2026-11-08T00:40:00Z",
       "source": {"kind": "seraph", "label": "calcul", "confirmed": true, "at": "2026-11-08T00:40:00Z"},
@@ -4166,7 +4175,8 @@
     {
       "t": "2026-11-08T00:33:40Z",
       "kind": "call",
-      "text_fr": "Appel Léa Martin : deux personnes chambre 3.12, fumée sous la porte."
+      "text_fr": "Appel Léa Martin : deux personnes chambre 3.12, fumée sous la porte.",
+      "source": {"kind": "call", "label": "appel Léa Martin", "confirmed": false, "at": "2026-11-08T00:33:40Z"}
     },
     {
       "t": "2026-11-08T00:34:10Z",

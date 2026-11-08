@@ -46,6 +46,7 @@ adresse d'exercice » on every screen (the real building at that address is not 
 | Fire, garage `{level:-1, room:"-1.11"}` | `dispatch.read`: nature « Feu de véhicule en parking souterrain », level -1 | R02 Tête « feu de véhicule au parking » (crew) | « selon l'alerte », then « selon Tête » |
 | Smoke, `stair:A` | `dispatch.read` caller note « Fumée dans la cage d'escalier » | CALL-02 Tom « There's some smoke » · R02 Tête « fumée dans la cage d'escalier » | « selon l'alerte », then « selon Tête » |
 | Smoke, `entrance:E2` (ramp) | `dispatch.read` caller note « Fumée qui sort de la rampe du parking » | CALL-03 112 witness | « selon l'alerte », « selon l'appel » |
+| Smoke, R+3 `{level:3}` | CALL-01 Léa « fumée sous la porte » | — (stays « signalé ») | « selon l'appel » |
 | Smoke, R+3 landing `corridor` (level 3) | R04 Binôme 1 « circulation enfumée » | — | « selon binôme 1 » |
 | Stair A cleared | R13 Tête « escalier A désenfumé » | — | « selon Tête » |
 Code maps the words to ids: « parking / garage » on level -1 → `-1.11` (IFC label Garage); « cage d'escalier » →
