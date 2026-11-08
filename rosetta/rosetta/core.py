@@ -235,7 +235,8 @@ class Endpoint:
     fn: Callable[[Run], Awaitable[dict]]
     cache_key: Optional[Callable[[dict], str]] = None
     cache_scope: Optional[Callable[[dict], bool]] = None   # False → no golden path for these params (judge's address)
-    site: str = ""                 # profile name (cookies persisted per site)
+    cache_rank: Optional[Callable[[dict], int]] = None     # a live output ranked lower never replaces the golden path
+    site: str = ""               # profile name (cookies persisted per site)
     verified: bool = True
     needs_browser: bool = True
     stats: dict = field(default_factory=lambda: {"live": [], "cache": [], "failed": 0, "runs": 0})
@@ -401,6 +402,10 @@ class Runner:
                 # urls point at this run's own files (never overwritten: a judge's address can't replace the demo's
                 # pictures). The stable /shots/<image_id>.jpg = the demo golden path, updated only in cache scope.
                 demo = ep is not None and in_scope(ep, run.params)
+                if demo and ep.cache and ep.cache_key and ep.cache_rank:
+                    old = cache.get(ep.name, ep.cache_key(run.params))
+                    if old and ep.cache_rank(output) < ep.cache_rank(old["result"].get("output") or {}):
+                        demo = False       # this run stays live; the golden path keeps the better result and pictures
                 for s in run.screenshots:
                     if demo:
                         shutil.copy(SHOTS / f"{s['_file']}.jpg", SHOTS / f"{s['image_id']}.jpg")

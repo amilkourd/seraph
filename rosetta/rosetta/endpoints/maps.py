@@ -131,7 +131,8 @@ class Storeys(BaseModel):
           source_kind="maps", source_label="Maps",
           params={"address": "string", "expected_entrances": "{id, label, side?}[]?"},
           cache_key=lambda p: str(p.get("address") or ""),
-          cache_scope=lambda p: is_demo_address(p.get("address")))
+          cache_scope=lambda p: is_demo_address(p.get("address")),
+          cache_rank=lambda out: 1 if out.get("footprint") else 0)
 async def maps_building(run: Run) -> dict:
     page = run.page
     address = str(run.params.get("address") or "").strip()

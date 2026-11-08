@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 07:25
+Updated: 10:35
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -50,6 +50,7 @@ weather.wind run live only: no golden path written or served (`cache_scope`: dem
 1 place Bellecour, 69002 Lyon: weather 16.9 s (SSE 5 km/h) · Géorisques 23.8 s (9 risks incl. rupture de barrage) ·
 Maps 38.5 s (E1 + truck on the top view, 3 Street View, 5 storeys; roof outline rejected by the checks). An address
 not in the BAN fails visibly in 1.9 s. A failed live run at a judge's address = `failed`, never another address's cache.
+Maps golden path keeps the roof outline: a live demo-address run without `footprint` never replaces a cached result that has one (`cache_rank`; the run itself is still served live). Restored 10:35 from the 06:05 UTC run (14-vertex outline, E1/E2/truck on `earth-top-01`) after a 09:43 run without outline had overwritten it.
 Result URLs are now per run (`/shots/<run_id>--<image_id>.jpg`, never overwritten); `/shots/<image_id>.jpg` stays the
 demo golden path (updated only by demo-address runs). Cache serve copies its own `cache--…` files.
 
