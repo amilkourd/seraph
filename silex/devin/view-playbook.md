@@ -46,3 +46,16 @@ every hazard removed and rejects it if it still shows fire or smoke.
   in one glance, from the truck or the street to the door.
 - No tag ever covers the arrow, its shaft or its head: put the entrance tag on the side away from the route
   (`at` = the side opposite the arrow), and keep tags off the target outline when you can.
+
+## Occupants (« Qui est où », and every view that shows people)
+Start from `silex/devin/examples/occupants.html`: it already does all of this.
+- Same words as the dashboard, from `occupants[].status`: `unknown` = « à joindre » (listed, never called),
+  `calling` = « appel en cours », `no_answer` = « sans nouvelles » (a call rang with no answer: the only alert, amber).
+  Never call `unknown` « sans nouvelles ».
+- Inbound 112 callers are occupants too: ids `APP-*`, no phone, `source.kind: "call"`. Draw them like the others.
+- Any field can be null: never print it. `room: null` → the tag « à confirmer » on the drawing, the floor
+  (`Halo.levelLabel(state, level)`) in the card. A null or zero count is no line at all. The rendered text never
+  contains « null », « undefined » or « NaN »: Silex rejects the view.
+- One row per floor, inside `Halo.AREA`: urgent people first, then the floor's hazard pictogram with its source tag,
+  then the others. Measure each item (marker + tag) and stop with « +N » before the band's edge: a tag never covers
+  a marker. No room left for the hazard pictogram: the band itself carries it (`Halo.fire/smoke(svg, band, {hazard})`).

@@ -35,6 +35,12 @@ FRAMES_NOTE = """- frames: every point names its image (`image_id`). Draw one vi
   exists: footprint white, street, truck, arrow truck → chosen door. Points on Street View photos (`sv-*`,
   `evidence`) are not drawing coordinates."""
 
+def example_path(moment: str) -> str:
+    """The file a CLI build starts from: Silex's own corrected copy when it has one, else the kit's example."""
+    ex = EXAMPLE_FOR.get(moment, "approach")
+    return f"silex/devin/examples/{ex}.html" if (PLAYBOOKS / "examples" / f"{ex}.html").exists() else f"halo/kit/examples/{ex}.html"
+
+
 KIT_FILES = [("halo-kit.js", "text/javascript"), ("halo.css", "text/css"), ("check-view.mjs", "text/javascript"),
              ("examples/approach.html", "text/html"), ("examples/occupants.html", "text/html"),
              ("examples/inside_route.html", "text/html")]
@@ -175,7 +181,6 @@ arrive as « VIEW REQUEST » prompts in this same session.
 
 
 def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path: str, refs: list[dict], cold: bool) -> str:
-    example = EXAMPLE_FOR.get(vr.get("moment", ""), "approach")
     shots = [r for r in refs if r.get("path") and r.get("side") != "plan"]
     plans = [r for r in refs if r.get("path") and r.get("side") == "plan"]
     missing = [r for r in refs if not r.get("path")]
@@ -192,7 +197,7 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
     return f"""{head}VIEW REQUEST {vr['request_id']}
 
 - view_id: `{view_id}` (put it in `<html data-view-id="{view_id}">`)
-- moment: `{vr.get('moment')}` — start from a copy of `halo/kit/examples/{example}.html`
+- moment: `{vr.get('moment')}` — start from a copy of `{example_path(vr.get('moment', ''))}`
 - purpose (French, from Seraph): « {vr.get('purpose_fr', '')} »
 - data_keys (the state paths the view reads): {', '.join(f'`{k}`' for k in vr.get('data_keys') or []) or 'see purpose'}
 - interactions:
@@ -207,7 +212,8 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
   or smoke left = rejected) and with a reported fire (the drawing or the card must change). Kit rule 16: hazards
   only with `Halo.fire/smoke(svg, zone, {{hazard}})`, card lines with `Halo.hazardLine(state, h)`, never type
   « Feu », « Fumée » or a level name.
-- the kit changes during the night: re-read `halo/kit/RULES.md` and `halo/kit/README.md` now, before writing.
+- the kit and the playbook change during the night: re-read `halo/kit/RULES.md`, `halo/kit/README.md` and
+  `silex/devin/view-playbook.md` now, before writing.
 
 ## Build it FROM these images (open and look at every one of them with your read tool)
 Screenshots Rosetta's H agent took of the real address during the drive (Street View, Google Earth):

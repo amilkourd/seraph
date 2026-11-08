@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr" data-view-id="occupants">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>occupants</title>
+<link rel="stylesheet" href="{{HALO_KIT_URL}}/halo.css">
+<script src="{{HALO_KIT_URL}}/halo-kit.js"></script>
+</head>
+<body>
+<script>
+/* Moment « occupants » — « Qui est où ». Side section: one band per level, the stair shaft at the side, levels with
+ * nothing going on greyed (Halo.focusLevels). On each floor the people stand in a row, most urgent first, each with
+ * its room under it (« à confirmer » until a caller says it): red ring = needs help or a call whose urgency says so,
+ * grey ? = à joindre / appel en cours, amber ? = sans nouvelles (rang, no answer), green = on the line,
+ * sheltering or moving. Fire and smoke are one pictogram at the end of their floor, with who reported it; the stair
+ * carries its own hazard. Tap a band: Seraph tells who is there. Nothing about a hazard is typed: the card's lines
+ * come from Halo.hazardLine, so an empty building.hazards leaves the screen with people only. */
+const f = Halo.frame(document.body, { title: 'Qui est où' });
+let STATE = null;
+const CALL = o => ((STATE && STATE.calls) || []).find(c => c.call_id === o.call_id);
+const LOUD = o => { const c = CALL(o); return !!c && !!c.urgency && c.urgency.level >= 3; };
+const URGENT = o => o.status === 'needs_help' || o.status === 'trapped' || LOUD(o);
+const UNKNOWN = o => o.status === 'no_answer' || o.status === 'unknown' || o.status === 'calling';
+const RANK = o => URGENT(o) ? 0 : UNKNOWN(o) ? 2 : 1;
+const ROOM = o => o.room || 'à confirmer';                                  // a 112 caller's room, until said
+const WHERE = o => o.room || Halo.levelLabel(STATE, o.level) || 'étage ?';      // card line: the room, else the floor
+const BAD = st => st && (Halo.hazardsAt(STATE, { stair: st.id }).length > 0 || st.status === 'smoke' || st.status === 'blocked');
+
+function draw(s) {
+  f.clear();
+  STATE = s;
+  const b = s.building, occ = (s.occupants || []).filter(o => o.status !== 'safe_outside');
+  const teams = ((s.crew || {}).teams || []).filter(t => t.status === 'engaged' && t.location);
+  const levels = b.levels.map(l => l.level);
+  const stack = Halo.floorStack(f.svg, {
+    focus: Halo.focusLevels(s),                                         // floors with nothing special are grey
+    box: { x: Halo.AREA.x + 92, y: 16, w: Halo.AREA.w - 92, h: 340 },   // level tags clear of the Dynamic Island
+    levels: b.levels,
+    stairs: b.stairs.map((st, i) => ({ id: st.id, side: i ? 'right' : 'left', status: st.status, source: st.source,
+      hazard: Halo.hazardsAt(s, { stair: st.id })[0] }))
+  });
+
+  // tap a floor: the whole band answers. Same shape, same state as the stack drew it
+  levels.forEach(l => {
+    const band = stack.band(l); if (!band) return;
+    Halo.block(f.svg, { x: band.x, y: band.y, w: band.w, h: band.h }, { state: band.off ? 'dim' : 'normal', tap: { kind: 'level', id: l } });
+  });
+
+  levels.forEach(l => {
+    const band = stack.band(l); if (!band) return;
+    const here = occ.filter(o => o.level === l).sort((x, y) => RANK(x) - RANK(y));
+    const tag = o => ROOM(o) + (o.people_count > 1 ? ' ×' + o.people_count : '');
+    const tagW = t => t.length * 14 + 18;               // a 22 px tag, measured on the phone
+    const right = band.x + band.w - 8, GAP = 14, PLUS = 44;   // nothing past the band (Halo.AREA); room for « +N »
+    const ladderOf = o => /^ladder:/.test(o.heading_to || '') && o.heading_to.split(':')[1];
+    // what the state reports on this floor: one pictogram (fire before smoke), dotted while only reported, with its source
+    const hz = (b.hazards || []).filter(h => (h.where || {}).level === l);
+    const h = hz.find(z => z.kind === 'fire') || hz.find(z => z.kind === 'smoke');
+    const person = o => ({ who: true, r: 16, w: 16 + 7 + tagW(tag(o)) + (ladderOf(o) ? 8 + 38 + 15 : 0), draw: c => {
+      const p = { x: c, y: band.cy };
+      const into = o.heading_to && Halo.byId(b.stairs, o.heading_to.split(':')[1]);
+      if (BAD(into)) {
+        const shaft = stack.shaft(into.id), tx = shaft.x > p.x ? shaft.x - 4 : shaft.x + shaft.w + 4;
+        Halo.arrow(f.svg, [{ x: p.x + (tx > p.x ? 18 : -18), y: p.y }, { x: tx, y: p.y }], { tone: 'warn', width: 5, speed: 40 });
+      }
+      Halo.marker(f.svg, UNKNOWN(o) ? 'unknown' : o.mobility_issue ? 'wheelchair' : 'person', p, tag(o), {
+        tone: o.status === 'no_answer' ? 'warn' : UNKNOWN(o) ? 'dim' : BAD(into) ? 'warn' : 'life', ring: URGENT(o) ? 'fire' : null, ping: URGENT(o),
+        r: 16, at: 'e', tap: { kind: 'occupant', id: o.id } });
+      // heading to a façade ladder point: a short arrow to the ladder
+      if (ladderOf(o)) {
+        const a = p.x + 16 + 7 + tagW(tag(o)) + 8, lx = a + 38;
+        Halo.arrow(f.svg, [{ x: a, y: p.y }, { x: lx - 17, y: p.y }], { width: 5, speed: 40 });
+        Halo.marker(f.svg, 'ladder', { x: lx, y: p.y }, null, { r: 15 });
+      }
+    } });
+    let shown = !h;
+    const items = [
+      ...here.filter(URGENT).map(person),                // who needs a decision first
+      ...(h ? [{ r: 15, w: 15 + 7 + tagW('~' + Halo.hazardSource(h)), draw: c => {
+        shown = true;
+        Halo.marker(f.svg, h.kind, { x: c, y: band.cy }, Halo.hazardSource(h), { r: 15, blink: h.kind === 'fire' ? 'fast' : false, source: h.source, at: 'e' });
+      } }] : []),
+      ...here.filter(o => !URGENT(o)).map(person),
+      ...teams.filter(t => t.location.level === l && !(t.location.stair && !t.location.room)).map(t => ({ r: 15, w: 15 + 7 + tagW(t.id),
+        draw: c => Halo.marker(f.svg, 'team', { x: c, y: band.cy }, t.id, { r: 15, at: 'e', tap: { kind: 'team', id: t.id } }) }))
+    ];
+    // everything in one row if it fits; otherwise in that order until « +N » (the people left out)
+    let c = band.x + 30, hidden = 0, stop = false;
+    const all = items.reduce((k, it, i) => k + (i ? it.r : 0) + it.w + (i < items.length - 1 ? GAP : 0), c) <= right;
+    items.forEach((it, i) => {
+      if (i) c += it.r;
+      if (stop || (!all && c + it.w > right - PLUS)) { stop = true; if (it.who) hidden++; return; }
+      it.draw(c); c += it.w + GAP;
+    });
+    // no room for the floor's pictogram: the band itself carries the hazard, softened while only reported
+    if (!shown) Halo[h.kind](f.svg, { x: band.x, y: band.y, w: band.w, h: band.h }, { hazard: h, tag: false });
+    if (hidden) Halo.label(f.svg, { x: right, y: band.cy }, '+' + hidden, { align: 'end', tone: 'dim' });
+  });
+  // teams on a stair: on the shaft at their level
+  teams.filter(t => t.location.stair && !t.location.room).forEach(t => {
+    const band = stack.band(t.location.level), shaft = stack.shaft(t.location.stair); if (!band || !shaft) return;
+    Halo.marker(f.svg, 'team', { x: shaft.x + shaft.w / 2, y: band.cy }, t.id, { r: 15, at: 'e', tap: { kind: 'team', id: t.id } });
+  });
+
+  // the card: how many inside, who needs a decision, what the state reports on the way out, who gives no news
+  const n = occ.reduce((k, o) => k + (o.people_count || 1), 0);
+  const stairHaz = b.stairs.map(st => Halo.hazardsAt(s, { stair: st.id })[0]).filter(Boolean);
+  const nowhere = occ.filter(o => levels.indexOf(o.level) < 0).length;
+  const count = st => occ.filter(o => o.status === st && levels.indexOf(o.level) >= 0).length;
+  const noNews = count('no_answer'), ringing = count('calling'), toReach = count('unknown');
+  f.panel([
+    { tone: 'life', text: n + ' dedans' },
+    ...occ.filter(URGENT).map(o => ({ tone: 'fire', text: WHERE(o) + (o.mobility_issue ? ' PMR' : ' à sortir') })),
+    ...occ.filter(o => BAD(o.heading_to && Halo.byId(b.stairs, o.heading_to.split(':')[1]))).map(o => ({ tone: 'warn', text: WHERE(o) + ' → esc. ' + o.heading_to.split(':')[1] })),
+    ...occ.filter(o => /^ladder:/.test(o.heading_to || '')).map(o => ({ text: WHERE(o) + ' → échelle' })),
+    ...stairHaz.slice(0, 1).map(h => Halo.hazardLine(s, h)),
+    noNews ? { tone: 'warn', text: noNews + ' sans nouvelles' } : null,
+    ringing ? { tone: 'dim', text: ringing + (ringing > 1 ? ' appels en cours' : ' appel en cours') } : null,
+    toReach ? { tone: 'dim', text: toReach + ' à joindre' } : null,
+    nowhere ? { tone: 'dim', text: nowhere + ' sans étage' } : null
+  ].filter(Boolean).slice(0, 4));
+}
+
+Halo.onState(draw);
+Halo.ready();
+</script>
+</body>
+</html>

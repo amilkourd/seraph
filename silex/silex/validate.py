@@ -45,6 +45,7 @@ def static_checks(html: str) -> list[str]:
 
 
 HAZARD_WORDS = re.compile(r"\b(feu|fumée|fumee|incendie|fire|smoke)\b", re.I)
+RAW_VALUES = re.compile(r"\b(null|undefined|NaN)\b", re.I)   # a missing field printed as text
 
 
 def no_hazard(state: dict) -> dict:
@@ -133,10 +134,15 @@ class Renderer:
                 shell = await page.evaluate("window.__shell")
                 drawn = await page.evaluate("document.querySelectorAll('svg *').length") - ground
                 await page.screenshot(path=str(shot))
+                text_live = await page.evaluate("document.body.innerText")
                 # live-bound: A = nothing reported, B = a fire reported by the crew. A must show no fire or smoke
                 # (Amil: they appear only once reported), and a view about the building must change from A to B
                 text_a, count_a = await self._show(page, no_hazard(state))
                 text_b, count_b = await self._show(page, with_fire(state))
+                raw = RAW_VALUES.findall(" ".join((text_live or "", text_a or "", text_b or "")))
+                if raw:
+                    errors.append(f"the view prints « {raw[0]} »: a field missing from the state is never shown as text "
+                                  "(room null → « à confirmer », a null count → no line)")
                 left = HAZARD_WORDS.findall(text_a or "")
                 if left:
                     errors.append(f"with no hazard in the state the view still shows « {left[0]} »: fire and smoke must come "

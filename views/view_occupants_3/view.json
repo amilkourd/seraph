@@ -1,0 +1,58 @@
+{
+  "view_id": "view_occupants_3",
+  "moment": "occupants",
+  "title_fr": "Qui est où",
+  "purpose_fr": "Qui est où : étages, personnes, aide nécessaire, sans nouvelles",
+  "data_keys": [
+    "occupants",
+    "calls",
+    "building.levels",
+    "building.hazards",
+    "building.rooms",
+    "building.model.ladder_points",
+    "routes"
+  ],
+  "references": [
+    "plan-l-1-01",
+    "ifc-L-1",
+    "ifc-L0",
+    "ifc-L1",
+    "ifc-L2",
+    "ifc-L3"
+  ],
+  "built_by": "devin",
+  "devin_session_url": "http://172.16.0.13:8002/sessions/cli-warm-1794110306103?view=view_occupants_3",
+  "transport": "cli",
+  "model": "opus",
+  "devin_cli_session": "acoustic-dragon",
+  "created_at": "2026-11-08T08:56:28.823Z",
+  "request_id": "req_01M6X5W2HC53ZMQ1AQG209N103",
+  "request_to_view_ms": 101209,
+  "attempts": 1,
+  "late": false,
+  "notes": "Side section of the building, one band per level with the quiet levels greyed: the people stand in a row on their own floor, most urgent first, each tagged with its room (grey ? while nobody has answered, red ring when a call's urgency says so), the single stair A shaft carries what the state reports about it, every band is tappable, and the card counts who is inside, who must come out and how many give no news, with the hazard line built by Halo.hazardLine.",
+  "references_used": [
+    {
+      "image": "ifc-L-1.svg",
+      "image_id": "ifc-L-1",
+      "caption": "Plan IFC niveau -1",
+      "side": "plan",
+      "took": "the basement with the ramp -1.03, the parking bays, the caves -1.01 and the garage -1.11 beside ESC A at the bottom centre: the single stair starts at this level, so the stack draws one shaft spanning every band, and this level is the one the state reports a fire on",
+      "url": "http://172.16.0.13:8002/views/view_occupants_3/refs/ifc-L-1.svg"
+    },
+    {
+      "image": "ifc-L0.svg",
+      "image_id": "ifc-L0",
+      "caption": "Plan IFC niveau 0",
+      "side": "plan",
+      "took": "the ground floor: the ESC A hall at the bottom centre with corridor:0 beside it and the flats 0.13-0.19 along the frontage; the room numbering on these plans is what the people's tags show (0.19, 1.01, 2.16 …), and the absence of a second stair is why a single shaft is drawn",
+      "url": "http://172.16.0.13:8002/views/view_occupants_3/refs/ifc-L0.svg"
+    }
+  ],
+  "patched_by_silex": {
+    "at": "2026-11-08T09:41:43Z",
+    "why": "room null printed as « null » (112 caller APP-1); unknown occupants named « sans nouvelles »; R+2 row hid the caller and tags overlapped",
+    "what": "room null → « à confirmer » (marker) / floor (card); dashboard words: à joindre (unknown), appel en cours (calling), sans nouvelles (no_answer, amber); per floor: urgent people, then one hazard pictogram, then the others, inside Halo.AREA, « +N » for the rest; a hazard with no room in the row washes its band",
+    "by": "Silex (Claude Code), no Devin rebuild"
+  }
+}

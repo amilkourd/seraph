@@ -104,6 +104,15 @@ Updated: 07:15
 - `team_engaged.html` is parked (ARI cut): dropped from the kit attachments, both warm prompts and the playbook
   (API warm-up would have raised FileNotFoundError); a `team_engaged` request starts from `occupants.html`.
   Takes effect at the next :8002 restart (playbook: at the next warm session).
+- view_occupants_3 (live « Qui est où ») patched in place, no Devin rebuild (recorded in its view.json): room null
+  printed « null » (112 caller APP-1); `unknown` called « sans nouvelles ». Now: room null → « à confirmer » on the
+  drawing, the floor in the card; dashboard words (à joindre / appel en cours / sans nouvelles = `no_answer`, amber);
+  per floor: urgent people, one hazard pictogram, the others, inside Halo.AREA, « +N »; a hazard with no room left
+  washes its band. Pre-patch copy: `silex/runtime/backup/`.
+- Next builds: playbook section « Occupants »; Silex's own starting point `silex/devin/examples/occupants.html` for
+  occupants / commander_request / team_engaged (the kit's example has the same `o.room + …` bug); the CLI request
+  tells Devin to re-read the playbook; the render check rejects « null » / « undefined » / « NaN » on screen.
+  Code parts take effect at the next :8002 restart.
 
 ## In progress
 - Nothing running. Watch: 219 s on the last build (100–140 s before) is close to the 300 s deadline. If it gets
