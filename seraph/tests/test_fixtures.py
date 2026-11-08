@@ -388,3 +388,9 @@ def test_reported_until_a_firefighter_says_it():
     radio(b, R["R03"]); radio(b, R["R04"])
     cor = next(h for h in b.state.building.hazards if h.where.get("room") == "corridor")
     assert cor.source.confirmed and cor.source.label == "Binôme 1"
+
+
+def test_plan_exit_names_map_to_entrances():
+    assert B.plan_name_to_node("exit:E2", -1) == "entrance:E2"
+    b = v2()
+    assert not any("E2 pas dans la maquette" in e.text_fr for e in b.state.timeline)

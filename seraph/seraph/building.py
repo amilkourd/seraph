@@ -66,7 +66,9 @@ def room_node(room: str, level: Optional[int]) -> str:
 
 
 def plan_name_to_node(name: str, level: int) -> Optional[str]:
-    if name.startswith(("stair:", "entrance:", "room:", "exit:")):
+    if name.startswith("exit:"):              # plan.read names doors « exit:<id> »; the graph calls them entrances
+        return "entrance:" + name[5:]
+    if name.startswith(("stair:", "entrance:", "room:")):
         return name
     if name.lower() in CORRIDOR_WORDS:
         return f"corridor:{level}"
