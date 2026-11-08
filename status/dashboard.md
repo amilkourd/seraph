@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 06:13
+Updated: 06:27
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -116,6 +116,10 @@ Updated: 06:13
 - Amil (`contracts/api.md`): document `/admin/replay_line`, `/admin/call_now` (used on keys R and A).
 
 ## Facts I verified (API names, model ids, gotchas)
+- Next 16 dev blocks `/_next/hmr` and dev fonts for any origin but localhost: opened by the LAN address
+  (projector, phone) the page never hydrates and stays on « Connexion à Seraph… ». Fixed with `allowedDevOrigins` =
+  this machine's IPv4 addresses + hostname + `*.local` (next.config.ts; the dev server restarts by itself).
+  `/api/config` swaps `localhost` for the Host header the browser used, so Seraph / Halo / Rosetta URLs work remotely.
 - Headless Chrome `--virtual-time-budget` never finishes on the live page: the open SSE keeps it busy. Use the
   browser pane, or `/#rosetta` + mock for stills.
 - Right after a dev-server restart the first proxied POST can fail while the route compiles; the 502 now carries
