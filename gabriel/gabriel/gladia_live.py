@@ -22,8 +22,9 @@ SR = 16000
 
 # ───────── vocabulary and spelling (docs/06-gabriel.md « Gladia, used fully ») ─────────
 GLOSSARY = ["Seraph", "COS", "CODIS", "CTA", "ARI", "binôme", "VSAV", "FPT", "EPA", "colonne sèche", "PEI", "ETARE",
-            "ERP", "reçu", "Tête", "Halo", "Gabriel", "escalier A", "escalier B", "E1", "E2", "main courante",
-            "point de situation", "confirme", "annule", "engagé", "bars", "hydrant", "fumée", "enfumé"]
+            "ERP", "reçu", "Tête", "Halo", "Gabriel", "escalier A", "E1", "E2", "main courante",
+            "point de situation", "confirme", "annule", "engagé", "bars", "hydrant", "fumée", "enfumé", "désenfumé",
+            "rampe", "parking", "levée du confinement", "balcon", "terrasse", "boulevard Bessières"]
 
 SPELLING = {
     "Seraph": ["séraphe", "sérafe", "seraphe", "séraf", "seraf", "sérapf", "Séraphin", "séraphine"],
@@ -32,13 +33,10 @@ SPELLING = {
     "Binôme 2": ["binôme deux", "binome deux", "binôme 2", "binome 2"],
     "ARI": ["a r i", "a.r.i", "a.r.i."],
     "COS": ["cosse", "c.o.s", "c o s"],
-    "escalier B": ["escalier bé", "escalier b"],
     "escalier A": ["escalier a"],
     "E1": ["e un", "e1", "eu un"],
     "E2": ["e deux", "e2", "eu deux"],
-    "3.12": ["trois douze", "trois point douze", "3 12", "312"],
-    "3.10": ["trois dix", "trois point dix", "3 10", "310"],
-    "2.01": ["deux zéro un", "deux point zéro un", "201"],
+    "boulevard Bessières": ["boulevard bessière", "boulevard besière", "boulevard bessiere"],
     "reçu": ["resu", "ressu"],
     "colonne sèche": ["colonne seiche"],
 }

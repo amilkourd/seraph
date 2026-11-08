@@ -80,9 +80,13 @@ Never set a boolean to false unless the caller says so.
 - smoke_seen: true if they see smoke near them, false if they say no smoke (« no veo humo » = false).
 - mobility_issue: true for wheelchair / cannot walk / cannot go down alone.
 - injuries: in French, « aucun » if they say nobody is hurt.
-- current_action: staying (in a room, waiting, « on n'ose pas sortir »), moving (heading somewhere, going down),
-  outside (out of the building), unknown.
-- heading_to: south stairs = "stair:B", north stairs = "stair:A".
+- current_action: staying (inside and not moving: in a room or at home, waiting, « on n'ose pas sortir », « porte
+  fermée »), moving (heading somewhere, going down), outside (out of the building), unknown (nothing said).
+- heading_to: the building has ONE stair, A: « the stairs », « l'escalier », « la escalera » → "stair:A";
+  the garage ramp → "exit:E2"; the front door / hall → "exit:E1".
+- The caller's own room: when the caller is a listed occupant and says « ma chambre », « chez moi », « dans mon
+  appartement », « my flat », « my room », « mi habitación », « en casa », room = THEIR LISTED ROOM, room_sure true,
+  and level = its level if not said. Example: listed room 3.12, « je suis dans ma chambre, au troisième » → room "3.12".
 - asks_what_to_do: true if the caller's LAST turn asks what to do or for instructions.
 - free_text_fr: other useful facts, French, one short line.
 - confidence: 0-1."""
@@ -117,7 +121,7 @@ REPORT_FACTS = {
                 "injuries": {"type": ["string", "null"], "description": "in French; « aucun » when the caller says nobody is hurt"},
                 "current_action": {"type": ["string", "null"], "enum": ["staying", "moving", "outside", "unknown", None]},
                 "heading_to": {"type": ["string", "null"],
-                               "description": "stair:A, stair:B, exit:E1, exit:E2… south stairs = stair:B, north stairs = stair:A"},
+                               "description": "stair:A (the only stair), exit:E1 (front door), exit:E2 (garage ramp)"},
                 "free_text_fr": {"type": ["string", "null"], "description": "anything else useful, in French, one short line"},
                 "asks_what_to_do": {"type": "boolean",
                                     "description": "the caller's LAST turn asks what to do / for instructions / for help"},
@@ -284,6 +288,13 @@ class Call:
         self.confirm_room: Optional[str] = None       # a room to read back before sending it
         self.room_asked: set[str] = set()
 
+    def listed(self) -> str:
+        """Who the occupant list says this caller is (only used when they say « ma chambre », « chez moi »…)."""
+        if not self.occ.get("name"):
+            return "Caller: unknown (112 call), not in the occupant list."
+        return (f"Caller: listed occupant {self.occ['name']}, listed room {self.occ.get('room') or 'unknown'} "
+                f"on level {self.occ.get('level') if self.occ.get('level') is not None else 'unknown'}.")
+
     def number(self) -> str:
         return self.occ.get("phone_masked") or ("web" if self.channel == "web" else "••")
 
@@ -439,7 +450,7 @@ class Call:
             r = await self.oai.chat.completions.create(
                 model=config.LLM_MODEL, reasoning_effort="none", service_tier="priority",
                 tools=[self.tool], tool_choice={"type": "function", "function": {"name": "report_facts"}},
-                messages=[{"role": "system", "content": f"{EXTRACT}\n{self.rooms_prompt}"},
+                messages=[{"role": "system", "content": f"{EXTRACT}\n{self.rooms_prompt}\n{self.listed()}"},
                           {"role": "user", "content": convo}])
             calls = r.choices[0].message.tool_calls or []
             got = json.loads(calls[0].function.arguments) if calls else {}
