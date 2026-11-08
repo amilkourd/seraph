@@ -39,8 +39,15 @@ const STEPS: Step[] = [
     act: "À vous : Confirmer.",
     alt: { at: "activite", text: "Rien ne part sans le commandant. Chaque ordre attend son « confirme »." },
   },
-  { at: "tout", state: "idle", expression: "hilare", module: "seraph", text: "Seraph transforme n'importe quel écran en API." },
+  { at: "rejeu", state: "idle", expression: "hilare", module: "seraph", text: "Seraph transforme n'importe quel écran en API.", alt: { at: "tout", text: "Seraph transforme n'importe quel écran en API." } },
 ];
+
+// The last word says what is written in advance. In the live replay (Seraph running) only the dialogues are, and
+// Seraph's code computes everything else; this public link has no service behind it and plays the recorded files.
+const LAST_NOTE = {
+  mock: "Ce lien rejoue l'exercice depuis ses fichiers enregistrés. En direct, seuls les dialogues sont écrits à l'avance, radio et appels : tout le reste, c'est le code de Seraph qui réagit.",
+  live: "Dans le rejeu, seuls les dialogues sont écrits à l'avance, radio et appels : tout le reste, c'est le code de Seraph qui réagit.",
+};
 
 const STAGE: Rect = { x: 0, y: 0, w: 1920, h: 1080 };
 const BUILDING: Rect = { x: 600, y: 90, w: 720, h: 900 }; // the 3D model has no element of its own
@@ -203,6 +210,7 @@ export function Tour({ live }: { live: Live }) {
   const whole = !rect || rect === STAGE || step.at === "tout";
   const pad = 14;
   const spot = rect && !whole ? { x: rect.x - pad, y: rect.y - pad, w: rect.w + pad * 2, h: rect.h + pad * 2 } : null;
+  const last = i === STEPS.length - 1;
 
   // the bubble sits beside the spotlight, on the side with room, and never leaves the stage
   let bx = (1920 - BUBBLE_W) / 2;
@@ -254,10 +262,25 @@ export function Tour({ live }: { live: Live }) {
                 {act}
               </p>
             )}
+            {last && <p className="text-[22px] leading-[1.35] text-blanc [text-wrap:pretty]">{mock ? LAST_NOTE.mock : LAST_NOTE.live}</p>}
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => go(i + 1)} className="h-12 rounded-full px-6 text-[18px] font-semibold text-suie" style={{ background: color }}>
-                {i === STEPS.length - 1 ? "Terminer" : "Suivant"}
-              </button>
+              {last && mock ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    live.act("Rejouer les fixtures", "seraph", "admin/replay", { fixture: "all", speed: 4 });
+                    close();
+                  }}
+                  className="h-12 rounded-full px-6 text-[18px] font-semibold text-suie"
+                  style={{ background: color }}
+                >
+                  Lancer le rejeu
+                </button>
+              ) : (
+                <button type="button" onClick={() => go(i + 1)} className="h-12 rounded-full px-6 text-[18px] font-semibold text-suie" style={{ background: color }}>
+                  {last ? "Terminer" : "Suivant"}
+                </button>
+              )}
               {i > 0 && (
                 <button type="button" onClick={() => go(i - 1)} className="h-12 rounded-full border border-brume px-6 text-[18px] text-blanc">
                   Précédent

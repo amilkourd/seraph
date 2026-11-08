@@ -146,6 +146,7 @@ function SourceBadge({ live }: { live: Live }) {
     : ["Live", "sur"];
   return (
     <div
+      data-tour="rejeu"
       className={`dark label absolute right-[104px] top-6 flex h-16 items-center gap-3 rounded-full border bg-paper px-6 text-[20px] ${
         replaying ? "border-alerte text-alerte" : "border-rule text-ink"
       }`}

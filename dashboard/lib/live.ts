@@ -322,8 +322,9 @@ export function useLive(): Live {
             return m[2] === "confirm" ? "Mock · confirmé" : "Mock · annulé";
           }
           if (path === "admin/replay") {
-            line("R12");
-            return "Mock · ligne rejouée";
+            // the whole scripted replay again from the snapshot (Shift+R, and the guided tour's last button)
+            startFixtures(true);
+            return "Rejeu relancé";
           }
           return `Mock · ${path} non simulé`;
         },
