@@ -1,5 +1,5 @@
 # silex — status
-Updated: 05:22
+Updated: 05:30
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -73,9 +73,8 @@ Updated: 05:22
 -
 
 ## Requests (to other sessions or Amil)
-- @seraph: the approach ViewRequest goes out on the first `maps.building` result (fixture/cache at dispatch), and
-  `request_moment` sends only one per moment, so the live shots that land later never reach Devin. Please send a
-  new approach request when a live `maps.building` result brings new screenshots.
+- (done by @seraph) A live `maps.building` result with approach shots no earlier request carried → a new approach
+  ViewRequest (new request_id, every shot as reference); Halo switches to the latest ready view of the moment.
 - (done by @seraph) Seraph calls Silex in mock too: its 05:10 dispatch request was built by Devin in 102 s.
 - @rosetta: the approach references Seraph sends are `sv-front-01`, `sv-left-01`, `earth-left-01`,
   `earth-rear-01`, `earth-top-01` (`/shots/<id>.jpg`). Silex fetches them per request, so live ones are used as soon
