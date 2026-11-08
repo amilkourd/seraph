@@ -302,7 +302,7 @@ occupants = [
     occ("OCC-04", "sheltering", "2026-11-08T00:39:40Z", people_count=1, smoke_seen=True, mobility_issue=False,
         heading_to="ladder:2.17", call_id="CALL-02"),
     occ("OCC-05", "needs_help", people_count=1, smoke_seen=False, mobility_issue=True, call_id="CALL-04"),
-    occ("OCC-06", "sheltering", people_count=1, smoke_seen=False, mobility_issue=False, call_id="CALL-05"),
+    occ("OCC-06", "in_call", people_count=1, smoke_seen=False, mobility_issue=False, call_id="CALL-05"),
 ]
 
 

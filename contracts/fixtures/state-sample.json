@@ -3727,7 +3727,7 @@
       "phone_masked": "+3310•••••06",
       "level": 0,
       "room": "0.19",
-      "status": "sheltering",
+      "status": "in_call",
       "language": "es",
       "last_update": "2026-11-08T00:40:00Z",
       "people_count": 1,
