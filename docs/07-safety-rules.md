@@ -12,7 +12,8 @@ These are what make the jury trust Seraph. Each one must be visible in the demo.
    what the state contains.
 3. **Quote, never invent.** Safety facts are read from a source and Seraph names it on the radio when it matters
    (« selon le plan », « selon l'appel »). No fire or smoke is drawn or said before a source reports it (the alert
-   record, a call, the crew radio): nothing is pre-placed. Every element on Halo and the dashboard carries its source tag; inferred
+   record, a call, the crew radio): nothing is pre-placed. What the alert centre or a caller reports stays « signalé »
+   (`confirmed: false`) until a firefighter confirms it on the radio. Every element on Halo and the dashboard carries its source tag; inferred
    facts look different from confirmed ones.
    Emotion heard in a caller's voice (Gladia) is inferred: it raises a call's urgency, labelled « selon la voix »,
    and never becomes an instruction, a position or a reason to skip a gate. Learned sources say « source non vérifiée » until Amil approves them.

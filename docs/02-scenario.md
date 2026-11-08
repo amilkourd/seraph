@@ -50,6 +50,9 @@ adresse d'exercice » on every screen (the real building at that address is not 
 | Stair A cleared | R13 Tête « escalier A désenfumé » | — | « selon Tête » |
 Code maps the words to ids: « parking / garage » on level -1 → `-1.11` (IFC label Garage); « cage d'escalier » →
 `stair:A` (the only stair); « rampe » → `entrance:E2`. A hazard keeps its latest source; the stair status follows it.
+**Signalé vs confirmé:** what the alert centre or a caller reports is « signalé » (`source.confirmed: false`, drawn
+as inferred) until a firefighter says it on the radio, which flips it to confirmed (R02 for the fire and the stair).
+The ramp smoke stays « signalé » in the story: no crew line confirms it.
 
 ## The Grenfell link (say it, show it)
 Grenfell Tower had **one staircase**. Residents were told to stay put; the advice was only lifted at 02:47, nearly

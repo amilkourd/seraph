@@ -3573,7 +3573,7 @@
         "kind": "smoke",
         "where": {"entrance": "E2"},
         "severity": "medium",
-        "source": {"kind": "call", "label": "appel 112", "confirmed": true, "at": "2026-11-08T00:34:10Z"},
+        "source": {"kind": "call", "label": "appel 112", "confirmed": false, "at": "2026-11-08T00:34:10Z"},
         "reported_at": "2026-11-08T00:26:10Z"
       },
       {
@@ -3661,7 +3661,7 @@
       "smoke_seen": true,
       "mobility_issue": false,
       "call_id": "CALL-01",
-      "source": {"kind": "call", "label": "appel Léa Martin", "confirmed": true, "at": "2026-11-08T00:40:00Z"}
+      "source": {"kind": "call", "label": "appel Léa Martin", "confirmed": false, "at": "2026-11-08T00:40:00Z"}
     },
     {
       "id": "OCC-02",
@@ -3688,7 +3688,7 @@
       "smoke_seen": false,
       "mobility_issue": false,
       "call_id": "CALL-07",
-      "source": {"kind": "call", "label": "appel Sophie Durand", "confirmed": true, "at": "2026-11-08T00:40:00Z"}
+      "source": {"kind": "call", "label": "appel Sophie Durand", "confirmed": false, "at": "2026-11-08T00:40:00Z"}
     },
     {
       "id": "OCC-04",
@@ -3704,7 +3704,7 @@
       "mobility_issue": false,
       "heading_to": "ladder:2.17",
       "call_id": "CALL-02",
-      "source": {"kind": "call", "label": "appel Tom Becker", "confirmed": true, "at": "2026-11-08T00:39:40Z"}
+      "source": {"kind": "call", "label": "appel Tom Becker", "confirmed": false, "at": "2026-11-08T00:39:40Z"}
     },
     {
       "id": "OCC-05",
@@ -3719,7 +3719,7 @@
       "smoke_seen": false,
       "mobility_issue": true,
       "call_id": "CALL-04",
-      "source": {"kind": "call", "label": "appel Inès Rahmani", "confirmed": true, "at": "2026-11-08T00:40:00Z"}
+      "source": {"kind": "call", "label": "appel Inès Rahmani", "confirmed": false, "at": "2026-11-08T00:40:00Z"}
     },
     {
       "id": "OCC-06",
@@ -3734,7 +3734,7 @@
       "smoke_seen": false,
       "mobility_issue": false,
       "call_id": "CALL-05",
-      "source": {"kind": "call", "label": "appel Lucía García", "confirmed": true, "at": "2026-11-08T00:40:00Z"}
+      "source": {"kind": "call", "label": "appel Lucía García", "confirmed": false, "at": "2026-11-08T00:40:00Z"}
     }
   ],
   "calls": [
@@ -4145,7 +4145,7 @@
       "t": "2026-11-08T00:26:10Z",
       "kind": "rosetta",
       "text_fr": "Alerte lue : feu de véhicule en parking souterrain (R-1), fumée dans la cage d'escalier, fumée à la rampe du parking.",
-      "source": {"kind": "dispatch", "label": "alerte", "confirmed": true, "at": "2026-11-08T00:26:10Z"}
+      "source": {"kind": "dispatch", "label": "alerte", "confirmed": false, "at": "2026-11-08T00:26:10Z"}
     },
     {
       "t": "2026-11-08T00:27:10Z",
@@ -4172,7 +4172,7 @@
       "t": "2026-11-08T00:34:10Z",
       "kind": "call",
       "text_fr": "Appel 112, anglais : témoin dehors, fumée épaisse qui sort de la rampe du parking.",
-      "source": {"kind": "call", "label": "appel 112", "confirmed": true, "at": "2026-11-08T00:34:10Z"}
+      "source": {"kind": "call", "label": "appel 112", "confirmed": false, "at": "2026-11-08T00:34:10Z"}
     },
     {
       "t": "2026-11-08T00:38:00Z",

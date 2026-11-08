@@ -20,7 +20,11 @@ sys.path.insert(0, str(REPO / "seraph"))
 T0 = "2026-11-08T00:00:00Z"
 
 
-def src(kind, label, at="2026-11-08T00:40:00Z", confirmed=True, url=None):
+def src(kind, label, at="2026-11-08T00:40:00Z", confirmed=None, url=None):
+    # Amil's rule: what the alert centre or a caller reports is « signalé » (confirmed false) until a firefighter
+    # confirms it on the radio; the radio, the IFC and screens Rosetta reads are confirmed.
+    if confirmed is None:
+        confirmed = kind not in ("dispatch", "call")
     s = {"kind": kind, "label": label, "confirmed": confirmed, "at": at}
     if url:
         s["url"] = url
