@@ -116,6 +116,9 @@ Updated: 07:05
 - LIVE vs REJEU: a pill left of the screen button, always on screen in both views: Live (green) · Rejeu (amber,
   amber border: Seraph /health `replay` is anything but "idle", i.e. from a replay's start until the next reset) ·
   Mock · Hors ligne · Connexion. `/api/health` passes Seraph's `replay` through. The panel's old Mock chip is gone.
+- « Lancer l'incident » (Amil, for the demo): a white pill under the title, only while `incident.status` is idle or
+  closed; POST Seraph `/incident/start` `{}` (same as key D), gone as soon as the incident is declared. Rendered
+  live at idle; not clicked against the shared Seraph (rehearsals).
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.

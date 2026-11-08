@@ -26,6 +26,7 @@ export function Panel({ live, now, booth = false }: { live: Live; now: number; b
       {s ? (
         <>
           <Title s={s} now={now} />
+          {(s.incident.status === "idle" || s.incident.status === "closed") && <Launch live={live} />}
           {gate && <Decision gate={gate} live={live} now={now} />}
           <div className="mt-auto flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
@@ -59,6 +60,26 @@ function Title({ s, now }: { s: IncidentState; now: number }) {
         </span>
       </div>
     </div>
+  );
+}
+
+// The demo's first move, same as key D: Seraph declares the incident and has Rosetta read the dispatch.
+// Only while nothing runs: once the incident is declared the button is gone.
+function Launch({ live }: { live: Live }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        await live.act("Lancer l'incident", "seraph", "incident/start", {});
+        setBusy(false);
+      }}
+      className="label mt-10 flex h-16 items-center justify-center rounded-full bg-ink text-[20px] text-paper transition-colors hover:bg-ink-2 disabled:opacity-50"
+    >
+      Lancer l&apos;incident
+    </button>
   );
 }
 

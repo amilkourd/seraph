@@ -67,7 +67,7 @@ export function Dashboard() {
       } else if (e.key.toLowerCase() === "a") {
         l.act("Appeler maintenant", "seraph", "admin/call_now", {});
       } else if (e.key.toLowerCase() === "d") {
-        l.act("Déclencher", "seraph", "incident/start", {});
+        l.act("Lancer l'incident", "seraph", "incident/start", {});
       } else if (e.key.toLowerCase() === "e") {
         setBooth((b) => !b);
       } else if (e.key.toLowerCase() === "x") {
