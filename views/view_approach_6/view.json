@@ -1,0 +1,85 @@
+{
+ "view_id": "view_approach_6",
+ "moment": "approach",
+ "title_fr": "Par où j'entre",
+ "purpose_fr": "Par où j'entre : bloc vu du dessus, rue, camion, flèche vers E1, hydrant, E2 barrée (la rampe mène au garage en feu selon l'alerte)",
+ "data_keys": [
+  "building.entrances",
+  "building.approach",
+  "building.hydrants",
+  "building.truck_spot",
+  "routes"
+ ],
+ "references": [
+  "earth-top-01",
+  "sv-front-01",
+  "sv-left-01",
+  "sv-right-01",
+  "ifc-L-1",
+  "ifc-L0",
+  "ifc-L1",
+  "ifc-L2",
+  "ifc-L3"
+ ],
+ "built_by": "devin",
+ "devin_session_url": null,
+ "transport": "cli",
+ "model": "opus",
+ "devin_cli_session": "acoustic-dragon",
+ "created_at": "2026-11-08T05:07:53.372Z",
+ "request_id": "req_01M6WRQZEX31VK2RV48ND68T1Y",
+ "request_to_view_ms": 151465,
+ "attempts": 1,
+ "late": false,
+ "notes": "Street-frame top view (earth-top-01): footprint white cut to a window zoomed on the way in, street band through the truck, one big arrow (width 18) truck → E1 with its tag across the arrow, E2 dimmed and crossed out, and a danger triangle clear of the markers — the cross, the triangle and every card line come from state.building.hazards via Halo.hazardsAt / Halo.hazardLine, nothing typed.",
+ "references_used": [
+  {
+   "image": "earth-top-01.jpg",
+   "image_id": "earth-top-01",
+   "caption": "Vue du dessus, nord en haut (Google Maps satellite)",
+   "side": "top",
+   "took": "north up: Bd Bessières runs as a wide straight band diagonally along the south-east side of the block, buildings packed against it with a tree-lined pavement between, the side street Pass. Rose-Vaillant on the other flank; this is the frame the view draws on (footprint polygon, E1, E2, truck spot) and why the street band is drawn across the truck, parallel to the façade the arrow enters",
+   "url": "http://172.16.0.13:8002/views/view_approach_6/refs/earth-top-01.jpg"
+  },
+  {
+   "image": "sv-front-01.jpg",
+   "image_id": "sv-front-01",
+   "caption": "Façade côté rue (Street View)",
+   "side": "front",
+   "took": "the white panelled façade runs straight along the boulevard with a wide pavement, a low metal railing and a tree line between façade and roadway: the truck stands on the roadway and the last metres cross the pavement, so the arrow is short and straight from the truck onto the door, perpendicular to the street band",
+   "url": "http://172.16.0.13:8002/views/view_approach_6/refs/sv-front-01.jpg"
+  },
+  {
+   "image": "sv-left-01.jpg",
+   "image_id": "sv-left-01",
+   "caption": "Vers la gauche (Street View)",
+   "side": "left",
+   "took": "the glazed entrance lobby at the base of the white façade on the left end of the frontage, railing interrupted in front of it, and the dark vehicle opening (garage) a few metres further right along the same wall: that matches E1 being the door we enter by and E2 being the ramp door off to the side, which the state reports a hazard behind and the view crosses out",
+   "url": "http://172.16.0.13:8002/views/view_approach_6/refs/sv-left-01.jpg"
+  },
+  {
+   "image": "sv-right-01.jpg",
+   "image_id": "sv-right-01",
+   "caption": "Vers la droite (Street View)",
+   "side": "right",
+   "took": "looking down the boulevard: two carriageways with a central tram/bus platform, the façade continuing on the left and no vehicle access on that side, so nothing is drawn to the right of the footprint and the only approach shown is from the truck in front of the entrance",
+   "url": "http://172.16.0.13:8002/views/view_approach_6/refs/sv-right-01.jpg"
+  },
+  {
+   "image": "ifc-L-1.svg",
+   "image_id": "ifc-L-1",
+   "caption": "Plan IFC niveau -1",
+   "side": "plan",
+   "took": "the basement behind E2: the access ramp -1.03 and the garage -1.11 on the left of the plan with ESC A at the bottom centre; that is the level and room the live state reports burning, which is why E2 is crossed out and its line is built by Halo.hazardLine instead of being written",
+   "url": "http://172.16.0.13:8002/views/view_approach_6/refs/ifc-L-1.svg"
+  },
+  {
+   "image": "ifc-L0.svg",
+   "image_id": "ifc-L0",
+   "caption": "Plan IFC niveau 0",
+   "side": "plan",
+   "took": "the ground floor behind E1: the stair hall ESC A just inside the door at the bottom centre with corridor:0 between them, which is why the second card line is about stair A (its hazard line when the state reports smoke there, otherwise « Montez esc. A »)",
+   "url": "http://172.16.0.13:8002/views/view_approach_6/refs/ifc-L0.svg"
+  }
+ ]
+}
