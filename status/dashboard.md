@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 07:04
+Updated: 07:05
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -111,6 +111,8 @@ Updated: 07:04
   transcript, Règles / LLM / Non reconnu and the time from end of speech to Seraph's answer (`metric` voice_to_say:
   `path`, `since_eot_ms`, else `value_ms`, matched by `utterance_id`), the event types when the metric carries
   `events`, and Seraph's answer. The building stays visible; E again goes back.
+  Seraph's `events` (d4bb42b, every radio line) show in French: danger signalé ×2, vue Halo, point de situation,
+  échange d'équipe…; `said: false` shows « écoute seule » instead of a time.
 - LIVE vs REJEU: a pill left of the screen button, always on screen in both views: Live (green) · Rejeu (amber,
   amber border: Seraph /health `replay` is anything but "idle", i.e. from a replay's start until the next reset) ·
   Mock · Hors ligne · Connexion. `/api/health` passes Seraph's `replay` through. The panel's old Mock chip is gone.
@@ -127,8 +129,6 @@ Updated: 07:04
   `levels[].outline?: {outer, holes}[]`, `levels[].focus?: boolean`, `focus_reasons?: string[]`;
   `building.model.plan_frame.px_per_m`.
 - Amil (`contracts/api.md`): document `/admin/replay_line`, `/admin/call_now` (used on keys R and A).
-- @seraph: add the event types to the `voice_to_say` metric (`events: ["hazard", …]`) so the booth shows what a
-  judge's line became; the dashboard already reads it.
 - Amil / @replicas: the booth QR needs `OCCUPANTS_PUBLIC_URL` in the root `.env` (empty now; talkie's /qr shows a
   placeholder too). The occupants replica listens on 127.0.0.1 only, so a LAN URL would not work either.
 

@@ -253,6 +253,26 @@ function Booth({ live }: { live: Live }) {
 }
 
 const PATH: Record<string, string> = { rules: "Règles", llm: "LLM", none: "Non reconnu" };
+// Seraph's event types (seraph/rules.py, llm.py), as the judges read them
+const EVENT: Record<string, string> = {
+  hazard: "danger signalé",
+  hazard_cleared: "danger levé",
+  team_update: "binôme",
+  occupants_update: "occupants",
+  order_to_occupants: "consigne aux occupants",
+  question: "question",
+  sitrep_request: "point de situation",
+  report_request: "rapport",
+  view_request: "vue Halo",
+  confirm: "confirmation",
+  cancel: "annulation",
+  chatter: "échange d'équipe",
+};
+const events = (types: string[]) =>
+  [...new Set(types)].map((t) => {
+    const n = types.filter((x) => x === t).length;
+    return `${EVENT[t] ?? t}${n > 1 ? ` ×${n}` : ""}`;
+  });
 
 /** Each speaker's last line: what was heard, what it became (rules or LLM), how long Seraph took, its answer. */
 function Turns({ turns }: { turns: Turn[] }) {
@@ -263,10 +283,12 @@ function Turns({ turns }: { turns: Turn[] }) {
         <section key={t.id} className="card flex flex-col gap-2 p-4">
           <header className="flex h-6 items-center justify-between gap-2">
             <span className="label">{t.speaker}</span>
-            <span className="chip h-6 text-[12px]">{t.path ? `${PATH[t.path] ?? t.path} · ${secs(t.eotMs ?? t.ms)}` : "…"}</span>
+            <span className="chip h-6 text-[12px]">
+              {t.path ? `${PATH[t.path] ?? t.path} · ${t.said === false ? "écoute seule" : secs(t.eotMs ?? t.ms)}` : "…"}
+            </span>
           </header>
           <p className="line-clamp-2 text-[17px] leading-[1.3] text-ink">« {t.text} »</p>
-          {t.events?.length ? <p className="label text-[13px] text-ink-2">→ {t.events.join(", ")}</p> : null}
+          {t.events?.length ? <p className="label text-[13px] text-ink-2">→ {events(t.events).join(", ")}</p> : null}
           {t.reply && <p className="line-clamp-2 text-[15px] leading-[1.3] text-ink-2">Seraph : {t.reply}</p>}
         </section>
       ))}

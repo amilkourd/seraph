@@ -39,7 +39,8 @@ export type Turn = {
   path?: string; // rules | llm | none (Seraph's voice_to_say metric)
   ms?: number; // Seraph's processing time
   eotMs?: number; // end of speech → Seraph's answer, when Gabriel gives the end time
-  events?: string[];
+  events?: string[]; // Seraph's event types, e.g. ["hazard", "hazard"]; ["chatter"] for crew-to-crew talk
+  said?: boolean; // false: Seraph listened and did not answer
   reply?: string;
 };
 export type SilexSession = {
@@ -360,11 +361,11 @@ export function useLive(): Live {
         if (!("request_id" in v)) return;
         setState((s) => s && { ...s, halo: { ...s.halo, requests: upsert(s.halo.requests, v, "request_id") } });
       });
-      on<{ name: string; value_ms: number; path?: string; since_eot_ms?: number | null; utterance_id?: string; events?: unknown }>("metric", (m) => {
+      on<{ name: string; value_ms: number; path?: string; since_eot_ms?: number | null; utterance_id?: string; events?: unknown; said?: boolean }>("metric", (m) => {
         setMetrics((x) => ({ ...x, [m.name]: m.value_ms }));
         if (m.name !== "voice_to_say" || !m.utterance_id) return;
         const events = Array.isArray(m.events) ? m.events.map((e) => (typeof e === "string" ? e : String((e as { type?: string }).type ?? ""))).filter(Boolean) : undefined;
-        setTurns((ts) => ts.map((x) => (x.id === m.utterance_id ? { ...x, path: m.path, ms: m.value_ms, eotMs: m.since_eot_ms ?? undefined, events } : x)));
+        setTurns((ts) => ts.map((x) => (x.id === m.utterance_id ? { ...x, path: m.path, ms: m.value_ms, eotMs: m.since_eot_ms ?? undefined, events, said: m.said } : x)));
       });
     }
 
