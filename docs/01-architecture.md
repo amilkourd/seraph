@@ -120,13 +120,13 @@ sequenceDiagram
   participant X as Silex
   participant Dv as Devin
   participant H as Halo
-  Crew->>S: « Binôme 1 engagé, 300 bars »
-  S->>S: moment=team_engaged; compute exit_by
-  S->>X: view request "ari_tracking" (data: crew.teams)
+  Crew->>S: calls with facts (2+), e.g. Léa 3.12, Inès 2.01, Tom 2.16
+  S->>S: moment=occupants
+  S->>X: view request "occupants" (data: occupants, building.levels, building.hazards, routes)
   X->>Dv: session: build view with Halo kit
   Dv-->>X: views/<id>/index.html
   X-->>S: ready
-  S->>H: current view = <id>; state streams in; alarm 5 min before exit_by
+  S->>H: current view = <id>; state streams in; Tom's confirmed gate lights ladder:2.17
 ```
 
 ### 4. Learning a source live
