@@ -17,7 +17,8 @@ from playwright.sync_api import Page, sync_playwright
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from legacy.common import env, fixture  # noqa: E402
 
-DISPATCH, REPORT, OCCUPANTS = "http://localhost:8101", "http://localhost:8102", "http://localhost:8103"
+DISPATCH, REPORT, OCCUPANTS = (env("DISPATCH_URL", "http://localhost:8101"), env("REPORT_URL", "http://localhost:8102"),
+                               env("OCCUPANTS_URL", "http://localhost:8103"))
 SHOTS = Path(sys.argv[1] if len(sys.argv) > 1 else "tests/shots")
 
 
@@ -42,21 +43,27 @@ def shot(page: Page, name: str) -> None:
     page.screenshot(path=str(SHOTS / f"{name}.png"))
 
 
-def dispatch_read(page: Page) -> dict:
-    login(page, DISPATCH, "/interventions")
-    shot(page, "dispatch-list")
-    row = page.locator("#interventions tr.inc.open").first
-    row.get_by_role("link").click()
+def newest_open(page: Page) -> dict:
+    """What Rosetta's dispatch.read does without an incident_id: open the first « En cours » row and read it."""
+    page.goto(DISPATCH + "/interventions")
+    page.locator("#interventions tr.inc.open").first.get_by_role("link").click()
     page.wait_for_url("**/interventions/INC-*")
-    shot(page, "dispatch-incident")
-    out = {
+    return {
         "incident_id": page.inner_text("#f-numero"),
         "address": page.inner_text("#f-adresse"),
+        "commune": page.inner_text("#f-commune"),
         "nature": page.inner_text("#f-nature"),
         "level": int(page.inner_text("#f-niveau")),
         "declared_at": page.get_attribute("#f-declaree time", "datetime"),
         "caller_notes": page.locator("#notes-appelant li").all_inner_texts(),
     }
+
+
+def dispatch_read(page: Page) -> dict:
+    login(page, DISPATCH, "/interventions")
+    shot(page, "dispatch-list")
+    out = newest_open(page)
+    shot(page, "dispatch-incident")
     want = fixture("endpoints/dispatch.read.json")["output"]
     assert out["incident_id"] == "INC-0001", out
     assert out["nature"] == want["nature"] and out["level"] == want["level"], out
@@ -76,6 +83,29 @@ def dispatch_write_112(page: Page) -> dict:
     entry_id = first.get_attribute("data-id")
     assert entry_id in flash and first.locator(".c-texte").inner_text() == entry, (flash, entry_id)
     return {"ok": True, "entry_id": entry_id}
+
+
+def dispatch_new(page: Page) -> dict:
+    """A judge declares an incident at an address of their choice: it becomes the newest « En cours »; reset brings
+    INC-0001 back."""
+    judge = {"address": "18 rue de l'Essai, 75011 Paris", "nature": "Feu d'appartement", "level": 2,
+             "caller_notes": ["Fumée au 2e étage", "Une personne au balcon"]}
+    page.goto(DISPATCH + "/interventions/nouvelle")
+    page.get_by_label("Adresse", exact=True).fill(judge["address"])
+    page.get_by_label("Nature", exact=True).fill(judge["nature"])
+    page.get_by_label("Niveau", exact=True).fill(str(judge["level"]))
+    page.get_by_label("Renseignements", exact=True).fill("\n".join(judge["caller_notes"]))
+    page.get_by_role("button", name="Déclencher").click()
+    page.wait_for_selector("#flash")
+    shot(page, "dispatch-new")
+    created = page.inner_text("#f-numero")
+    out = newest_open(page)
+    assert out["incident_id"] == created and created != "INC-0001", (created, out)
+    assert {k: out[k] for k in judge} == judge and out["commune"] == "Paris", out
+    reset(DISPATCH)
+    back = newest_open(page)
+    assert back["incident_id"] == "INC-0001" and back["address"] == env("DEMO_ADDRESS"), back
+    return {"created": created, "newest_open": out["incident_id"], "after_reset": back["incident_id"]}
 
 
 def occupants_list(page: Page) -> dict:
@@ -161,7 +191,8 @@ def main() -> None:
             browser = p.chromium.launch()
         page = browser.new_page(viewport={"width": 1280, "height": 800})
         for name, flow in [("dispatch.read", dispatch_read), ("dispatch.write_112", dispatch_write_112),
-                           ("occupants.list", occupants_list), ("report.fill", report_fill)]:
+                           ("occupants.list", occupants_list), ("report.fill", report_fill),
+                           ("dispatch: incident du juge", dispatch_new)]:
             try:
                 results[name] = {"pass": True, "output": flow(page)}
             except Exception as exc:  # report every flow, not just the first failure

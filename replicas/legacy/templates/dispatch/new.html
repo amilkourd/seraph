@@ -17,7 +17,7 @@
       <legend>Sinistre</legend>
       <table class="fiche">
         <tr><th><label for="nature" class="req">Nature</label></th><td><input id="nature" name="nature" size="40" list="natures" value="{{ form.nature or '' }}">
-          <datalist id="natures"><option value="Feu de local technique"><option value="Feu d'appartement"><option value="Fumée suspecte"><option value="Malaise sur voie publique"><option value="Personne bloquée dans ascenseur"></datalist></td></tr>
+          <datalist id="natures">{% if demo_nature %}<option value="{{ demo_nature }}">{% endif %}<option value="Feu de local technique"><option value="Feu d'appartement"><option value="Fumée suspecte"><option value="Malaise sur voie publique"><option value="Personne bloquée dans ascenseur"></datalist></td></tr>
         <tr><th><label for="moyens">Moyens</label></th><td><input id="moyens" name="moyens" size="30" value="{{ form.moyens or 'FPT 1 · EPA 1 · VSAV 1' }}"></td></tr>
       </table>
     </fieldset>

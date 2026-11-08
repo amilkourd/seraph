@@ -26,7 +26,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]  # repo root (seraph/)
-DATA = HERE.parent / "data"
+DATA = Path(os.environ.get("REPLICAS_DATA") or HERE.parent / "data")  # override only for a test copy
 FIXTURES = ROOT / "contracts" / "fixtures"
 PARIS = ZoneInfo("Europe/Paris")
 USER = "operateur"
@@ -50,10 +50,14 @@ def demo_address() -> str:
     return env("DEMO_ADDRESS") or "ADRESSE NON RENSEIGNÉE (DEMO_ADDRESS)"
 
 
+def commune_of(address: str) -> str:
+    """The town after the postcode (« 2 rue X, 64000 Pau » → Pau), or ""."""
+    match = re.search(r"\b\d{5}\s+([^,\d][^,]*)$", address.strip())
+    return match.group(1).strip() if match else ""
+
+
 def demo_commune() -> str:
-    """The town from the address's postcode (« 2 rue X, 64000 Pau » → Pau), else DEMO_TOWN."""
-    match = re.search(r"\b\d{5}\s+([^,\d][^,]*)$", env("DEMO_ADDRESS").strip())
-    return match.group(1).strip() if match else env("DEMO_TOWN", "Paris 9e")
+    return commune_of(env("DEMO_ADDRESS")) or env("DEMO_TOWN", "Paris 9e")
 
 
 def level_label(level: int) -> str:

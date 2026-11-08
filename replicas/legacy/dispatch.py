@@ -9,7 +9,8 @@ import sqlite3
 from fastapi import Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from .common import Replica, Store, ago, building_model, demo_address, demo_commune, fixture, iso, level_label, utcnow
+from .common import (Replica, Store, ago, building_model, commune_of, demo_address, demo_commune, fixture, iso,
+                     level_label, utcnow)
 
 SCHEMA = """
 DROP TABLE IF EXISTS meta;
@@ -76,6 +77,10 @@ def seed(conn: sqlite3.Connection, keep_public: bool) -> None:
                      [("incident", "2"), ("main_courante", str(len(log) + 1))])
 
 
+def demo_nature() -> str:
+    return fixture("endpoints/dispatch.read.json")["output"]["nature"]
+
+
 store = Store("dispatch", SCHEMA, seed)
 replica = Replica("dispatch", "Alerte / Interventions", "/interventions", store)
 app = replica.app
@@ -101,7 +106,7 @@ def interventions(request: Request, statut: str = "", user: str = login):
 
 @app.get("/interventions/nouvelle", response_class=HTMLResponse)
 def new_form(request: Request, user: str = login):
-    return replica.render(request, "dispatch/new.html", error=None, form={"commune": demo_commune()})
+    return replica.render(request, "dispatch/new.html", error=None, form={}, demo_nature=demo_nature())
 
 
 @app.post("/interventions/nouvelle", response_class=HTMLResponse)
@@ -111,14 +116,15 @@ def new_create(request: Request, user: str = login, adresse: str = Form(""), com
     form = {"adresse": adresse, "commune": commune, "nature": nature, "niveau": niveau, "appelant": appelant,
             "renseignements": renseignements, "moyens": moyens}
     if not adresse.strip() or not nature.strip() or not re.fullmatch(r"-?\d{1,2}", niveau.strip()):
-        return replica.render(request, "dispatch/new.html", status_code=400, form=form,
+        return replica.render(request, "dispatch/new.html", status_code=400, form=form, demo_nature=demo_nature(),
                               error="Adresse, nature et niveau (nombre) obligatoires.")
     notes = [line.strip() for line in renseignements.splitlines() if line.strip()]
     with store.connect() as conn:
         inc_id = f"INC-{store.next_id(conn, 'incident'):04d}"
         conn.execute(
             "INSERT INTO incidents VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (inc_id, iso(utcnow()), adresse.strip(), commune.strip(), nature.strip(), int(niveau), OPEN,
+            (inc_id, iso(utcnow()), adresse.strip(), commune.strip() or commune_of(adresse), nature.strip(),
+             int(niveau), OPEN,
              appelant.strip() or "Non renseigné", "", json.dumps(notes, ensure_ascii=False), moyens.strip(),
              "CIS Centre (fictif)", None),
         )

@@ -1,5 +1,5 @@
 # replicas — status
-Updated: 05:10
+Updated: 07:10
 
 ## Running
 - dispatch « Alerte / Interventions » on http://localhost:8101 · public: none · MOCK n/a (local SQLite)
@@ -7,7 +7,9 @@ Updated: 05:10
 - occupants « Gestion des occupants » on http://localhost:8103 · public: only `/inscription` (via `OCCUPANTS_PUBLIC_URL`)
 - Run all three: `cd replicas && uv run python run.py` (or `uv run python run.py occupants` for one). Binds 127.0.0.1
   (`REPLICAS_HOST=0.0.0.0` to open the LAN; off-host requests still only reach `/inscription`).
-- Test the four Rosetta flows: `cd replicas && uv run python tests/flows.py [shots_dir]` (resets before and after).
+- Test the four Rosetta flows: `cd replicas && uv run python tests/flows.py [shots_dir]` (resets before and after,
+  occupants with `scope=all`: never during a rehearsal). To test without touching the live replicas, run a copy with
+  `REPLICAS_DATA=<dir>` on other ports and point the test at it with `DISPATCH_URL` / `REPORT_URL` / `OCCUPANTS_URL`.
 
 ## Done
 - Three server-rendered apps (FastAPI + Jinja2 + SQLite in `replicas/data/*.db`), no JSON API. Login `operateur` /
@@ -26,6 +28,11 @@ Updated: 05:10
 - `/inscription` « Pièce » is a list of the building's bedrooms and living rooms grouped by floor (RDC to R+3), with
   the IFC room ids (`BUILDING_JSON`, else the fixture), so every judge lands in a room Seraph can place. The floor is
   taken from the room.
+- **Judge's incident (07:10):** « Nouvelle intervention » (`/interventions/nouvelle`) creates an « En cours » incident
+  with a free address, nature, level and caller notes (one per line). It gets the next number (INC-0002 after a
+  reset), is declared now, so it is the first row of `#interventions tr.inc.open`: Rosetta's `dispatch.read` without
+  `incident_id` reads it. Commune is taken from the address's postcode when left empty. `/admin/reset` brings back
+  INC-0001 at `DEMO_ADDRESS` as the only open incident. Checked in `tests/flows.py` (« incident du juge »).
 - `/admin/reset`: GET = page with button, POST = restore seed; answers JSON `{ok:true}` (HTML if `Accept: text/html`).
   `GET /health` → `{ok, mock:false, service}` on each app.
 - `/inscription` (no login): name, phone, floor, room, language, required consent checkbox with the brief's exact
@@ -59,6 +66,9 @@ Updated: 05:10
   With Playwright filling `#username` / `#password` and clicking `#btn-connexion` first, every flow passes. The model
   then never sees the password either.
 
+- @seraph: `start_incident` calls `dispatch.read` with `incident_id: inc.id` (default « INC-0001 »), so Rosetta opens
+  INC-0001 even when a judge's newer incident is open. Call it without `incident_id` to read the newest « En cours ».
+
 ## Facts I verified (API names, model ids, gotchas)
 - H API `GET /v1/models` (05:00): `holo3-1-35b-a3b`, `holo3-122b-a10b`, `holo4-27b`, `holo4-35b-a3b`. `HOLO_MODEL` is
   empty in `.env`. Agent loop per hub.hcompany.ai/agent-loop: Step schema `{note, thought, tool_call}` in the system
@@ -71,6 +81,10 @@ Updated: 05:10
     Page `/interventions/INC-0001`: `#f-numero`, `#f-adresse`, `#f-commune`, `#f-nature`, `#f-niveau`,
     `#f-declaree time[datetime]` (ISO UTC), `#notes-appelant li` (caller notes), `#f-moyens`. `#f-niveau` is the
     integer (`-1`); `#f-niveau-libelle` shows « R-1 » / « RDC » / « R+3 » next to it.
+  - New incident: `/interventions/nouvelle`, labels « Adresse » `#adresse`, « Commune » `#commune` (optional),
+    « Niveau » `#niveau` (integer, default 0), « Nature » `#nature`, « Moyens » `#moyens`, « Appelant » `#appelant`,
+    « Renseignements » `#renseignements` (one caller note per line), button « Déclencher » `#btn-creer` →
+    `/interventions/INC-000N`, `#flash` = « Intervention INC-000N créée. »
   - `dispatch.write_112`: same page, textarea label « Message » `#mc-texte` (name `texte`), button « Ajouter ».
     After: `#flash` = « Entrée MC-0007 ajoutée à la main courante. », URL `?ajout=MC-0007`, first row of
     `#main-courante-liste tbody` has `data-id="MC-0007"` and `.c-texte` = the entry.
