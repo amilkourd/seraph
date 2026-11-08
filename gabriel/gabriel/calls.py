@@ -515,7 +515,7 @@ async def warm_phrases() -> None:
 
 
 server = AgentServer(num_idle_processes=int(config.env("GABRIEL_IDLE_PROCS", "6")), setup_fnc=prewarm,
-                     load_threshold=0.95)
+                     load_threshold=0.95, port=int(config.env("GABRIEL_HTTP_PORT", "0")))   # 8081 is taken here
 
 
 @server.rtc_session(agent_name=config.CALL_AGENT_NAME)

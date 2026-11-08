@@ -1,12 +1,14 @@
 # gabriel — status
-Updated: 05:12
+Updated: 05:16
 
 ## Running
 Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talkie on :3000 for web calls.
-- radio: `cd gabriel && uv run gabriel-radio` — joins LiveKit `crew` as `Seraph`. Fallback: `GABRIEL_LOCAL_SPEAKER=1`
-  also plays every crew say on the laptop speaker.
-- calls: `cd gabriel && uv run gabriel-calls start` (`dev` = hot reload) — LiveKit Agents worker, agent name
-  `gabriel-call`, 6 warm processes (`GABRIEL_IDLE_PROCS`), one process per call.
+- radio: `cd gabriel && uv run gabriel-radio` — joins LiveKit `crew` as `Seraph`, restarts itself after a crash or a
+  lost room; a second radio takes over and the first stops (never two). Fallback: `GABRIEL_LOCAL_SPEAKER=1` also
+  plays every crew say on the laptop speaker.
+- calls: `cd gabriel && uv run gabriel-calls start` (`dev` = hot reload, don't use it for the demo) — LiveKit Agents
+  worker, agent name `gabriel-call`, 6 warm processes (`GABRIEL_IDLE_PROCS`), one process per call, health server on a
+  random port (`GABRIEL_HTTP_PORT`; 8081 is taken by a node process here).
 - talkie on LiveKit: `TALKIE_TRANSPORT=livekit` in the root `.env` + restart talkie, or per page `?transport=livekit`
   (`http://localhost:3000/?transport=livekit`, `http://localhost:3000/call?occ=OCC-05&transport=livekit`).
 - mock (`MOCK=1`, no LiveKit): `uv run gabriel-mock radio R01 R03` · `call CALL-01` · `say "Seraph, quelle entrée ?" Tête`
@@ -14,13 +16,20 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
 - tests without phones: `uv run python -m gabriel.fake_talkie "Seraph de Tête, quelle entrée ?"` ·
   `uv run python -m gabriel.fake_caller OCC-04 en "Hello?" "I'm on the fourth floor, heading down the south stairs."`
   (`-` instead of `OCC-…` = inbound 112).
-- I am running both right now, logs in `gabriel/logs/`.
+- I am running both right now (calls in `start` mode), logs in `gabriel/logs/`.
+- Test callers use test occupant ids (`OCC-T01`…) so they never overwrite the demo occupants in Seraph's state.
 
 ## Done
 - **Gate 1 (radio), measured on LiveKit Cloud:** eot → `radio_transcript` at Seraph 410–530 ms · release → Seraph
   `talking=true` 470–600 ms · release → Seraph's first audio heard in the room 890–960 ms. Tested with a scripted
   speaker and with the real talkie page in Chromium (fake mic WAV): « Seraph, point de situation. » transcribed from
-  the page; the button locks on « Seraph parle… » while Gabriel speaks. **Not yet on the iOS Simulator / a phone.**
+  the page; the button locks on « Seraph parle… » while Gabriel speaks.
+- **iOS Safari (simulator « Talkie 17e »):** join with the mic prompt, « Maintenir pour parler », press → on air → eot
+  reaches Gabriel, and « Seraph parle… » + lock while Gabriel's audio plays (Safari's audio icon on). The simulator mic
+  gave silence from the Mac speaker, so **speaking from iOS still needs a real phone to confirm**.
+- Two iOS bugs fixed in `livekit.ts`: the UI's `audioSession.type = "playback"` blocks the mic on iOS (« AudioSession
+  category is not compatible with audio capture ») → set `play-and-record` before the mic; two tabs with the same
+  call sign kicked each other forever → no auto-rejoin after a `DUPLICATE_IDENTITY` kick.
 - Radio listen: one Gladia live session per push-to-talk turn per speaker (opens on `talking=true` with 0.6 s pre-roll,
   closed by the eot on topic `ptt` with `stop_recording`; `talking=false` without eot → cut after 1.2 s). Only remote
   tracks are subscribed: Gabriel never hears its own TTS.
@@ -42,8 +51,11 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   `report_facts` (forced tool call, gpt-5.4-mini, ~0.8 s) extracts the facts → `call_facts`; then the next question not
   yet answered (where → how many → smoke → injured → what are you doing), or « Et votre question aussi. Restez en
   ligne. » when the caller asks what to do. **No model writes what the caller hears**, so Gabriel can never give an
-  instruction or promise help on its own; every phrase is pre-generated in fr/en/es. Rooms are snapped to the
-  building's ids (« 2.1 » → 2.01).
+  instruction or promise help on its own; every phrase is pre-generated in fr/en/es.
+- **Rooms:** only the building's room ids (BUILDING_JSON, people rooms only) ever reach Seraph. Gladia gets them in the
+  vocabulary (caller's level first) and as custom spelling (« deux zéro un », « two oh one » → 2.01); `report_facts`
+  has `room` as an enum of those ids + `room_sure`. An unsure room is read back once (« Appartement deux zéro un,
+  c'est bien ça ? ») and sent only after. Live: « chambre deux point un » → read-back → « oui » → 2.01.
 - Seraph's `say` for a call (`call_id` / `call_ids`) interrupts and is spoken as is; `translate:true` → faithful LLM
   translation of `text_fr`. Verified: the confirmed standing instruction reached CALL-01-style call after « fumée sous la
   porte ». `end_call` hangs up.
@@ -57,7 +69,7 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   `call_ack`, `call_turn` (+`report_facts_ms`), `call_say_queued`.
 
 ## In progress
-- Talkie on the iOS Simulator (Gate 1 on Safari).
+- Nothing. Next if wanted: SIP/Twilio for `place_calls` and the 112 number (stubbed), a real-phone check of the mic.
 
 ## Blocked
 -
