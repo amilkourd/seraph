@@ -277,15 +277,18 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         // level has grey walls and no fills
         for (const r of rooms.filter((x) => x.level === l.level)) {
           const poly = (r.zone as number[][]).map(([px, pz]) => W(px, pz));
-          const fire = hz.some((h) => h.kind === "fire" && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
-          const smoke = hz.some((h) => h.kind === "smoke" && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
+          // fire and smoke only as reported (Amil): solid once a crew confirmed it, soft while only « signalé »
+          const here = (kind: string) => hz.filter((h) => h.kind === kind && sameRoom(h.where.room, r) && (h.where.level ?? r.level) === r.level);
+          const fire = here("fire").length > 0;
+          const smoke = here("smoke").length > 0;
+          const sure = (kind: string) => here(kind).some((h) => h.source.confirmed);
           const lit = r.id === targetRoom;
           const ladder = ladders.has(r.id);
           if (lit) litPoly = poly.map(([wx, wz]) => new THREE.Vector3(wx, fy + FLAT, wz));
           if (on && (fire || lit || smoke || ladder)) {
             const floor = new THREE.Mesh(
               new THREE.ShapeGeometry(new THREE.Shape(poly.map(([wx, wz]) => new THREE.Vector2(wx, -wz)))),
-              fire ? solid(C.fire) : lit ? solid(C.lit) : ladder ? solid(C.life, 0.55) : solid(C.warn, 0.45),
+              fire ? solid(C.fire, sure("fire") ? 1 : 0.35) : lit ? solid(C.lit) : ladder ? solid(C.life, 0.55) : solid(C.warn, sure("smoke") ? 0.45 : 0.2),
             );
             floor.rotation.x = -Math.PI / 2;
             floor.position.y = fy + FLAT / 2;
@@ -302,7 +305,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           const p = pts.get(h.where.room!) ?? pts.get(`room:${h.where.room}`);
           if (!p) continue;
           const [wx, wz] = W(...p);
-          const patch = new THREE.Mesh(new THREE.CircleGeometry(95 / M, 48), solid(C.warn, 0.35));
+          const patch = new THREE.Mesh(new THREE.CircleGeometry(95 / M, 48), solid(C.warn, h.source.confirmed ? 0.35 : 0.15));
           patch.rotation.x = -Math.PI / 2;
           patch.position.set(wx, fy + 0.02, wz);
           lg.add(patch);
@@ -316,10 +319,13 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           const [wx, wz] = at0;
           const zone = st.zones?.find((z) => z.level === l.level)?.zone;
           const smoky = st.status === "smoke" || hz.some((h) => h.kind === "smoke" && h.where.stair === st.id);
+          // soft while the stair's smoke is only reported
+          const said = hz.filter((h) => h.kind === "smoke" && h.where.stair === st.id);
+          const soft = said.length > 0 && !said.some((h) => h.source.confirmed);
           const h = CORE / 2;
           const outline: [number, number][] = zone ? zone.map(([px, pz]) => W(px, pz)) : [[wx - h, wz - h], [wx + h, wz - h], [wx + h, wz + h], [wx - h, wz + h]];
           if (on && smoky) {
-            const floor = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)))), solid(C.warn));
+            const floor = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)))), solid(C.warn, soft ? 0.35 : 1));
             floor.rotation.x = -Math.PI / 2;
             floor.position.y = fy + FLAT / 2;
             lg.add(floor);
@@ -379,7 +385,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           rank: 0,
           title: "Feu",
           index: levelLabel(s, h.where.level),
-          lines: [`${h.where.room}${name ? ` · ${name}` : ""}`, `→ ${h.source.label}`],
+          lines: [`${h.where.room}${name ? ` · ${name}` : ""}`, `→ ${h.source.confirmed ? "confirmé" : "signalé"} · ${h.source.label}`],
         });
       }
       const smoky = (stair?: string) => b.stairs.some((st) => `stair:${st.id}` === stair && st.status !== "clear");

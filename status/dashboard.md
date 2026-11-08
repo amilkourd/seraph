@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 05:08
+Updated: 05:51
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -88,6 +88,9 @@ Updated: 05:08
   « 2 ») goes in their level's corridor, else next to the stair core, else the middle of the slab, spread 1.2 m apart
   while still on the slab; the pastille gets « ? », a callout is titled « Pièce à confirmer ». Checked on the mock
   state (Inès with room « 2 », Sophie with an unknown room): every level's fallback spot is on its slab.
+- Fire and smoke only as reported (Amil, via the Seraph review): no hazard in the state → nothing red. A hazard with
+  `source.confirmed: false` is a soft fill (fire 35 %, smoke 20 %, smoky stair 35 %) and its callout reads
+  « → signalé · <source> »; once confirmed it is solid, « → confirmé · <source> ». No dotted fills (Amil's 3D rule).
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
