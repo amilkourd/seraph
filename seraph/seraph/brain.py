@@ -1159,6 +1159,9 @@ class Brain:
                 word = B.room_word(self.kit, out)
                 self.alert("warning", f"Échelle : {word} {out}, {level_fr(o.level)}, {o.name}")
                 self.say(f"Reçu. {o.name} reste dans son logement, {word} {out} : point échelle.")
+                # the ladder point must light up on Halo: the occupants view draws it (Devin's if ready, else fallback);
+                # Halo's own alert covers the switch for 8 s
+                self.show_moment("occupants", explicit=True)
             else:
                 self.say("Reçu, je lui dis de rester dans son logement, porte fermée.")
             return

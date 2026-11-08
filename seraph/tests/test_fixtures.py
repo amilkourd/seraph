@@ -137,6 +137,8 @@ def test_full_replay_v2():
         says[line["id"]] = r["says"]
         if line["id"] == "R02":
             after_r02 = [h.model_copy(deep=True) for h in b.state.building.hazards]
+        if line["id"] == "R07":
+            halo_after_r07 = b.state.halo.current_view.moment
         exp = line["expected"]
         got = r["events"][0]["type"]
         assert got == exp["event"] or (got == "hazard_cleared" and "hazard_cleared" in exp), line["id"]
@@ -166,6 +168,7 @@ def test_full_replay_v2():
     assert any(r.purpose == "evacuation" and r.via == ["room:2.16", "room:2.17", "ladder:2.17"] for r in b.state.routes)
     assert "Échelle : balcon 2.17, 2e, Tom Becker" in [a.text_fr for a in b.state.alerts]
     assert "Reçu. Tom Becker reste dans son logement, balcon 2.17 : point échelle." in crew(says["R07"])
+    assert halo_after_r07 == "occupants"                     # balcony 2.17 lights up on Halo (demo script 0:50–1:55)
     # R09: evacuation from 3.12 on the graph, no gate for Léa (with a team)
     ev = next(r for r in b.state.routes if r.purpose == "evacuation" and r.from_ == "room:3.12")
     assert ev.via == R["R09"]["expected"]["route"]["via"]
