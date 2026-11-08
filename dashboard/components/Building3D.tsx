@@ -564,13 +564,20 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
     }
 
     // a flat pastille, « ? » when their room is not on the plan
+    // à joindre (listed, no call yet) = a small grey ring; appel en cours = a grey ring; sans nouvelles = an amber ring
     function person(o: Occupant, unsure: boolean) {
       const urgent = o.status === "needs_help" || o.status === "trapped";
-      const unknown = o.status === "no_answer" || o.status === "unknown" || o.status === "calling";
       const d = document.createElement("div");
       d.className = "b3-mark";
       const dot = document.createElement("i");
-      dot.className = `b3-dot ${urgent ? "b3-dot-fire" : unknown ? "b3-dot-dim" : o.status === "moving" ? "b3-dot-warn" : "b3-dot-life"}`;
+      dot.className = `b3-dot ${
+        urgent ? "b3-dot-fire"
+        : o.status === "no_answer" ? "b3-dot-alert"
+        : o.status === "unknown" ? "b3-dot-quiet"
+        : o.status === "calling" ? "b3-dot-dim"
+        : o.status === "moving" ? "b3-dot-warn"
+        : "b3-dot-life"
+      }`;
       d.appendChild(dot);
       if (unsure) d.append(tag("?", "b3-q"));
       return d;

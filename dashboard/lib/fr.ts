@@ -43,10 +43,10 @@ export const INCIDENT_STATUS: Record<IncidentState["incident"]["status"], string
 };
 
 export const OCC_STATUS: Record<Occupant["status"], string> = {
-  unknown: "inconnu",
-  calling: "appel…",
+  unknown: "à joindre", // listed, not contacted yet
+  calling: "appel en cours",
   in_call: "en ligne",
-  no_answer: "sans réponse",
+  no_answer: "sans nouvelles", // a call rang with no answer (Seraph's rule)
   safe_outside: "dehors",
   sheltering: "à l'abri",
   trapped: "bloqué",
@@ -59,7 +59,7 @@ export const OCC_TONE: Record<Occupant["status"], Tone> = {
   unknown: "gris",
   calling: "blanc",
   in_call: "blanc",
-  no_answer: "gris",
+  no_answer: "alerte",
   safe_outside: "sur",
   sheltering: "blanc",
   trapped: "danger",

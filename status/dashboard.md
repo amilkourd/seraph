@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 05:55
+Updated: 06:13
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -97,6 +97,10 @@ Updated: 05:55
   entrance halls (`entrances[].leads_to`): full walls (2 px white, red for fire, green for the ladder) and their fills.
   Weights: slab 3.2–3.5 > stair core 2.6 > lift 2.2 > key rooms 2 > other walls 1. Checked at 1920×1080 at idle
   (live) and on the Scenario v2 end state (mock state, R+1 forced quiet); not by a live replay on the shared Seraph.
+- Occupant statuses (bug from the first live run, all six showed « sans nouvelles »): `unknown` = « à joindre »
+  (listed, no call yet), `calling` = « appel en cours », `no_answer` = « sans nouvelles » (a call rang, no answer).
+  Panel « À l'intérieur »: Personnes · Aide · À joindre · Sans nouvelles; only Sans nouvelles turns amber. 3D: à joindre
+  = small grey ring, appel en cours = grey ring, sans nouvelles = amber ring. Checked live (6 à joindre, 0 sans nouvelles).
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.

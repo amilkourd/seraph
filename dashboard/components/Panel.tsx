@@ -139,19 +139,22 @@ function Inside({ s }: { s: IncidentState }) {
   const inside = s.occupants.filter((o) => o.status !== "safe_outside");
   const people = inside.reduce((n, o) => n + (o.people_count ?? 1), 0);
   const help = inside.filter((o) => o.status === "needs_help" || o.status === "trapped").length;
-  const noNews = inside.filter((o) => o.status === "no_answer" || o.status === "unknown").length;
-  const stat = (label: string, value: number) => (
-    <div className="flex flex-col gap-2">
-      <span className="label text-[12px]">{label}</span>
-      <span className="t-num text-[44px] text-ink">{value}</span>
+  // « à joindre »: listed, no call yet; « sans nouvelles »: a call rang with no answer — only that one is an alert
+  const toReach = inside.filter((o) => o.status === "unknown").length;
+  const noNews = inside.filter((o) => o.status === "no_answer").length;
+  const stat = (label: string, value: number, alert = false) => (
+    <div className="flex min-w-0 flex-col gap-2">
+      <span className="label text-[12px] whitespace-nowrap">{label}</span>
+      <span className={`t-num text-[44px] ${alert && value > 0 ? "text-alerte" : "text-ink"}`}>{value}</span>
     </div>
   );
   return (
     <Card title="À l'intérieur">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-3">
         {stat("Personnes", people)}
         {stat("Aide", help)}
-        {stat("Sans nouvelles", noNews)}
+        {stat("À joindre", toReach)}
+        {stat("Sans nouvelles", noNews, true)}
       </div>
     </Card>
   );
