@@ -44,6 +44,22 @@ def static_checks(html: str) -> list[str]:
     return errs
 
 
+HAZARD_WORDS = re.compile(r"\b(feu|fumée|fumee|incendie|fire|smoke)\b", re.I)
+
+
+def no_hazard(state: dict) -> dict:
+    """The same state with nothing reported: no hazard, no stair in smoke."""
+    s = json.loads(json.dumps(state))
+    b = s.get("building") or {}
+    b["hazards"] = []
+    for st in b.get("stairs") or []:
+        if st.get("status") in ("smoke", "blocked"):
+            st["status"] = "unknown"
+    for r in b.get("rooms") or []:
+        r.pop("hazard", None)
+    return s
+
+
 class Renderer:
     """One headless Chromium for the whole process. Renders the staged view with the live state."""
 
@@ -95,6 +111,14 @@ class Renderer:
                 shell = await page.evaluate("window.__shell")
                 drawn = await page.evaluate("document.querySelectorAll('svg *').length") - ground
                 await page.screenshot(path=str(shot))
+                # no hazard reported → no fire, no smoke (Amil: they appear only once someone reported them)
+                await page.evaluate("m => window.postMessage(m, '*')", json.dumps({"type": "seraph:state", "state": no_hazard(state)}))
+                await page.wait_for_timeout(400)
+                text = await page.evaluate("document.body.innerText")
+                left = HAZARD_WORDS.findall(text or "")
+                if left:
+                    errors.append(f"with no hazard in the state the view still shows « {left[0]} »: fire and smoke must come "
+                                  "from state.building.hazards (and stair status) at runtime, never from literal text")
             except Exception as e:
                 errors.append(f"render failed: {type(e).__name__}: {str(e)[:160]}")
                 shell, drawn = [], 0

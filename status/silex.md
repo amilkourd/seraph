@@ -1,5 +1,5 @@
 # silex — status
-Updated: 05:46
+Updated: 05:55
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -69,6 +69,12 @@ Updated: 05:46
   sv-left: glazed lobby on the boulevard → E1; sv-right: no vehicle access on that side; earth-top: the boulevard
   band; IFC L0/L3: stair A behind E1, fire R+3). Every request now tells Devin to draw on ONE frame (`earth-top-01`
   for the street side, `ifc-L<n>` inside) and to prefer the street side when `building.footprint` exists.
+- Amil's rule in the playbook and in every request, word for word: « Never write a hazard, level or room as literal
+  text. Every fact in the card comes from the live state via Halo.onState at runtime, with its source tag. No
+  hazard in the state means no fire in the view. » Enforced: the headless render posts the state again with no
+  hazard (and no stair in smoke) and rejects a view that still shows feu/fumée/fire/smoke. The four views built so
+  far pass it (their « Feu … » line is computed from `building.hazards`); a literal « Feu R+3 » is rejected.
+  view_approach_4's « FEU R+3 » came from the stale 05:05 snapshot used for that test build, not from the code.
 - A build waits up to `SILEX_REF_WAIT_S` (45 s) for shots that are missing while Rosetta reports active runs.
 - `GET /sessions` → `request_to_view_ms` of the session's last view (request reaching Silex → view served).
 - Playbook + every request: arrow width ≥ 16, no tag over the arrow (Amil's review of view_approach_2).

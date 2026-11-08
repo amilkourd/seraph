@@ -23,6 +23,9 @@ VIEW_SCHEMA: dict[str, Any] = {
     "required": ["request_id", "view_id", "html"],
 }
 
+# Amil's rule, word for word, repeated in every request (warm sessions read the playbook only once)
+LIVE_FACTS = "« Never write a hazard, level or room as literal text. Every fact in the card comes from the live state via Halo.onState at runtime, with its source tag. No hazard in the state means no fire in the view. »"
+
 # every point carries the image it is on; a view draws on one frame
 FRAMES_NOTE = """- frames: every point names its image (`image_id`). Draw one view on ONE frame, never mix two:
   the street side = `earth-top-01` (Rosetta: `building.footprint.polygon`, `entrances[].point`, `truck_spot.point`,
@@ -112,6 +115,8 @@ def request_message(vr: dict, view_id: str, state: dict, refs: list[dict], cold:
 - deadline: {vr.get('deadline_s')} s from now. Aim to answer in under {max(60, int(vr.get('deadline_s') or 300) * 2 // 3)} s.
 - this building's stairs: {stairs}. Draw only what the state has.
 {FRAMES_NOTE}
+- live facts: {LIVE_FACTS} The snapshot may be stale; Silex re-renders the view with no hazard and rejects any
+  fire or smoke left.
 
 References (attached; use them only for shapes and proportions, never as a background image):
 {ref_lines}
@@ -191,6 +196,8 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
 - legibility at arm's length: the arrow is the main shape (`width` ≥ 16, long); no tag over the arrow's shaft or
   head (put the entrance tag on the side away from the route).
 {FRAMES_NOTE}
+- live facts: {LIVE_FACTS} The snapshot may be stale; Silex re-renders the view with no hazard and rejects any
+  fire or smoke left.
 
 ## Build it FROM these images (open and look at every one of them with your read tool)
 Screenshots Rosetta's H agent took of the real address during the drive (Street View, Google Earth):

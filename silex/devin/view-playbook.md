@@ -25,6 +25,11 @@ and, per request, `state.json` (the full live `IncidentState`) and reference ima
    `notes` one short English line on what you drew. Don't open a PR, don't create a repository, don't ask questions:
    if something is unclear, pick the simplest option that follows the rules and say it in `notes`.
 
+## Facts come from the live state (Amil's rule: fire and smoke appear only once a firefighter or a caller reported them)
+« Never write a hazard, level or room as literal text. Every fact in the card comes from the live state via Halo.onState at runtime, with its source tag. No hazard in the state means no fire in the view. »
+The snapshot you get is only for building and testing: it may be stale. Silex renders your view a second time with
+every hazard removed and rejects it if it still shows fire or smoke.
+
 ## Contract (from contracts/halo-views.md)
 - Loads `{{HALO_KIT_URL}}/halo-kit.js` and `{{HALO_KIT_URL}}/halo.css`, nothing else from the network.
 - Listens with `Halo.onState(fn)` and calls `Halo.ready()` once mounted (it posts `seraph:ready`). The view must
