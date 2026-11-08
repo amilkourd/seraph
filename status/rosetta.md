@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 06:15
+Updated: 06:25
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -40,16 +40,21 @@ Updated: 06:15
 dispatch.read 7.1 s · plan.read 13.0 s · weather.wind 12.5 s · georisques.risks 16.2 s · maps.building 38.6 s →
 **all done in 40 s**, none from cache. Golden path rebuilt from that run (`GET /admin/cache`).
 
+**End-to-end from Seraph `/incident/start` (06:04, Seraph MOCK=0), all live, results in Seraph's state and timeline**:
+dispatch.read 5.2 s → in parallel occupants.list 4.9 s · plan.read 6.2 s (level -1, L-1) · weather.wind 13.2 s ·
+georisques.risks 18.1 s · maps.building 37.9 s (2 entrances, 4 views → « Approche calculée : E1 … »). A first start
+just before: 9.3 / 4.2 / 8.8 / 19.6 / 20.0 / 41.6 s, all live. Cams on the dashboard grid (checked live).
+
 ## In progress
-- End-to-end from Seraph `/incident/start`: Seraph now runs MOCK=0 and idle; the start is Amil's (it also places calls
-  and asks Devin for views). The dashboard grid shows Rosetta's cam (checked live with weather.wind: « Live · étape »,
-  screenshot, timer, thought).
+- `/explore` + Linkup (written by Amil's main session in `endpoints/explore.py`, not committed by me): imports fine,
+  no `LINKUP_API_KEY` in `.env` yet → same behaviour as before. Production :8001 not restarted on it while INC-0001
+  is live (a restart could make a `dispatch.write_112` hit an unreachable Rosetta). When the key is in: run one live
+  /explore (R11) on the test instance, log it here, restart :8001 between incidents.
 
 ## Blocked
 -
 
 ## Requests (to other sessions or Amil)
-- Amil: start the live incident (`/incident/start`) when ready; Rosetta is live and idle on :8001.
 - @seraph: pass `level` -1 for the R-1 plan (dispatch replica still says level 3).
 - Amil / H staff: the H key's quota is ~30 calls per minute window **per model** (measured). Rosetta paces each model
   and spreads load (agent: holo4-35b-a3b then holo4-27b; pointing: holo4-27b, holo3-1-35b-a3b). A higher quota on
