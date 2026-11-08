@@ -121,6 +121,18 @@ class SupabaseRegistry(BuildingRegistry):
                                             "ban_uuid": address.ban_uuid, "lat": address.lat, "lon": address.lon},
                      "key")
 
+    def delete(self, building_id: str) -> None:
+        """Remove a building (record, addresses by cascade, files). The access log keeps its lines."""
+        record = self.get(building_id)
+        if record is None:
+            return
+        paths = [f"{building_id}/{rel}" for rel in record.model.get("files", [])]
+        if paths:
+            r = self.http.request("DELETE", f"/storage/v1/object/{self.bucket}", json={"prefixes": paths})
+            self._check(r)
+        r = self.http.delete("/rest/v1/registry_buildings", params={"building_id": f"eq.{building_id}"})
+        self._check(r)
+
     # ───────── access log ─────────
     def write_log(self, entry: AccessEntry) -> None:
         r = self.http.post("/rest/v1/registry_access_log", json=entry.to_dict(),

@@ -1,67 +1,85 @@
 # ifc — status
-Updated: 05:00
+Updated: 05:08
 
 Owns `ifc/` (any IFC → `building.json`, level plans, checks) and `registry/` (the building registry Seraph looks
 addresses up in).
 
 ## Running
 - Nothing serves (offline tools). Seraph imports `registry/` as a package (`building_registry`), no port.
-- Demo building: `registry lookup` → TU Wien at `DEMO_ADDRESS` (local backend, offline).
+- `cd registry && uv run registry lookup` → TU Wien at `DEMO_ADDRESS` (local backend, offline).
 
 ## Done
-- `ifc/` (extractor 1.2.0): `extract.py` works on any IFC. TU Wien real model (13.5 MB, Archicad IFC4) → all 4 checks
-  pass in ~3 s; dev R+5 too. Real space footprints, doors via IfcRelSpaceBoundary + 0.5 m rule, openings via
-  IfcVirtualElement boundaries, stairs stacked into one `stair:A`, outdoor spaces (balconies = ladder points, never
-  exits), shafts dropped, flats (`units`), French labels + ids from `ifc/tuwien/ids.yaml`, materials and fire
-  ratings only from the IFC (« ND » placeholders dropped), per-level slab outlines, plan frame on the building's
-  axes with E1 at the bottom.
-- `ifc/out/` = TU Wien (Seraph's `BUILDING_JSON`), `ifc/out-dev/` = fictional R+5 (fixture ids). Each has
+- **Extractor 1.3.0** (`ifc/`), works on any IFC; on TU Wien's real model (13.5 MB, Archicad IFC4) all 4 checks pass in
+  ~7 s. Real space footprints, doors (IfcRelSpaceBoundary + 0.5 m rule), openings from virtual boundaries, one
+  `stair:A`, outdoor spaces (balconies = `ladder:` rescue points, never exits), flats (`units`), shafts kept for the
+  plans only, French labels and scenario ids from `ifc/tuwien/ids.yaml`, materials and fire ratings only from the IFC
+  (« ND » placeholders dropped), **slab outline per level** (`levels[].outline` / `outline_m`, real holes), plan frame
+  on the building's axes with E1 at the bottom (`model.plan_frame`).
+- **Level plans = real section cuts** 1.10 m above each floor: walls by class and real thickness, windows, railings,
+  door leaves + swings from the IFC operation types (convention checked on the file: flat doors open inwards, WC doors
+  outwards), stair treads + walking line + up arrow, garage ramp + slope (14,7 %), lift X/ASC, shafts, risk triangles,
+  fire doors (red sawtooth + rating), E1 red arrow / E2 red disc, ladder icons on balconies, scale bar, north arrow.
+  French intervention-plan conventions: NF S 60-303 (cancelled 2013) → NF X 08-070 (2023), from public legends
+  (sources in `ifc/README.md`). Before/after: `ifc/docs/plans-before-after.png`.
+- `ifc/out/` = TU Wien (`BUILDING_JSON`), `ifc/out-dev/` = fictional R+5 (now with door openings + swings). Each:
   `building.json`, `levels/L<n>.svg`, `report.txt`, `building.md`.
-- `registry/`: `BuildingRegistry` (lookup / get_model / model_path / list / access log), backends `local` (default,
-  offline), `supabase` (written + migration applied on project `seraph`, ref `awddwjzozoqyxpyblpsi`, eu-west-1:
-  tables `registry_buildings`, `registry_addresses`, `registry_access_log`, private bucket `building-models`, RLS on with
-  no policy = closed to anon/publishable keys), `fire_service` (read-only adapter for an SDIS registry). CLI `registry`
-  (register / lookup / add-address / log / copy / export), idempotent registration.
+- **Registry** (`registry/`): `BuildingRegistry` (lookup / get_model / model_path / list / access log), backends `local`
+  (default, offline, stdlib only), `supabase` (code + migration applied on project `seraph`, ref
+  `awddwjzozoqyxpyblpsi`, eu-west-1: `registry_buildings`, `registry_addresses`, `registry_access_log`, private bucket
+  `building-models`, RLS on with no policy, client roles revoked, log append-only), `fire_service` (read-only adapter
+  for an SDIS registry). CLI: register / lookup / add-address / log / copy / export. Idempotent registration with
+  extractor version + hashes.
 - Registered (local): `tuwien-escape-route-v2` at `DEMO_ADDRESS` (exercice) and `dev-r5-exercice` at « 1 rue de
-  l'Exercice, 75009 Paris » (exercice, « bâtiment fictif » fallback). Unknown address → None. Checked with Seraph's
-  own loader (`seraph.building.load` + `shortest_path`).
+  l'Exercice, 75009 Paris » (exercice, « bâtiment fictif »). Unknown address → None. Moving the demo building to a
+  new address: `uv run registry add-address tuwien-escape-route-v2 --demo-address --exercise` (tested).
+  Checked through Seraph's own loader (`seraph.building.load` + `shortest_path`: outside → E1 → stair A → 3.12 / 3.T /
+  2.01 / -1.06).
+- Tests: `ifc/` 28 passed (dev round-trip, checks, TU Wien). `registry/` 26 passed, 6 skipped (= the live-Supabase run,
+  needs the key): one contract suite on local, Supabase (real code vs in-memory PostgREST + Storage), fire-service
+  adapter (fake API), plus address normalization.
+- READMEs: `ifc/README.md`, `registry/README.md` (keys, backends, swapping in a fire service, tests, TU Wien credit).
 
 ## In progress
-- Section-cut level plans (real walls, flights + up arrow, door swings, windows, shafts, NF S 60-303 symbols).
-- Tests (pytest: extract, checks, one contract suite for every backend), READMEs.
+- Nothing. Next if asked: walls-only white layer for Halo (Halo said not needed now).
 
 ## Blocked
 - Supabase data copy: needs `SUPABASE_URL` + `SUPABASE_SECRET_KEY` in `.env` (Amil). Then
-  `cd registry && uv run registry copy --to supabase` copies both buildings. Tables and bucket already exist.
+  `cd registry && uv run registry copy --to supabase && uv run pytest` (the live contract run turns on by itself).
 
 ## Requests (to other sessions or Amil)
-- Amil: paste in `.env` (server-side only, never in a client): `SUPABASE_URL=https://awddwjzozoqyxpyblpsi.supabase.co`
-  and `SUPABASE_SECRET_KEY` (Settings → API Keys → secret key; a legacy `SUPABASE_SERVICE_ROLE_KEY` also works).
-  New env names (also in `.env.example`): `REGISTRY_BACKEND` (local | supabase | fire_service, default local),
-  `REGISTRY_DIR`, `REGISTRY_CACHE_DIR`, `REGISTRY_ONLINE` (1: BAN/RNB lookups for unknown spellings, default 1;
-  `MOCK=1` forces offline), `REGISTRY_BUCKET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY`,
+- Amil: paste in `.env` (server-side only): `SUPABASE_URL=https://awddwjzozoqyxpyblpsi.supabase.co` and
+  `SUPABASE_SECRET_KEY` (Supabase → Settings → API Keys → secret key; a legacy `SUPABASE_SERVICE_ROLE_KEY` also works).
+  Env names added to `.env.example`: `REGISTRY_BACKEND` (local | supabase | fire_service), `REGISTRY_DIR`,
+  `REGISTRY_CACHE_DIR`, `REGISTRY_ONLINE`, `REGISTRY_BUCKET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
   `FIRE_SERVICE_REGISTRY_URL`, `FIRE_SERVICE_REGISTRY_TOKEN`.
-- Amil (contracts/types.ts, `Building`): optional fields the extractor now writes, to add to the contract:
-  `levels[].outline` / `outline_m` (`{outer, holes}[]`, 0–1000 frame / metres), `levels[].outline_source`
-  ("slab" | "spaces"), `levels[].slab_thickness_m`, `levels[].ifc_name`; `rooms[].kind`
-  (room | corridor | elevator | exterior), `rooms[].ifc_name`, `rooms[].ifc_guid`; `stairs[].levels`,
-  `stairs[].zones` (`{level, zone}[]`); `entrances[].leads_to`, `entrances[].level`, `entrances[].plan_point`
-  (on the IFC plan, not Street View); `doors[].plan_point`; `units[]` (flats: `{id, level, label, rooms, outdoor,
-  entry}`); `model.ladder_points` (`{level: node[]}`), `model.second_route` (`{kind, reason}`),
-  `model.plan_frame`, `model.extractor`, `model.source_ifc`, `model.checks`. Node prefixes: `ladder:<id>`.
-- @seraph: done — integration snippet sent; serve `/building/files` from `kit.files_dir` first.
+- Amil (`contracts/types.ts`, `Building`), optional fields the extractor writes: `levels[].outline` / `outline_m`
+  (`{outer, holes}[]`, 0–1000 frame / metres), `levels[].outline_source` ("slab" | "spaces"),
+  `levels[].slab_thickness_m`, `levels[].ifc_name`; `rooms[].kind` (room | corridor | elevator | exterior),
+  `rooms[].ifc_name`, `rooms[].ifc_guid`; `stairs[].levels`, `stairs[].zones` (`{level, zone}[]`);
+  `entrances[].leads_to`, `entrances[].level`, `entrances[].plan_point` (IFC plan, not Street View);
+  `doors[].plan_point`; `units[]` (`{id, level, label, rooms, outdoor, entry}`); `model.ladder_points`,
+  `model.second_route`, `model.plan_frame`, `model.extractor`, `model.source_ifc`, `model.checks`. Node prefix `ladder:`.
+- @seraph: integration snippet sent (`RegistryBacked` → `B.load(reg.model_path(...))`); renames `facade_rescue_points`
+  → `model.ladder_points`, `facade:` → `ladder:`; serve `/building/files` from `kit.files_dir` first.
+- Scenario v2 session: my last message was not delivered (cross-session cap). Since its last copy of `ifc/out`, only
+  the level SVGs and `model.extractor.version` (1.3.0) changed; ids and coordinates are the same.
 
 ## Facts I verified (API names, model ids, gotchas)
-- ifcopenshell 0.9.0: import api submodules explicitly (`import ifcopenshell.api.root` …); geometry via
-  `ifcopenshell.geom.iterator(settings, f, threads, include=[...])`, `settings.set("use-world-coords", True)`.
-- TU Wien IFC: spaces mostly unnamed (LongName German), stair = 150 IfcBuildingElementPart under IfcStair (no body
-  of its own), door OperationType on the IfcDoorType, slabs belong to the storey BELOW (match by top elevation),
-  slabs carry their stair/lift/shaft holes, `Pset_SpaceFireSafetyRequirements` on 103 spaces, model rotated ~50°.
-- BAN: `GET https://api-adresse.data.gouv.fr/search/?q=…&limit=1` → `properties.id` = cle_interop
-  (75109_6358_00009), `banId` UUID, `score`, `type`. RNB: `GET https://rnb-api.beta.gouv.fr/api/alpha/buildings/?cle_interop_ban=…`
-  → `results[].rnb_id` (12 chars); one address can have several RNB buildings.
-- Supabase new keys: `sb_secret_…` goes in the `apikey` header only (a Bearer non-JWT is rejected); legacy
-  service_role JWT goes in both `apikey` and `Authorization`.
+- ifcopenshell 0.9.0: import api submodules explicitly; `by_type` returns tuples; geometry via
+  `ifcopenshell.geom.iterator(settings, f, threads, include=[...])` + `settings.set("use-world-coords", True)`;
+  `api.feature.add_feature` / `add_filling` for openings.
+- Archicad IFC (TU Wien): layered walls, slabs, stairs and ramps have no body, their `IfcBuildingElementPart`s do
+  (follow `IsDecomposedBy` only: `get_decomposition` also returns openings and their fillings); door OperationType on
+  the IfcDoorType; slabs belong to the storey below (match by top elevation); spaces mostly unnamed (German LongName);
+  model rotated ~50° in world; `TrueNorth` (0, 1).
+- IFC door swing: the leaf opens towards the door's local +y; hinge left/right as seen along +y (checked: flat doors
+  open into the flat, WC doors into the hallway, French windows inwards).
+- NF S 60-303 was cancelled in 2013 (→ NF X 08-070, 2023 edition); the ERP regulation (MS 41) still cites it.
+- BAN `GET https://api-adresse.data.gouv.fr/search/?q=…&limit=1` → `properties.id` (cle_interop), `banId`, `score`,
+  `type`. RNB `GET https://rnb-api.beta.gouv.fr/api/alpha/buildings/?cle_interop_ban=…` → `results[].rnb_id`; one
+  address can have several RNB buildings.
+- Supabase: new `sb_secret_…` keys go in the `apikey` header only (Bearer non-JWT rejected); legacy service_role JWT in
+  `apikey` + `Authorization`.
 
 ## The demo building (TU Wien), for the scenario session
 **Immeuble d'habitation (maquette TU Wien)** — Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice
