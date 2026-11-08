@@ -52,6 +52,8 @@ the legacy report software.
 | `report.fill` | Report replica `:8102` | fills the 4 sections, saves, sends | the finished report | replica | write, gated |
 | `weather.wind` (stretch) | meteofrance.com | searches the town, reads wind | direction, speed | **real** | read |
 Never on our own apps. Public sites read-only. Writes only in replicas.
+A question no endpoint covers (`/explore`): **Linkup** finds the official pages, the H agent opens one and reads the
+answer on screen, « source non vérifiée »; Devin can then compile it into a new endpoint.
 
 Not computer use: the building's **IFC** (`docs/10-ifc.md`), the file the fire service would hold. « L'IFC donne
 l'intérieur, Rosetta donne tout le reste. » No open IFC of a real French building exists: a venue's would be rebuilt

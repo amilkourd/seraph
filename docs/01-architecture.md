@@ -130,7 +130,8 @@ sequenceDiagram
 ```
 
 ### 4. Learning a source live
-Seraph gets a question no endpoint covers → asks Rosetta `POST /explore` (visible on agent cam, ~60–90 s) →
+Seraph gets a question no endpoint covers → asks Rosetta `POST /explore` → Linkup finds the official pages → the H agent opens one (visible on agent
+cam, ~60–90 s) →
 answer spoken (tagged « source non vérifiée ») → Silex has Devin compile the trace into
 `rosetta/skills/learned/<name>.md` + test → endpoint counter +1 → next time it is a normal call.
 

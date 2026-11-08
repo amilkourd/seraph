@@ -49,9 +49,12 @@ shot_url, page_url, at}`. The dashboard shows one tile per running endpoint. Thi
 - `POST /admin/cache/clear` for the real live demo run.
 
 ## Learning a source (`POST /explore`)
-- Goal: answer a question from an **official** source. Start URLs list in `rosetta/skills/_explore_start.md`
-  (service-public.fr, data.gouv.fr, annuaire de l'éducation, the city's site…). Avoid search engines that show
-  captchas.
+- Goal: answer a question from an **official** source. **Linkup** (web search API for agents) searches first,
+  restricted to official hosts (`gouv.fr`, `service-public.fr`, `paris.fr`…), and its top 4 pages head the start
+  page; the H agent opens one and reads the answer on screen. The fixed list in `rosetta/skills/_explore_start.md`
+  (service-public.fr, data.gouv.fr, annuaire de l'éducation, the city's site…) follows, and is all there is without
+  `LINKUP_API_KEY` or when Linkup fails (12 s timeout). The result says `found_by: linkup | liste`. Avoid search
+  engines that show captchas.
 - Saves a full trace (`GET /runs/{id}/trace`). The answer goes back to Seraph tagged `learned`, `verified:false`.
 - Silex then has Devin turn the trace into `rosetta/skills/learned/<name>.md` (+ extraction code + test). Rosetta
   hot-loads new skill files; the endpoint counter goes up.

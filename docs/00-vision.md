@@ -35,6 +35,8 @@ adds a new one when a new source shows up.
   pain in the voice moves that call up the list.
 - **Devin**: builds the Halo view for this exact moment, and compiles new Rosetta endpoints. Not a coding
   assistant: a tool factory inside the incident.
+- **Linkup**: when a question has no endpoint, Linkup finds the official pages (official hosts only) and the H agent
+  opens one on screen. Search finds where, computer use reads what.
 
 ## What wins (patterns from firefighter/emergency winners, 2024–2026)
 A real disaster and a hard number up front; judges take part (they get called, they hold the radio); two screens
