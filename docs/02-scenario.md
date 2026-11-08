@@ -1,9 +1,9 @@
 # Scenario v2 — EXERCICE on the TU Wien building (every screen says EXERCICE)
 
 **« EXERCICE — Feu de véhicule au parking souterrain, fumée dans l'escalier, immeuble R+3 »** at `DEMO_ADDRESS`
-(`.env`: « 2 rue Madame, 64000 Pau »). The building is a **real architect's IFC** (TU Wien « Real-World Escape Route
-Test Model », CC BY 4.0) placed at a fictional address: provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) —
-adresse fictive, exercice » on every screen. Everything below exists in `contracts/fixtures/`; ids come from
+(`.env`: « 96 Boulevard Bessières, 75017 Paris », the venue). The building is a **real architect's IFC** (TU Wien « Real-World Escape Route
+Test Model », CC BY 4.0) placed at the exercise address: provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) —
+adresse d'exercice » on every screen (the real building at that address is not this one). Everything below exists in `contracts/fixtures/`; ids come from
 `ifc/out/building.json` (extractor 1.2.0, building map in `status/ifc.md`).
 
 ## The building (`fixtures/building.json` = `ifc/out/building.json` + what Rosetta brings from outside)
@@ -15,17 +15,17 @@ adresse fictive, exercice » on every screen. Everything below exists in `contra
 - **Second way out of each flat = the façade**: balconies and terraces, reached by the fire service's ladders.
   Graph nodes `ladder:<room>` (`model.ladder_points`): R+1 `ladder:1.05`, `ladder:1.18` · R+2 `ladder:2.05`,
   `ladder:2.17` · R+3 `ladder:3.04`, `ladder:3.07`, `ladder:3.08`. A ladder point is never an exit on foot.
-- Entrances (from the IFC): **E1** « Porte d'entrée, hall de l'escalier », RDC, front, on rue Madame → `corridor:0`
+- Entrances (from the IFC): **E1** « Porte d'entrée, hall de l'escalier », RDC, front, on boulevard Bessières → `corridor:0`
   (EI2 30-C). **E2** « Porte de garage, rampe (sous-sol) », R-1, left side → ramp `-1.03` → garage `-1.11`.
 - Flats (`units`): `U0.1` `U0.2` (RDC, terraces 0.01 / 0.14 / 0.20 open to the garden = exits on foot), `U1.1`
   `U1.2`, `U2.1` `U2.2`, `U3.1`. Each flat door is EI2 30-C-Sm.
 - Outside, from Rosetta (`maps.building`; fixture values, all on the top view `earth-top-01`): hydrant **H1**
-  « Poteau incendie, trottoir rue Madame », ~30 m from E1 · truck spot « Rue Madame, devant E1 » · E1 on the front
+  « Poteau incendie, trottoir du boulevard Bessières », ~30 m from E1 · truck spot « Boulevard Bessières, devant E1 » · E1 on the front
   façade, E2 at the foot of the ramp, rear-left corner · the roof outline `building.footprint` (optional; in the
   fixture, the IFC's R+1 outline placed with E1 on its point).
 - Posted plan (`plan.read`): the R-1 plan, rendered from the IFC (`ifc/out/levels/L-1.svg`), `image_id`
   `plan-l-1-01`, same 0–1000 frame as `ifc-L-1`. It cross-checks the IFC; the IFC zones win.
-- Wind: west, ~20 km/h (Météo-France, Pau). Géorisques (mock): séisme zone 4, retrait-gonflement des argiles.
+- Wind: west, ~20 km/h (Météo-France, Paris). Géorisques (mock): séisme zone 1 (très faible), retrait-gonflement des argiles.
 
 ## The fire and why the stair is in smoke (geometry, from the IFC)
 - **Origin: a car on fire in the underground garage `-1.11`** (R-1). Smoke leaves by the ramp (`-1.03` → E2) and,

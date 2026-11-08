@@ -43,11 +43,11 @@ output
 { "storeys_estimate": 4,
   "entrances": [{"id":"E1","label":"Porte d'entrée, hall de l'escalier","side":"front","point":{"image_id":"earth-top-01","x":500,"y":585}},
                 {"id":"E2","label":"Porte de garage, rampe (sous-sol)","side":"left","point":{"image_id":"earth-top-01","x":395,"y":352}}],
-  "hydrants": [{"id":"H1","label":"Poteau incendie, trottoir rue Madame","point":{"image_id":"earth-top-01","x":831,"y":635}}],
-  "truck_spot": {"label":"Rue Madame, devant E1","point":{"image_id":"earth-top-01","x":500,"y":712}},
+  "hydrants": [{"id":"H1","label":"Poteau incendie, trottoir du boulevard Bessières","point":{"image_id":"earth-top-01","x":831,"y":635}}],
+  "truck_spot": {"label":"Boulevard Bessières, devant E1","point":{"image_id":"earth-top-01","x":500,"y":712}},
   "footprint": {"image_id":"earth-top-01","polygon":[[422,468],[422,360],[625,360], …]},
   "evidence": [{"of":"E1","point":{"image_id":"sv-front-01","x":508,"y":642}}, …],
-  "obstacles": ["Voitures garées le long de la rue Madame"] }
+  "obstacles": ["Voitures garées le long du boulevard Bessières"] }
 ```
 **Every point Halo draws (entrances, hydrant, truck spot) is on the same top view, `earth-top-01`.** Points found on
 other photos (Street View, Earth sides) go in `evidence` (`{of, point}`): proof for the dashboard, never drawn

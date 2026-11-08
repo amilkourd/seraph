@@ -1,6 +1,6 @@
 {
   "name": "Immeuble d'habitation (maquette TU Wien)",
-  "address_placeholder": "DEMO_ADDRESS (.env: « 2 rue Madame, 64000 Pau », adresse fictive, exercice)",
+  "address_placeholder": "DEMO_ADDRESS (.env: « 96 Boulevard Bessières, 75017 Paris », maquette TU Wien placée à cette adresse, exercice)",
   "levels": [
     {
       "level": -1,
@@ -256,13 +256,13 @@
   "hydrants": [
     {
       "id": "H1",
-      "label": "Poteau incendie, trottoir rue Madame",
+      "label": "Poteau incendie, trottoir du boulevard Bessières",
       "distance_m": 30,
       "point": {"image_id": "earth-top-01", "x": 831, "y": 635}
     }
   ],
   "truck_spot": {
-    "label": "Rue Madame, devant E1",
+    "label": "Boulevard Bessières, devant E1",
     "point": {"image_id": "earth-top-01", "x": 500, "y": 712}
   },
   "rooms": [
@@ -3321,7 +3321,7 @@
   },
   "model": {
     "provenance": "architect",
-    "provenance_fr": "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice",
+    "provenance_fr": "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice",
     "level_plans": [
       {"level": -1, "url": "http://localhost:8000/building/files/levels/L-1.svg", "image_id": "ifc-L-1"},
       {"level": 0, "url": "http://localhost:8000/building/files/levels/L0.svg", "image_id": "ifc-L0"},

@@ -69,11 +69,11 @@ assert {d["id"] for d in ifc["doors"]} >= {"P-1-5", "P-1-6", "P2-69", "P3-75", "
 # ───────── outside facts (Rosetta, maps.building): every approach point on the SAME top view ─────────
 TOP = "earth-top-01"
 SHOTS_MAPS = [
-    shot("sv-front-01", "Façade rue Madame, porte d'entrée E1 (Street View)", "front"),
+    shot("sv-front-01", "Façade boulevard Bessières, porte d'entrée E1 (Street View)", "front"),
     shot("sv-left-01", "Côté gauche, rampe du garage E2 (Street View)", "left"),
     shot("earth-left-01", "Côté gauche, rampe du garage (Google Earth 3D)", "left"),
     shot("earth-rear-01", "Arrière, balcons et terrasses (Google Earth 3D)", "rear"),
-    shot(TOP, "Vue du dessus, rue Madame (Google Earth)", "top"),
+    shot(TOP, "Vue du dessus, boulevard Bessières (Google Earth)", "top"),
 ]
 # Mock placement of the IFC on the top view (live: Rosetta points on the real image). The IFC frame already has E1's
 # façade at the bottom: scale it to ~21 % of the 1280×800 image (k px per plan unit) and put door E1 on (500, 585).
@@ -90,8 +90,8 @@ ROOF = next(lv for lv in ifc["levels"] if lv["level"] == 1)["outline"][0]["outer
 FOOTPRINT = {"image_id": TOP, "polygon": [to_top(x, y) for x, y in ROOF]}
 E2_PLAN = next(d for d in ifc["doors"] if d["id"] == "E2")["plan_point"]
 ENTRANCE_POINTS = {"E1": pt(TOP, *to_top(E1_PLAN["x"], E1_PLAN["y"])), "E2": pt(TOP, *to_top(E2_PLAN["x"], E2_PLAN["y"]))}
-HYDRANT = {"id": "H1", "label": "Poteau incendie, trottoir rue Madame", "distance_m": 30, "point": pt(TOP, 831, 635)}
-TRUCK = {"label": "Rue Madame, devant E1", "point": pt(TOP, 500, 712)}
+HYDRANT = {"id": "H1", "label": "Poteau incendie, trottoir du boulevard Bessières", "distance_m": 30, "point": pt(TOP, 831, 635)}
+TRUCK = {"label": "Boulevard Bessières, devant E1", "point": pt(TOP, 500, 712)}
 EVIDENCE = [  # per-photo pointing, kept as evidence only (Halo draws from the top view)
     {"of": "E1", "point": pt("sv-front-01", 508, 642)},
     {"of": "E2", "point": pt("sv-left-01", 362, 690)},
@@ -158,7 +158,7 @@ fb["hydrants"] = [HYDRANT]
 fb["truck_spot"] = TRUCK
 fb["footprint"] = FOOTPRINT
 fb["plan"] = {"image_id": PLAN_ID, "level": -1, "file": "levels/L-1.svg", "points": plan_points, "zones": plan_zones}
-out = {"name": fb.pop("name"), "address_placeholder": "DEMO_ADDRESS (.env: « 2 rue Madame, 64000 Pau », adresse fictive, exercice)"}
+out = {"name": fb.pop("name"), "address_placeholder": "DEMO_ADDRESS (.env: « 96 Boulevard Bessières, 75017 Paris », maquette TU Wien placée à cette adresse, exercice)"}
 out.update(fb)
 out["hazards_initial"] = HAZARDS_INITIAL
 out["approach_expected"] = {"best_entrance_id": "E1", "reason": APPROACH_REASON}
@@ -206,7 +206,7 @@ dump(EP / "maps.building.json", result("maps.building", {
     "truck_spot": TRUCK,
     "footprint": FOOTPRINT,
     "evidence": EVIDENCE,
-    "obstacles": ["Voitures garées le long de la rue Madame"]},
+    "obstacles": ["Voitures garées le long du boulevard Bessières"]},
     SHOTS_MAPS, src("earth", "Maps / Earth", T0, url="https://earth.google.com/")))
 dump(EP / "plan.read.json", result("plan.read", {
     "level": -1, "image_id": PLAN_ID, "points": plan_points, "zones": plan_zones},
@@ -214,14 +214,14 @@ dump(EP / "plan.read.json", result("plan.read", {
 dump(EP / "occupants.list.json", result("occupants.list", {"occupants": occ_rows},
     [shot("occupants-01", "Liste des occupants (logiciel du gestionnaire)", "top")],
     src("occupants", "gestionnaire", T0, url="http://localhost:8103/batiments/1")))
-RISKS = [{"label": "Séisme : zone 4 (moyenne)", "category": "naturel"},
+RISKS = [{"label": "Séisme : zone 1 (très faible)", "category": "naturel"},
          {"label": "Retrait-gonflement des argiles", "category": "naturel"}]
 dump(EP / "georisques.risks.json", result("georisques.risks", {"risks": RISKS, "url": "https://www.georisques.gouv.fr/"},
     [shot("georisques-01", "Résultats Géorisques pour l'adresse", "top")],
     src("georisques", "Géorisques", T0, url="https://www.georisques.gouv.fr/")))
 dump(EP / "weather.wind.json", result("weather.wind", {
     "dir_deg": 270, "dir_label": "ouest", "speed_kmh": 20, "observed_at": T0, "url": "https://meteofrance.com/"},
-    [shot("meteo-01", "Météo-France, Pau", "top")], src("meteo", "Météo-France", T0, url="https://meteofrance.com/")))
+    [shot("meteo-01", "Météo-France, Paris", "top")], src("meteo", "Météo-France", T0, url="https://meteofrance.com/")))
 
 # ───────── state-sample.json (mid-incident, ~00:40: Tom told to stay + balcony, Lucía's order pending) ─────────
 from seraph import building as B          # read-only use of Seraph's graph code

@@ -3,7 +3,7 @@
 If you read one file, read this one. Details live in `contracts/` and `docs/`; this file decides.
 
 ## In one minute
-A fire is declared in a building (an EXERCICE: a real architect's IFC, TU Wien, at a fictional address). While the crew drives, **Rosetta**'s H
+A fire is declared in a building (an EXERCICE: a real architect's IFC, TU Wien, placed at the exercise address). While the crew drives, **Rosetta**'s H
 agents read every screen that matters (Google Maps/Earth, Géorisques, the plan posted at the door, the dispatch
 software, the building manager's occupant list). **Seraph** adds the building's **IFC model** (walls, doors, stairs, materials,
 fire ratings) and turns it all into one picture, picks the best entrance,
@@ -55,7 +55,7 @@ Never on our own apps. Public sites read-only. Writes only in replicas.
 
 Not computer use: the building's **IFC** (`docs/10-ifc.md`), the file the fire service would hold. « L'IFC donne
 l'intérieur, Rosetta donne tout le reste. » No open IFC of a real French building exists: a venue's would be rebuilt
-from its posted plans; the demo uses a real architect's IFC (TU Wien, CC BY 4.0) at a fictional address, labelled
+from its posted plans; the demo uses a real architect's IFC (TU Wien, CC BY 4.0) placed at the exercise address, labelled
 on every screen.
 
 ## How the H agents work (Rosetta)
@@ -122,7 +122,7 @@ A loop: **input → event → state → rules → actions → stream.**
 4. Halo swaps to it. From then on the view moves by itself with every state update; no rebuild.
 5. Speed: Devin takes minutes. That's why the request is sent **at dispatch** (the drive is the build window) and
    why Silex keeps a warm Devin session. Until the view lands, Halo shows the fallback list, labelled.
-Example, `approach`: building block from above, rue Madame, the truck at the truck spot, a flowing arrow to E1,
+Example, `approach`: building block from above, boulevard Bessières, the truck at the truck spot, a flowing arrow to E1,
 the hydrant, E2 crossed out because the ramp leads into the garage on fire, each element with its source tag; every
 point on the same top view (`earth-top-01`).
 
