@@ -53,7 +53,7 @@ export type SilexSession = {
   purpose?: string;
 };
 export type Mode = "connecting" | "live" | "mock" | "fixtures";
-export type Config = { mock: boolean; seraph?: string; halo?: string; rosettaWs: string; haloMirror: string | null; inscription?: string | null };
+export type Config = { mock: boolean; seraph?: string; halo?: string; rosettaWs: string; haloMirror: string | null; inscription?: string | null; fixtures?: string };
 export type Toast = { id: number; text: string; tone: "ok" | "err" | "wait" };
 
 export interface Live {
@@ -132,18 +132,24 @@ const ENDPOINT_FIXTURES = [
   "weather.wind",
 ];
 
-async function loadFixtures(): Promise<Fixtures> {
+// `base`: /api/fixtures (contracts/fixtures, dev) or /fixtures (the copy made at build: a deployed replay has no repo
+// around it), as /api/config says. Rosetta's shots come from public/shots, never from Rosetta.
+async function loadFixtures(base = "/api/fixtures"): Promise<Fixtures> {
   const [state, radio, calls, ...results] = await Promise.all([
-    getJSON<IncidentState>("/api/fixtures/state-sample.json"),
-    getLines<RadioFixture>("/api/fixtures/radio.jsonl"),
-    getLines<CallFixture>("/api/fixtures/calls.jsonl"),
-    ...ENDPOINT_FIXTURES.map((e) => getJSON<RosettaResult>(`/api/fixtures/endpoints/${e}.json`).catch(() => null)),
+    getJSON<IncidentState>(`${base}/state-sample.json`),
+    getLines<RadioFixture>(`${base}/radio.jsonl`),
+    getLines<CallFixture>(`${base}/calls.jsonl`),
+    ...ENDPOINT_FIXTURES.map((e) => getJSON<RosettaResult>(`${base}/endpoints/${e}.json`).catch(() => null)),
   ]);
+  const local = (r: RosettaResult): RosettaResult => ({
+    ...r,
+    screenshots: r.screenshots.map((s) => ({ ...s, url: s.url.replace(/^https?:\/\/[^/]+\/shots\//, "/shots/") })),
+  });
   return {
     state,
     radio,
     calls,
-    results: Object.fromEntries(results.filter((r): r is RosettaResult => !!r).map((r) => [r.endpoint, r])),
+    results: Object.fromEntries(results.filter((r): r is RosettaResult => !!r).map((r) => [r.endpoint, local(r)])),
   };
 }
 
@@ -442,7 +448,7 @@ export function useLive(): Live {
       if (stopped) return;
       setConfig(cfg);
       if (cfg.mock) {
-        fixtures = await loadFixtures().catch(() => null);
+        fixtures = await loadFixtures(cfg.fixtures).catch(() => null);
         setModeBoth("mock");
         startFixtures(true);
         return;

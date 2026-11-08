@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { NextRequest } from "next/server";
 import { connection } from "next/server";
 import { isMock, serviceUrl } from "@/lib/services";
@@ -7,6 +9,12 @@ import { isMock, serviceUrl } from "@/lib/services";
 // A browser on another machine (the projector) gets the services on the host it reached us by, not « localhost ».
 export async function GET(req: NextRequest) {
   await connection();
+  // mock (the public replay): fixtures only, no service URL ever reaches the browser. The fixtures come from
+  // contracts/ when the repo is around (dev), else from the copy made at build (public/fixtures, the deployed link).
+  if (isMock()) {
+    const repo = existsSync(path.resolve(process.cwd(), "../contracts/fixtures/state-sample.json"));
+    return Response.json({ mock: true, rosettaWs: "", haloMirror: null, inscription: inscription(), fixtures: repo ? "/api/fixtures" : "/fixtures" });
+  }
   const host = (req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "localhost").replace(/:\d+$/, "");
   const local = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
   const forBrowser = (url: string) => (local ? url : url.replace(/\/\/(localhost|127\.0\.0\.1)(?=[:/]|$)/, `//${host}`));

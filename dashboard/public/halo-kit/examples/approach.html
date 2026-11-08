@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr" data-view-id="view_approach_example">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>approach</title>
+<link rel="stylesheet" href="/halo-kit/halo.css">
+<script src="/halo-kit/halo-kit.js"></script>
+</head>
+<body>
+<script>
+/* Moment « approach » — « Par où j'entre ». One idea: the arrow from the truck into the entrance to take.
+ * Top view, outside only: the building (white: where we go), the street, the truck, the hydrant, the entrances. No
+ * interior (stair and fire go in the card). ONE frame, never mixed: the top view the truck spot is on (e.g. earth-top-01),
+ * and only the points on that same image; the building is `building.footprint` on that image when Seraph gives it,
+ * else a schematic block whose sides pass through the doors. Without a top view: the IFC ground floor
+ * (levels[RDC].outline, doors at plan_point). An entrance is crossed out only if blocked or leading to a hazard. */
+const f = Halo.frame(document.body, { title: "Par où j'entre" });
+
+function badEntrance(b, e) {
+  if (e.status === 'blocked' || e.status === 'locked') return true;
+  if (b.hazards.some(h => h.where.entrance === e.id)) return true;
+  const [kind, id] = (e.leads_to || '').split(':');
+  if (kind === 'stair') return (Halo.byId(b.stairs, id) || {}).status === 'smoke';
+  return b.hazards.some(h => h.where.room && 'room:' + h.where.room === e.leads_to);
+}
+const xy = p => [p.x, p.y];
+
+// the building on a photo top view: Seraph's footprint, else a block whose sides pass through the doors (schematic)
+function blockFromDoors(doors) {
+  const by = side => doors.filter(d => d.side === side).map(d => d.p);
+  const front = by('front'), rear = by('rear'), left = by('left'), right = by('right');
+  const all = doors.map(d => d.p), cx = all.reduce((k, p) => k + p[0], 0) / all.length;
+  let x0 = left.length ? Math.min(...left.map(p => p[0])) : null, x1 = right.length ? Math.max(...right.map(p => p[0])) : null;
+  let y1 = front.length ? Math.max(...front.map(p => p[1])) : null, y0 = rear.length ? Math.min(...rear.map(p => p[1])) : null;
+  const mx = (front[0] || rear[0] || [cx])[0];
+  if (x0 == null && x1 == null) { x0 = mx - 180; x1 = mx + 180; }
+  else if (x0 == null) x0 = 2 * mx - x1; else if (x1 == null) x1 = 2 * mx - x0;
+  const my = (left[0] || right[0] || [0, (y0 ?? y1) + 0])[1];
+  if (y0 == null && y1 == null) { y0 = my - 180; y1 = my + 180; }
+  else if (y0 == null) y0 = left.length || right.length ? 2 * my - y1 : y1 - (x1 - x0); else if (y1 == null) y1 = left.length || right.length ? 2 * my - y0 : y0 + (x1 - x0);
+  return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+}
+
+function draw(s) {
+  f.clear();
+  const b = s.building, best = Halo.byId(b.entrances, b.approach && b.approach.best_entrance_id);
+  const top = (b.truck_spot && b.truck_spot.point && b.truck_spot.point.image_id)
+    || ((b.screenshots || []).find(x => x.side === 'top') || {}).image_id;
+  const on = p => p && p.image_id === top;
+  let doors, foot, truck = null, pei = null;
+  if (top && b.entrances.some(e => on(e.point))) {
+    doors = b.entrances.filter(e => on(e.point)).map(e => ({ e, side: e.side, p: xy(e.point) }));
+    foot = b.footprint && on(b.footprint) ? b.footprint.polygon : blockFromDoors(doors);
+    if (b.truck_spot && on(b.truck_spot.point)) truck = xy(b.truck_spot.point);
+    pei = (b.hydrants || []).find(h => on(h.point));
+  } else if (b.model) {
+    const o = (b.levels.find(l => l.level === 0) || {}).outline || [];
+    const rings = o.map(x => x && x.outer ? x.outer : x).filter(r => Array.isArray(r) && r.length >= 3)
+      .sort((p, q) => { const a = Halo.area(p).box, c = Halo.area(q).box; return c.w * c.h - a.w * a.h; });
+    foot = rings[0] || Halo.hull(b.rooms.filter(r => r.level === 0 && r.zone).flatMap(r => r.zone));
+    doors = b.entrances.filter(e => e.plan_point).map(e => ({ e, side: e.side, p: [e.plan_point.x, e.plan_point.y] }));
+  }
+  if (!foot || !doors || !doors.length) { card(s, best, null); return; }
+
+  // where the arrow starts: the truck, else outside the door, away from the building
+  const c = Halo.centroid(foot), d = best && (doors.find(x => x.e.id === best.id) || {}).p;
+  let start = truck;
+  if (d && !start) { const dx = d[0] - c.x, dy = d[1] - c.y, l = Math.hypot(dx, dy) || 1; start = [d[0] + dx / l * 220, d[1] + dy / l * 220]; }
+  // frame on what matters: the doors, the truck and the hydrant (the building may run off the edge): the arrow is big
+  const pts = doors.map(x => x.p).concat(start ? [start] : [], pei ? [xy(pei.point)] : []);
+  const crop = { x0: Math.min(...pts.map(p => p[0])) - 60, x1: Math.max(...pts.map(p => p[0])) + 60,
+                 y0: Math.min(...pts.map(p => p[1])) - 60, y1: Math.max(...pts.map(p => p[1])) + 60 };
+  // never closer than ~260 units: the building reads as a building, and the arrow stays big
+  const grow = (a, b) => { const m = (crop[a] + crop[b]) / 2, h = Math.max(130, (crop[b] - crop[a]) / 2); crop[a] = m - h; crop[b] = m + h; };
+  grow('x0', 'x1'); grow('y0', 'y1');
+  const P = Halo.plan(f.svg, { box: Halo.AREA, crop: crop, zones: [{ id: 'building', zone: foot, state: 'target' }] }).project;
+
+  // the street the truck stands on: through the truck, parallel to the façade of the chosen door (its nearest edge),
+  // drawn under the building
+  if (truck && d) {
+    const ring = foot.map(q => P(q)), dp = P(d);
+    let best = null;
+    ring.forEach((q, i) => {
+      const r = ring[(i + 1) % ring.length], vx = r.x - q.x, vy = r.y - q.y, l2 = vx * vx + vy * vy || 1;
+      const t = Math.max(0, Math.min(1, ((dp.x - q.x) * vx + (dp.y - q.y) * vy) / l2));
+      const dist = Math.hypot(q.x + vx * t - dp.x, q.y + vy * t - dp.y);
+      if (!best || dist < best.dist) best = { dist, ux: vx / Math.sqrt(l2), uy: vy / Math.sqrt(l2) };
+    });
+    const a = P(truck), st = Halo.street(f.svg, { from: [a.x - best.ux * 900, a.y - best.uy * 900], to: [a.x + best.ux * 900, a.y + best.uy * 900], width: 46 });
+    st.g.parentNode.insertBefore(st.g, st.g.parentNode.firstChild);
+  }
+  if (start && d) Halo.arrow(f.svg, [P(start), P(d)], { width: 10, gap: 26, speed: 60 });
+  if (truck) Halo.marker(f.svg, 'truck', P(truck), null, { r: 18 });
+  if (pei) Halo.marker(f.svg, 'hydrant', P(xy(pei.point)), pei.distance_m ? pei.distance_m + ' m' : null, { r: 16, at: 'e', tap: { kind: 'hydrant', id: pei.id } });
+
+  // entrances: the chosen one big, the others dimmed; crossed only when they lead to danger
+  // the chosen door's tag goes beside the arrow, never on the building: above it when the arrow runs sideways
+  const along = start && d ? Math.abs(P(d).x - P(start).x) > Math.abs(P(d).y - P(start).y) : false;
+  doors.slice(0, 3).forEach(({ e, p }) => {
+    const chosen = best && e.id === best.id;
+    Halo.marker(f.svg, 'door', P(p), e.id, { r: chosen ? 22 : 15, big: chosen, ping: chosen, crossed: !chosen && badEntrance(b, e),
+      tone: chosen ? 'ink' : 'dim', at: chosen ? (along ? 'n' : 'w') : 'w', tap: { kind: 'entrance', id: e.id } });
+  });
+  card(s, best, pei);
+}
+
+// the card: the key line, then what to know inside, then the hydrant if it is not drawn
+function card(s, best, pei) {
+  if (!best) return;
+  const b = s.building, route = (s.routes || []).find(r => r.purpose === 'approach');
+  const stairId = route && (route.via.find(n => n.startsWith('stair:')) || '').split(':')[1];
+  // hazard lines come from state.building.hazards only, worded by the kit (« signalé » until the crew confirms)
+  const onStair = stairId ? Halo.hazardsAt(s, { stair: stairId })[0] : null;
+  const fire = b.hazards.find(h => h.kind === 'fire');
+  const h1 = (b.hydrants || [])[0];
+  f.panel([
+    { text: 'Entrez par ' + best.id },
+    stairId && (onStair ? Halo.hazardLine(s, onStair) : { text: 'Montez esc. ' + stairId }),
+    fire && Halo.hazardLine(s, fire, { level: true }),
+    h1 && h1.distance_m && !pei && { tone: 'water', text: 'PEI ' + h1.distance_m + ' m' }
+  ]);
+}
+
+Halo.onState(draw);
+Halo.ready();
+</script>
+</body>
+</html>

@@ -38,7 +38,8 @@ export function Panel({ live, now, booth = false }: { live: Live; now: number; b
           </div>
         </>
       ) : (
-        <p className="label mt-auto text-ink-3">Connexion à Seraph…</p>
+        // mock without a state = the fixtures could not be loaded: say so, never wait forever
+        <p className="label mt-auto text-ink-3">{live.mode === "mock" ? "Rejeu indisponible : fixtures absentes" : "Connexion à Seraph…"}</p>
       )}
     </aside>
   );
@@ -254,15 +255,17 @@ function Booth({ live }: { live: Live }) {
           <h1 className="t-display text-[78px] text-ink">Essayez</h1>
           <p className="text-[19px] leading-[1.3] text-ink-2">Appuyez sur le talkie, parlez à Seraph.</p>
         </div>
-        <div className="flex flex-col items-center gap-2">
-          {url && qr ? (
-            <div className="h-[132px] w-[132px] bg-white [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qr }} />
-          ) : (
-            // never a fake QR: OCCUPANTS_PUBLIC_URL is not set in the root .env
-            <div className="label grid h-[132px] w-[132px] place-items-center border border-rule p-3 text-center text-[13px] text-ink-3">Lien absent</div>
-          )}
-          <span className="label text-[12px]">Inscription</span>
-        </div>
+        {/* never a fake QR. No OCCUPANTS_PUBLIC_URL: « Lien absent » live, nothing in the replay (public link) */}
+        {(url ? qr : live.mode !== "mock") && (
+          <div className="flex flex-col items-center gap-2">
+            {url && qr ? (
+              <div className="h-[132px] w-[132px] bg-white [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qr }} />
+            ) : (
+              <div className="label grid h-[132px] w-[132px] place-items-center border border-rule p-3 text-center text-[13px] text-ink-3">Lien absent</div>
+            )}
+            <span className="label text-[12px]">Inscription</span>
+          </div>
+        )}
       </div>
       <ol className="flex flex-col gap-2">
         {PHRASES.map((p) => (

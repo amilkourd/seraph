@@ -46,8 +46,10 @@ const FIT = { left: 80, gap: 28, top: 36 }; // px kept free around the model: le
 const NOTE = { x: 740, w: 268, top: 64, bottom: 600, gap: 12, cut: 12 };
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** `zoom`: "all" fits the whole building; "focus" frames the level that matters (split view, Rosetta below). */
-export function Building3D({ state, box, scale, zoom = "all" }: { state: IncidentState | null; box: Box; scale: number; zoom?: "all" | "focus" }) {
+/** `zoom`: "all" fits the whole building; "focus" frames the level that matters (split view, Rosetta below).
+ *  `box` is where the model is framed; `full` the area the canvas covers (default: the box), so a zoomed model runs
+ *  on under the overlays instead of stopping at the box's edge. */
+export function Building3D({ state, box, full = box, scale, zoom = "all" }: { state: IncidentState | null; box: Box; full?: Box; scale: number; zoom?: "all" | "focus" }) {
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<{ build: (s: IncidentState) => void; ratio: (r: number) => void } | null>(null);
   const key = useRef("");
@@ -57,18 +59,18 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
     key.current = ""; // a fresh scene must be rebuilt (dev strict mode mounts twice)
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setClearColor(0x000000, 0);
-    renderer.setSize(box.w, box.h);
+    renderer.setSize(full.w, full.h);
     renderer.domElement.style.cursor = "grab";
     el.appendChild(renderer.domElement);
     const labels = new CSS2DRenderer();
-    labels.setSize(box.w, box.h);
+    labels.setSize(full.w, full.h);
     Object.assign(labels.domElement.style, { position: "absolute", left: "0", top: "0", pointerEvents: "none" });
     el.appendChild(labels.domElement);
 
     // the reference's annotations: square marker on the spot, elbow leader, framed label
     const notesSvg = document.createElementNS(SVG_NS, "svg");
-    notesSvg.setAttribute("width", String(box.w + NOTE.w + 200));
-    notesSvg.setAttribute("height", String(box.h));
+    notesSvg.setAttribute("width", String(full.w));
+    notesSvg.setAttribute("height", String(full.h));
     Object.assign(notesSvg.style, { position: "absolute", left: "0", top: "0", overflow: "visible", pointerEvents: "none" });
     el.appendChild(notesSvg);
     // Leaders are light on the dark plates; where they cross the lit room they turn dark: a dark copy of every leader,
@@ -89,7 +91,9 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
     el.appendChild(notesBox);
     let notes: NoteEl[] = [];
     const wide = box.w > 1200;
-    const col = { x: wide ? box.w - NOTE.w - 120 : NOTE.x, top: wide ? 36 : NOTE.top, bottom: wide ? box.h - 20 : NOTE.bottom, max: wide ? 4 : 5 };
+    const ox = box.x - full.x; // the box inside the canvas
+    const oy = box.y - full.y;
+    const col = { x: ox + (wide ? box.w - NOTE.w - 120 : NOTE.x), top: oy + (wide ? 36 : NOTE.top), bottom: oy + (wide ? box.h - 20 : NOTE.bottom), max: wide ? 4 : 5 };
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1000, 1000);
@@ -110,7 +114,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
 
     const line = (color: string, width: number) => {
       const m = new LineMaterial({ color, linewidth: width });
-      m.resolution.set(box.w, box.h);
+      m.resolution.set(full.w, full.h);
       return m;
     };
     const solid = (color: string, opacity = 1) =>
@@ -523,14 +527,17 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         }
         // the model fits in the space left of the callout column (main: room for the level labels on the left;
         // split: centred on the screen), its target at the centre of that space
-        const rx = wide ? box.w / 2 : (FIT.left + col.x - FIT.gap) / 2;
-        const rw = wide ? 2 * (col.x - FIT.gap - box.w / 2) : col.x - FIT.gap - FIT.left;
+        const cx = col.x - ox; // in the box's px
+        const rx = wide ? box.w / 2 : (FIT.left + cx - FIT.gap) / 2;
+        const rw = wide ? 2 * (cx - FIT.gap - box.w / 2) : cx - FIT.gap - FIT.left;
         const ppu = Math.min(rw / (2 * hw), (box.h - 2 * FIT.top) / (2 * hh)) / (zoom === "focus" ? 1.12 : 1);
-        const half = box.h / (2 * ppu);
-        camera.left = -rx / ppu;
-        camera.right = (box.w - rx) / ppu;
-        camera.top = half;
-        camera.bottom = -half;
+        // the target sits at (rx, box.h / 2) in the box; the frustum spans the whole canvas around it
+        const tx = ox + rx;
+        const ty = oy + box.h / 2;
+        camera.left = -tx / ppu;
+        camera.right = (full.w - tx) / ppu;
+        camera.top = ty / ppu;
+        camera.bottom = -(full.h - ty) / ppu;
         camera.zoom = 1;
         camera.updateProjectionMatrix();
         controls.update();
@@ -621,7 +628,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
         litPoly
           .map((p) => {
             const v = p.clone().project(camera);
-            return `${((v.x + 1) / 2) * box.w},${((1 - v.y) / 2) * box.h}`;
+            return `${((v.x + 1) / 2) * full.w},${((1 - v.y) / 2) * full.h}`;
           })
           .join(" "),
       );
@@ -629,7 +636,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       const at = notes
         .map((n) => {
           const v = n.pos.clone().project(camera);
-          return { n, x: ((v.x + 1) / 2) * box.w, y: ((1 - v.y) / 2) * box.h };
+          return { n, x: ((v.x + 1) / 2) * full.w, y: ((1 - v.y) / 2) * full.h };
         })
         .sort((a, b) => a.y - b.y);
       let y = col.top;
@@ -688,7 +695,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       build,
       ratio: (r) => {
         renderer.setPixelRatio(r);
-        renderer.setSize(box.w, box.h);
+        renderer.setSize(full.w, full.h);
       },
     };
     return () => {
@@ -699,7 +706,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
       el.innerHTML = "";
       api.current = null;
     };
-  }, [box.w, box.h, zoom]);
+  }, [box.x, box.y, box.w, box.h, full.x, full.y, full.w, full.h, zoom]);
 
   useEffect(() => {
     api.current?.ratio(Math.min(3, window.devicePixelRatio * scale));
@@ -713,7 +720,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
     api.current?.build(state);
   }, [state]);
 
-  return <div ref={host} className="absolute" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />;
+  return <div ref={host} className="absolute" style={{ left: full.x, top: full.y, width: full.w, height: full.h }} />;
 }
 
 // ───────── slab outlines ─────────

@@ -1,9 +1,11 @@
 import { connection } from "next/server";
-import { SERVICE_NAMES, serviceUrl } from "@/lib/services";
+import { SERVICE_NAMES, isMock, serviceUrl } from "@/lib/services";
 
 // One GET /health per service (contracts/api.md), 1.5 s timeout each, all in parallel.
+// Mock (the public replay): no service is reachable by design, none is asked.
 export async function GET() {
   await connection();
+  if (isMock()) return Response.json({});
   const entries = await Promise.all(
     SERVICE_NAMES.map(async (name) => {
       const t0 = Date.now();

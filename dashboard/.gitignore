@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# replay fixtures, copied from contracts/fixtures at build (scripts/replay-files.mjs)
+/public/fixtures/

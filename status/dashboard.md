@@ -4,6 +4,8 @@ Updated: 07:05
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
   fixtures only with `npm run dev:mock`; Seraph unreachable → fixtures, labelled « Seraph hors ligne »
+- public replay (Vercel, deployed by the review session): `MOCK=1`, root directory `dashboard/`, files outside root
+  on; `npm run build` copies the fixtures first. Tested as a clean copy (dashboard/ + contracts/, no .env) on :3012.
 
 ## Done
 - v2, after Amil's review (« trop de bazar ») — minimal, like the reference image:
@@ -119,6 +121,26 @@ Updated: 07:05
 - « Lancer l'incident » (Amil, for the demo): a white pill under the title, only while `incident.status` is idle or
   closed; POST Seraph `/incident/start` `{}` (same as key D), gone as soon as the incident is declared. Rendered
   live at idle; not clicked against the shared Seraph (rehearsals).
+- « Ce que fait Seraph » (Amil, for the jury): a panel top right of the main view (x 1592–1896, under the badge,
+  right of the callout column). First what runs now, pulsing: Rosetta endpoints `running` (said in French per
+  endpoint), Gabriel's calls in one line (« En ligne avec 6 personnes, appelle Léa Martin… »), Silex view requests
+  `requested`/`building`. Then Seraph's `timeline` newest first, radio lines left out (the captions show them),
+  each tagged with its module (call → Gabriel, gate → COS, alert → Alerte). Hidden while there is nothing. Checked
+  with the fixture state through a temporary hook (removed).
+- Fix (Amil: « une barre noire » at the right when zooming the 3D): the main view's canvas covered only x 560–1360,
+  so a zoomed model stopped dead at 1360. `Building3D` takes `full` (the area the canvas covers) apart from `box`
+  (where the model is framed); the main view passes the whole stage, framing unchanged. Zoomed, the model now runs
+  on under the panel and Halo.
+- Public replay link (Amil, via the Seraph review): the dashboard plays the fixtures with no service and no repo
+  around it. `scripts/replay-files.mjs` copies what mock loads (state-sample, radio, calls, endpoints) from
+  contracts/fixtures to `public/fixtures/` before every build (`npm run build`; gitignored). `--snapshot` (by hand,
+  `npm run snapshot`) copies the Halo kit to `public/halo-kit/` and the first shot of each endpoint fixture from
+  rosetta/shots to `public/shots/` (committed: halo/ and rosetta/ are not deployed). In mock: `/api/config` says
+  where the fixtures are (`/api/fixtures` when contracts/ is beside the app, else `/fixtures`) and gives no service
+  URL; `/api/health` asks no service; Rosetta shots are rewritten to `/shots/…` (dispatch.write_112's has no file:
+  « Pas d'image »); Halo plays `/halo-kit/examples/<moment>.html` for the three kit moments, else « Vue de secours »;
+  the badge says « Rejeu » (amber); no QR in the booth; if the fixtures fail the panel says « Rejeu indisponible »
+  instead of waiting. next.config.ts untouched (a change restarts the projector's dev server).
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
@@ -136,6 +158,9 @@ Updated: 07:05
   placeholder too). The occupants replica listens on 127.0.0.1 only, so a LAN URL would not work either.
 
 ## Facts I verified (API names, model ids, gotchas)
+- Files outside the Next project (../contracts) reach a Vercel function only through `outputFileTracingRoot` +
+  `outputFileTracingIncludes` (Next docs, output.mdx). Not used: static copies under public/ need no tracing and no
+  next.config change.
 - Next 16 dev blocks `/_next/hmr` and dev fonts for any origin but localhost: opened by the LAN address
   (projector, phone) the page never hydrates and stays on « Connexion à Seraph… ». Fixed with `allowedDevOrigins` =
   this machine's IPv4 addresses + hostname + `*.local` (next.config.ts; the dev server restarts by itself).

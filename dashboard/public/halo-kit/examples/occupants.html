@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr" data-view-id="view_occupants_example">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>occupants</title>
+<link rel="stylesheet" href="/halo-kit/halo.css">
+<script src="/halo-kit/halo-kit.js"></script>
+</head>
+<body>
+<script>
+/* Moment « occupants » — « Qui est où ». Side section: one band per level, the stair shaft at the side. Read in one
+ * glance: floors where nothing is known are dimmed; on the others, people stand in a row, most urgent first, each with
+ * its room under it. Red ring = needs help, grey ? = no answer, green = sheltering / moving. Fire and smoke are one
+ * pictogram at the end of their floor (no cloud over the people). A team on a stair stands on the shaft. */
+const f = Halo.frame(document.body, { title: 'Qui est où' });
+const URGENT = o => o.status === 'needs_help' || o.status === 'trapped';
+const UNKNOWN = o => o.status === 'no_answer' || o.status === 'unknown' || o.status === 'calling';
+const RANK = o => URGENT(o) ? 0 : UNKNOWN(o) ? 2 : 1;
+let STATE = null;
+const BAD = st => st && (Halo.hazardsAt(STATE, { stair: st.id }).length > 0 || st.status === 'blocked');
+
+function draw(s) {
+  f.clear();
+  STATE = s;
+  const b = s.building, occ = (s.occupants || []).filter(o => o.status !== 'safe_outside');
+  const teams = (s.crew.teams || []).filter(t => t.status === 'engaged' && t.location);
+  const levels = b.levels.map(l => l.level);
+  const stack = Halo.floorStack(f.svg, {
+    focus: Halo.focusLevels(s),                                         // floors with nothing special are grey
+    box: { x: Halo.AREA.x + 92, y: 16, w: Halo.AREA.w - 92, h: 340 },   // level tags clear of the Dynamic Island
+    levels: b.levels,
+    stairs: b.stairs.map((st, i) => ({ id: st.id, side: i ? 'right' : 'left', status: st.status, source: st.source,
+      hazard: Halo.hazardsAt(s, { stair: st.id })[0] }))
+  });
+
+  levels.forEach(l => {
+    const band = stack.band(l); if (!band) return;
+    const here = occ.filter(o => o.level === l).sort((x, y) => RANK(x) - RANK(y));
+    // each person takes its marker + its tag; no one is placed where the next tag would cover it
+    const tag = o => o.room + (o.people_count > 1 ? ' ×' + o.people_count : '');
+    const tagW = t => t.length * 14 + 16;               // a 24 px tag, measured on the phone
+    const end = band.x + band.w - 70;                   // nothing starts past this
+    let x = band.x + 36, hidden = 0;
+    // hazards first: one pictogram per kind, dotted while only reported, with who reported it
+    const hz = b.hazards.filter(h => h.where.level === l);
+    ['fire', 'smoke'].map(k => hz.find(h => h.kind === k)).filter(Boolean).forEach(h => {
+      Halo.marker(f.svg, h.kind, { x: x, y: band.cy }, Halo.hazardSource(h), { r: 15, blink: h.kind === 'fire' ? 'fast' : false, source: h.source, at: 'e' });
+      x += 15 + 7 + tagW(Halo.hazardSource(h)) + 16;
+    });
+    here.forEach(o => {
+      if (x > end) { hidden++; return; }
+      const p = { x: x, y: band.cy };
+      x += 16 + 7 + tagW(tag(o)) + 16;
+      const into = o.heading_to && Halo.byId(b.stairs, o.heading_to.split(':')[1]);
+      if (BAD(into)) {
+        const shaft = stack.shaft(into.id), tx = shaft.x > p.x ? shaft.x - 4 : shaft.x + shaft.w + 4;
+        Halo.arrow(f.svg, [{ x: p.x + (tx > p.x ? 18 : -18), y: p.y }, { x: tx, y: p.y }], { tone: 'warn', width: 5, speed: 40 });
+      }
+      Halo.marker(f.svg, UNKNOWN(o) ? 'unknown' : o.mobility_issue ? 'wheelchair' : 'person', p, tag(o), {
+          tone: UNKNOWN(o) ? 'dim' : BAD(into) ? 'warn' : 'life', ring: URGENT(o) ? 'fire' : null, ping: URGENT(o),
+          r: 16, at: 'e', tap: { kind: 'occupant', id: o.id } });
+      // heading to a façade ladder point: a short arrow to the ladder, with the balcony's room
+      const ladder = /^ladder:/.test(o.heading_to || '') && o.heading_to.split(':')[1];
+      if (ladder) {
+        const a = p.x + 16 + 7 + tagW(tag(o)) + 8, lx = a + 38;
+        Halo.arrow(f.svg, [{ x: a, y: p.y }, { x: lx - 17, y: p.y }], { width: 5, speed: 40 });
+        Halo.marker(f.svg, 'ladder', { x: lx, y: p.y }, null, { r: 15 });
+        x = lx + 16 + 28;
+      }
+    });
+    if (hidden) Halo.label(f.svg, { x: end, y: band.cy }, '+' + hidden, { align: 'end', tone: 'dim' });
+    // teams on this floor (not on the stair): after the people
+    teams.filter(t => t.location.level === l && !(t.location.stair && !t.location.room)).forEach(t => {
+      if (x > end) return;
+      Halo.marker(f.svg, 'team', { x: x, y: band.cy }, t.id, { r: 15, at: 'e', tap: { kind: 'team', id: t.id } });
+      x += 15 + 7 + tagW(t.id) + 16;
+    });
+  });
+  // teams on a stair: on the shaft at their level
+  teams.filter(t => t.location.stair && !t.location.room).forEach(t => {
+    const band = stack.band(t.location.level), shaft = stack.shaft(t.location.stair); if (!band || !shaft) return;
+    Halo.marker(f.svg, 'team', { x: shaft.x + shaft.w / 2, y: band.cy }, t.id, { r: 15, at: 'e', tap: { kind: 'team', id: t.id } });
+  });
+
+  // the card: how many inside, then who needs a decision
+  const n = occ.reduce((k, o) => k + (o.people_count || 1), 0);
+  const lost = occ.filter(o => !levels.includes(o.level)).length;
+  f.panel([
+    { tone: 'life', text: n + ' dedans' },
+    ...occ.filter(URGENT).map(o => ({ tone: 'fire', text: o.room + (o.mobility_issue ? ' PMR' : ' à sortir') })),
+    ...occ.filter(o => BAD(o.heading_to && Halo.byId(b.stairs, o.heading_to.split(':')[1]))).map(o => ({ tone: 'warn', text: o.room + ' → esc. ' + o.heading_to.split(':')[1] })),
+    ...occ.filter(o => /^ladder:/.test(o.heading_to || '')).map(o => ({ text: o.room + ' → échelle' })),
+    ...occ.filter(UNKNOWN).filter(o => levels.includes(o.level)).map(o => ({ tone: 'dim', text: o.room + ' ?' })),
+    lost && { tone: 'dim', text: lost + ' sans étage' }
+  ]);
+}
+
+Halo.onState(draw);
+Halo.ready();
+</script>
+</body>
+</html>

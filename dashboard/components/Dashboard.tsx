@@ -3,6 +3,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { useLive, type Live } from "@/lib/live";
 import type { IncidentState } from "@/lib/types";
 import { MOMENTS, dur, hm, hms, levelLabel, type Tone } from "@/lib/fr";
+import { Activity } from "./Activity";
 import { Building3D } from "./Building3D";
 import { Decision, Panel } from "./Panel";
 import { RosettaGrid } from "./RosettaGrid";
@@ -11,6 +12,7 @@ import { Sq } from "./ui";
 // Stage layout (1920×1080). Main view: panel | the building, full height | radio over Halo.
 // Split view (screen button): the building framed on the level that matters, above the six Rosetta screens.
 const SCHEME = { x: 560, y: 0, w: 800, h: 1080 };
+const STAGE = { x: 0, y: 0, w: 1920, h: 1080 }; // the 3D canvas: zoomed in, the model runs on under the panel and Halo
 const TOP = { x: 0, y: 0, w: 1920, h: 548 };
 const PHONE = { w: 874, h: 402, scale: 0.6 }; // iPhone 17 Pro in landscape, as Halo runs on the forearm
 const KIT_VIEWS = ["approach", "inside_route", "occupants"]; // halo/kit/examples
@@ -89,10 +91,11 @@ export function Dashboard() {
       <div className="stage" style={{ transform: `translate(-50%, -50%) scale(${scale})` }}>
         {view === "main" ? (
           <>
-            <Building3D key="main" state={s} box={SCHEME} scale={scale} />
+            <Building3D key="main" state={s} box={SCHEME} full={STAGE} scale={scale} />
             <Panel live={live} now={now} booth={booth} />
             <Radio live={live} />
             <HaloPhone live={live} />
+            <Activity live={live} />
           </>
         ) : (
           <>
@@ -128,14 +131,14 @@ function StateFrame({ src, state, title, className, style }: { src: string; stat
   return <iframe ref={ref} src={src} title={title} onLoad={post} className={`border-0 ${className ?? ""}`} style={style} />;
 }
 
-/** Always on screen, left of the screen button: live, a fixture replay, or the mock. A replay never looks live:
- *  Seraph's /health says `replay` is anything but "idle" from the moment it starts until the next reset. */
+/** Always on screen, left of the screen button: live, or a replay. A replay never looks live: Seraph's /health says
+ *  `replay` is anything but "idle" from the moment it starts until the next reset; mock (MOCK=1, the public link)
+ *  replays the fixtures with no service at all. */
 function SourceBadge({ live }: { live: Live }) {
   const replay = live.health.seraph?.replay;
-  const replaying = live.mode === "live" && replay != null && replay !== "idle";
+  const replaying = live.mode === "mock" || (live.mode === "live" && replay != null && replay !== "idle");
   const [text, tone]: [string, Tone] =
-    live.mode === "mock" ? ["Mock", "gris"]
-    : live.mode === "connecting" ? ["Connexion", "gris"]
+    live.mode === "connecting" ? ["Connexion", "gris"]
     : live.mode === "fixtures" ? ["Hors ligne", "danger"]
     : replaying ? ["Rejeu", "alerte"]
     : ["Live", "sur"];
@@ -156,8 +159,8 @@ function SourceBadge({ live }: { live: Live }) {
 function ScreenButton({ live, active, onClick }: { live: Live; active: boolean; onClick: () => void }) {
   const core = ["seraph", "halo", "silex", "talkie"];
   const down = core.filter((k) => live.health[k] && !live.health[k].ok);
-  const link = live.mode === "live" ? (live.streamOk ? "en direct" : "flux coupé") : live.mode === "mock" ? "mock" : "Seraph hors ligne";
-  // grey in mock (services are expected down), red if a service is down, amber if the stream dropped, green otherwise
+  const link = live.mode === "live" ? (live.streamOk ? "en direct" : "flux coupé") : live.mode === "mock" ? "hors ligne, rejeu" : "Seraph hors ligne";
+  // grey in mock (no service, by design), red if a service is down, amber if the stream dropped, green otherwise
   const tone = live.mode === "mock" ? "gris" : down.length || live.mode === "fixtures" ? "danger" : live.streamOk ? "sur" : "alerte";
   return (
     <button
@@ -226,7 +229,7 @@ function HaloPhone({ live }: { live: Live }) {
   // the view phone A shows: Devin's (Silex URL) or Halo's stand-in for a fallback moment
   const current = isLive && view ? (stand ? (KIT_VIEWS.includes(view.moment) && live.config?.halo ? `${live.config.halo}/views/${view.moment}/` : null) : view.url) : null;
   const preview = isLive && !view && live.config?.seraph ? `/api/kit/examples/index.html?v=approach&live=${encodeURIComponent(live.config.seraph)}` : null;
-  const example = live.mode === "mock" && view ? `/api/kit/examples/${view.moment}.html` : null;
+  const example = live.mode === "mock" && view && KIT_VIEWS.includes(view.moment) ? `/halo-kit/examples/${view.moment}.html` : null; // public/halo-kit
   const src = current ?? preview ?? example;
   const sw = PHONE.w * PHONE.scale;
   const sh = PHONE.h * PHONE.scale;
