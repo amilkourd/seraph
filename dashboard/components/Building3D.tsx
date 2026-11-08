@@ -13,7 +13,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer.js";
 import type { Building, IncidentState, Occupant, Route } from "@/lib/types";
-import { OCC_STATUS, hm, levelLabel } from "@/lib/fr";
+import { OCC_STATUS, TEAM_STATUS, levelLabel } from "@/lib/fr";
 
 // Colours from brand/tokens.css, by meaning: fire and danger = Seraph (blackbody), smoke = Seraph 300, people = Silex,
 // structure and our crews = Halo white.
@@ -464,7 +464,7 @@ export function Building3D({ state, box, scale, zoom = "all" }: { state: Inciden
           index: levelLabel(s, lv),
           lines: [
             loc?.room === "corridor" ? "Circulation" : room || named ? loc!.room! : st ? `Esc. ${st.id}` : "Pièce à confirmer",
-            t.exit_by ? `→ sortie ${hm(t.exit_by)}` : `→ ${t.label}`,
+            `→ ${TEAM_STATUS[t.status]}`,
           ],
         });
       }

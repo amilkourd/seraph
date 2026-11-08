@@ -12,7 +12,7 @@ import { RosettaGrid } from "./RosettaGrid";
 const SCHEME = { x: 560, y: 0, w: 800, h: 1080 };
 const TOP = { x: 0, y: 0, w: 1920, h: 548 };
 const PHONE = { w: 874, h: 402, scale: 0.6 }; // iPhone 17 Pro in landscape, as Halo runs on the forearm
-const KIT_VIEWS = ["approach", "inside_route", "occupants", "team_engaged"]; // halo/kit/examples
+const KIT_VIEWS = ["approach", "inside_route", "occupants"]; // halo/kit/examples
 
 /** The projector screen: a fixed 1920×1080 stage, scaled to whatever display it lands on. */
 export function Dashboard() {
@@ -34,7 +34,7 @@ export function Dashboard() {
     };
   }, []);
 
-  // Keys from docs/03-demo-script.md: Space confirm / Esc cancel the latest gate, 1–5 force a Halo moment,
+  // Keys from docs/03-demo-script.md: Space confirm / Esc cancel the latest gate, 1–4 force a Halo moment,
   // R replay the next radio line (R00…R15, for a line missed live). Controls: D start the incident, A call everyone
   // now, Shift+R replay the whole incident, X twice reset.
   const liveRef = useRef(live);
@@ -53,7 +53,7 @@ export function Dashboard() {
         if (gate) l.confirmGate(gate.gate_id);
       } else if (e.key === "Escape") {
         if (gate) l.cancelGate(gate.gate_id);
-      } else if (/^[1-5]$/.test(e.key)) {
+      } else if (/^[1-4]$/.test(e.key)) {
         const moment = MOMENTS[Number(e.key) - 1];
         l.act(`Moment Halo ${moment}`, "seraph", "admin/moment", { moment });
       } else if (e.key === "R") {

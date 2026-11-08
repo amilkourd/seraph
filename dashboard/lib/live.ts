@@ -15,7 +15,6 @@ import type {
   TimelineEntry,
   ViewRequestStatus,
 } from "./types";
-import { hm } from "./fr";
 
 export type RadioLine = { id: string; t: string; speaker: string; text: string; seraph: boolean; source?: string };
 export type CamFrame = {
@@ -150,7 +149,6 @@ function mockSeed(fx: Fixtures) {
   const say = (id: string, t: string, text?: string, source?: string) => {
     if (text) lines.push({ id: `say-${id}`, t: at(t), speaker: "Seraph", text, seraph: true, source });
   };
-  const exit = state.crew.teams.find((t) => t.id === "B1")?.exit_by;
   crew("R01", "00:28:10");
   say("R01", "00:28:30", r("R01")?.expected?.say_crew, "calcul");
   crew("R02", "00:33:00");
@@ -158,7 +156,6 @@ function mockSeed(fx: Fixtures) {
   say("CALL-01", "00:33:40", summary("OCC-01"), "appel");
   say("CALL-04", "00:35:00", summary("OCC-05"), "appel");
   crew("R03", "00:36:00");
-  say("R03", "00:36:08", r("R03")?.expected?.say_crew?.replace("<HH:MM>", hm(exit)), "calcul simplifié");
   say("CALL-06", "00:37:00", summary("OCC-02"), "appel");
   crew("R04", "00:38:00");
   say("R04", "00:38:10", r("R04")?.expected?.say_crew, "appel");

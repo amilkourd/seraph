@@ -124,7 +124,7 @@ export const HAZARD: Record<Hazard["kind"], string> = {
 export const LANG: Record<Lang, string> = { fr: "FR", en: "EN", es: "ES", ar: "AR", other: "??" };
 
 /** Keys 1–5 force these Halo moments (docs/03-demo-script.md). */
-export const MOMENTS: Moment[] = ["dispatch", "approach", "inside_route", "occupants", "team_engaged"];
+export const MOMENTS: Moment[] = ["dispatch", "approach", "inside_route", "occupants"]; // no team_engaged: air is out
 
 export const ENDPOINT_SITE: Record<string, string> = {
   "dispatch.read": "Dispatch · réplique",

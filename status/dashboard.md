@@ -1,5 +1,5 @@
 # dashboard — status
-Updated: 06:27
+Updated: 06:32
 
 ## Running
 - dashboard on http://localhost:3002 · public: none · **live on Seraph :8000** (`npm run dev`, root `.env` MOCK=0);
@@ -40,7 +40,7 @@ Updated: 06:27
   override them.
 - Route line removed from the 3D: `routes[].via` is a list of nodes, and joining them straight crossed walls
   (rule 2). The target room stays lit; the path will be drawn from a computed path when the contract has one.
-- Mock: keys 1–5 now switch `halo.current_view.moment`, so the phone shows the kit's view for that moment
+- Mock: keys 1–4 now switch `halo.current_view.moment`, so the phone shows the kit's view for that moment
   (3 = inside_route: level plan, « Allez en 3.12 par esc. A »). Checked in the browser.
 - Callouts after Amil's reference (square marker on the spot, elbow leader, framed label with a light title bar, an
   index, two mono caps lines), in a column right of the building, re-laid out every frame so they follow the
@@ -101,6 +101,10 @@ Updated: 06:27
   (listed, no call yet), `calling` = « appel en cours », `no_answer` = « sans nouvelles » (a call rang, no answer).
   Panel « À l'intérieur »: Personnes · Aide · À joindre · Sans nouvelles; only Sans nouvelles turns amber. 3D: à joindre
   = small grey ring, appel en cours = grey ring, sans nouvelles = amber ring. Checked live (6 à joindre, 0 sans nouvelles).
+- No air tracking (Amil: « oublie l'air »): no exit time, countdown or « sortie prévue » anywhere. Binôme card = team
+  id, level, stair (or room); team callouts read « → engagé ». « Vues Halo » skips team_engaged requests; keys 1–4
+  force a Halo moment (team_engaged gone); the mock no longer speaks R03's exit-time line. Air alarms only ever came
+  from Seraph's alerts, which Seraph stops sending.
 
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.

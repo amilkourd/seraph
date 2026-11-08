@@ -2,7 +2,7 @@
 import type { ReactNode } from "react";
 import type { Live } from "@/lib/live";
 import type { Gate, IncidentState } from "@/lib/types";
-import { dur, hm, hms, levelLabel } from "@/lib/fr";
+import { TEAM_STATUS, dur, hm, hms, levelLabel } from "@/lib/fr";
 import { Sq } from "./ui";
 
 /** The one paper panel of the reference: the incident as a title, the COS decision when there is one, then three
@@ -19,7 +19,7 @@ export function Panel({ live, now }: { live: Live; now: number }) {
           {gate && <Decision gate={gate} live={live} now={now} />}
           <div className="mt-auto flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <Team s={s} now={now} />
+              <Team s={s} />
               <Alerts s={s} />
             </div>
             <Inside s={s} />
@@ -97,21 +97,18 @@ export function Decision({ gate, live, now, className = "mt-8" }: { gate: Gate; 
   );
 }
 
-function Team({ s, now }: { s: IncidentState; now: number }) {
+// the team as a position only: no air tracking in the demo (Amil)
+function Team({ s }: { s: IncidentState }) {
   const t = s.crew.teams.find((x) => x.status === "engaged" || x.status === "exiting");
-  const left = t?.exit_by ? Date.parse(t.exit_by) - now : null;
+  const at = t?.location;
+  const where = !t ? "Aucun engagé" : at?.stair ? `Esc. ${at.stair}` : at?.room === "corridor" ? "Circulation" : (at?.room ?? TEAM_STATUS[t.status]);
   return (
-    <Card
-      title="Binôme"
-      right={left != null && <span className={`chip h-6 text-[12px] ${left <= 0 ? "danger" : ""}`}>{hm(t!.exit_by)}</span>}
-    >
+    <Card title="Binôme">
       <div className="flex items-baseline gap-2">
         <span className="t-num text-[44px] text-ink">{t?.id ?? "—"}</span>
-        {t?.location?.level != null && <span className="label text-ink-3">{levelLabel(s, t.location.level)}</span>}
+        {at?.level != null && <span className="label text-ink-3">{levelLabel(s, at.level)}</span>}
       </div>
-      <span className="label text-[12px]">
-        {left != null ? `Sortie dans ${dur(Math.max(0, left))}` : "Aucun engagé"}
-      </span>
+      <span className="label text-[12px]">{where}</span>
     </Card>
   );
 }
@@ -162,7 +159,8 @@ function Inside({ s }: { s: IncidentState }) {
 
 /** The reference's little node diagram: Seraph asks → Devin builds → on Halo. */
 function HaloBuild({ s, now }: { s: IncidentState; now: number }) {
-  const reqs = [...s.halo.requests].sort((a, b) => b.requested_at.localeCompare(a.requested_at)).slice(0, 2);
+  // no « Mon air » view: air tracking is out of the demo
+  const reqs = s.halo.requests.filter((r) => r.moment !== "team_engaged").sort((a, b) => b.requested_at.localeCompare(a.requested_at)).slice(0, 2);
   return (
     <Card title="Vues Halo">
       {reqs.length === 0 && <p className="label text-ink-3">Aucune demande</p>}
