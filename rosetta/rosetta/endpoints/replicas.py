@@ -151,30 +151,40 @@ async def report_fill(run: Run) -> dict:
     if not run.params.get("gate_id"):
         raise RunFailed("refusé : pas de gate_id (l'envoi du rapport passe par « confirmez »)")
     page = run.page
-    inc = (run.params.get("incident_id") or "").strip()
+    inc = (run.params.get("incident_id") or "").strip().upper()
+    if not re.fullmatch(r"INC-\d{4}", inc):
+        raise RunFailed(f"incident_id invalide ({inc or 'vide'})")
     sec = run.params.get("sections") or {}
     values = {k: (sec.get(k) or "").strip() or "Néant." for k in SECTIONS}
-    await replica_login(run, R, "/comptes-rendus")
-    task = (f"Create a new compte rendu for intervention {inc}. Fill the four sections, each with type_param: "
-            "« Chronologie » = chronologie, « Moyens engagés » = moyens, « Victimes » = victimes, "
+    # the list's « Nouveau compte rendu » button names one fixed intervention: code opens the form for this one
+    await replica_login(run, R, f"/comptes-rendus/nouveau?intervention={inc}")
+    task = (f"This is a new compte rendu for intervention {inc}. The « Numéro de l'intervention » field must hold "
+            f"{inc} (if it does not, type the parameter intervention there with type_param). Fill the four sections, "
+            "each with type_param: « Chronologie » = chronologie, « Moyens engagés » = moyens, « Victimes » = victimes, "
             "« Observations » = observations. Click « Enregistrer », then on the next page click « Transmettre ». "
             "Answer when the état shows « Transmis ».")
+
+    async def wrong() -> list[str]:
+        """What the saved compte rendu on screen gets wrong: its intervention, then each section."""
+        loc = page.locator("#cr-intervention")
+        bad = [] if await loc.count() and norm(await loc.inner_text()).upper() == inc else ["intervention"]
+        for k in SECTIONS:
+            loc = page.locator(f"#cr-{k}")
+            if not await loc.count() or norm(await loc.inner_text()) != norm(values[k]):
+                bad.append(k)
+        return bad
 
     async def verify(_: str):
         if await page.locator("#cr-etat").count() == 0:
             return False, "not on a saved compte rendu"
         etat = await text(page, "#cr-etat")
-        diffs = []
-        for k in SECTIONS:
-            loc = page.locator(f"#cr-{k}")
-            if not await loc.count() or norm(await loc.inner_text()) != norm(values[k]):
-                diffs.append(k)
+        diffs = await wrong()
         if diffs:
-            return False, f"sections that differ from what was asked: {', '.join(diffs)}"
+            return False, f"fields that differ from what was asked: {', '.join(diffs)}"
         return etat == "Transmis", f"état = {etat}"
 
     async def guard(call) -> str | None:
-        """« Transmettre » is irreversible: code checks the saved sections before letting the click through."""
+        """« Transmettre » is irreversible: code checks the saved intervention and sections before letting the click through."""
         if call.tool_name not in ("click", "double_click"):
             return None
         btn = page.locator("#btn-transmettre")
@@ -184,17 +194,14 @@ async def report_fill(run: Run) -> dict:
         x, y = call.x / 1000 * 1280, call.y / 1000 * 800
         if not box or not (box["x"] - 12 <= x <= box["x"] + box["width"] + 12 and box["y"] - 12 <= y <= box["y"] + box["height"] + 12):
             return None
-        bad = []
-        for k in SECTIONS:
-            loc = page.locator(f"#cr-{k}")
-            if not await loc.count() or norm(await loc.inner_text()) != norm(values[k]):
-                bad.append(k)
+        bad = await wrong()
         if bad:
-            return (f"this draft does not hold the requested texts ({', '.join(bad)}); do not transmit it. "
-                    "Create a new compte rendu and fill each section with type_param.")
+            return (f"this draft does not hold the requested values ({', '.join(bad)}); do not transmit it. "
+                    "Click « Modifier » and fix those fields with type_param, then save again.")
         return None
 
-    await agent(run, task, verify, params=values, max_steps=30, guard=guard, forbid=frozenset({"write"}))
+    await agent(run, task, verify, params={**values, "intervention": inc}, max_steps=30, guard=guard,
+                forbid=frozenset({"write"}))
     img = await page.screenshot(type="jpeg", quality=85)
     rid = await text(page, "#cr-numero")
     run.add_shot("report-01", img, f"Compte rendu {rid} transmis", "top")

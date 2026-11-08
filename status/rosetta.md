@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 07:10
+Updated: 07:25
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -29,7 +29,7 @@ Updated: 07:10
 | `dispatch.read` | ✅ INC-0001, address, nature, level, notes from the DOM | 10 s, 2 Holo steps | code logs in |
 | `occupants.list` | ✅ 6 occupants | 9 s | building matched by code (exact name, else the only one, else « exercice ») |
 | `dispatch.write_112` | ✅ MC-0007, text exact | 10 s | `write` disabled, `type_param entry_fr` |
-| `report.fill` | ✅ CR transmis, 4 sections exact | 25–57 s | 403 without `gate_id`; guard on « Transmettre » |
+| `report.fill` | ✅ CR transmis under the asked incident, 4 sections exact (07:25: CR-0001 for INC-0998, 11 steps) | 25–57 s | 403 without `gate_id`; code opens `/comptes-rendus/nouveau?intervention=<inc>` (not the list's button); verify and the « Transmettre » guard require `#cr-intervention` = inc and the 4 sections |
 | `plan.read` | ✅ 19 points on `plan-l-1-01` (L-1.svg) | 7 s | zones IoU vs IFC: -1.01 0.96, -1.04 0.97, -1.06 0.91, -1.08 0.95, -1.11 0.86 (garage + ramp + places in one region); stair 0.15 (hatching), lift 0.46 |
 | `maps.building` | ✅ 96 bd Bessières: E1 (496,500), truck (600,530) on `earth-top-01`; sv-front/left/right; 5 storeys | 32–42 s | no hydrant visible (honest: empty); E2 (the IFC's garage ramp) has no match at 42, Holo still points something; `footprint` = Holo points the roof once, code flood-fills (mean-shift, Maps UI masked, ≤ 16 vertices, kept only if 0.5–20 % of the image and E1 on/near it): 14 vertices on 42's roof |
 | `georisques.risks` | ✅ 8 risks (inondation, séisme, mouvements de terrain, argiles, radon, ICPE, canalisations, pollution des sols) | 22 s | Holo refuses cookies, picks the suggestion |
