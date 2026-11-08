@@ -68,8 +68,8 @@
     {
      "ban_id": null,
      "ban_uuid": null,
-     "key": "2 rue madame 64000 pau",
-     "label": "2 rue Madame, 64000 Pau",
+     "key": "96 boulevard bessieres 75017 paris",
+     "label": "96 Boulevard Bessières, 75017 Paris",
      "lat": null,
      "lon": null,
      "source": "manual"
@@ -79,7 +79,7 @@
    "exercise": true,
    "id_kind": "manual",
    "model": {
-    "building_sha256": "93aa1f59dee34244afebe2010fd4ab84a89eb1fa122ab1691ca03ebb6a00c16e",
+    "building_sha256": "380cba3b839c81b7e0c6c2c6f710de139cbd53467d37052141b413e7dfbacb44",
     "checks": {
      "failed": [],
      "passed": true
@@ -100,7 +100,7 @@
      "report.txt",
      "source.ifc"
     ],
-    "ids_sha256": "60459d1ba8127c8975d75d1c81b7c9d370c343919660e06db8c811e4913587e3",
+    "ids_sha256": "d16fc2b7b6de8f4ca03a8195f5a4a7ab254fa48b68a5758ca5b055a2df4c27e2",
     "ifc_bytes": 13512479,
     "ifc_file": "RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc",
     "ifc_schema": "IFC4",
@@ -121,10 +121,10 @@
    },
    "name": "Immeuble d'habitation (maquette TU Wien)",
    "provenance": "architect",
-   "provenance_fr": "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice",
+   "provenance_fr": "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice",
    "registered_at": "2026-11-08T03:41:41Z",
    "rnb_ids": [],
-   "updated_at": "2026-11-08T04:06:53Z"
+   "updated_at": "2026-11-08T04:14:29Z"
   }
  },
  "format": 1

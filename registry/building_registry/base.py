@@ -82,6 +82,9 @@ class BuildingRegistry(ABC):
     def put_address(self, building_id: str, address: AddressRef) -> None:
         raise ReadOnlyRegistry(f"{self.name} registry is read-only")
 
+    def delete_address(self, building_id: str, key: str) -> bool:
+        raise ReadOnlyRegistry(f"{self.name} registry is read-only")
+
     # ───────── the interface ─────────
     def lookup(self, address: str, *, incident_id: Optional[str] = None, actor: str = "seraph",
                online: Optional[bool] = None) -> Optional[BuildingRecord]:
@@ -138,6 +141,14 @@ class BuildingRegistry(ABC):
             self.put_address(building_id, ref)
         self._log(actor, "add_address", "ok", building_id, None, refs[0].key)
         return refs
+
+    def remove_address(self, building_id: str, address: str, *, actor: str = "registry-cli") -> bool:
+        """Stop resolving this address to this building (re-addressed building, old test address). The building
+        and its other addresses stay. → True if the address was there."""
+        key = normalize(address)
+        gone = self.delete_address(building_id, key)
+        self._log(actor, "remove_address", "ok" if gone else "miss", building_id, None, key)
+        return gone
 
     # ───────── helpers ─────────
     def _resolve_online(self, address: str, key: str) -> Optional[str]:

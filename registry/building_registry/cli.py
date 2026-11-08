@@ -6,6 +6,7 @@
     registry register <file.ifc> --address "…" [--address "…"] [--demo-address] [--building-id ID]
                       [--ids ids.yaml] [--exercise] [--offline] [--provenance …] [--name …]
     registry add-address <building_id> --address "…" | --demo-address [--exercise]
+    registry remove-address <building_id> --address "…"           (the building and its other addresses stay)
     registry log [--building ID] [--incident ID] [--limit N]
     registry copy --to supabase [building_id …]               (local → another backend, e.g. after adding keys)
     registry export <building_id> <folder>                    (building.json + levels/, ready to serve)
@@ -67,6 +68,9 @@ def main(argv: Optional[list[str]] = None) -> None:
     p.add_argument("--demo-address", action="store_true")
     p.add_argument("--exercise", action="store_true", help="no BAN link (made-up address)")
     p.add_argument("--offline", action="store_true")
+    p = sub.add_parser("remove-address")
+    p.add_argument("building_id")
+    p.add_argument("--address", action="append", required=True)
     p = sub.add_parser("log")
     p.add_argument("--building")
     p.add_argument("--incident")
@@ -133,6 +137,11 @@ def _run(reg, args) -> None:
                                    link_ban=not args.exercise)
             for ref in refs:
                 print(f"{args.building_id} ← {ref.label}  [{ref.source}]")
+        return
+    if args.cmd == "remove-address":
+        for a in args.address:
+            gone = reg.remove_address(args.building_id, a)
+            print(f"{args.building_id} ✕ {a}" if gone else f"{a!r} was not an address of {args.building_id}")
         return
     if args.cmd == "log":
         for e in reg.access_log(building_id=args.building, incident_id=args.incident, limit=args.limit):

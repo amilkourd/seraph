@@ -17,6 +17,7 @@ from ..config import env
 from ..model import AccessEntry, AddressRef, BuildingRecord
 
 TIMEOUT_S = 8.0
+UPLOAD_TIMEOUT_S = 180.0
 
 
 class SupabaseRegistry(BuildingRegistry):
@@ -102,7 +103,8 @@ class SupabaseRegistry(BuildingRegistry):
         for rel, data in files.items():
             path = urllib.parse.quote(f"{record.building_id}/{rel}")
             r = self.http.post(f"/storage/v1/object/{self.bucket}/{path}", content=data,
-                               headers={"x-upsert": "true", "Content-Type": _content_type(rel)})
+                               headers={"x-upsert": "true", "Content-Type": _content_type(rel)},
+                               timeout=UPLOAD_TIMEOUT_S)      # the source IFC can weigh tens of MB
             self._check(r)
         self._upsert("registry_buildings", {
             "building_id": record.building_id, "id_kind": record.id_kind, "name": record.name,
@@ -120,6 +122,13 @@ class SupabaseRegistry(BuildingRegistry):
                                             "source": address.source, "ban_id": address.ban_id,
                                             "ban_uuid": address.ban_uuid, "lat": address.lat, "lon": address.lon},
                      "key")
+
+    def delete_address(self, building_id: str, key: str) -> bool:
+        r = self.http.delete("/rest/v1/registry_addresses",
+                             params={"key": f"eq.{key}", "building_id": f"eq.{building_id}"},
+                             headers={"Prefer": "return=representation"})
+        self._check(r)
+        return bool(r.json()) if r.content else False
 
     def delete(self, building_id: str) -> None:
         """Remove a building (record, addresses by cascade, files). The access log keeps its lines."""

@@ -1,4 +1,4 @@
-**Immeuble d'habitation (maquette TU Wien)** — Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice
+**Immeuble d'habitation (maquette TU Wien)** — Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice
 Source: `RealWorldTestModel-EscapeRouteAnalysis-ZDB-v2.ifc` (TU Wien, Research Unit Digital Building Process — CC BY 4.0).
 
 | | |

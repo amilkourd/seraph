@@ -1,4 +1,4 @@
-# The demo building: a real architect's IFC (TU Wien) placed at a fictional address (DEMO_ADDRESS, « exercice »).
+# The demo building: a real architect's IFC (TU Wien) registered at the exercise address DEMO_ADDRESS (« exercice »).
 # Source: TU Wien « Real-World Escape Route Test Model » v2.0.0, IFC4 (Archicad), CC BY 4.0.
 #   https://researchdata.tuwien.ac.at/records/wzp90-dmf60 — credit: TU Wien, Research Unit Digital Building Process.
 # The IFC itself is not in git (ifc/test/ is ignored). Download it to ifc/test/tuwien/ then:
@@ -9,7 +9,7 @@
 
 name: "Immeuble d'habitation (maquette TU Wien)"
 provenance: architect
-provenance_fr: "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice"
+provenance_fr: "Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice"
 credit: "TU Wien, Research Unit Digital Building Process — CC BY 4.0"
 source_url: "https://researchdata.tuwien.ac.at/records/wzp90-dmf60"
 

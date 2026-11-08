@@ -21,10 +21,11 @@ which incident, hit or miss.
 
 | building_id | What | Address |
 |---|---|---|
-| `tuwien-escape-route-v2` | **The demo building.** TU Wien « Real-World Escape Route Test Model » v2.0.0 (IFC4, Archicad, **CC BY 4.0**, credit *TU Wien, Research Unit Digital Building Process*, https://researchdata.tuwien.ac.at/records/wzp90-dmf60). Provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse fictive, exercice ». | `DEMO_ADDRESS` (fictional, exercice) |
+| `tuwien-escape-route-v2` | **The demo building.** TU Wien « Real-World Escape Route Test Model » v2.0.0 (IFC4, Archicad, **CC BY 4.0**, credit *TU Wien, Research Unit Digital Building Process*, https://researchdata.tuwien.ac.at/records/wzp90-dmf60). Provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice ». | `DEMO_ADDRESS`, now « 96 Boulevard Bessières, 75017 Paris » (exercise address: this model is not the building there) |
 | `dev-r5-exercice` | The fictional R+5, « bâtiment fictif » fallback. | 1 rue de l'Exercice, 75009 Paris (placeholder, exercice) |
 
-Ask for the demo building with `DEMO_ADDRESS` (in `.env`), in any spelling: `registry lookup "2, Rue MADAME - 64000 PAU"`.
+Ask for the demo building with `DEMO_ADDRESS` (in `.env`), in any spelling: `registry lookup "96 bd Bessieres 75017 PARIS"`.
+Both are on the local backend and on Supabase.
 
 ## Why it is keyed this way
 
@@ -56,13 +57,14 @@ the plans, the report and `ids.yaml`, and upserts the record with the extractor 
 idempotent: same IFC + same extractor + same `ids.yaml` → « unchanged » (addresses merged); anything else
 re-extracts.
 
-**Move the demo building to its final address, one command** (DEMO_ADDRESS read from `.env`, never hardcoded):
+**Move the demo building to a new address** (DEMO_ADDRESS read from `.env`, never hardcoded), then drop the old one:
 
 ```bash
 uv run registry add-address tuwien-escape-route-v2 --demo-address --exercise
+uv run registry remove-address tuwien-escape-route-v2 --address "<old address>"
 ```
 
-Other commands: `registry list`, `registry show <id>`, `registry lookup [address] [--incident ID]`,
+Other commands: `registry list`, `registry show <id>`, `registry lookup [address] [--incident ID]`, `registry remove-address`,
 `registry log [--building ID] [--incident ID]`, `registry export <id> <folder>`, `registry copy --to supabase`.
 
 ## Backends
@@ -78,7 +80,8 @@ Other commands: `registry list`, `registry show <id>`, `registry lookup [address
 are revoked from `anon` / `authenticated`: the publishable key reads nothing (the advisor's « RLS enabled, no
 policy » notice is intended). Only the server, with the secret key, reads and writes; the access log cannot be
 updated or deleted even with it. Env: `SUPABASE_URL`, `SUPABASE_SECRET_KEY` (new `sb_secret_…`, sent on the `apikey`
-header only) or `SUPABASE_SERVICE_ROLE_KEY` (legacy JWT). Copy the local registry up with `registry copy --to supabase`.
+header only) or `SUPABASE_SERVICE_ROLE_KEY` (legacy JWT). Copy the local registry up with `registry copy --to supabase` (done: both buildings are there). Checked on
+the live project: the publishable key gets `401 permission denied` on every table and `400` on every file.
 
 **Swap in a fire service's registry.** `backends/fire_service.py` is a working read-only adapter for a minimal REST
 contract (search by normalized address, BAN id or RNB id; fetch a building; fetch its files; post access-log lines).
@@ -98,6 +101,6 @@ cd registry && uv run pytest
 
 One contract suite, run against every backend: `local` (temp folder), `supabase` (the real backend code against an
 in-memory PostgREST + Storage), `supabase-live` (the real project, when `SUPABASE_URL` and a secret key are set; it
-cleans up after itself), and `fire_service` (the adapter against a fake fire-service API; read-only). Registration
+cleans up after itself; 35 tests pass with it), and `fire_service` (the adapter against a fake fire-service API; read-only). Registration
 runs the real extractor on the fictional R+5. Plus address normalization and id rules. The extractor's own tests
 are in `ifc/`.

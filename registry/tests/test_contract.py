@@ -23,8 +23,9 @@ from building_registry.ingest import copy_building, register
 from fakes import FakeFireService, FakeSupabase
 
 IFC_DIR = Path(__file__).resolve().parents[2] / "ifc"
-ADDRESS = "1 rue de l'Exercice, 75009 Paris"
-VARIANT = "1, Rue de l’EXERCICE — 75009 PARIS, France"
+RUN = uuid.uuid4().hex[:6]           # unique per run: the live registry already holds real entries
+ADDRESS = f"1 rue de l'Essai {RUN}, 75009 Paris"
+VARIANT = f"1, Rue de l’ESSAI {RUN.upper()} — 75009 PARIS, France"
 UNKNOWN = "10 rue de Rivoli, 75004 Paris"
 
 
@@ -90,14 +91,22 @@ def test_access_log_says_who_read_what_for_which_incident(writable, building_id)
 
 
 def test_register_is_idempotent_and_addresses_merge(writable, dev_ifc, building_id):
-    again = register(writable, dev_ifc, [ADDRESS, "Bâtiment d'exercice, Paris"], building_id=building_id,
+    again = register(writable, dev_ifc, [ADDRESS, f"Bâtiment d'essai {RUN}, Paris"], building_id=building_id,
                      exercise=True, online=False)
     assert again.status == "unchanged"
-    assert writable.lookup("Bâtiment d'exercice, Paris").building_id == building_id
-    writable.add_address(building_id, "12 avenue du Test, 75001 Paris", online=False)
-    writable.add_address(building_id, "12 avenue du Test, 75001 Paris", online=False)
-    assert writable.lookup("12 av. du Test 75001 Paris").building_id == building_id
+    assert writable.lookup(f"Bâtiment d'essai {RUN}, Paris").building_id == building_id
+    writable.add_address(building_id, f"12 avenue du Test {RUN}, 75001 Paris", online=False)
+    writable.add_address(building_id, f"12 avenue du Test {RUN}, 75001 Paris", online=False)
+    assert writable.lookup(f"12 av. du Test {RUN} 75001 Paris").building_id == building_id
     assert building_id in [r.building_id for r in writable.list()]
+
+
+def test_an_address_can_be_moved_off_a_building(writable, building_id):
+    writable.add_address(building_id, f"3 rue Provisoire {RUN}, Paris", online=False)
+    assert writable.lookup(f"3 rue Provisoire {RUN}, Paris") is not None
+    assert writable.remove_address(building_id, f"3 rue Provisoire {RUN}, Paris")
+    assert writable.lookup(f"3 rue Provisoire {RUN}, Paris") is None
+    assert writable.lookup(ADDRESS).building_id == building_id       # the others stay
 
 
 def test_an_address_belongs_to_one_building(writable, dev_ifc, building_id):
@@ -135,6 +144,8 @@ def test_fire_service_reads_through_the_same_interface(fire_service, building_id
 def test_fire_service_is_never_written(fire_service, dev_ifc, building_id):
     with pytest.raises(ReadOnlyRegistry):
         fire_service.add_address(building_id, "5 rue Autre, Paris", online=False)
+    with pytest.raises(ReadOnlyRegistry):
+        fire_service.remove_address(building_id, ADDRESS)
     with pytest.raises(ReadOnlyRegistry):
         register(fire_service, dev_ifc, ["5 rue Autre, Paris"], building_id="other-r5", exercise=True, online=False)
 

@@ -1,12 +1,13 @@
 # ifc — status
-Updated: 05:08
+Updated: 05:18
 
 Owns `ifc/` (any IFC → `building.json`, level plans, checks) and `registry/` (the building registry Seraph looks
 addresses up in).
 
 ## Running
 - Nothing serves (offline tools). Seraph imports `registry/` as a package (`building_registry`), no port.
-- `cd registry && uv run registry lookup` → TU Wien at `DEMO_ADDRESS` (local backend, offline).
+- `cd registry && uv run registry lookup` → TU Wien at `DEMO_ADDRESS` = « 96 Boulevard Bessières, 75017 Paris »
+  (local backend, offline; same answer with `--backend supabase`).
 
 ## Done
 - **Extractor 1.3.0** (`ifc/`), works on any IFC; on TU Wien's real model (13.5 MB, Archicad IFC4) all 4 checks pass in
@@ -29,26 +30,29 @@ addresses up in).
   `building-models`, RLS on with no policy, client roles revoked, log append-only), `fire_service` (read-only adapter
   for an SDIS registry). CLI: register / lookup / add-address / log / copy / export. Idempotent registration with
   extractor version + hashes.
-- Registered (local): `tuwien-escape-route-v2` at `DEMO_ADDRESS` (exercice) and `dev-r5-exercice` at « 1 rue de
-  l'Exercice, 75009 Paris » (exercice, « bâtiment fictif »). Unknown address → None. Moving the demo building to a
-  new address: `uv run registry add-address tuwien-escape-route-v2 --demo-address --exercise` (tested).
+- Registered, **local and Supabase**: `tuwien-escape-route-v2` at `DEMO_ADDRESS` « 96 Boulevard Bessières, 75017
+  Paris » (exercise address, provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice »; the old
+  Pau alias removed) and `dev-r5-exercice` at « 1 rue de l'Exercice, 75009 Paris » (« bâtiment fictif »). Unknown
+  address → None. Re-addressing: `registry add-address … --demo-address --exercise` + `registry remove-address`.
+- Supabase live: both buildings copied (9 files each, byte-identical to local), lookups and access log checked;
+  publishable key → 401 on every table, 400 on every file; advisors: only the intended « RLS, no policy » notice.
+  Migration `20261108060000_registry_remove_address` applied.
   Checked through Seraph's own loader (`seraph.building.load` + `shortest_path`: outside → E1 → stair A → 3.12 / 3.T /
   2.01 / -1.06).
-- Tests: `ifc/` 28 passed (dev round-trip, checks, TU Wien). `registry/` 26 passed, 6 skipped (= the live-Supabase run,
-  needs the key): one contract suite on local, Supabase (real code vs in-memory PostgREST + Storage), fire-service
-  adapter (fake API), plus address normalization.
+- Tests: `ifc/` 29 passed (dev round-trip, checks, TU Wien, scenario ids pinned). `registry/` 35 passed: one
+  contract suite on local, Supabase (in-memory PostgREST + Storage), **live Supabase**, fire-service adapter (fake
+  API), plus address normalization.
 - READMEs: `ifc/README.md`, `registry/README.md` (keys, backends, swapping in a fire service, tests, TU Wien credit).
 
 ## In progress
 - Nothing. Next if asked: walls-only white layer for Halo (Halo said not needed now).
 
 ## Blocked
-- Supabase data copy: needs `SUPABASE_URL` + `SUPABASE_SECRET_KEY` in `.env` (Amil). Then
-  `cd registry && uv run registry copy --to supabase && uv run pytest` (the live contract run turns on by itself).
+- Nothing.
 
 ## Requests (to other sessions or Amil)
-- Amil: paste in `.env` (server-side only): `SUPABASE_URL=https://awddwjzozoqyxpyblpsi.supabase.co` and
-  `SUPABASE_SECRET_KEY` (Supabase → Settings → API Keys → secret key; a legacy `SUPABASE_SERVICE_ROLE_KEY` also works).
+- Amil: the Supabase secret key was pasted in a chat: rotate it after the demo (Supabase → Settings → API Keys →
+  create a new secret key, put it in `.env`, revoke the old one). `.env` has `SUPABASE_URL` + `SUPABASE_SECRET_KEY`.
   Env names added to `.env.example`: `REGISTRY_BACKEND` (local | supabase | fire_service), `REGISTRY_DIR`,
   `REGISTRY_CACHE_DIR`, `REGISTRY_ONLINE`, `REGISTRY_BUCKET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
   `FIRE_SERVICE_REGISTRY_URL`, `FIRE_SERVICE_REGISTRY_TOKEN`.
@@ -61,8 +65,8 @@ addresses up in).
   `model.second_route`, `model.plan_frame`, `model.extractor`, `model.source_ifc`, `model.checks`. Node prefix `ladder:`.
 - @seraph: integration snippet sent (`RegistryBacked` → `B.load(reg.model_path(...))`); renames `facade_rescue_points`
   → `model.ladder_points`, `facade:` → `ladder:`; serve `/building/files` from `kit.files_dir` first.
-- Scenario v2 session: my last message was not delivered (cross-session cap). Since its last copy of `ifc/out`, only
-  the level SVGs and `model.extractor.version` (1.3.0) changed; ids and coordinates are the same.
+- Scenario v2 session: `model.provenance_fr` is now « Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice »
+  (address change); ids, zones, graph unchanged. Re-run `gen_fixtures_v2.py` to pick it up.
 
 ## Facts I verified (API names, model ids, gotchas)
 - ifcopenshell 0.9.0: import api submodules explicitly; `by_type` returns tuples; geometry via

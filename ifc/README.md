@@ -14,7 +14,7 @@ any.ifc ──ifc-extract──▶ out/building.json      rooms, doors, stairs, 
 
 | Folder | What |
 |---|---|
-| `out/` | **The demo building**: TU Wien's real model (below), at a fictional address. Seraph's `BUILDING_JSON`. |
+| `out/` | **The demo building**: TU Wien's real model (below), registered at an exercise address. Seraph's `BUILDING_JSON`. |
 | `out-dev/` | The fictional R+5 of the first scenario (`dev/trace.yaml` → `dev/dev.ifc`), the « bâtiment fictif » fallback. |
 | `tuwien/ids.yaml` | How the TU Wien model maps onto Seraph: entrance and scenario ids, French labels, declared second route. |
 | `seraph_ifc/` | `extract.py` (any IFC), `checks.py`, `drawing.py` + `plans.py` (level plans), `author.py` (trace → IFC), `describe.py` (building → text map). |
@@ -24,8 +24,8 @@ any.ifc ──ifc-extract──▶ out/building.json      rooms, doors, stairs, 
 **TU Wien, « Real-World Escape Route Test Model » v2.0.0** — a real, approved residential project in Vienna, IFC4
 exported from Archicad, 13.5 MB, licensed **CC BY 4.0**. Credit: *TU Wien, Research Unit Digital Building Process*,
 https://researchdata.tuwien.ac.at/records/wzp90-dmf60. No open IFC of a real French building could be found, so the
-demo places this real model at a **fictional address** (`DEMO_ADDRESS`); every screen says « Maquette IFC réelle
-(TU Wien, CC BY 4.0) — adresse fictive, exercice ». The IFC itself is not in git:
+demo registers this real model at an **exercise address** (`DEMO_ADDRESS`; the model is not the building
+there); every screen says « Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice ». The IFC itself is not in git:
 
 ```bash
 mkdir -p ifc/test/tuwien   # then download the IFC from the record above into it

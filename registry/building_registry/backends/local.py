@@ -137,6 +137,20 @@ class LocalRegistry(BuildingRegistry):
             rec["updated_at"] = now_iso()
             self._write(data)
 
+    def delete_address(self, building_id: str, key: str) -> bool:
+        with self._locked():
+            data = self._read()
+            rec = data.get("buildings", {}).get(building_id)
+            if rec is None:
+                raise RegistryError(f"unknown building {building_id}")
+            kept = [a for a in rec.get("addresses", []) if a["key"] != key]
+            if len(kept) == len(rec.get("addresses", [])):
+                return False
+            rec["addresses"] = kept
+            rec["updated_at"] = now_iso()
+            self._write(data)
+            return True
+
     def delete(self, building_id: str) -> None:
         with self._locked():
             data = self._read()

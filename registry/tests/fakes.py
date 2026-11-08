@@ -69,13 +69,14 @@ class FakeSupabase:
                     table.append(row)
                 return httpx.Response(201)
             if req.method == "DELETE":
-                col, cond = next((c, v) for c, v in q.items())
-                gone = [r for r in table if self._match(r, col, cond)]
+                gone = [r for r in table if all(self._match(r, c, v) for c, v in q.items())]
                 table[:] = [r for r in table if r not in gone]
                 if m.group(1) == "registry_buildings":   # on delete cascade
                     ids = {r["building_id"] for r in gone}
                     self.tables["registry_addresses"][:] = [a for a in self.tables["registry_addresses"]
                                                             if a["building_id"] not in ids]
+                if "return=representation" in req.headers.get("prefer", ""):
+                    return httpx.Response(200, json=gone)
                 return httpx.Response(204)
         m = re.match(r"^/storage/v1/object/(authenticated/)?([\w-]+)/?(.*)$", path)
         if m:
