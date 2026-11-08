@@ -11,10 +11,8 @@ PKG_DIR = Path(__file__).resolve().parent
 SERVICE_DIR = PKG_DIR.parent                 # <repo>/silex
 REPO = SERVICE_DIR.parent                    # <repo>
 KIT = REPO / "halo" / "kit"
-VIEWS = REPO / "views"
 LEARNED = REPO / "rosetta" / "skills" / "learned"
 PLAYBOOKS = SERVICE_DIR / "devin"
-RUNTIME = SERVICE_DIR / "runtime"            # sessions.json, staging, render shots (gitignored)
 
 
 def _load_dotenv(path: Path) -> dict[str, str]:
@@ -39,6 +37,9 @@ def _load_dotenv(path: Path) -> dict[str, str]:
 
 
 _FILE = _load_dotenv(REPO / ".env")
+# a second instance (tests) points these elsewhere so it never touches the live one's files
+VIEWS = Path(os.environ.get("SILEX_VIEWS") or REPO / "views")
+RUNTIME = Path(os.environ.get("SILEX_RUNTIME") or SERVICE_DIR / "runtime")   # sessions.json, staging, builds (gitignored)
 
 
 def env(key: str, default: str = "") -> str:

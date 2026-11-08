@@ -10,8 +10,11 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 
+import time
+
 from . import cli
 from .config import KIT, RUNTIME, VIEWS, settings
+from .page import PAGE
 from .validate import renderer
 from .views import silex
 
@@ -155,6 +158,72 @@ async def kit(path: str) -> FileResponse:
 @app.get("/sessions")
 async def sessions() -> list[dict]:
     return silex.list_sessions()
+
+
+def _job_for(sid: str, view: str | None):
+    if sid not in silex.sessions:
+        raise HTTPException(404, "no such session")
+    if view and (set(view) - SAFE_ID):
+        raise HTTPException(404, "no such view")
+    jobs = [j for j in silex.jobs.values() if j.session_id == sid and (not view or j.view_id == view)]
+    if not jobs:
+        raise HTTPException(404, "no build in this session yet")
+    return silex.sessions[sid], max(jobs, key=lambda j: j.t0)
+
+
+@app.get("/sessions/{sid}")
+async def session_page(sid: str) -> HTMLResponse:
+    """Watch Devin build a view (the dashboard's link; sent as devin_session_url for CLI runs)."""
+    if sid not in silex.sessions:
+        raise HTTPException(404, "no such session")
+    return HTMLResponse(PAGE, headers=NO_STORE)
+
+
+@app.get("/sessions/{sid}/data")
+async def session_data(sid: str, view: str | None = None) -> dict:
+    s, j = _job_for(sid, view)
+    build = cli.build_dir(j.view_id)
+    meta_p = VIEWS / j.view_id / "view.json"
+    if meta_p.exists():
+        refs = [{**r, "url": f"/views/{j.view_id}/refs/{r['image']}"} for r in json.loads(meta_p.read_text()).get("references_used") or []]
+    else:
+        took = {r.get("image"): r.get("took", "") for r in (s.refs if s.view_id == j.view_id else [])}
+        refs = [{"image": p.name, "took": took.get(p.name, ""), "url": f"/sessions/{sid}/ref/{p.name}?view={j.view_id}"}
+                for p in sorted((build / "refs").glob("*")) if p.is_file()]
+    folder = RUNTIME / "cli" / sid
+    prompts = [p.read_text(encoding="utf-8") for p in sorted(folder.glob(f"{j.view_id}-*.md"))]
+    wip = build / "index.html"
+    return {"session": s.public(), "job": {**j.public(), "late": j.late}, "t0_ms": int(j.t0 * 1000),
+            "elapsed_s": round((j.request_to_view_ms or 0) / 1000) if j.ready_at else round(time.time() - j.t0),
+            "events": j.events, "trace": j.trace, "refs": refs, "prompt": "\n\n────────\n\n".join(prompts),
+            "wip_url": f"/sessions/{sid}/wip?view={j.view_id}&m={int(wip.stat().st_mtime)}" if wip.exists() else None,
+            "final_url": f"/views/{j.view_id}/" if j.status == "ready" and (VIEWS / j.view_id / "index.html").exists() else None,
+            "state_url": f"/sessions/{sid}/state?view={j.view_id}" if (build / "state.json").exists() else None}
+
+
+@app.get("/sessions/{sid}/wip")
+async def session_wip(sid: str, request: Request, view: str | None = None) -> HTMLResponse:
+    """The view as Devin is writing it (not validated: only on this page, never on Halo)."""
+    _, j = _job_for(sid, view)
+    return _serve_html(cli.build_dir(j.view_id) / "index.html", request)
+
+
+@app.get("/sessions/{sid}/state")
+async def session_state(sid: str, view: str | None = None) -> FileResponse:
+    _, j = _job_for(sid, view)
+    p = cli.build_dir(j.view_id) / "state.json"
+    if not p.exists():
+        raise HTTPException(404, "no state")
+    return FileResponse(p, headers=NO_STORE)
+
+
+@app.get("/sessions/{sid}/ref/{name}")
+async def session_ref(sid: str, name: str, view: str | None = None) -> FileResponse:
+    _, j = _job_for(sid, view)
+    p = cli.build_dir(j.view_id) / "refs" / Path(name).name
+    if not p.is_file():
+        raise HTTPException(404, "no such reference")
+    return FileResponse(p, headers=NO_STORE)
 
 
 @app.get("/requests")

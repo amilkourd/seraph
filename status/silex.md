@@ -1,5 +1,5 @@
 # silex — status
-Updated: 06:45
+Updated: 07:15
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -54,6 +54,16 @@ Updated: 06:45
 - Fallback when Devin answers in its reply instead of writing the file: the last ```html block of its output.
 - Deadlines from the request; when late, `failed` « délai dépassé, Devin continue » is pushed and the view is still
   delivered as `ready` if it lands (Seraph decides whether to switch).
+- **Watch Devin build** (for the judges): local CLI sessions have no app.devin.ai link (only `--cloud` ones do), so
+  Silex serves its own live page `GET /sessions/<id>?view=<view_id>` and sends it as `devin_session_url` (in the
+  `building` ViewReady already, then `ready`/`failed`); `GET /sessions` → `url` is that page for CLI sessions. The
+  page polls `/sessions/<id>/data`: Silex's timeline (request, references, Devin started, « Devin écrit la vue (N
+  lignes) » from a build-folder watcher, end of each attempt, check-view / render A-B results, served), the view
+  as Devin writes it (`/sessions/<id>/wip`, fed with the build's `state.json`, then the served view), each reference
+  with what Devin took from it, Devin's own steps (read / write / exec with exit code / what it said) from the
+  CLI's `--export` ATIF trace (written when each run ends, not streamed), and the prompt.
+- The CLI session id for `-r` now comes from each run's `--export` (`session_id`), not from `devin list` (no race
+  when two runs start together).
 - `GET /sessions` (dashboard; plain array): id, session_id (CLI name), url (API only), kind, role, transport,
   model, status (warming idle building fixing ready failed ended), purpose, started_at, elapsed_s, request_id,
   view_id, note, tail (last lines of the CLI output), summary, refs. `GET /requests` (timings, attempts, errors),
@@ -111,6 +121,12 @@ Updated: 06:45
 - Not done (stretch): `POST /endpoints/learn`.
 
 ## Facts I verified (API names, model ids, gotchas)
+- `--model opus` resolves to **Claude Opus 5 Medium** (`devin models`: family `claude-opus-5`, alias `opus`), not
+  Opus 5.5 (`claude-opus-5-5-medium`, listed separately, no alias). The ATIF export says « You are powered by
+  Claude Opus 5 Medium ».
+- `--export <path>` writes ATIF JSON `{schema_version, session_id, agent, steps:[{source: system|user|agent,
+  message, tool_calls:[{function_name: read|write|exec…, arguments}], observation:{results:[{content}]}}]}` when the
+  run ends (checked by polling: nothing during the run). `--verbosity` changes nothing in `-p` output.
 - **Devin CLI** (docs.devin.ai/cli): `devin -p/--print [PROMPT]`, `--prompt-file`, `--model` (`opus` → latest
   Opus family; `devin models` lists them), `-r/--resume <id>`, `--permission-mode auto|accept-edits|smart|dangerous`,
   `--config` (REPLACES the user config, which holds `devin.org_id`), `--respect-workspace-trust false` (print mode

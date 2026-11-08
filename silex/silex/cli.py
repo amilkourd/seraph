@@ -41,9 +41,10 @@ def binary() -> Optional[str]:
 class Run:
     """One `devin -p` process. Keeps the last lines of its output for the dashboard."""
 
-    def __init__(self, run_id: str, log_path: Path) -> None:
+    def __init__(self, run_id: str, log_path: Path, export_path: Optional[Path] = None) -> None:
         self.run_id = run_id
         self.log_path = log_path
+        self.export_path = export_path        # ATIF trace, written by the CLI when the run ends
         self.tail: deque[str] = deque(maxlen=12)
         self.proc: Optional[asyncio.subprocess.Process] = None
         self.started = time.time()
@@ -64,6 +65,8 @@ class Run:
                 "--config", str(write_config()), "--respect-workspace-trust", "false"]
         if resume:
             args += ["-r", resume]
+        if self.export_path:
+            args += ["--export", str(self.export_path)]
         args += ["-p", "--prompt-file", str(prompt_file)]
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self.proc = await asyncio.create_subprocess_exec(*args, cwd=str(REPO), stdin=asyncio.subprocess.DEVNULL,
@@ -133,6 +136,32 @@ async def latest_session(since: float) -> Optional[str]:
         if sid and (ts(it) == 0.0 or ts(it) >= since - 5):
             return str(sid)
     return None
+
+
+def read_export(path: Optional[Path]) -> tuple[Optional[str], list[dict]]:
+    """The CLI session id and Devin's steps (what it read, wrote, ran, said) from an ATIF export."""
+    try:
+        d = json.loads(path.read_text(encoding="utf-8")) if path else {}
+    except (OSError, ValueError):
+        return None, []
+    steps = []
+    for st in d.get("steps") or []:
+        if st.get("source") != "agent":
+            continue
+        t = st.get("timestamp") or ""
+        results = {r.get("source_call_id"): str(r.get("content") or "") for r in ((st.get("observation") or {}).get("results") or [])}
+        for call in st.get("tool_calls") or []:
+            name, args = call.get("function_name") or "?", call.get("arguments") or {}
+            target = args.get("file_path") or args.get("path") or args.get("command") or args.get("pattern") or ""
+            target = str(target).replace(str(REPO) + "/", "")
+            out = results.get(call.get("tool_call_id"), "")
+            code = out.rsplit("Exit code:", 1)[1].strip().split()[0] if "Exit code:" in out else None
+            lines = [l for l in out.replace("Output from command in shell", "").splitlines()[1:] if l.strip() and not l.startswith("Exit code")]
+            steps.append({"t": t, "tool": name, "target": target[:160], "code": code, "out": "\n".join(lines[:6])[:400]})
+        msg = (st.get("message") or "").strip()
+        if msg:
+            steps.append({"t": t, "tool": "say", "target": msg[:300], "code": None, "out": ""})
+    return d.get("session_id"), steps
 
 
 def build_dir(view_id: str) -> Path:

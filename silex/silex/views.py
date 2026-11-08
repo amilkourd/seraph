@@ -59,7 +59,7 @@ class Session:
 
     def public(self) -> dict:
         run = RUNS.get(self.id)
-        return {"id": self.id, "session_id": self.resume or self.id, "url": self.url, "kind": self.kind,
+        return {"id": self.id, "session_id": self.resume or self.id, "url": self.url or page_url(self), "kind": self.kind,
                 "role": self.role, "transport": self.transport, "model": settings.devin_model if self.transport == "cli" else None,
                 "status": self.status, "purpose": self.purpose, "started_at": self.started_at,
                 "elapsed_s": round(time.time() - self.t0), "request_id": self.request_id, "view_id": self.view_id,
@@ -70,6 +70,16 @@ class Session:
     @property
     def live(self) -> bool:
         return self.status in ("warming", "idle", "building", "fixing")
+
+
+def page_url(s: "Session", view_id: Optional[str] = None) -> Optional[str]:
+    """Where to watch Devin build: app.devin.ai for an API session, Silex's own live page for a CLI run."""
+    if s.mock:
+        return None
+    if s.url:
+        return s.url
+    v = view_id or s.view_id
+    return f"{settings.public_url}/sessions/{s.id}" + (f"?view={v}" if v else "")
 
 
 @dataclass
@@ -91,9 +101,14 @@ class Job:
     first_answer_ms: Optional[int] = None
     warm: bool = False
     note: str = ""
+    events: list = field(default_factory=list)   # Silex's timeline of the build, live (the session page)
+    trace: list = field(default_factory=list)    # Devin's own steps (read, write, exec, say), after each run
+
+    def event(self, text: str) -> None:
+        self.events.append({"t": now_iso(), "s": round(time.time() - self.t0, 1), "text": text})
 
     def public(self) -> dict:
-        d = {k: v for k, v in asdict(self).items() if k not in ("vr", "rejected", "t0")}
+        d = {k: v for k, v in asdict(self).items() if k not in ("vr", "rejected", "t0", "events", "trace")}
         d["purpose_fr"] = self.vr.get("purpose_fr")
         d["deadline_s"] = self.vr.get("deadline_s")
         d["elapsed_s"] = round(time.time() - self.t0) if not self.ready_at else round((self.request_to_view_ms or 0) / 1000)
@@ -158,6 +173,7 @@ class Silex:
         job = Job(vr={**vr, "request_id": rid, "moment": moment}, request_id=rid, moment=moment,
                   view_id=self._next_view_id(moment), t0=time.time(), requested_at=now_iso())
         self.jobs[rid] = job
+        job.event(f"Demande de Seraph : « {vr.get('purpose_fr') or moment} » (délai {vr.get('deadline_s')} s)")
         self._save()
         log.info("request %s %s → %s", rid, moment, job.view_id)
         self.spawn(self._deadline(job))
@@ -208,13 +224,14 @@ class Silex:
         if job.status in ("building", "validating"):
             job.late = True
             job.note = f"délai dépassé ({job.vr.get('deadline_s')} s), Devin continue"
+            job.event(f"Délai de {job.vr.get('deadline_s')} s dépassé : Halo reste sur la vue de secours, Devin continue")
             self._save()
             await self.push({"request_id": job.request_id, "status": "failed", "note": job.note,
                              "devin_session_url": self._session_url(job)})
 
     def _session_url(self, job: Job) -> Optional[str]:
         s = self.sessions.get(job.session_id or "")
-        return s.url if s else None
+        return page_url(s, job.view_id) if s else None
 
     # ───────── validation and publishing ─────────
     async def validate(self, view_id: str, html: str, state: dict, moment: str = "") -> list[str]:
@@ -250,7 +267,7 @@ class Silex:
         meta = {"view_id": job.view_id, "moment": job.moment, "title_fr": purpose.split(":")[0].strip(),
                 "purpose_fr": purpose, "data_keys": job.vr.get("data_keys") or [],
                 "references": [r.get("image_id") for r in job.vr.get("references") or []],
-                "built_by": built_by, "devin_session_url": s.url if s and not s.mock else None,
+                "built_by": built_by, "devin_session_url": page_url(s, job.view_id) if s else None,
                 "transport": s.transport if s else None, "model": settings.devin_model if s and s.transport == "cli" else None,
                 "devin_cli_session": s.resume if s else None,
                 "created_at": job.ready_at, "request_id": job.request_id,
@@ -264,6 +281,8 @@ class Silex:
             s.request_id = None if not s.mock else s.request_id
         self._save()
         log.info("ready %s in %d ms (%s, attempts %d)", job.view_id, job.request_to_view_ms, built_by, job.attempt)
+        job.event(f"Vue servie en {job.request_to_view_ms / 1000:.0f} s → Seraph (ViewReady), Halo peut l'afficher")
+        self._save()
         await self.push({"request_id": job.request_id, "status": "ready", "view_id": job.view_id,
                          "url": f"{settings.public_url}/views/{job.view_id}/",
                          "devin_session_url": meta["devin_session_url"],
@@ -271,13 +290,14 @@ class Silex:
 
     async def fail(self, job: Job, note: str) -> None:
         job.status, job.note = "failed", note
+        job.event(f"Échec : {note}")
         s = self.sessions.get(job.session_id or "")
         if s and s.live:
             s.status, s.request_id, s.note = "idle", None, note
         self._save()
         log.warning("failed %s: %s", job.request_id, note)
         await self.push({"request_id": job.request_id, "status": "failed", "note": note,
-                         "devin_session_url": s.url if s else None})
+                         "devin_session_url": page_url(s, job.view_id) if s else None})
 
     # ───────── mock ─────────
     async def _mock_build(self, job: Job) -> None:
@@ -286,6 +306,7 @@ class Silex:
                     request_id=job.request_id, view_id=job.view_id, note="mock")
         self.sessions[s.id] = s
         job.session_id = s.id
+        job.event("Mode mock : pas de Devin, l'exemple du kit est servi comme s'il l'avait construit")
         self._save()
         state = await self._state(job.vr)
         await asyncio.sleep(settings.mock_delay_s)
@@ -563,21 +584,37 @@ class Silex:
         folder = RUNTIME / "cli" / s.id
         folder.mkdir(parents=True, exist_ok=True)
         (folder / "prompt.md").write_text(context.cli_warm_prompt(), encoding="utf-8")
-        run = cli.Run(s.id, folder / "out.log")
+        run = cli.Run(s.id, folder / "out.log", folder / "warm.atif.json")
         RUNS[s.id] = run
         self.sessions[s.id] = s
         self._save()
         await run.start(folder / "prompt.md", None)
         log.info("warm CLI session %s", s.id)
-        # one warm run at a time: its session id is read back from `devin list` when it ends
+        # its session id comes from the run's export (else, one warm run at a time, from `devin list`)
         rc = await run.wait(timeout=600)
-        sid = await cli.latest_session(s.t0)
+        sid = cli.read_export(run.export_path)[0] or await cli.latest_session(s.t0)
         if rc == 0 and sid and sid not in self._taken_resume_ids():
             s.resume, s.status, s.note = sid, "idle", f"prêt en {time.time() - s.t0:.0f} s"
         else:
             s.status, s.note = "ended", f"warm échoué (code {rc}, session {sid or '?'})"
         self._save()
         return s
+
+    async def _watch_build(self, job: Job, out: Path, notes: Path) -> None:
+        """While Devin runs: say when it writes the view and its notes (the session page shows the view as it lands)."""
+        seen: dict[str, float] = {p.name: p.stat().st_mtime for p in (out, notes) if p.exists()}   # a retry: last attempt's files
+        while True:
+            await asyncio.sleep(1)
+            for p, what in ((out, "la vue"), (notes, "ses notes sur les références")):
+                try:
+                    m = p.stat().st_mtime
+                except OSError:
+                    continue
+                if seen.get(p.name) != m:
+                    first = p.name not in seen
+                    seen[p.name] = m
+                    lines = len(p.read_text(encoding="utf-8", errors="replace").splitlines())
+                    job.event(f"Devin {'écrit' if first else 'réécrit'} {what} ({p.name}, {lines} lignes)")
 
     async def _resolve_refs(self, job: Job, state: dict, folder: Path) -> list[dict]:
         """Every reference as a file Devin can open: Rosetta's shots (by url, else /shots/<id>.jpg) and the IFC
@@ -657,6 +694,10 @@ class Silex:
         refs = await self._resolve_refs(job, state, build / "refs")
         out, notes_path = build / "index.html", build / "notes.json"
         rel = lambda p: str(p.relative_to(REPO))
+        shots = [r for r in refs if r.get("path") and r.get("side") != "plan"]
+        plans = [r for r in refs if r.get("path") and r.get("side") == "plan"]
+        job.event(f"Références prêtes : {len(shots)} capture(s) Rosetta, {len(plans)} plan(s) IFC"
+                  + (f", {len(refs) - len(shots) - len(plans)} indisponible(s)" if len(refs) > len(shots) + len(plans) else ""))
 
         s = self._take("cli")
         cold = s is None
@@ -673,7 +714,11 @@ class Silex:
         s.summary = ""
         job.session_id = s.id
         self._save()
-        await self.push({"request_id": job.request_id, "status": "building", "view_id": job.view_id})
+        job.event(f"Devin ({settings.devin_model}, CLI) " + (f"session chaude {s.resume}" if not cold else "nouvelle session")
+                  + " : construit la vue")
+        self._save()
+        await self.push({"request_id": job.request_id, "status": "building", "view_id": job.view_id,
+                         "devin_session_url": page_url(s, job.view_id)})
         self.spawn(self.ensure_warm())                    # top the pool up for the next moment
 
         prompt = context.cli_request_prompt(job.vr, job.view_id, rel(out), rel(notes_path), rel(build / "state.json"), refs, cold)
@@ -684,16 +729,23 @@ class Silex:
         while True:
             pf = folder / f"{job.view_id}-{job.attempt}.md"
             pf.write_text(prompt, encoding="utf-8")
-            run = cli.Run(f"{s.id}-{job.attempt}", folder / "out.log")
+            run = cli.Run(f"{s.id}-{job.attempt}", folder / f"{job.view_id}-{job.attempt}.log",
+                          folder / f"{job.view_id}-{job.attempt}.atif.json")
             RUNS[s.id] = run
             t_run = time.time()
             try:
                 await run.start(pf, s.resume)
             except OSError as e:
                 return await self.fail(job, f"Devin CLI ne démarre pas : {e}")
+            watcher = self.spawn(self._watch_build(job, out, notes_path))
             rc = await run.wait(timeout=max(30.0, hard_stop - time.time()))
+            watcher.cancel()
+            sid, steps = cli.read_export(run.export_path)
+            job.trace += [{**st, "attempt": job.attempt} for st in steps][-120:]
+            job.event(f"Devin a fini l'essai {job.attempt} en {time.time() - t_run:.0f} s ({len(steps)} actions)"
+                      + ("" if rc == 0 else f", code {rc}"))
             if not s.resume:
-                sid = await cli.latest_session(t_run)
+                sid = sid or await cli.latest_session(t_run)
                 if sid and sid not in self._taken_resume_ids():
                     s.resume = sid
             if rc is None:
@@ -711,6 +763,8 @@ class Silex:
             s.refs = [{"image": Path(r["path"]).name, "caption": r.get("caption"), "took": r.get("took", "")}
                       for r in refs if r.get("path")]
             errors += note_errors
+            job.event("Contrôle Silex : check-view ✓, rendu avec l'état live ✓, sans danger ✓, feu signalé ✓, notes ✓"
+                      if not errors else f"Contrôle Silex : refusée ({len(errors)}) — " + " · ".join(e[:90] for e in errors[:3]))
             if not errors:
                 summary = notes.get("summary") or (run.tail[-1] if run.tail else "")
                 return await self.publish(job, html, summary, "devin", [r for r in refs if r.get("path")])
@@ -721,6 +775,7 @@ class Silex:
                 return await self.fail(job, f"vue refusée après {job.attempt} essais : {errors[0][:100]}")
             job.attempt += 1
             job.status, s.status = "building", "fixing"
+            job.event(f"Erreurs renvoyées à Devin : essai {job.attempt} sur {settings.max_tries}")
             self._save()
             fix = context.cli_fix_prompt(job.request_id, job.view_id, rel(out), rel(notes_path), job.attempt, errors)
             prompt = fix if s.resume else context.cli_request_prompt(
