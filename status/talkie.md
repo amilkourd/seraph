@@ -40,7 +40,9 @@ Updated: 07:05
   unless `?k=<code>` matches (sha256 + `timingSafeEqual`, never logged). The crew link is `/?k=<code>`: the page
   passes k to `/api/token` and to the « Mode local » link, and remembers it on the phone (`talkie.k`). Unset → open,
   as on the LAN. `/call` and `/api/call-token` stay open (occupants, visitors from the QR). Code: `lib/server/env.ts`,
-  `lib/access.ts`.
+  `lib/access.ts`. No code in the link (or a wrong one) → the radio screen shows a « Code d'accès » field; typed
+  once, the phone keeps it and the URL gets `?k=`. Picker header « Canal crew / Votre indicatif »: one channel, the
+  buttons are who you are on it.
 - **Builds standalone** (Vercel, root directory `talkie/`): tested from a copy of `talkie/` alone, no `../.env`, no
   `contracts/`: `TALKIE_TRANSPORT=livekit npm run build` passes, the client bundle defaults to livekit, `/health` says
   `transport:"livekit"`; 403 without k, 200 with k, call-token not gated. The root `.env` is only read in dev.
