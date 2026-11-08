@@ -68,15 +68,7 @@ function draw(s) {
   // the route: Seraph's path, or its nodes joined along the corridor (vertical into it, horizontal out of it)
   const arrival = (routes.find(r => r.purpose === 'approach') || { via: [] }).via.find(n => n.startsWith('stair:'));
   if (route) {
-    // a path that goes on past this level's stair belongs to other levels: cut it at the stair
-    let path = route.path;
-    const sz = path && b.stairs.map(stairZone).find(Boolean);
-    if (sz) {
-      const c = Halo.centroid(sz), d = p => Math.hypot(p[0] - c.x, p[1] - c.y);
-      const i = path.reduce((k, p, j) => d(p) < d(path[k]) ? j : k, 0);
-      path = path.slice(0, i + 1);
-      if (d(path[path.length - 1]) > 40) path.push([c.x, c.y]);
-    }
+    const path = route.path;                       // Seraph's path: this level only (path_level)
     let pts = path ? path.map(p => plan.project(p)) : null;
     if (!pts) {
       const node = id => id.startsWith('level:') ? pt(arrival || '') : pt(id.startsWith('corridor') ? 'corridor' : id);
@@ -97,8 +89,11 @@ function draw(s) {
     const p = pt('stair:' + st.id); if (!p) return;
     const bad = st.status === 'smoke' || st.status === 'blocked';
     const here = teams.filter(t => !t.location.room && t.location.stair === st.id).map(t => t.id);
-    Halo.marker(f.svg, 'stair', plan.project(p), [st.id].concat(here).join(' · '), { tone: bad ? 'warn' : 'ink', blink: bad, at: 'w', source: st.source, tap: { kind: 'stair', id: st.id } });
+    Halo.marker(f.svg, 'stair', plan.project(p), [st.id].concat(here).join(' · '), { tone: bad ? 'warn' : 'ink', blink: bad, at: 's', source: st.source, tap: { kind: 'stair', id: st.id } });
   });
+  // façade ladder points of this level (balconies, terraces): dim, white when a route ends there
+  Halo.ladderPoints(s, level).forEach(lp => Halo.marker(f.svg, 'ladder', plan.project(Halo.centroid(lp.zone)),
+    lp.active ? lp.room : null, { r: 13, tone: lp.active ? 'ink' : 'dim', at: 's' }));
   if (pt('riser')) Halo.marker(f.svg, 'riser', plan.project(pt('riser')), null, { r: 14 });
   if (pt('gas_cutoff')) Halo.marker(f.svg, 'gas', plan.project(pt('gas_cutoff')), null, { r: 14 });
   (s.occupants || []).filter(o => o.level === level && o.room).forEach(o => {
@@ -109,7 +104,7 @@ function draw(s) {
   });
   teams.filter(t => t.location.room).forEach(t => {
     const l = t.location, p = pt(l.room === 'corridor' ? 'corridor' : 'room:' + l.room); if (!p) return;
-    Halo.marker(f.svg, 'team', plan.project(p), t.id, { at: 's', r: 15, tap: { kind: 'team', id: t.id } });
+    Halo.marker(f.svg, 'team', plan.project(p), t.id, { at: 'n', r: 15, tap: { kind: 'team', id: t.id } });
   });
 
   // the card: where to go, how, what is in the way — one smoke line at most

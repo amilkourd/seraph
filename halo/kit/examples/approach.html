@@ -9,92 +9,92 @@
 </head>
 <body>
 <script>
-/* Moment « approach » — « Par où j'entre ». One idea: the arrow from the street into the entrance to take.
- * Top view, outside only: the footprint (white: where we go), the entrances, the arrow. No interior (stairs and fire
- * go in the card). One frame per drawing, never mixed: on an IFC building everything is on the model's ground-floor
- * frame (levels[RDC].outline, else the hull of the RDC rooms; doors at their plan_point); without a model the block is
- * schematic, turned 45°, doors on their `side`. Truck and hydrant are drawn only when their point is on that same
- * frame; otherwise they are words in the card. An entrance is crossed out only if blocked or leading to a hazard. */
+/* Moment « approach » — « Par où j'entre ». One idea: the arrow from the truck into the entrance to take.
+ * Top view, outside only: the building (white: where we go), the street, the truck, the hydrant, the entrances. No
+ * interior (stair and fire go in the card). ONE frame, never mixed: the top view the truck spot is on (e.g. earth-top-01),
+ * and only the points on that same image; the building is `building.footprint` on that image when Seraph gives it,
+ * else a schematic block whose sides pass through the doors. Without a top view: the IFC ground floor
+ * (levels[RDC].outline, doors at plan_point). An entrance is crossed out only if blocked or leading to a hazard. */
 const f = Halo.frame(document.body, { title: "Par où j'entre" });
-const B = { x: 185, y: 116, w: 270, h: 170 };      // schematic building, scene units
-let mode = '';
 
-function sideDoor(e, i, n) {
-  const t = (i + 1) / (n + 1);
-  return { front: [B.x + B.w * t, B.y + B.h], rear: [B.x + B.w * t, B.y], left: [B.x, B.y + B.h * t], right: [B.x + B.w, B.y + B.h * t] }[e.side];
-}
-// an entrance not to take: blocked, or opening onto a stair / room in smoke or fire
 function badEntrance(b, e) {
   if (e.status === 'blocked' || e.status === 'locked') return true;
+  if (b.hazards.some(h => h.where.entrance === e.id)) return true;
   const [kind, id] = (e.leads_to || '').split(':');
   if (kind === 'stair') return (Halo.byId(b.stairs, id) || {}).status === 'smoke';
-  return b.hazards.some(h => (h.where.room && 'room:' + h.where.room === e.leads_to) || (h.where.entrance === e.id));
+  return b.hazards.some(h => h.where.room && 'room:' + h.where.room === e.leads_to);
+}
+const xy = p => [p.x, p.y];
+
+// the building on a photo top view: Seraph's footprint, else a block whose sides pass through the doors (schematic)
+function blockFromDoors(doors) {
+  const by = side => doors.filter(d => d.side === side).map(d => d.p);
+  const front = by('front'), rear = by('rear'), left = by('left'), right = by('right');
+  const all = doors.map(d => d.p), cx = all.reduce((k, p) => k + p[0], 0) / all.length;
+  let x0 = left.length ? Math.min(...left.map(p => p[0])) : null, x1 = right.length ? Math.max(...right.map(p => p[0])) : null;
+  let y1 = front.length ? Math.max(...front.map(p => p[1])) : null, y0 = rear.length ? Math.min(...rear.map(p => p[1])) : null;
+  const mx = (front[0] || rear[0] || [cx])[0];
+  if (x0 == null && x1 == null) { x0 = mx - 180; x1 = mx + 180; }
+  else if (x0 == null) x0 = 2 * mx - x1; else if (x1 == null) x1 = 2 * mx - x0;
+  const my = (left[0] || right[0] || [0, (y0 ?? y1) + 0])[1];
+  if (y0 == null && y1 == null) { y0 = my - 180; y1 = my + 180; }
+  else if (y0 == null) y0 = left.length || right.length ? 2 * my - y1 : y1 - (x1 - x0); else if (y1 == null) y1 = left.length || right.length ? 2 * my - y0 : y0 + (x1 - x0);
+  return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
 }
 
 function draw(s) {
   f.clear();
-  const b = s.building, ifc = !!b.model;
-  if ((ifc ? 'ifc' : 'schematic') !== mode) { mode = ifc ? 'ifc' : 'schematic'; Halo.scene(f.svg, ifc ? {} : { rotate: -45, cx: 300 }); }
-  const best = Halo.byId(b.entrances, b.approach && b.approach.best_entrance_id);
-
-  // the footprint and the doors, on one frame
-  let foot, door = {}, frame = null, rings = [];
-  if (ifc) {
-    // levels[].outline: [{outer, holes}] slab outlines on the model's frame; the biggest is the footprint. Holes
-    // (shafts) are interior: not drawn on the approach
+  const b = s.building, best = Halo.byId(b.entrances, b.approach && b.approach.best_entrance_id);
+  const top = (b.truck_spot && b.truck_spot.point && b.truck_spot.point.image_id)
+    || ((b.screenshots || []).find(x => x.side === 'top') || {}).image_id;
+  const on = p => p && p.image_id === top;
+  let doors, foot, truck = null, pei = null;
+  if (top && b.entrances.some(e => on(e.point))) {
+    doors = b.entrances.filter(e => on(e.point)).map(e => ({ e, side: e.side, p: xy(e.point) }));
+    foot = b.footprint && on(b.footprint) ? b.footprint.polygon : blockFromDoors(doors);
+    if (b.truck_spot && on(b.truck_spot.point)) truck = xy(b.truck_spot.point);
+    pei = (b.hydrants || []).find(h => on(h.point));
+  } else if (b.model) {
     const o = (b.levels.find(l => l.level === 0) || {}).outline || [];
-    rings = o.map(x => x && x.outer ? x.outer : x).filter(r => Array.isArray(r) && r.length >= 3);
-    const size = r => { const a = Halo.area(r).box; return a.w * a.h; };
-    rings.sort((x, y) => size(y) - size(x));
+    const rings = o.map(x => x && x.outer ? x.outer : x).filter(r => Array.isArray(r) && r.length >= 3)
+      .sort((p, q) => { const a = Halo.area(p).box, c = Halo.area(q).box; return c.w * c.h - a.w * a.h; });
     foot = rings[0] || Halo.hull(b.rooms.filter(r => r.level === 0 && r.zone).flatMap(r => r.zone));
-    frame = 'ifc-L';
-    b.entrances.filter(e => e.plan_point).forEach(e => { door[e.id] = [e.plan_point.x, e.plan_point.y]; });
-  } else {
-    foot = [[B.x, B.y], [B.x + B.w, B.y], [B.x + B.w, B.y + B.h], [B.x, B.y + B.h]];
-    const sides = [...new Set(b.entrances.map(e => e.side))];
-    sides.forEach(side => b.entrances.filter(e => e.side === side).forEach((e, i, all) => { door[e.id] = sideDoor(e, i, all.length); }));
+    doors = b.entrances.filter(e => e.plan_point).map(e => ({ e, side: e.side, p: [e.plan_point.x, e.plan_point.y] }));
   }
-  if (!foot || foot.length < 3) { card(s, best); return; }
-  const c = Halo.centroid(foot);
+  if (!foot || !doors || !doors.length) { card(s, best, null); return; }
 
-  // the arrow: from outside, straight onto the chosen door, away from the building's centre
-  let start = null, out = null;
-  if (best && door[best.id]) {
-    const d = door[best.id], dx = d[0] - c.x, dy = d[1] - c.y, l = Math.hypot(dx, dy) || 1;
-    out = { x: dx / l, y: dy / l };
-    start = [d[0] + out.x * (ifc ? 300 : 150), d[1] + out.y * (ifc ? 300 : 150)];
+  // where the arrow starts: the truck, else outside the door, away from the building
+  const c = Halo.centroid(foot), d = best && (doors.find(x => x.e.id === best.id) || {}).p;
+  let start = truck;
+  if (d && !start) { const dx = d[0] - c.x, dy = d[1] - c.y, l = Math.hypot(dx, dy) || 1; start = [d[0] + dx / l * 220, d[1] + dy / l * 220]; }
+  // frame on what matters: the doors, the truck and the hydrant (the building may run off the edge): the arrow is big
+  const pts = doors.map(x => x.p).concat(start ? [start] : [], pei ? [xy(pei.point)] : []);
+  const crop = { x0: Math.min(...pts.map(p => p[0])) - 60, x1: Math.max(...pts.map(p => p[0])) + 60,
+                 y0: Math.min(...pts.map(p => p[1])) - 60, y1: Math.max(...pts.map(p => p[1])) + 60 };
+  const P = Halo.plan(f.svg, { box: Halo.AREA, crop: crop, zones: [{ id: 'building', zone: foot, state: 'target' }] }).project;
+
+  // the street the truck stands on, across the arrow
+  if (truck && d) {
+    const a = P(truck), t = P(d), ux = t.x - a.x, uy = t.y - a.y, l = Math.hypot(ux, uy) || 1, nx = -uy / l, ny = ux / l;
+    Halo.street(f.svg, { from: [a.x - nx * 900, a.y - ny * 900], to: [a.x + nx * 900, a.y + ny * 900], width: 50 });
   }
-  const sameFrame = p => p && frame && p.image_id && p.image_id.startsWith(frame);
-  const truck = b.truck_spot && sameFrame(b.truck_spot.point) ? [b.truck_spot.point.x, b.truck_spot.point.y] : null;
-  const pei = (b.hydrants || []).find(h => sameFrame(h.point));
-
-  const P = ifc
-    ? Halo.plan(f.svg, { box: Halo.AREA, frame: false, zones: [foot].concat(rings.slice(1)).map((z, i) => ({ id: 'building' + i, zone: z, state: 'target' })),
-        points: Object.values(door).concat(start ? [start] : [], truck ? [truck] : []) }).project
-    : (p => ({ x: p[0], y: p[1] }));
-  if (!ifc) Halo.block(f.svg, foot, { state: 'target' });
-
-  if (start) Halo.arrow(f.svg, [start, door[best.id]].map(P), { width: 10, gap: 26, speed: 60 });
+  if (start && d) Halo.arrow(f.svg, [P(start), P(d)], { width: 10, gap: 26, speed: 60 });
   if (truck) Halo.marker(f.svg, 'truck', P(truck), null, { r: 18 });
-  if (pei) Halo.marker(f.svg, 'hydrant', P([pei.point.x, pei.point.y]), null, { r: 16 });
+  if (pei) Halo.marker(f.svg, 'hydrant', P(xy(pei.point)), pei.distance_m ? pei.distance_m + ' m' : null, { r: 16, at: 'e', tap: { kind: 'hydrant', id: pei.id } });
 
-  // entrances: the chosen one big, the others dimmed; crossed only when they lead to danger. Tags beside, never stacked
-  b.entrances.filter(e => door[e.id]).slice(0, 3).forEach(e => {
-    const chosen = best && e.id === best.id, bad = badEntrance(b, e);
-    const side = out && chosen ? (Math.abs(out.y) > Math.abs(out.x) ? (out.x > 0 ? 'w' : 'e') : (out.y > 0 ? 'n' : 's')) : 's';
-    Halo.marker(f.svg, 'door', P(door[e.id]), e.id, {
-      r: chosen ? 22 : 15, big: chosen, ping: chosen, crossed: !chosen && bad, tone: chosen ? 'ink' : 'dim',
-      at: side, tap: { kind: 'entrance', id: e.id } });
+  // entrances: the chosen one big, the others dimmed; crossed only when they lead to danger
+  doors.slice(0, 3).forEach(({ e, p }) => {
+    const chosen = best && e.id === best.id;
+    Halo.marker(f.svg, 'door', P(p), e.id, { r: chosen ? 22 : 15, big: chosen, ping: chosen, crossed: !chosen && badEntrance(b, e),
+      tone: chosen ? 'ink' : 'dim', at: chosen ? 'e' : 'w', tap: { kind: 'entrance', id: e.id } });
   });
-
   card(s, best, pei);
 }
 
-// the card: the key line, then what to know inside, then what is outside
+// the card: the key line, then what to know inside, then the hydrant if it is not drawn
 function card(s, best, pei) {
   if (!best) return;
-  const b = s.building;
-  const route = (s.routes || []).find(r => r.purpose === 'approach');
+  const b = s.building, route = (s.routes || []).find(r => r.purpose === 'approach');
   const stairId = route && (route.via.find(n => n.startsWith('stair:')) || '').split(':')[1];
   const stair = stairId && Halo.byId(b.stairs, stairId);
   const fire = b.hazards.find(h => h.kind === 'fire');

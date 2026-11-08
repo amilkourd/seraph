@@ -48,6 +48,7 @@ export function factsFor(moment: string, s: State | null): Line[] {
         { text: `${n} dedans`, big: true, tone: 'life' as const },
         ...occ.filter(o => o.status === 'needs_help' || o.status === 'trapped').map(o => ({ text: `${o.room} ${o.mobility_issue ? 'PMR' : 'à sortir'}`, tone: 'fire' as const })),
         ...occ.filter(o => o.heading_to && smokyStairs.some((x: any) => o.heading_to === `stair:${x.id}`)).map(o => ({ text: `${o.room} → esc. ${o.heading_to.split(':')[1]}`, tone: 'warn' as const })),
+        ...occ.filter(o => /^ladder:/.test(o.heading_to ?? '')).map(o => ({ text: `${o.room} → échelle` })),
         ...occ.filter(o => o.status === 'no_answer' || o.status === 'unknown').map(o => ({ text: `${o.room} ?`, tone: 'dim' as const })),
       ].slice(0, 4);
     }

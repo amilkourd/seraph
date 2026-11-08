@@ -25,10 +25,10 @@
   var KIND_TONE = {
     door: 'ink', entrance: 'ink', stair: 'ink', elevator: 'ink', team: 'ink', truck: 'fire', fire: 'fire',
     hydrant: 'water', riser: 'water', person: 'life', wheelchair: 'life', gas: 'risk', elec: 'risk',
-    smoke: 'warn', unknown: 'dim'
+    smoke: 'warn', unknown: 'dim', ladder: 'ink'
   };
   var LAYERS = ['base', 'hazard', 'route', 'mark', 'label'];
-  var MAX_LABELS = 8;                                  // tags on one screen, at most
+  var MAX_LABELS = 12;                                 // tags on one screen, at most
   var TURNED = { base: 1, hazard: 1, route: 1 };     // layers that follow Halo.scene's rotation
 
   function tone(t) { return C[t] || t || C.ink; }
@@ -365,6 +365,18 @@
     return out;
   }
 
+  // ladderPoints: the façade rescue points of a level (balconies, terraces), each on its room; `active` = the `to` of an
+  // evacuation route ending at that ladder point
+  function ladderPoints(state, level) {
+    var b = (state && state.building) || {}, lp = ((b.model || {}).ladder_points || {})[level] || [];
+    var active = ((state && state.routes) || []).filter(function (r) { return r.purpose === 'evacuation' && /^ladder:/.test(r.to || ''); })
+      .map(function (r) { return r.to; });
+    return lp.map(function (id) {
+      var room = byId(b.rooms, id.split(':')[1]);
+      return room && room.zone ? { id: id, room: room.id, zone: room.zone, active: active.indexOf(id) >= 0 } : null;
+    }).filter(Boolean);
+  }
+
   // floorStack: side section, one band per level (top = highest), stair shafts at the sides.
   // focus ({level: true} from Halo.focusLevels): a level with nothing special is grey, no tag colour, no fill
   function floorStack(svg, opts) {
@@ -495,7 +507,8 @@
     elec: 'M2,-10L-6,2H0L-2,10L6,-2H0Z',
     fire: 'M0,-10C6,-3 8,1 6,5C4,9 -4,9 -6,5C-8,1 -4,-3 -2,-6C-1,-2 1,-1 2,-2C3,-5 1,-8 0,-10Z',
     smoke: 'M-9,-5Q-6,-8 -3,-5T3,-5T9,-5M-9,0Q-6,-3 -3,0T3,0T9,0M-9,5Q-6,2 -3,5T3,5T9,5',
-    unknown: 'M-4,-4Q-4,-8 0,-8Q4,-8 4,-4Q4,-1 0,0V3M0,7.5h0.1'
+    unknown: 'M-4,-4Q-4,-8 0,-8Q4,-8 4,-4Q4,-1 0,0V3M0,7.5h0.1',
+    ladder: 'M-5,-10V10M5,-10V10M-5,-6H5M-5,-1H5M-5,4H5'
   };
   function iconPath(parent, kind, col, scale) {
     return el('path', { d: ICONS[kind] || ICONS.unknown, fill: 'none', stroke: col, 'stroke-width': 2.3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
@@ -608,8 +621,8 @@
     var box = { x: x, y: y, w: bw, h: h };
     for (var k = 1; hit(box) && k < 6; k++) {
       var tries = [[0, k * (h + 4)], [0, -k * (h + 4)], [k * (bw / 2 + 6), 0], [-k * (bw / 2 + 6), 0]];
-      for (var t = 0; t < tries.length; t++) {
-        var nb = { x: Math.max(4, Math.min(W - bw - 4, x + tries[t][0])), y: Math.max(4, Math.min(H - h - 4, y + tries[t][1])), w: bw, h: h };
+      for (var ti = 0; ti < tries.length; ti++) {
+        var nb = { x: Math.max(4, Math.min(W - bw - 4, x + tries[ti][0])), y: Math.max(4, Math.min(H - h - 4, y + tries[ti][1])), w: bw, h: h };
         if (!hit(nb)) { box = nb; break; }
       }
     }
@@ -719,6 +732,6 @@
     arrow: arrow, marker: marker, warn: warn, ping: ping, cross: cross, wind: wind, north: north,
     smoke: smoke, fire: fire, label: label, tag: tag, teamCard: teamCard, countdown: countdown, icon: icon,
     onState: onState, onAlert: onAlert, ready: ready, tap: tap, vibrate: vibrate,
-    project: project, area: area, centroid: centroid, hull: hull, focusLevels: focusLevels, byId: byId, levelLabel: levelLabel, time: function (iso) { return hhmm(new Date(iso)); }
+    project: project, area: area, centroid: centroid, hull: hull, focusLevels: focusLevels, ladderPoints: ladderPoints, byId: byId, levelLabel: levelLabel, time: function (iso) { return hhmm(new Date(iso)); }
   };
 })(window);

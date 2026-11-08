@@ -1,5 +1,5 @@
 # halo — status
-Updated: 05:05
+Updated: 05:20
 
 ## Running
 - Kit preview (dev only): `python3 -m http.server 3091 --bind 127.0.0.1 --directory <repo>` →
@@ -47,7 +47,7 @@ Updated: 05:05
   `levels[0].outline` [{outer, holes}], doors at `plan_point`; truck/hydrant drawn only if on that frame, else words
   in the card); big animated arrow from outside onto the chosen door; no interior on the top view (stair and fire go
   in the card); other entrances dimmed, crossed only if blocked or leading to a hazard; key line 28 px white.
-  Kit: tags never overlap (slide, else dropped), at most 8 per screen. inside_route: a team on a stair shares its tag.
+  Kit: tags never overlap (slide, else dropped), at most 12 per screen. inside_route: a team on a stair shares its tag.
   Checked on the simulator with the TU Wien building.
 
 - 05:05 after Amil: text never blinks (card, air dial numbers); only the first drawing animates in (redraws on
@@ -56,6 +56,13 @@ Updated: 05:05
   as one pictogram, team on the stair shaft); floors with nothing special are grey: `Halo.focusLevels(state)` reads
   `building.levels[].focus` when Seraph sends it, else fire/smoke, people inside, engaged team, route target.
   The app no longer flashes the vue de secours while a view loads; view JS errors are logged in Metro.
+
+- 05:20 scenario v2 (TU Wien, fixture 1327e74): approach on ONE frame (the truck spot's top view, earth-top-01; only
+  points on that image; building = `building.footprint` on that image if Seraph sends it, else a block through the
+  doors), framed on doors/truck/hydrant so the arrow is big; E2 crossed (smoke on E2). Ladder points: kit
+  `Halo.ladderPoints(state, level)` (+ `ladder` pictogram), dim, white when an evacuation route ends there;
+  occupants shows « 2.16 → échelle »; inside_route draws Seraph's per-level path as is. Seraph's
+  `levels[].focus` is read by `Halo.focusLevels`. Checked on the simulator (native preview) with the fixture.
 
 ## In progress
 - **Phone A**: not run yet on the real phone (needs Amil): Expo Go from the App Store, same Wi-Fi as the laptop,
