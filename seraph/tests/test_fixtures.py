@@ -57,7 +57,7 @@ def test_radio_rules_event(line):
 def test_radio_fields():
     by = {l["id"]: rules.parse(l["text"], l["speaker"]).events for l in RADIO}
     t = by["R03"][0].data["team"]
-    assert t == {"id": "B1", "status": "engaged", "pressure_bar_start": 300, "location": {"stair": "A"}}
+    assert t == R["R03"]["expected"]["team"]
     t4, h4 = by["R04"]
     assert t4.data["team"]["location"] == {"level": 3}
     assert h4.data["hazard"] == {"kind": "smoke", "where": {"level": 3, "room": "corridor"}, "severity": "high"}
@@ -150,11 +150,13 @@ def test_full_replay_v2():
     for exp_h in R["R02"]["expected"]["hazards"]:
         h = hz[(exp_h["kind"], tuple(sorted(exp_h["where"].items())))]
         assert h.source.confirmed and h.source.label == "Tête" and h.severity == exp_h["severity"]
-    assert crew(says["R03"]) == ["Reçu, binôme 1 engagé, escalier A."]      # air tracking off (ARI_ENABLED=0)
+    assert crew(says["R03"]) == [R["R03"]["expected"]["say_crew"]]      # air tracking off (ARI_ENABLED=0)
     assert b.team("B1", create=False).exit_by is None
     assert not [a for a in b.state.alerts if a.text_fr.startswith("Binôme 1, escalier A")]   # single stair: no « passez par »
     assert crew(says["R04"]) == [R["R04"]["expected"]["say_crew"]]
     assert not any(v["moment"] == "team_engaged" for v in b.views)
+    occ = [v for v in b.views if v["moment"] == "occupants"]
+    assert len(occ) == 1 and "building.model.ladder_points" in occ[0]["data_keys"]   # second core Devin view
     assert any(v["moment"] == "commander_request" and v["purpose_fr"] == "Position des binômes par étage" for v in b.views)
     # R07 → Tom's gate: English, balcony, ladder point 2.17
     tom = [s for s in says["R07"] if s["target"].get("call_id") == "CALL-02"]

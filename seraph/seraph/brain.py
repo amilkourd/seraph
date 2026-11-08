@@ -868,7 +868,8 @@ class Brain:
         self._standing_for(c, facts)
         if sum(1 for k in self.call_facts if self.call_facts[k]) >= 2:
             self.request_moment("occupants", "Qui est où : étages, personnes, aide nécessaire, sans nouvelles",
-                                ["occupants", "building.levels", "building.hazards"], deadline_s=300)
+                                ["occupants", "calls", "building.levels", "building.hazards", "building.rooms",
+                                 "building.model.ladder_points", "routes"], deadline_s=300)
         self.publish("call", dump(c))
         self.touch()
 
@@ -1518,8 +1519,8 @@ class Brain:
         # moment: first team engaged
         if t.status == "engaged" and was != "engaged":
             if not settings.ari_enabled:      # teams as positions only: no air, no « Mon air » view
-                where = f", escalier {t.location.stair}" if t.location and t.location.stair else (
-                    f", {level_fr(t.location.level)}" if t.location and t.location.level is not None else "")
+                where = f" par l'escalier {t.location.stair}" if t.location and t.location.stair else (
+                    f" au {level_fr(t.location.level)}" if t.location and t.location.level is not None else "")
                 return f"Reçu, {t.label.lower()} engagé{where}."
             self.request_moment("team_engaged", "Mon air : binômes, compte à rebours de sortie", ["crew.teams"], deadline_s=120)
             if t.exit_by:

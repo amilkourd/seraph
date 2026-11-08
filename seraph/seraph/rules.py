@@ -7,6 +7,8 @@ import unicodedata
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from .config import settings
+
 NUM_WORDS = {"un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5, "six": 6, "sept": 7, "huit": 8,
              "neuf": 9, "dix": 10}
 ORDINALS = {"premier": 1, "1er": 1, "deuxieme": 2, "second": 2, "troisieme": 3, "quatrieme": 4, "cinquieme": 5,
@@ -294,7 +296,7 @@ def _team(b: str, sp: str) -> Optional[Event]:
             loc_level = int(target.split(".")[0])
     pressure = None
     m4 = re.search(r"\b(\d{2,3}) ?bars?\b", b)
-    if m4:
+    if m4 and settings.ari_enabled:       # air tracking off: the pressure said on the radio is not kept
         pressure = int(m4.group(1))
     position_words = re.search(r"\b(on est|nous sommes|on progresse|on monte|on descend|on arrive|arrive|on redescend)\b", b)
     if not (status or pressure or (position_words and (loc_level is not None or stair or room))):

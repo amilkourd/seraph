@@ -97,9 +97,9 @@ def load() -> Settings:
         rosetta_url=env("ROSETTA_URL", "http://localhost:8001"),
         silex_url=env("SILEX_URL", "http://localhost:8002"),
         halo_url=env("HALO_URL", "http://localhost:3001"),
-        # Moments Seraph asks Devin to build. Core = 2 + the commander's requests; stretch via env.
+        # Moments Seraph asks Devin to build. Core = approach + occupants (ladder points) + the commander's requests.
         view_moments=frozenset(
-            m.strip() for m in env("SERAPH_VIEW_MOMENTS", "approach,team_engaged,commander_request").split(",") if m.strip()
+            m.strip() for m in env("SERAPH_VIEW_MOMENTS", "approach,occupants,commander_request").split(",") if m.strip()
         ),
         replicas={
             "dispatch": env("DISPATCH_URL", "http://localhost:8101"),
