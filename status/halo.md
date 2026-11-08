@@ -1,5 +1,5 @@
 # halo — status
-Updated: 04:25
+Updated: 05:05
 
 ## Running
 - Kit preview (dev only): `python3 -m http.server 3091 --bind 127.0.0.1 --directory <repo>` →
@@ -9,8 +9,11 @@ Updated: 04:25
   `SIMCTL_CHILD_HALO_URL=<url> xcrun simctl launch <udid> fr.seraph.halo-preview`.
 - Live: `?live=http://localhost:8000` on the preview follows Seraph's SSE (`state`, `halo_view`); in single view
   mode the screen follows Seraph's moment. Checked with `/admin/replay` on the simulator.
-- Halo shell (native app, React Native): not started. Must handle `fallback://<moment>` (« vue de secours »),
-  POST /halo/tap, and send state to the WebView as a JSON string (the kit parses strings).
+- **Halo native app** `halo/app/` (Expo SDK 58, RN 0.88): `cd halo/app && npx expo start --port 8083 --lan` →
+  Expo Go `exp://<laptop LAN IP>:8083` (here 172.16.0.13). Finds Seraph (:8000) and the kit server (:3001) on the
+  same host as Metro; override with EXPO_PUBLIC_SERAPH_URL / EXPO_PUBLIC_KIT_URL.
+- **Kit server** `node halo/server.mjs` → :3001 on every interface: `/kit/*` (CORS open) and `/views/<moment>/`
+  (kit example served like Silex: `{{HALO_KIT_URL}}` replaced) = stand-in views until Silex serves Devin's.
 
 ## Done
 - Halo scheme design language, from Amil's reference (dot-matrix ground, white outlines, black label tags, lit
@@ -28,13 +31,54 @@ Updated: 04:25
   (`window.ReactNativeWebView.postMessage`, string messages). Checked on the iPhone 17 Pro simulator in the native
   preview app, all four schemes.
 
+- 04:50 native shell, checked on the iPhone 17 Pro simulator in Expo Go against live Seraph (replay, TU Wien
+  building): SSE state ≤ 4/s streams into the WebView (`postMessage` JSON string on each state change); `fallback://`
+  → native « vue de secours » (big one-line facts per moment); with stand-ins on (default, long-press the status
+  line to toggle) the kit example for the moment swaps in (crossfade 300 ms + haptic on `seraph:ready`); the view
+  follows Seraph's moment; alert banner 8 s + haptics + sound, list behind a tap on the top bar; taps reach Seraph
+  (timeline « Halo : tap occupant OCC-01 »). Landscape lock, keep-awake, status bar hidden, no zoom/bounce.
+  Top bar EXERCICE · clock · connection dot (white = live, red ring = offline); status line « Vue de secours » /
+  « Exemple » / « Devin HH:MM » · provenance (« IFC réel » / « bâtiment fictif »).
+- Kit views adapted to the IFC building (`building.model`): approach draws the real footprint (hull of ground-floor
+  zones), entrances at `plan_point`, stair zones, the fire room; inside_route uses IFC zones, stair zones per level,
+  cuts multi-level paths at the stair, dims terraces. Both still work on the fixture building.
+
+- 05:00 approach redone after Amil's review (relayed): one frame per drawing, never mixed (IFC ground-floor frame:
+  `levels[0].outline` [{outer, holes}], doors at `plan_point`; truck/hydrant drawn only if on that frame, else words
+  in the card); big animated arrow from outside onto the chosen door; no interior on the top view (stair and fire go
+  in the card); other entrances dimmed, crossed only if blocked or leading to a hazard; key line 28 px white.
+  Kit: tags never overlap (slide, else dropped), at most 8 per screen. inside_route: a team on a stair shares its tag.
+  Checked on the simulator with the TU Wien building.
+
+- 05:05 after Amil: text never blinks (card, air dial numbers); only the first drawing animates in (redraws on
+  state updates are still: texts were flashing 4×/s); card shows without fade (WebKit left it stuck at opacity 0);
+  no black box behind plans; occupants redone (people in a row per floor, most urgent first, room tag each, hazards
+  as one pictogram, team on the stair shaft); floors with nothing special are grey: `Halo.focusLevels(state)` reads
+  `building.levels[].focus` when Seraph sends it, else fire/smoke, people inside, engaged team, route target.
+  The app no longer flashes the vue de secours while a view loads; view JS errors are logged in Metro.
+
 ## In progress
-- Nothing. Next for the halo session: the native shell (React Native, WebView host, SSE, fallback view, alerts).
+- **Phone A**: not run yet on the real phone (needs Amil): Expo Go from the App Store, same Wi-Fi as the laptop,
+  open `exp://172.16.0.13:8083` (or scan the QR), allow « Local Network ». Plain http over the LAN is fine in Expo Go
+  (its ATS allows it; `app.json` sets NSAllowsArbitraryLoads + NSAllowsLocalNetworking for a dev build). No
+  cloudflared needed on the same Wi-Fi. A signed dev build (`npx expo run:ios --device`) needs Amil's Apple ID in
+  Xcode: not tried. **The blue gear is Expo Go's dev-tools button**: it does not exist outside Expo Go. For the demo, either
+  hide it from Expo Go's dev menu (shake the phone → tools button setting; not verified here), or install a real
+  build: `cd halo/app && npx expo run:ios --device --configuration Release` (needs Amil's Apple ID in Xcode).
 
 ## Blocked
 -
 
 ## Requests (to other sessions or Amil)
+- @dashboard: the native app has no /mirror URL. Render `halo.current_view.url` yourself with the same protocol:
+  iframe/WebView of the url, post `{"type":"seraph:state","state":…}` (object or JSON string) on every state change,
+  listen for `seraph:ready` / `seraph:tap`; for `fallback://<moment>` either show your own facts or load the kit
+  stand-in `http://<host>:3001/views/<moment>/` (what the phone shows while Silex is down). Your current approach
+  (`halo/kit/examples/index.html?v=<moment>&live=…`) keeps working.
+- @seraph: on the IFC building, `routes[].path` mixes frames (evacuation tail ends at the fixture's (130,260)) and
+  spans levels while `path_level` is one level; the approach path doesn't start at the chosen entrance. Halo copes
+  (cuts at the stair, falls back to door → stair) but a per-level path would be cleaner. `building.plan` is still
+  the fixture plan while `building.model` is set: Halo ignores it then.
 - @Amil: `docs/05-halo.md` (Look) and `contracts/halo-views.md` (Look line) still say « Pip-Boy phosphor green,
   portrait 390×844 ». The kit now implements: black + dot-matrix + white outlines, SITAC colours, landscape iPhone.
   Please update those lines (now: full screen, landscape, no text panel); `halo/kit/README.md` has the wording.

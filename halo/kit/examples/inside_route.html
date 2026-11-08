@@ -9,81 +9,107 @@
 </head>
 <body>
 <script>
-/* Moment « inside_route » — « Par où je monte ». The level plan full height, the victim's room lit, fire and smoke
- * where the state puts them, the route arrow. Everything is on the plan's 0–1000 frame. The route follows
- * routes[].path when Seraph gives one, else its `via` nodes joined along the corridor. */
+/* Moment « inside_route » — « Par où je monte ». One level: rooms as zones, the victim's room white, fire and smoke
+ * where the state puts them, the route arrow. Works on the IFC model (zones on ifc-L<n>, stair zones per level) and
+ * on a photographed plan (plan.points). The arrow follows routes[].path when Seraph gives one, else its `via` nodes
+ * joined along the corridor. */
 const f = Halo.frame(document.body, { title: 'Par où je monte' });
-const TONE = { sheltering: 'life', trapped: 'fire', needs_help: 'fire', moving: 'life', no_answer: 'dim', unknown: 'dim' };
+const TONE = { sheltering: 'life', trapped: 'fire', needs_help: 'fire', moving: 'life', no_answer: 'dim', unknown: 'dim', calling: 'dim' };
 
 function draw(s) {
   f.clear();
-  // the route to the victim, else the evacuation route Seraph computed on this plan
-  const b = s.building, routes = s.routes || [];
+  const b = s.building, routes = s.routes || [], ifc = !!b.model;
+  // the route to the victim, else the evacuation route Seraph computed
   const route = routes.find(r => r.purpose === 'to_victim') || routes.find(r => r.purpose === 'evacuation' && r.path);
   const evac = route && route.purpose === 'evacuation';
-  const level = route && route.path_level != null ? route.path_level : route ? +String(route.from).split(':')[1] || b.plan.level : b.plan.level;
-  const points = (b.plan && b.plan.points) || [];
-  const pt = name => (points.find(p => p.name === name) || {}).point;
+  const fire = b.hazards.find(h => h.kind === 'fire' && h.where.level != null);
+  const level = route && route.path_level != null ? route.path_level
+    : route && /^level:/.test(route.from) ? +route.from.split(':')[1]
+    : b.plan ? b.plan.level : fire ? fire.where.level : 0;
   const end = route && (evac ? route.from : route.to);
   const target = end && end.startsWith('room:') ? end.split(':')[1] : null;
+
+  // where things are on this level: IFC zones (centroids) or the photographed plan's points
   const rooms = b.rooms.filter(r => r.level === level && r.zone);
+  const stairZone = st => ((st.zones || []).find(z => z.level === level) || {}).zone;
+  const zoneOf = id => (rooms.find(r => r.id === id) || {}).zone;
+  const pt = name => {
+    if (ifc) {
+      const [kind, id] = name.split(':');
+      const z = kind === 'stair' ? stairZone(Halo.byId(b.stairs, id) || {}) : kind === 'corridor' ? zoneOf('corridor:' + level) : zoneOf(id);
+      return z && Halo.centroid(z);
+    }
+    const p = ((b.plan && b.plan.points) || []).find(q => q.name === name);
+    return p && p.point;
+  };
 
-  const plan = Halo.plan(f.svg, {
-    zones: rooms.map(r => r.id === target
-      ? { id: r.id, zone: r.zone, state: 'target', label: r.id, big: true, tap: { kind: 'room', id: r.id } }
-      : { id: r.id, zone: r.zone, tap: { kind: 'room', id: r.id } }),
-    points: points,
-    box: Halo.AREA                                // the instruction card sits on the right
-  });
+  const zones = rooms.map(r => r.id === target
+    ? { id: r.id, zone: r.zone, state: 'target', label: r.id, big: true, tap: { kind: 'room', id: r.id } }
+    : { id: r.id, zone: r.zone, state: /terrasse/i.test(r.label || '') ? 'dim' : 'normal', tap: { kind: 'room', id: r.id } });   // terraces are outside
+  b.stairs.forEach(st => { const z = stairZone(st); if (z) zones.push({ id: 'stair:' + st.id, zone: z, state: 'dim' }); });
+  const plan = Halo.plan(f.svg, { zones: zones, points: ifc ? [] : (b.plan && b.plan.points) || [], box: Halo.AREA });
 
+  // hazards: fire on its room, smoke on its zone (or as a cloud on its point)
   b.hazards.forEach(h => {
     const w = h.where;
-    if (w.level !== undefined && w.level !== level) return;
-    const room = w.room && rooms.find(r => r.id === w.room);
-    const p = w.stair ? pt('stair:' + w.stair) : w.room === 'corridor' ? pt('corridor') : null;
-    if (h.kind === 'fire' && room) {
-      Halo.fire(f.svg, room.zone.map(q => plan.project(q)));
-      Halo.warn(f.svg, plan.zone(room.id).c, { level: 'danger' });
-    } else if (h.kind === 'smoke' && p) {
-      const c = plan.project(p), r = w.stair ? 32 : 52;
-      Halo.smoke(f.svg, { cx: c.x, cy: c.y, r: r });
-      if (!w.stair) Halo.warn(f.svg, { x: c.x + r * 0.75, y: c.y - r * 0.7 }, { size: 32 });
+    if (w.level != null && w.level !== level) return;
+    if (h.kind === 'fire' && zoneOf(w.room)) {
+      Halo.fire(f.svg, zoneOf(w.room).map(q => plan.project(q)));
+      Halo.warn(f.svg, plan.zone(w.room).c, { level: 'danger' });
+    } else if (h.kind === 'smoke') {
+      const name = w.stair ? 'stair:' + w.stair : w.room === 'corridor' ? 'corridor' : w.room ? 'room:' + w.room : null;
+      const z = ifc && name && (w.stair ? stairZone(Halo.byId(b.stairs, w.stair) || {}) : w.room === 'corridor' ? zoneOf('corridor:' + level) : zoneOf(w.room));
+      if (z) Halo.smoke(f.svg, z.map(q => plan.project(q)), { outline: false });
+      else if (name && pt(name)) { const c = plan.project(pt(name)); Halo.smoke(f.svg, { cx: c.x, cy: c.y, r: w.stair ? 32 : 52 }); }
+      if (name && pt(name) && !w.stair) { const c = plan.project(pt(name)); Halo.warn(f.svg, { x: c.x + 30, y: c.y - 30 }, { size: 32 }); }
     }
   });
 
-  const arrival = (s.routes.find(r => r.purpose === 'approach') || { via: [] }).via.find(n => n.startsWith('stair:'));
-  const node = id => id.startsWith('level:') ? pt(arrival) : id.startsWith('corridor') ? pt('corridor') : pt(id);
+  // the route: Seraph's path, or its nodes joined along the corridor (vertical into it, horizontal out of it)
+  const arrival = (routes.find(r => r.purpose === 'approach') || { via: [] }).via.find(n => n.startsWith('stair:'));
   if (route) {
-    let pts = route.path ? route.path.map(p => plan.project(p)) : null;
+    // a path that goes on past this level's stair belongs to other levels: cut it at the stair
+    let path = route.path;
+    const sz = path && b.stairs.map(stairZone).find(Boolean);
+    if (sz) {
+      const c = Halo.centroid(sz), d = p => Math.hypot(p[0] - c.x, p[1] - c.y);
+      const i = path.reduce((k, p, j) => d(p) < d(path[k]) ? j : k, 0);
+      path = path.slice(0, i + 1);
+      if (d(path[path.length - 1]) > 40) path.push([c.x, c.y]);
+    }
+    let pts = path ? path.map(p => plan.project(p)) : null;
     if (!pts) {
+      const node = id => id.startsWith('level:') ? pt(arrival || '') : pt(id.startsWith('corridor') ? 'corridor' : id);
       const via = route.via.map(node).filter(Boolean).map(p => plan.project(p));
-      pts = [via[0]];
+      pts = via.length ? [via[0]] : [];
       for (let i = 1; i < via.length; i++) {
         const a = via[i - 1], c = via[i];
         pts.push(route.via[i].startsWith('corridor') ? { x: a.x, y: c.y } : { x: c.x, y: a.y }, c);
       }
     }
-    Halo.arrow(f.svg, pts, { gap: 22, source: route.source });
+    if (pts.length > 1) Halo.arrow(f.svg, pts, { gap: 22, source: route.source });
   }
 
+  // stairs, riser, gas cut-off; people on this level; our crews
+  // a team on a stair shares the stair's tag (« A · B1 »), never a second marker on the same spot
+  const teams = (s.crew.teams || []).filter(t => t.location && t.location.level === level && t.status === 'engaged');
   b.stairs.forEach(st => {
     const p = pt('stair:' + st.id); if (!p) return;
-    const bad = st.status !== 'clear';
-    Halo.marker(f.svg, 'stair', plan.project(p), st.id, { tone: bad ? 'warn' : 'ink', blink: bad, at: p.x > 500 ? 'e' : 'w',
-      source: st.source, tap: { kind: 'stair', id: st.id } });
+    const bad = st.status === 'smoke' || st.status === 'blocked';
+    const here = teams.filter(t => !t.location.room && t.location.stair === st.id).map(t => t.id);
+    Halo.marker(f.svg, 'stair', plan.project(p), [st.id].concat(here).join(' · '), { tone: bad ? 'warn' : 'ink', blink: bad, at: 'w', source: st.source, tap: { kind: 'stair', id: st.id } });
   });
   if (pt('riser')) Halo.marker(f.svg, 'riser', plan.project(pt('riser')), null, { r: 14 });
   if (pt('gas_cutoff')) Halo.marker(f.svg, 'gas', plan.project(pt('gas_cutoff')), null, { r: 14 });
-
   (s.occupants || []).filter(o => o.level === level && o.room).forEach(o => {
     const p = pt('room:' + o.room); if (!p) return;
-    const kind = o.status === 'no_answer' || o.status === 'unknown' ? 'unknown' : o.mobility_issue ? 'wheelchair' : 'person';
+    const kind = TONE[o.status] === 'dim' ? 'unknown' : o.mobility_issue ? 'wheelchair' : 'person';
     Halo.marker(f.svg, kind, plan.project(p), o.people_count > 1 ? o.people_count : null, {
-      tone: TONE[o.status] || 'life', ping: o.room === target, source: o.source, tap: { kind: 'occupant', id: o.id } });
+      tone: TONE[o.status] || 'life', ping: o.room === target, r: 15, source: o.source, tap: { kind: 'occupant', id: o.id } });
   });
-  (s.crew.teams || []).filter(t => t.location && t.location.level === level && t.status === 'engaged').forEach(t => {
-    const p = pt(t.location.room === 'corridor' ? 'corridor' : 'room:' + t.location.room); if (!p) return;
-    Halo.marker(f.svg, 'team', plan.project(p), t.id, { at: 's', tap: { kind: 'team', id: t.id } });
+  teams.filter(t => t.location.room).forEach(t => {
+    const l = t.location, p = pt(l.room === 'corridor' ? 'corridor' : 'room:' + l.room); if (!p) return;
+    Halo.marker(f.svg, 'team', plan.project(p), t.id, { at: 's', r: 15, tap: { kind: 'team', id: t.id } });
   });
 
   // the card: where to go, how, what is in the way — one smoke line at most

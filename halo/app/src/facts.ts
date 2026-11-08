@@ -8,7 +8,7 @@ const STATUS: Record<string, string> = { clear: 'dégagé', smoke: 'fumée', blo
 
 function levelLabel(s: State, n?: number) {
   const l = (s?.building?.levels ?? []).find((x: any) => x.level === n);
-  return l ? l.label : n === undefined ? '' : `N${n}`;
+  return l ? l.label : n == null ? '' : `N${n}`;
 }
 const hhmm = (iso: string) => { const d = new Date(iso); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 
@@ -45,7 +45,7 @@ export function factsFor(moment: string, s: State | null): Line[] {
       const occ: any[] = (s.occupants ?? []).filter((o: any) => o.status !== 'safe_outside');
       const n = occ.reduce((k, o) => k + (o.people_count || 1), 0);
       return [
-        { text: `${n} dedans`, big: true, tone: 'life' },
+        { text: `${n} dedans`, big: true, tone: 'life' as const },
         ...occ.filter(o => o.status === 'needs_help' || o.status === 'trapped').map(o => ({ text: `${o.room} ${o.mobility_issue ? 'PMR' : 'à sortir'}`, tone: 'fire' as const })),
         ...occ.filter(o => o.heading_to && smokyStairs.some((x: any) => o.heading_to === `stair:${x.id}`)).map(o => ({ text: `${o.room} → esc. ${o.heading_to.split(':')[1]}`, tone: 'warn' as const })),
         ...occ.filter(o => o.status === 'no_answer' || o.status === 'unknown').map(o => ({ text: `${o.room} ?`, tone: 'dim' as const })),
@@ -55,7 +55,7 @@ export function factsFor(moment: string, s: State | null): Line[] {
       const t = (s.crew?.teams ?? []).find((x: any) => x.status === 'engaged' || x.status === 'exiting');
       if (!t) return [{ text: 'Aucun binôme engagé', tone: 'dim' }];
       return [
-        { text: `${t.id} · ${levelLabel(s, t.location?.level)}`, big: true },
+        { text: t.location?.level != null ? `${t.id} · ${levelLabel(s, t.location.level)}` : t.id, big: true },
         t.exit_by && { text: `Sortie ${hhmm(t.exit_by)}` },
         t.pressure_bar_start && { text: `${t.pressure_bar_start} bar au départ`, tone: 'dim' },
       ].filter(Boolean) as Line[];

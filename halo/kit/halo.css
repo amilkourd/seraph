@@ -54,7 +54,7 @@ html, body {
 .h-panel:empty { display: none; }
 .h-step { display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; line-height: 1.1; }
 .h-step svg { flex: none; width: 24px; height: 24px; }
-.h-step.h-lead { font-size: 24px; }
+.h-step.h-lead { font-size: 28px; }
 .h-step.h-lead svg { width: 28px; height: 28px; }
 .t-ink { color: var(--h-ink); } .t-dim { color: var(--h-dim); } .t-fire { color: var(--h-fire); } .t-warn { color: var(--h-warn); }
 .t-risk { color: var(--h-risk); } .t-water { color: var(--h-water); } .t-life { color: var(--h-life); }

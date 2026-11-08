@@ -28,6 +28,7 @@
     smoke: 'warn', unknown: 'dim'
   };
   var LAYERS = ['base', 'hazard', 'route', 'mark', 'label'];
+  var MAX_LABELS = 8;                                  // tags on one screen, at most
   var TURNED = { base: 1, hazard: 1, route: 1 };     // layers that follow Halo.scene's rotation
 
   function tone(t) { return C[t] || t || C.ink; }
@@ -54,8 +55,9 @@
   }
 
   // ---- intro: elements draw themselves once; state updates redraw without replaying ----------------------
-  var t0 = Date.now(), seq = 0;
-  function intro() { return Date.now() - t0 < 2000; }
+  // only the first drawing animates in; every redraw after it (state updates, up to 4/s) is still, or texts would flash
+  var t0 = Date.now(), seq = 0, drawn = false;
+  function intro() { return !drawn && Date.now() - t0 < 2000; }
   function nextDelay() { return Math.min(seq++ * 0.06, 1.2); }
   function drawIn(path, delay) {
     if (!intro()) return path;
@@ -115,6 +117,21 @@
     }
     var last = pts[pts.length - 1];
     return d + 'L' + r1(last.x) + ',' + r1(last.y);
+  }
+  // centroid of a zone (mean of its corners) and convex hull of points: the footprint of a building from its rooms
+  function centroid(zone) {
+    var pts = zone.map(P), x = 0, y = 0;
+    pts.forEach(function (p) { x += p.x; y += p.y; });
+    return { x: x / pts.length, y: y / pts.length };
+  }
+  function hull(points) {
+    var pts = points.map(P).sort(function (a, b) { return a.x - b.x || a.y - b.y; });
+    if (pts.length < 3) return pts;
+    function cross(o, a, b) { return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x); }
+    var lo = [], up = [];
+    pts.forEach(function (p) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); });
+    pts.slice().reverse().forEach(function (p) { while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); });
+    return lo.slice(0, -1).concat(up.slice(0, -1)).map(function (p) { return [p.x, p.y]; });
   }
   function polyLength(pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += len(sub(pts[i], pts[i - 1])); return s; }
 
@@ -233,7 +250,7 @@
   function frame(root, opts) {
     opts = opts || {};
     root = root || document.body;
-    t0 = Date.now(); seq = 0;
+    t0 = Date.now(); seq = 0; drawn = false;
     if (opts.title) document.title = opts.title;
     root.innerHTML = '';
     var screen = document.createElement('div'); screen.className = 'h-screen'; root.appendChild(screen);
@@ -245,7 +262,7 @@
     return { svg: svg, W: W, H: H, panel: function (lines) { panel(card, lines); }, clear: function () { clear(svg); card.innerHTML = ''; } };
   }
   // panel: the instruction card on the right. A few imperative lines, the first one bigger. Nothing else.
-  // lines: [{text, tone, blink}] — plain words, no pictograms
+  // lines: [{text, tone}] — plain words, no pictograms. Text never blinks: it must stay readable
   function panel(card, lines) {
     card.innerHTML = '';
     lines = (lines || []).filter(Boolean);
@@ -254,11 +271,10 @@
       if (String(l.text).length > 18) console.warn('Halo: instruction too long for one line (RULES.md 3): ' + l.text);
       var row = document.createElement('div');
       row.className = 'h-step t-' + (l.tone || 'ink') + (i === 0 ? ' h-lead' : '');
-      if (l.blink) loop(row, 'h-blink');
       var t = document.createElement('span'); t.textContent = l.text; row.appendChild(t);
       card.appendChild(row);
     });
-    if (intro()) { card.classList.add('h-fade'); card.style.setProperty('--d', '0.5s'); }
+    // no fade: an instruction is readable at once (and WebKit could leave a re-styled fade stuck at 0)
   }
   // icon: a pictogram as inline SVG, for HTML
   function icon(kind, t) {
@@ -267,6 +283,8 @@
     return s;
   }
   function clear(svg) {
+    if (seq > 0) drawn = true;                         // something was drawn already: this is a redraw
+    svgOf(svg).__tags = [];
     LAYERS.forEach(function (n) { var g = layer(svg, n); while (g.firstChild) g.removeChild(g.firstChild); });
   }
 
@@ -328,19 +346,39 @@
     return { g: g, band: function (lv) { return bands[lv]; } };
   }
 
-  // floorStack: side section, one band per level (top = highest), stair shafts at the sides
+  // focusLevels: the levels where something is going on. Seraph's building.levels[].focus when it sends it; else a
+  // fire/smoke hazard, a person still inside, an engaged team, or a route's target on that level. Others are greyed.
+  function focusLevels(state) {
+    var b = (state && state.building) || {}, levels = b.levels || [], out = {};
+    if (levels.some(function (l) { return typeof l.focus === 'boolean'; })) {
+      levels.forEach(function (l) { if (l.focus) out[l.level] = true; });
+      return out;
+    }
+    (b.hazards || []).forEach(function (h) { if ((h.kind === 'fire' || h.kind === 'smoke') && h.where && h.where.level != null) out[h.where.level] = true; });
+    ((state && state.occupants) || []).forEach(function (o) { if (o.status !== 'safe_outside' && o.level != null) out[o.level] = true; });
+    (((state && state.crew) || {}).teams || []).forEach(function (t) { if (t.status === 'engaged' && t.location && t.location.level != null) out[t.location.level] = true; });
+    ((state && state.routes) || []).forEach(function (r) {
+      var to = String(r.to || ''), room = to.indexOf('room:') === 0 && byId(b.rooms, to.slice(5));
+      if (to.indexOf('level:') === 0) out[+to.slice(6)] = true;
+      else if (room) out[room.level] = true;
+    });
+    return out;
+  }
+
+  // floorStack: side section, one band per level (top = highest), stair shafts at the sides.
+  // focus ({level: true} from Halo.focusLevels): a level with nothing special is grey, no tag colour, no fill
   function floorStack(svg, opts) {
     var b = opts.box || { x: 150, y: 16, w: 574, h: 338 }, levels = (opts.levels || []).slice().sort(function (p, q) { return q.level - p.level; });
     var n = levels.length || 1, gap = 7, bh = (b.h - gap * (n - 1)) / n, sw = 38;
     var g = el('g', { 'class': 'h-stack' }, layer(svg, 'base')), bands = {}, shafts = {}, stairs = opts.stairs || [];
     var left = stairs.some(function (s) { return s.side !== 'right'; }) ? sw + 8 : 0, right = stairs.some(function (s) { return s.side === 'right'; }) ? sw + 8 : 0;
     levels.forEach(function (lv, i) {
-      var y = b.y + i * (bh + gap), hi = opts.highlight === lv.level;
-      var band = { x: b.x + left, y: y, w: b.w - left - right, h: bh };
+      var y = b.y + i * (bh + gap), hi = opts.highlight === lv.level, off = opts.focus && !opts.focus[lv.level];
+      var band = { x: b.x + left, y: y, w: b.w - left - right, h: bh, off: !!off };
       band.cx = band.x + band.w / 2; band.cy = y + bh / 2;
       bands[lv.level] = band;
-      block(svg, band, { state: hi ? 'target' : 'normal', glow: 16 });
-      label(svg, { x: b.x - 10, y: band.cy }, lv.label, { align: 'end', tone: hi ? 'ink' : 'dim' });
+      block(svg, band, { state: hi ? 'target' : off ? 'dim' : 'normal' });
+      label(svg, { x: b.x - 10, y: band.cy }, lv.label, { align: 'end', tone: off ? 'dim' : 'ink' });
     });
     stairs.forEach(function (s) {
       var x = s.side === 'right' ? b.x + b.w - sw : b.x, box = { x: x, y: b.y, w: sw, h: b.h }, bad = s.status === 'smoke' || s.status === 'blocked';
@@ -370,7 +408,8 @@
     function proj(p) { p = P(p.point || p); return { x: ox + (p.x - crop.x0) * k, y: oy + (p.y - crop.y0) * k }; }
     var g = el('g', { 'class': 'h-plan' }, layer(svg, 'base'));
     var frameBox = { x: ox, y: oy, w: (crop.x1 - crop.x0) * k, h: (crop.y1 - crop.y0) * k };
-    el('rect', { x: frameBox.x, y: frameBox.y, width: frameBox.w, height: frameBox.h, fill: '#000', opacity: 0.88 }, g);
+    // a dark backdrop only under a plan photo (opts.frame); otherwise the rooms sit on the ground, no box
+    if (opts.frame || opts.image_url) el('rect', { x: frameBox.x, y: frameBox.y, width: frameBox.w, height: frameBox.h, fill: '#000', opacity: 0.88 }, g);
     if (opts.image_url) {
       var o = proj({ x: 0, y: 0 }), clipId = uid('clip'), cp = el('clipPath', { id: clipId }, defs(svg));
       el('rect', { x: frameBox.x, y: frameBox.y, width: frameBox.w, height: frameBox.h }, cp);
@@ -540,7 +579,7 @@
   }
   // north: a small arrow in a screen corner, turned with the scene
   function north(svg, point) {
-    var p = P(point || { x: W - 30, y: 34 }), t = svgOf(svg).__xf, deg = t ? t.deg : 0;
+    var p = P(point || { x: AREA.x + AREA.w - 12, y: 30 }), t = svgOf(svg).__xf, deg = t ? t.deg : 0;   // the shell's top bar owns the top-right corner
     var g = el('g', { transform: 'translate(' + p.x + ',' + p.y + ') rotate(' + deg + ')' }, layer(svg, 'mark'));
     el('path', { d: 'M0,-14L7,9L0,4L-7,9Z', fill: C.dim }, g);
     return g;
@@ -562,6 +601,20 @@
     var x = opts.align === 'start' ? p.x : opts.align === 'end' ? p.x - bw : p.x - bw / 2;
     var y = opts.valign === 'top' ? p.y : opts.valign === 'bottom' ? p.y - h : p.y - h / 2;
     x = Math.max(4, Math.min(W - bw - 4, x)); y = Math.max(4, Math.min(H - h - 4, y));
+    // never on top of another tag: slide down, up, right, left until free; give up (drop it) past MAX_LABELS
+    var root = svgOf(svg), placed = root.__tags || (root.__tags = []);
+    if (placed.length >= MAX_LABELS) { g.remove(); return null; }
+    var hit = function (a) { return placed.some(function (q) { return a.x < q.x + q.w + 3 && q.x < a.x + a.w + 3 && a.y < q.y + q.h + 3 && q.y < a.y + a.h + 3; }); };
+    var box = { x: x, y: y, w: bw, h: h };
+    for (var k = 1; hit(box) && k < 6; k++) {
+      var tries = [[0, k * (h + 4)], [0, -k * (h + 4)], [k * (bw / 2 + 6), 0], [-k * (bw / 2 + 6), 0]];
+      for (var t = 0; t < tries.length; t++) {
+        var nb = { x: Math.max(4, Math.min(W - bw - 4, x + tries[t][0])), y: Math.max(4, Math.min(H - h - 4, y + tries[t][1])), w: bw, h: h };
+        if (!hit(nb)) { box = nb; break; }
+      }
+    }
+    if (hit(box)) { g.remove(); return null; }
+    placed.push(box); x = box.x; y = box.y;
     rect.setAttribute('x', r1(x)); rect.setAttribute('y', r1(y)); rect.setAttribute('width', r1(bw)); rect.setAttribute('height', h);
     if (inferred) { rect.setAttribute('stroke', C.warn); rect.setAttribute('stroke-width', 2); rect.setAttribute('stroke-dasharray', '0 6'); rect.setAttribute('stroke-linecap', 'round'); }
     t.setAttribute('x', r1(x + pad)); t.setAttribute('y', r1(y + h / 2 + 1));
@@ -581,17 +634,18 @@
   }
 
   // ---- air: the exit countdown dial ---------------------------------------------------------------------
-  // white > T-5 min, amber ≤ T-5, red and blinking « SORTEZ » at T-0; vibrates when crossing each step
+  // white > T-5 min, amber ≤ T-5, red at T-0 with « SORTEZ »: the ticks blink, the numbers never; vibrates at each step
   function countdown(svg, exitBy, opts) {
     opts = opts || {};
     var c = P(opts.center || { x: W / 2, y: H / 2 }), R = opts.r || 172, N = 60;
     var end = new Date(exitBy).getTime(), start = opts.start ? new Date(opts.start).getTime() : end - 20 * 60000;
     var g = el('g', { 'class': 'h-countdown' }, layer(svg, 'mark')), ticks = [];
+    var ring = el('g', {}, g);                         // the ticks: the only part that blinks at T-0
     el('circle', { cx: c.x, cy: c.y, r: R + 4, fill: '#000', opacity: 0.85 }, g);
     for (var i = 0; i < N; i++) {
       var a = (i / N) * 2 * Math.PI - Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a), major = i % 5 === 0, r0 = R - (major ? 26 : 16);
       ticks.push(el('path', { d: 'M' + r1(c.x + ca * r0) + ',' + r1(c.y + sa * r0) + 'L' + r1(c.x + ca * R) + ',' + r1(c.y + sa * R),
-        stroke: C.mute, 'stroke-width': major ? 5 : 4, 'stroke-linecap': 'round' }, g));
+        stroke: C.mute, 'stroke-width': major ? 5 : 4, 'stroke-linecap': 'round' }, ring));
     }
     var head = el('circle', { r: 7, fill: C.ink }, g);
     var num = el('text', { x: c.x, y: c.y + 4, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': opts.size || 112,
@@ -610,7 +664,7 @@
       num.textContent = (left < 0 ? '+' : '') + pad2(Math.floor(s / 60)) + ':' + pad2(s % 60);
       num.setAttribute('fill', col);
       cap.textContent = st === 2 ? 'SORTEZ' : '';
-      g.classList.toggle('h-blink-fast', st === 2);
+      if (st === 2 && !ring.classList.contains('h-blink-fast')) loop(ring, 'h-blink-fast');
       if (step !== -1 && st > step) vibrate(st === 2 ? [400, 150, 400, 150, 400] : [250, 120, 250]);
       step = st;
     }
@@ -638,6 +692,8 @@
       else if (global.parent && global.parent !== global) global.parent.postMessage(msg, '*');
     } catch (e) { /* no shell */ }
   }
+  // a view that breaks says so to the shell (logged there), instead of silently drawing half a scheme
+  global.addEventListener('error', function (e) { post({ type: 'seraph:error', message: String(e.message), line: e.lineno, col: e.colno }); });
   function ready(viewId) { post({ type: 'seraph:ready', view_id: viewId || document.documentElement.getAttribute('data-view-id') || '' }); }
   function tap(target) { vibrate(30); post({ type: 'seraph:tap', target: target }); }
   function tappable(g, target, r) {
@@ -653,7 +709,7 @@
   function byId(list, id) { return (list || []).filter(function (x) { return x.id === id; })[0] || null; }
   function levelLabel(state, n) {
     var l = ((state && state.building && state.building.levels) || []).filter(function (x) { return x.level === n; })[0];
-    return l ? l.label : n === undefined ? '' : 'N' + n;
+    return l ? l.label : n == null ? '' : 'N' + n;
   }
 
   global.Halo = {
@@ -663,6 +719,6 @@
     arrow: arrow, marker: marker, warn: warn, ping: ping, cross: cross, wind: wind, north: north,
     smoke: smoke, fire: fire, label: label, tag: tag, teamCard: teamCard, countdown: countdown, icon: icon,
     onState: onState, onAlert: onAlert, ready: ready, tap: tap, vibrate: vibrate,
-    project: project, area: area, byId: byId, levelLabel: levelLabel, time: function (iso) { return hhmm(new Date(iso)); }
+    project: project, area: area, centroid: centroid, hull: hull, focusLevels: focusLevels, byId: byId, levelLabel: levelLabel, time: function (iso) { return hhmm(new Date(iso)); }
   };
 })(window);

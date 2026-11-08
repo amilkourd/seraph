@@ -25,3 +25,8 @@ Every view must pass `node halo/kit/check-view.mjs <view.html>` before it is ser
 12. Colours carry meaning only (SITAC): red fire/danger, amber smoke/warning, orange gas/elec, blue water, green
     people, white structure/our crews/route, grey unknown.
 13. Positions and routes come from the state. Never invent one.
+14. **Text never blinks.** Only pictograms, triangles, rings and the air dial's ticks blink; words, numbers and tags
+    stay still so they can be read.
+15. **Floors with nothing special are grey** (« les étages où il n'y a rien de spécial doivent être grisés »): no fill, no
+    coloured tag. In focus: fire/smoke, someone inside, an engaged team, a route's target (Seraph's
+    `building.levels[].focus` when present). `floorStack({focus: Halo.focusLevels(state)})` does it.

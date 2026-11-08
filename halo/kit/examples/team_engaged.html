@@ -10,7 +10,7 @@
 <body>
 <script>
 /* Moment « team_engaged » — « Mon air ». One dial, full height: the ticks go dark as the air runs out, white until
- * T-5 min, amber to T-0, then red and blinking « SORTEZ ». exit_by is computed by Seraph; the view only counts down.
+ * T-5 min, amber to T-0, then red « SORTEZ » (the ticks blink, never the numbers). exit_by is computed by Seraph; the view only counts down.
  * The dial keeps running between state updates; it is rebuilt only if the team or exit_by changes. */
 const f = Halo.frame(document.body, { title: 'Mon air' });
 let dial = null, dialKey = '';
@@ -27,7 +27,7 @@ function draw(s) {
   if (!team) return;
   // the card: who, where, when out
   f.panel([
-    { text: team.id + (team.location ? ' · ' + Halo.levelLabel(s, team.location.level) : '') },
+    { text: team.id + (team.location && team.location.level != null ? ' · ' + Halo.levelLabel(s, team.location.level) : '') },
     team.exit_by && { text: 'Sortie ' + Halo.time(team.exit_by) },
     team.pressure_bar_start && { tone: 'dim', text: team.pressure_bar_start + ' bar au départ' },
     ...teams.filter(t => t !== team).map(t => ({ tone: 'dim', text: t.id + ' ' + ({ standby: 'en attente', engaged: 'engagé', exiting: 'en sortie', out: 'sorti' })[t.status] }))
