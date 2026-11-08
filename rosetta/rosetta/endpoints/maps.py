@@ -80,6 +80,49 @@ def ring(img: bytes, at: tuple[float, float]) -> bytes:
     return buf.getvalue()
 
 
+# Google Maps UI drawn over the satellite image (1280×800 viewport): never part of a roof
+UI_BOXES = [(0, 0, 72, 800), (72, 0, 1280, 62), (72, 62, 470, 180), (80, 690, 180, 790), (1110, 640, 1280, 800),
+            (420, 780, 1280, 800)]
+
+
+def roof_outline(img: bytes, seed: tuple[int, int], near: Optional[tuple[int, int]]) -> Optional[list[list[int]]]:
+    """Code, not a model: from Holo's one point on the roof, flood-fill the roof's colour (textures flattened first),
+    close small gaps, simplify to ≤ 16 vertices. None when the region is implausible."""
+    import cv2
+    import numpy as np
+    bgr = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_COLOR)
+    h, w = bgr.shape[:2]
+    sm = cv2.pyrMeanShiftFiltering(bgr, 12, 22)
+    mask = np.zeros((h + 2, w + 2), np.uint8)
+    sx, sy = w / 1280, h / 800
+    for x0, y0, x1, y1 in UI_BOXES:
+        mask[int(y0 * sy) + 1:int(y1 * sy) + 1, int(x0 * sx) + 1:int(x1 * sx) + 1] = 1
+    px, py = int(seed[0] / 1000 * w), int(seed[1] / 1000 * h)
+    if mask[py + 1, px + 1]:
+        return None
+    cv2.floodFill(sm, mask, (px, py), (0, 0, 0), (12, 12, 12), (12, 12, 12), 4 | cv2.FLOODFILL_MASK_ONLY | (255 << 8))
+    m = (mask[1:-1, 1:-1] == 255).astype(np.uint8)
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (41, 41)))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
+    cnts, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not cnts:
+        return None
+    c = max(cnts, key=cv2.contourArea)
+    frac = cv2.contourArea(c) / (h * w)
+    if not 0.005 <= frac <= 0.2:                      # a speck or half the city: not this building
+        return None
+    if near is not None:                              # the address (E1) must sit on or near this roof
+        d = cv2.pointPolygonTest(c, (near[0] / 1000 * w, near[1] / 1000 * h), True)
+        if d < -0.06 * max(w, h):
+            return None
+    eps = 0.004 * cv2.arcLength(c, True)
+    poly = cv2.approxPolyDP(c, eps, True)
+    while len(poly) > 16:
+        eps *= 1.3
+        poly = cv2.approxPolyDP(c, eps, True)
+    return [[int(round(x / w * 1000)), int(round(y / h * 1000))] for x, y in poly[:, 0, :]]
+
+
 class Storeys(BaseModel):
     storeys: int = Field(description="number of storeys above ground including the ground floor, 0 if no building is visible")
 
@@ -141,6 +184,7 @@ async def maps_building(run: Run) -> dict:
         targets = {e["id"]: (f"the {e.get('label', e['id'])} of {centre}, on its "
                              f"{SIDE_FR.get(e.get('side') or 'front', 'façade')}") for e in expected}
         targets["H1"] = f"a fire hydrant (small red or yellow post on the sidewalk) near {centre}, not a map icon"
+        targets["roof"] = f"the middle of the roof of {centre}"
         targets["truck"] = ("a point on the traffic lanes of the street nearest to the red ring: dark asphalt with white "
                             "lane markings, not the sidewalk, not a roof, not a map label")
         keys = list(targets)
@@ -152,9 +196,16 @@ async def maps_building(run: Run) -> dict:
     for k, p in top_pts.items():
         if isinstance(p, tuple):
             await run.frame(f"point ({p[0]},{p[1]}) {k}", "sur la vue du dessus", top)
-    # footprint: off. Holo's four roof corners came back crossed on a large roof (05:20 test), and Halo must never
-    # draw a wrong outline; the approach view keeps its schematic block.
-    footprint = None
+    footprint = None                                   # Holo points once at the roof; code draws the outline
+    if isinstance(top_pts.get("roof"), tuple):
+        e1 = top_pts.get(expected[0]["id"]) if expected else None
+        poly = roof_outline(top, top_pts["roof"], e1 if isinstance(e1, tuple) else None)
+        if poly:
+            footprint = {"image_id": "earth-top-01", "polygon": poly,
+                         "source": "toit pointé par Holo, contour calculé (remplissage)"}
+            await run.frame(f"contour du toit : {len(poly)} sommets (calcul)", "depuis le point de Holo sur le toit", top)
+        else:
+            notes.append("contour du toit non retenu (calcul)")
 
     # 3. Street View: code computes the heading from the panorama to the address; Holo points (evidence only)
     shots_sv: dict[str, bytes] = {}

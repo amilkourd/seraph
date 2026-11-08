@@ -1,5 +1,5 @@
 # rosetta — status
-Updated: 06:00
+Updated: 06:15
 
 ## Running
 - rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
@@ -31,7 +31,7 @@ Updated: 06:00
 | `dispatch.write_112` | ✅ MC-0007, text exact | 10 s | `write` disabled, `type_param entry_fr` |
 | `report.fill` | ✅ CR transmis, 4 sections exact | 25–57 s | 403 without `gate_id`; guard on « Transmettre » |
 | `plan.read` | ✅ 19 points on `plan-l-1-01` (L-1.svg) | 7 s | zones IoU vs IFC: -1.01 0.96, -1.04 0.97, -1.06 0.91, -1.08 0.95, -1.11 0.86 (garage + ramp + places in one region); stair 0.15 (hatching), lift 0.46 |
-| `maps.building` | ✅ 96 bd Bessières: E1 (496,500), truck (600,530) on `earth-top-01`; sv-front/left/right; 5 storeys | 32–42 s | no hydrant visible (honest: empty); E2 (garage ramp from the IFC) not at this address; footprint off |
+| `maps.building` | ✅ 96 bd Bessières: E1 (496,500), truck (600,530) on `earth-top-01`; sv-front/left/right; 5 storeys | 32–42 s | no hydrant visible (honest: empty); E2 (the IFC's garage ramp) has no match at 42, Holo still points something; `footprint` = Holo points the roof once, code flood-fills (mean-shift, Maps UI masked, ≤ 16 vertices, kept only if 0.5–20 % of the image and E1 on/near it): 14 vertices on 42's roof |
 | `georisques.risks` | ✅ 8 risks (inondation, séisme, mouvements de terrain, argiles, radon, ICPE, canalisations, pollution des sols) | 22 s | Holo refuses cookies, picks the suggestion |
 | `weather.wind` | ✅ Paris: S, 5 km/h | 12–16 s | 30 min cache |
 | `/explore` | ✅ « crèche ou école dans la rue ? » → paris.fr, « groupe scolaire Bessière » | 39 s, 16 steps | `verified:false`, source « source non vérifiée », trace for Silex |
@@ -81,4 +81,5 @@ dispatch.read 7.1 s · plan.read 13.0 s · weather.wind 12.5 s · georisques.ris
   is fine (12 parallel calls: 0.3–1.7 s). One call stalled 40 s once under load: calls are cut at 15 s (agent) / 8 s
   (pointing) and retried inside the run's budget.
 - Pointing accuracy on the R-1 plan (error in 0–1000 units, 6 targets): holo4-27b 3–13, holo3-1-35b-a3b 4–36.
+- Street View shots before 05:35 were 42's indoor 360 (user photo sphere); since then `!2e10` panoramas are skipped.
 - Pacing env: `HOLO_RPM` (26 per model), `HOLO_MAX_INFLIGHT` (6), `HOLO_POINT_MODELS`.

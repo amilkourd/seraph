@@ -5,7 +5,8 @@
 import json, sys, time
 import httpx
 
-BASE = "http://localhost:8001"
+import os
+BASE = os.environ.get("ROSETTA", "http://localhost:8001")
 PARAMS = {
     "dispatch.read": {"incident_id": "INC-0001"},
     "occupants.list": {"building": "Immeuble d'habitation (maquette TU Wien)"},
