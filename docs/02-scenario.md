@@ -53,10 +53,10 @@ two hours after the first call. Seraph does the opposite of guessing:
 Night (00:25): people are home, mostly in bedrooms. Fictional people, non-dialable numbers.
 | Id | Name | Level / room (flat) | Language | What the call says (`fixtures/calls.jsonl`) | Beat |
 |---|---|---|---|---|---|
-| OCC-01 | Léa Martin | R+3 / 3.12 Chambre (U3.1, terrace 3.07) | fr | With her son, smoke under the door, staying | sheltering, urgent; B1's target |
+| OCC-01 | Léa Martin | R+3 / 3.12 Chambre (U3.1, terrace 3.07) | fr | With their son, smoke under the door, staying | sheltering, urgent; B1's target |
 | OCC-02 | Karim Benali | R+1 / 1.11 Chambre (U1.2) | fr | No answer, twice | « sans nouvelles » |
 | OCC-03 | Sophie Durand | R+1 / 1.01 Chambre (U1.1) | fr | At home, door closed, no smoke | safe, sheltering |
-| OCC-04 | Tom Becker | R+2 / 2.16 Séjour-cuisine (U2.2, balcony 2.17) | en | Leaving his flat, going down the stairs, some smoke | **the catch** |
+| OCC-04 | Tom Becker | R+2 / 2.16 Séjour-cuisine (U2.2, balcony 2.17) | en | Leaving the flat, going down the stairs, some smoke | **the catch** |
 | OCC-05 | Inès Rahmani | R+2 / 2.01 Chambre (U2.1) | fr | Wheelchair user, cannot go down alone | needs help |
 | OCC-06 | Lucía García | RDC / 0.19 Séjour-cuisine (U0.2, terrace 0.20) | es | No smoke, asks what to do | « restez en ligne, je transmets » |
 | JUDGE-n | (opt-in via QR) | any | any | Live: whatever they say | — |
@@ -72,7 +72,7 @@ the room id comes from the occupant record.
    lui, porte fermée, et d'aller sur le balcon ? »
 3. COS: « Seraph, confirme. » → Gabriel tells Tom, in English (below). Seraph sets Tom `sheltering`,
    `heading_to: "ladder:2.17"`, adds route `evacuation` `room:2.16 → room:2.17 → ladder:2.17`, raises an alert
-   « Échelle : balcon 2.17, 2e, Tom Becker », and tells the crew « Reçu. Tom Becker reste chez lui, balcon 2.17 :
+   « Échelle : balcon 2.17, 2e, Tom Becker », and tells the crew « Reçu. Tom Becker reste dans son logement, balcon 2.17 :
    point échelle. »
 4. Halo: the alert covers the view; then 2.17 is drawn as an **active ladder point** (the `to` of an evacuation
    route); the other `model.ladder_points` stay dim. Dashboard: callout « Échelle · Tom Becker » on 2.17.
@@ -100,7 +100,7 @@ COS and, if needed, Tête/Binôme lines; a judge can hold the talkie too.
 | T0 (pitch starts) | Halo already shows the approach (E1, E2 crossed: garage on fire); dashboard shows the Devin session | — |
 | demo | Tête: « quelle entrée ? » → E1, not E2, single stair in smoke, hydrant | Seraph, Gabriel |
 | demo | A judge's phone rings (or calls 112): live call → facts → crew summary | Gabriel |
-| demo | Tom starts down the smoky stair → « Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ? » → « confirme » → told in English → ladder point 2.17 on Halo | Seraph, Gabriel, Halo |
+| demo | Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « confirme » → told in English → ladder point 2.17 on Halo | Seraph, Gabriel, Halo |
 | demo | « Binôme 1 engagé par l'escalier A, 300 bars » → Halo switches to air tracking (Devin) → countdown | Seraph, Silex |
 | demo | Tête: « escalier A désenfumé » · COS: « levée du confinement : dis à tous les occupants de sortir par l'escalier A » → read-back (except Inès, wheelchair) → « confirme » → every caller, every language | Seraph, Gabriel |
 | demo | « Seraph, fais le rapport » → gate → `report.fill` on screen | Rosetta |
@@ -118,7 +118,7 @@ time so the T-5 min alarm happens during the pitch. This is a demo rule, not the
 | R+5, levels 0–5, stairs A (clear) and B (smoke) | R-1–R+3, one stair A (smoke), façade ladders as second way out |
 | Fire: technical room `3.T`, level 3 | Fire: garage `-1.11`, level -1 (smoke via P-1-5 → `corridor:-1` → stair A) |
 | Best entrance E2 (side door on stair A) | Best entrance E1 (stair hall); E2 = garage ramp, through the fire |
-| Tom 4.02 down stair B → « prends A ? » | Tom 2.16 down stair A → « reste chez lui, porte fermée, balcon ? » → `ladder:2.17` |
+| Tom 4.02 down stair B → « prends A ? » | Tom 2.16 down stair A → « reste dans son logement, porte fermée, balcon ? » → `ladder:2.17` |
 | Standing: smoke at the door → stay in the room | Standing: smoke in the stair or at the door → stay home, door closed (stay put, by the COS) |
 | — | Lift for everyone in one sentence (R13–R15) |
 | Karim 3.10, Sophie 4.05, Inès 2.01, Lucía 5.01, Léa 3.12 | Karim 1.11, Sophie 1.01 (now has a call, CALL-07), Inès 2.01, Lucía 0.19, Léa 3.12 |

@@ -333,7 +333,7 @@ calls = [
 ]
 
 STANDING_FR = "Consigne par défaut aux occupants : si fumée dans l'escalier ou devant la porte, rester chez soi, porte fermée."
-TOM_GATE = "Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ?"
+TOM_GATE = "Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ?"
 LUCIA_GATE = "Je dis à Lucía García : « Sortez par la terrasse. »"
 gates = [
     {"gate_id": "gate_00", "kind": "relay_order", "summary_fr": STANDING_FR, "confirmer": "COS", "status": "confirmed",
@@ -390,7 +390,7 @@ state = {
         {"t": "2026-11-08T00:28:30Z", "kind": "radio", "text_fr": "Seraph → Tête : entrée par E1, évitez E2 (garage en feu), seul escalier enfumé, hydrant à 30 m."},
         {"t": "2026-11-08T00:33:40Z", "kind": "call", "text_fr": "Appel Léa Martin : deux personnes chambre 3.12, fumée sous la porte."},
         {"t": "2026-11-08T00:39:30Z", "kind": "gate", "text_fr": "Proposition : " + TOM_GATE},
-        {"t": "2026-11-08T00:39:40Z", "kind": "gate", "text_fr": "Confirmé par le COS (voix) : Tom Becker reste chez lui, balcon 2.17, point échelle."},
+        {"t": "2026-11-08T00:39:40Z", "kind": "gate", "text_fr": "Confirmé par le COS (voix) : Tom Becker reste dans son logement, balcon 2.17, point échelle."},
         {"t": "2026-11-08T00:40:00Z", "kind": "gate", "text_fr": "Proposition : " + LUCIA_GATE},
     ],
     "alerts": [

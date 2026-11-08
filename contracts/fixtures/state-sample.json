@@ -4015,7 +4015,7 @@
     {
       "gate_id": "gate_01",
       "kind": "reroute_occupant",
-      "summary_fr": "Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ?",
+      "summary_fr": "Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ?",
       "confirmer": "COS",
       "status": "confirmed",
       "created_at": "2026-11-08T00:39:30Z",
@@ -4154,12 +4154,12 @@
     {
       "t": "2026-11-08T00:39:30Z",
       "kind": "gate",
-      "text_fr": "Proposition : Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester chez lui, porte fermée, et d'aller sur le balcon ?"
+      "text_fr": "Proposition : Tom Becker, 2e, descend par l'escalier A, enfumé, seul escalier. Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ?"
     },
     {
       "t": "2026-11-08T00:39:40Z",
       "kind": "gate",
-      "text_fr": "Confirmé par le COS (voix) : Tom Becker reste chez lui, balcon 2.17, point échelle."
+      "text_fr": "Confirmé par le COS (voix) : Tom Becker reste dans son logement, balcon 2.17, point échelle."
     },
     {
       "t": "2026-11-08T00:40:00Z",
