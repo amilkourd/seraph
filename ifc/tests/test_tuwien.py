@@ -55,3 +55,22 @@ def test_real_plans(tuwien):
     svg = tuwien.svgs["levels/L1.svg"]
     assert "ESC A" in svg and "ASC" in svg and "#d0021b" in svg               # stair, lift, red fire symbols
     assert svg.count("<path") > 50                                            # walls, doors, treads: a drawing
+
+
+# Ids the scenario (contracts/fixtures, docs/02-scenario.md) is written on. Door ids are positional (door order in
+# the IFC): if an extractor change moves one, this fails before the demo does. Regenerate the fixtures after any
+# deliberate change: cd seraph && uv run python ../contracts/gen_fixtures_v2.py
+SCENARIO_ROOMS = "3.12 3.07 2.16 2.17 2.01 1.11 1.01 0.19 0.20 -1.11 -1.03 -1.06 -1.08".split()
+SCENARIO_DOORS = {"P-1-5": ["room:-1.11", "corridor:-1"], "P2-69": ["room:2.16", "room:2.17"],
+                  "P3-75": ["room:3.12", "room:3.07"], "E1": ["outside", "corridor:0"],
+                  "E2": ["outside", "room:-1.03"]}
+
+
+def test_scenario_ids_are_stable(tuwien):
+    b = tuwien.building
+    assert set(SCENARIO_ROOMS) <= {r["id"] for r in b["rooms"]}
+    assert {"ladder:2.17", "ladder:3.07", "corridor:-1", "corridor:3", "stair:A"} <= set(b["graph"]["nodes"])
+    assert {"U2.2", "U3.1"} <= {u["id"] for u in b["units"]}
+    doors = {d["id"]: d["between"] for d in b["doors"]}
+    for did, between in SCENARIO_DOORS.items():
+        assert sorted(doors.get(did, [])) == sorted(between), did
