@@ -1,5 +1,5 @@
 # silex — status
-Updated: 06:03
+Updated: 06:45
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -13,6 +13,10 @@ Updated: 06:03
 ## Measured
 | When | Moment | Transport | Warm | Attempts | request_to_view | Deadline |
 |---|---|---|---|---|---|---|
+| 06:40 | commander_request « Position des binômes par étage » (end-to-end recording, Seraph's request) | CLI, Opus | yes | 1 | **120 s** | — |
+| 06:38 | approach (recording, live shots, 6/6 refs) | CLI, Opus | yes | 1 | **182 s** | 300 s |
+| 06:38 | occupants (recording) | CLI, Opus | yes | 1 | **154 s** | — |
+| 06:2x | approach (Seraph's request) | CLI, Opus | yes | 1 | **151 s** | 300 s |
 | 05:57 | approach, test id, kit rule 16 (hazards from the state), fire reported in the garage R-1 | CLI, Opus | yes | 1 | **146 s** | 300 s |
 | 05:41 | approach, test id, real façade shots + Rosetta footprint on earth-top-01 (6/6 refs) | CLI, Opus | yes | 1 | **219 s** | 300 s |
 | 05:16 | approach, test id, live Rosetta shots (6/8 refs as files, 24 s of it waiting for Rosetta) | CLI, Opus | yes | 1 | **140 s** | 300 s |
