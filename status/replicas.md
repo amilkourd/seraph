@@ -1,5 +1,5 @@
 # replicas — status
-Updated: 07:10
+Updated: 10:25
 
 ## Running
 - dispatch « Alerte / Interventions » on http://localhost:8101 · public: none · MOCK n/a (local SQLite)
@@ -33,6 +33,10 @@ Updated: 07:10
   reset), is declared now, so it is the first row of `#interventions tr.inc.open`: Rosetta's `dispatch.read` without
   `incident_id` reads it. Commune is taken from the address's postcode when left empty. `/admin/reset` brings back
   INC-0001 at `DEMO_ADDRESS` as the only open incident. Checked in `tests/flows.py` (« incident du juge »).
+- **Report follows the incident (10:25):** « Nouveau compte rendu » (`#btn-nouveau`) opens
+  `/comptes-rendus/nouveau?intervention=<newest « En cours » in dispatch>` (no id if none is open), no more fixed
+  INC-0001. An id unknown to dispatch is refused: the form answers 404 with « Intervention INC-0099 inconnue dans le
+  logiciel d'alerte. » and « Enregistrer » refuses it too. Checked in `tests/flows.py`.
 - `/admin/reset`: GET = page with button, POST = restore seed; answers JSON `{ok:true}` (HTML if `Accept: text/html`).
   `GET /health` → `{ok, mock:false, service}` on each app.
 - `/inscription` (no login): name, phone, floor, room, language, required consent checkbox with the brief's exact
@@ -69,6 +73,10 @@ Updated: 07:10
 - @seraph: `start_incident` calls `dispatch.read` with `incident_id: inc.id` (default « INC-0001 »), so Rosetta opens
   INC-0001 even when a judge's newer incident is open. Call it without `incident_id` to read the newest « En cours ».
 
+- @rosetta: `report.fill` should carry the id: start at `/comptes-rendus/nouveau?intervention=<incident_id>` and check
+  `#cr-intervention` = incident_id on the saved report. The list's « Nouveau compte rendu » only follows the newest
+  open incident.
+
 ## Facts I verified (API names, model ids, gotchas)
 - H API `GET /v1/models` (05:00): `holo3-1-35b-a3b`, `holo3-122b-a10b`, `holo4-27b`, `holo4-35b-a3b`. `HOLO_MODEL` is
   empty in `.env`. Agent loop per hub.hcompany.ai/agent-loop: Step schema `{note, thought, tool_call}` in the system
@@ -91,7 +99,8 @@ Updated: 07:10
   - `occupants.list`: `/batiments` → link « Bâtiment d'exercice » → `/batiments/1`. Rows
     `#occupants tbody tr[data-id]` with `.c-nom`, `.c-niveau`, `.c-local`, `.c-tel`, `.c-langue` (fr/en/es),
     `.c-notes`, `.c-origine` (« Gestionnaire » or « Inscription QR »). Each view is written to `/journal`.
-  - `report.fill`: `/comptes-rendus/nouveau?intervention=INC-0001` (identification pre-filled from dispatch, grey).
+  - `report.fill`: `/comptes-rendus/nouveau?intervention=<id>` (identification pre-filled from dispatch, grey;
+    unknown id → 404 + `#form-error`). Start there with the incident id rather than from the list's button.
     Textareas labelled « Chronologie : », « Moyens engagés : », « Victimes : », « Observations : » (names
     `chronologie`, `moyens`, `victimes`, `observations`). « Enregistrer » (`#btn-enregistrer`, also at the top) →
     `/comptes-rendus/CR-0001`, `#cr-etat` = « Brouillon » → « Transmettre » (`#btn-transmettre`) → `#cr-etat` =

@@ -4,7 +4,7 @@
 <div class="panel">
   <div class="panel-title">Rapports d'intervention</div>
   <div class="panel-toolbar">
-    <a class="pbtn" href="/comptes-rendus/nouveau?intervention=INC-0001" id="btn-nouveau">Nouveau compte rendu</a>
+    <a class="pbtn" href="/comptes-rendus/nouveau{{ '?intervention=' ~ newest if newest }}" id="btn-nouveau">Nouveau compte rendu</a>
   </div>
   <div class="list-layout">
     <div class="list-main">

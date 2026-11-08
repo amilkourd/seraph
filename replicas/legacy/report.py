@@ -53,18 +53,30 @@ app = replica.app
 login = Depends(replica.operator)
 
 
-def dispatch_incident(inc_id: str) -> dict:
-    """Identification fields come from the dispatch software, read-only (« champs grisés »)."""
+def dispatch_row(sql: str, args: tuple = ()) -> sqlite3.Row | None:
+    """One row of the dispatch software's database, read-only. None if it isn't there."""
     path = DATA / "dispatch.db"
     if not path.exists():
-        return {}
+        return None
     try:
         conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=2)
         conn.row_factory = sqlite3.Row
-        row = conn.execute("SELECT address, commune, nature, declared_at FROM incidents WHERE id=?", (inc_id,)).fetchone()
+        row = conn.execute(sql, args).fetchone()
         conn.close()
     except sqlite3.Error:
-        return {}
+        return None
+    return row
+
+
+def newest_open_incident() -> str:
+    """The incident « Nouveau compte rendu » opens: the newest « En cours » in dispatch, else none."""
+    row = dispatch_row("SELECT id FROM incidents WHERE status='En cours' ORDER BY declared_at DESC LIMIT 1")
+    return row["id"] if row else ""
+
+
+def dispatch_incident(inc_id: str) -> dict:
+    """Identification fields come from the dispatch software, read-only (« champs grisés »). {} if unknown."""
+    row = dispatch_row("SELECT address, commune, nature, declared_at FROM incidents WHERE id=?", (inc_id,))
     if not row:
         return {}
     address, commune = row["address"], row["commune"] or ""
@@ -91,7 +103,8 @@ def reports(request: Request, etat: str = "", numero: str = "", user: str = logi
         args += [f"%{numero.strip()}%"] * 2
     with store.connect() as conn:
         rows = [dict(r) for r in conn.execute(sql + " ORDER BY created_at DESC LIMIT 100", args)]
-    return replica.render(request, "report/list.html", rows=rows, etat=etat, numero=numero, states=[DRAFT, SENT])
+    return replica.render(request, "report/list.html", rows=rows, etat=etat, numero=numero, states=[DRAFT, SENT],
+                          newest=newest_open_incident())
 
 
 def form_context(values: dict, error: str | None = None) -> dict:
@@ -101,8 +114,15 @@ def form_context(values: dict, error: str | None = None) -> dict:
 @app.get("/comptes-rendus/nouveau", response_class=HTMLResponse)
 def new_form(request: Request, intervention: str = "", user: str = login):
     inc_id = intervention.strip().upper()
-    values = {"id": None, "incident_id": inc_id, "author": user, "fonction": "COS", **dispatch_incident(inc_id)}
-    return replica.render(request, "report/form.html", **form_context(values))
+    ident = dispatch_incident(inc_id) if inc_id else {}
+    values = {"id": None, "incident_id": inc_id, "author": user, "fonction": "COS", **ident}
+    error = unknown(inc_id) if inc_id and not ident else None
+    return replica.render(request, "report/form.html", status_code=404 if error else 200,
+                          **form_context(values, error))
+
+
+def unknown(inc_id: str) -> str:
+    return f"Intervention {inc_id} inconnue dans le logiciel d'alerte."
 
 
 def read_form(incident_id: str, fonction: str, sections: dict[str, str]) -> tuple[dict, str | None]:
@@ -111,6 +131,8 @@ def read_form(incident_id: str, fonction: str, sections: dict[str, str]) -> tupl
               **{k: v.strip() for k, v in sections.items()}}
     if not INCIDENT_RE.fullmatch(inc_id):
         return values, "N° d'intervention invalide (format INC-0000)."
+    if not dispatch_incident(inc_id):
+        return values, unknown(inc_id)
     return values, None
 
 

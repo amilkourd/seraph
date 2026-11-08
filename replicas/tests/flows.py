@@ -102,10 +102,18 @@ def dispatch_new(page: Page) -> dict:
     out = newest_open(page)
     assert out["incident_id"] == created and created != "INC-0001", (created, out)
     assert {k: out[k] for k in judge} == judge and out["commune"] == "Paris", out
+    page.goto(REPORT + "/comptes-rendus")                 # « Nouveau compte rendu » follows the newest open incident
+    page.locator("#btn-nouveau").click()
+    page.wait_for_url("**/comptes-rendus/nouveau*")
+    report_for = page.input_value("#intervention")
+    shot(page, "report-new-judge")
+    unknown = page.goto(REPORT + "/comptes-rendus/nouveau?intervention=INC-0099").status
+    assert report_for == created and unknown == 404, (report_for, unknown)
     reset(DISPATCH)
     back = newest_open(page)
     assert back["incident_id"] == "INC-0001" and back["address"] == env("DEMO_ADDRESS"), back
-    return {"created": created, "newest_open": out["incident_id"], "after_reset": back["incident_id"]}
+    return {"created": created, "newest_open": out["incident_id"], "report_for": report_for,
+            "unknown_incident": unknown, "after_reset": back["incident_id"]}
 
 
 def occupants_list(page: Page) -> dict:
