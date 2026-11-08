@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr" data-view-id="view_approach_1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>approach</title>
+<link rel="stylesheet" href="{{HALO_KIT_URL}}/halo.css">
+<script src="{{HALO_KIT_URL}}/halo-kit.js"></script>
+</head>
+<body>
+<script>
+/* Moment « approach » — « Par où j'entre ». One idea: the arrow from the street onto the entrance to take.
+ * Top view, outside only: the footprint white (where we go), the entrances of this frame, the arrow. One frame
+ * only, the model's ground-floor frame (levels[RDC].outline, else the hull of the RDC rooms): entrances, truck and
+ * hydrant are drawn only when their point is on that frame, otherwise they are words in the card. Stair, fire and
+ * the rest of the inside go in the card. Nothing is placed that the state does not place. */
+const f = Halo.frame(document.body, { title: "Par où j'entre" });
+const B = { x: 185, y: 116, w: 270, h: 170 };      // schematic building, scene units (no model)
+let mode = '';
+
+function sideDoor(e, i, n) {
+  const t = (i + 1) / (n + 1);
+  return { front: [B.x + B.w * t, B.y + B.h], rear: [B.x + B.w * t, B.y], left: [B.x, B.y + B.h * t], right: [B.x + B.w, B.y + B.h * t] }[e.side];
+}
+// an entrance not to take: blocked, or opening onto a stair / room in smoke or fire
+function badEntrance(b, e) {
+  if (e.status === 'blocked' || e.status === 'locked') return true;
+  const parts = (e.leads_to || '').split(':');
+  if (parts[0] === 'stair') return (Halo.byId(b.stairs, parts[1]) || {}).status === 'smoke';
+  return b.hazards.some(h => (h.where.room && 'room:' + h.where.room === e.leads_to) || (h.where.entrance === e.id));
+}
+
+function draw(s) {
+  f.clear();
+  const b = s.building, ifc = !!b.model;
+  if ((ifc ? 'ifc' : 'schematic') !== mode) { mode = ifc ? 'ifc' : 'schematic'; Halo.scene(f.svg, ifc ? {} : { rotate: -45, cx: 300 }); }
+  const best = Halo.byId(b.entrances, b.approach && b.approach.best_entrance_id);
+
+  // the footprint and the doors, on one frame: the ground floor of the model
+  let foot, door = {}, frame = null, rings = [];
+  if (ifc) {
+    const lvl = b.levels.find(l => l.level === 0) || {};
+    const plans = (b.model.level_plans || []).find(p => p.level === 0);
+    frame = plans ? plans.image_id : null;
+    rings = (lvl.outline || []).map(x => x && x.outer ? x.outer : x).filter(r => Array.isArray(r) && r.length >= 3);
+    const size = r => { const a = Halo.area(r).box; return a.w * a.h; };
+    rings.sort((x, y) => size(y) - size(x));
+    foot = rings[0] || Halo.hull(b.rooms.filter(r => r.level === 0 && r.zone).flatMap(r => r.zone));
+    b.entrances.forEach(e => { if (e.plan_point && e.plan_point.image_id === frame) door[e.id] = [e.plan_point.x, e.plan_point.y]; });
+  } else {
+    foot = [[B.x, B.y], [B.x + B.w, B.y], [B.x + B.w, B.y + B.h], [B.x, B.y + B.h]];
+    const sides = [...new Set(b.entrances.map(e => e.side))];
+    sides.forEach(side => b.entrances.filter(e => e.side === side).forEach((e, i, all) => { door[e.id] = sideDoor(e, i, all.length); }));
+  }
+  if (!foot || foot.length < 3) { card(s, best, null, null); return; }
+  const c = Halo.centroid(foot);
+
+  // the arrow: from the street side, straight onto the chosen door, away from the building's centre
+  let start = null, out = null;
+  if (best && door[best.id]) {
+    const d = door[best.id], dx = d[0] - c.x, dy = d[1] - c.y, l = Math.hypot(dx, dy) || 1;
+    out = { x: dx / l, y: dy / l };
+    start = [d[0] + out.x * (ifc ? 300 : 150), d[1] + out.y * (ifc ? 300 : 150)];
+  }
+  const sameFrame = p => p && (!frame ? false : p.image_id === frame);
+  const truck = b.truck_spot && sameFrame(b.truck_spot.point) ? [b.truck_spot.point.x, b.truck_spot.point.y] : null;
+  const pei = (b.hydrants || []).find(h => sameFrame(h.point));
+
+  const P = ifc
+    ? Halo.plan(f.svg, { box: Halo.AREA, frame: false, zones: [foot].concat(rings.slice(1)).map((z, i) => ({ id: 'building' + i, zone: z, state: 'target' })),
+        points: Object.values(door).concat(start ? [start] : [], truck ? [truck] : []) }).project
+    : (p => ({ x: p[0], y: p[1] }));
+  if (!ifc) Halo.block(f.svg, foot, { state: 'target' });
+
+  if (start) Halo.arrow(f.svg, [start, door[best.id]].map(P), { width: 10, gap: 26, speed: 60 });
+  if (truck) Halo.marker(f.svg, 'truck', P(truck), null, { r: 18 });
+  if (pei) Halo.marker(f.svg, 'hydrant', P([pei.point.x, pei.point.y]), null, { r: 16 });
+
+  // entrances: the chosen one big and pinged, the others dimmed; crossed only when they lead to danger
+  b.entrances.filter(e => door[e.id]).slice(0, 3).forEach(e => {
+    const chosen = best && e.id === best.id, bad = badEntrance(b, e);
+    const side = out && chosen ? (Math.abs(out.y) > Math.abs(out.x) ? (out.y > 0 ? 's' : 'n') : (out.x > 0 ? 'e' : 'w')) : 's';
+    Halo.marker(f.svg, 'door', P(door[e.id]), e.id, {
+      r: chosen ? 22 : 15, big: chosen, ping: chosen, crossed: !chosen && bad, tone: chosen ? 'ink' : 'dim',
+      at: side, tap: { kind: 'entrance', id: e.id } });
+  });
+
+  card(s, best, pei, truck);
+}
+
+// the card: the key line, then what to know inside, then what stays outside the frame
+function card(s, best, pei, truck) {
+  if (!best) return;
+  const b = s.building;
+  const route = (s.routes || []).find(r => r.purpose === 'approach');
+  const stairId = route && (route.via.find(n => n.indexOf('stair:') === 0) || '').split(':')[1];
+  const stair = stairId && Halo.byId(b.stairs, stairId);
+  const fire = b.hazards.find(h => h.kind === 'fire');
+  const h1 = (b.hydrants || [])[0];
+  f.panel([
+    { text: 'Entrez par ' + best.id },
+    stair && (stair.status === 'smoke' ? { tone: 'warn', text: 'Esc. ' + stairId + ' fumée' } : { text: 'Montez esc. ' + stairId }),
+    fire && { tone: 'fire', text: 'Feu ' + Halo.levelLabel(s, fire.where.level) },
+    !pei && h1 && h1.distance_m ? { tone: 'water', text: 'PEI ' + h1.distance_m + ' m' } : null
+  ]);
+}
+
+Halo.onState(draw);
+Halo.ready();
+</script>
+</body>
+</html>

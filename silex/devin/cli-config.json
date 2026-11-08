@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(node halo/kit/check-view.mjs)",
+      "Exec(ls)",
+      "Exec(cat)",
+      "Exec(head)",
+      "Exec(wc)",
+      "Exec(jq)"
+    ],
+    "deny": [
+      "Read(.env*)",
+      "Read(**/.env*)",
+      "Write(.env*)",
+      "Write(**/.env*)",
+      "Exec(rm)",
+      "Exec(sudo)",
+      "Exec(git)",
+      "Exec(curl)",
+      "Exec(wget)",
+      "Write(brand/**)",
+      "Write(briefs/**)",
+      "Write(contracts/**)",
+      "Write(dashboard/**)",
+      "Write(docs/**)",
+      "Write(eval/**)",
+      "Write(gabriel/**)",
+      "Write(halo/**)",
+      "Write(ifc/**)",
+      "Write(registry/**)",
+      "Write(replicas/**)",
+      "Write(rosetta/**)",
+      "Write(seraph/**)",
+      "Write(setup/**)",
+      "Write(status/**)",
+      "Write(talkie/**)",
+      "Write(tools/**)",
+      "Write(views/**)",
+      "Write(silex/silex/**)",
+      "Write(silex/devin/**)",
+      "Write(silex/pyproject.toml)",
+      "Write(*.md)"
+    ]
+  }
+}

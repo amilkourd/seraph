@@ -1,0 +1,58 @@
+{
+ "view_id": "view_approach_1",
+ "moment": "approach",
+ "title_fr": "Par où j'entre",
+ "purpose_fr": "Par où j'entre : bloc vu du dessus, rue, camion, flèche vers E1, hydrant",
+ "data_keys": [
+  "building.entrances",
+  "building.approach",
+  "building.hydrants",
+  "building.truck_spot",
+  "building.stairs",
+  "building.rooms",
+  "building.levels",
+  "building.model",
+  "routes"
+ ],
+ "references": [
+  "sv-front-01",
+  "sv-left-01",
+  "earth-left-01",
+  "earth-rear-01",
+  "earth-top-01",
+  "ifc-L-1",
+  "ifc-L0",
+  "ifc-L1",
+  "ifc-L2",
+  "ifc-L3"
+ ],
+ "built_by": "devin",
+ "devin_session_url": null,
+ "transport": "cli",
+ "model": "opus",
+ "devin_cli_session": "acoustic-dragon",
+ "created_at": "2026-11-08T04:06:48.645Z",
+ "request_id": "req_01M6WMHB8AR71AHV03ZCNYM498",
+ "request_to_view_ms": 107126,
+ "attempts": 1,
+ "late": false,
+ "notes": "Top view of the ground-floor IFC footprint in white with the animated arrow coming from the street onto E1 (pinged, the only entrance on the ifc-L0 frame), and a card: Entrez par E1, Montez esc. A, Feu R+3.",
+ "references_used": [
+  {
+   "image": "ifc-L0.svg",
+   "image_id": "ifc-L0",
+   "caption": "Plan IFC niveau 0",
+   "side": "plan",
+   "took": "the ground-floor footprint drawn in the view: the big slab outline plus the stair-hall block at the bottom centre (x 525-656, y 639-744) and the narrow annex going down the right edge; E1's plan_point (497,775) sits just outside that bottom edge, so the approach arrow comes from the south and the door faces the street",
+   "url": "http://172.16.0.13:8002/views/view_approach_1/refs/ifc-L0.svg"
+  },
+  {
+   "image": "ifc-L3.svg",
+   "image_id": "ifc-L3",
+   "caption": "Plan IFC niveau 3",
+   "side": "plan",
+   "took": "confirmed the building has one stair only, ESC A, at the bottom centre of the plan right above E1, with circulation 3.03 beside it and 3.T Buanderie / 3.12 Chambre on the left: the card sends the crew up stair A from E1 and no stair B exists",
+   "url": "http://172.16.0.13:8002/views/view_approach_1/refs/ifc-L3.svg"
+  }
+ ]
+}
