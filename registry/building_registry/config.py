@@ -24,7 +24,7 @@ def _load_dotenv(path: Path) -> dict[str, str]:
         if val[:1] in ("'", '"') and val[-1:] == val[:1] and len(val) >= 2:
             val = val[1:-1]
         else:
-            val = re.split(r"\s+#", val, maxsplit=1)[0].strip()
+            val = re.split(r"(?:^|\s+)#", val, maxsplit=1)[0].strip()   # `KEY=   # comment` is empty
         out[key] = val
     return out
 
