@@ -17,7 +17,7 @@ Halo (phone A) ◄──views+state── Gladia, TTS,     catches, gate,       
 ```
 
 Red line of the product: **our own apps talk by API; Rosetta only touches software we don't own.** Computer use
-on our own software would be fake, and the jury would see it.
+on our own software would be fake, and anyone watching would see it.
 
 ## Responsibilities
 
@@ -63,7 +63,7 @@ state to it (`postMessage`), forwards taps back to Seraph, shows alerts itself, 
 fallback view (no Devin needed). Owns the **Halo kit** (`halo/kit/`) that Devin's views use.
 
 **Talkie (`talkie/`, Next.js :3000)** — push-to-talk crew radio on LiveKit (`crew` room) for phone B, plus the
-occupant web-call page `/call` (fallback for real phone calls) and `/qr` (judges opt in as occupants).
+occupant web-call page `/call` (fallback for real phone calls) and `/qr` (participants opt in as occupants).
 
 **Replicas (`replicas/`)** — three old-school web apps with **no API** that stand for systems fire services and
 building managers already run: dispatch (:8101), report (:8102), building manager / occupants (:8103).
@@ -97,7 +97,7 @@ sequenceDiagram
 ### 2. Calls in and out → crew
 ```mermaid
 sequenceDiagram
-  participant C as Caller (judge phone)
+  participant C as Caller (participant phone)
   participant G as Gabriel call agent
   participant S as Seraph
   participant R as Rosetta
@@ -142,5 +142,5 @@ answer spoken (tagged « source non vérifiée ») → Silex has Devin compile t
 ## Mock mode
 Every service starts with `MOCK=1` and only reads `contracts/fixtures/`. `seraph` can replay fixtures
 (`POST /admin/replay`), so the dashboard and Halo can be built before voice or computer use works. The demo keeps a
-"golden path" cache: each Rosetta endpoint result for the demo address is cached after the first good live run, but
+"golden path" cache: each Rosetta endpoint result for the reference address (`DEMO_ADDRESS`) is cached after the first good live run, but
 the dashboard always shows whether a result is **live** or **cached**. Never fake agent steps.

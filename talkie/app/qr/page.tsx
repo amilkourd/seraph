@@ -1,5 +1,5 @@
 // `/qr` — a big QR to the occupants replica's public opt-in page (`OCCUPANTS_PUBLIC_URL` + `/inscription`).
-// Judges scan it, sign up, and Rosetta reads them back through the screen (`occupants.list`).
+// Visitors scan it, sign up, and Rosetta reads them back through the screen (`occupants.list`).
 // `?url=https://…` overrides the env for a quick fix on stage.
 import { Suspense } from "react";
 import type { Metadata } from "next";

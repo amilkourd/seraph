@@ -1,0 +1,172 @@
+# Seraph stack: one container per backend service.
+#   cp .env.example .env              # keys; secrets are read at run time, never baked into an image
+#   docker compose up --build         # backend: seraph, rosetta, silex, gabriel ×2, replicas, halo kit server
+#   MOCK=1 docker compose up --build  # no API key: every service on contracts/fixtures/
+#   docker compose --profile web up   # also the dashboard (:3002) and the talkie (:3000)
+#
+# Inside the network, services reach each other by name (http://seraph:8000 …). Each service keeps its own
+# public URL from .env (SERAPH_URL, ROSETTA_URL, SILEX_PUBLIC_URL), because browsers and phones use it.
+
+name: seraph
+
+x-python: &python
+  env_file: .env
+  restart: unless-stopped
+  build: &python-build
+    context: .
+    dockerfile: docker/python.Dockerfile
+
+x-health: &health
+  interval: 15s
+  timeout: 5s
+  retries: 5
+  start_period: 30s
+
+services:
+  seraph:
+    <<: *python
+    build:
+      <<: *python-build
+      args: { SERVICE: seraph }
+    command: [".venv/bin/seraph"]
+    ports: ["8000:8000"]
+    environment:
+      MOCK: ${MOCK:-0}
+      ROSETTA_URL: http://rosetta:8001
+      SILEX_URL: http://silex:8002
+      DISPATCH_URL: http://replicas:8101
+      REPORT_URL: http://replicas:8102
+      OCCUPANTS_URL: http://replicas:8103
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+
+  rosetta:
+    <<: *python
+    build:
+      <<: *python-build
+      args: { SERVICE: rosetta, BROWSER: "1" }
+    command: [".venv/bin/rosetta"]
+    ports: ["8001:8001"]
+    shm_size: 1gb
+    environment:
+      MOCK: ${MOCK:-0}
+      ROSETTA_HEADLESS: "1"
+      SERAPH_URL: http://seraph:8000
+      DISPATCH_URL: http://replicas:8101
+      REPORT_URL: http://replicas:8102
+      OCCUPANTS_URL: http://replicas:8103
+    volumes:
+      - rosetta-shots:/app/rosetta/shots
+      - rosetta-cache:/app/rosetta/cache
+      - rosetta-profiles:/app/rosetta/profiles
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=3)"]
+
+  silex:
+    <<: *python
+    build:
+      <<: *python-build
+      args: { SERVICE: silex, BROWSER: "1" }
+    command: [".venv/bin/silex"]
+    ports: ["8002:8002"]
+    shm_size: 512mb
+    environment:
+      MOCK: ${MOCK:-0}
+      SERAPH_URL: http://seraph:8000
+      ROSETTA_URL: http://rosetta:8001
+      SILEX_PUBLIC_URL: ${SILEX_PUBLIC_URL:-http://localhost:8002}
+      DEVIN_TRANSPORT: api
+    volumes:
+      - silex-runtime:/app/silex/runtime
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=3)"]
+
+  gabriel-radio:
+    <<: *python
+    build:
+      <<: *python-build
+      args: { SERVICE: gabriel }
+    image: seraph-gabriel
+    command: [".venv/bin/gabriel-radio"]
+    environment: &gabriel-env
+      MOCK: ${MOCK:-0}
+      SERAPH_URL: http://seraph:8000
+      SERAPH_WS_URL: ws://seraph:8000
+    depends_on:
+      seraph: { condition: service_healthy }
+
+  gabriel-calls:
+    <<: *python
+    build:
+      <<: *python-build
+      args: { SERVICE: gabriel }
+    image: seraph-gabriel
+    command: [".venv/bin/gabriel-calls", "start"]
+    environment: *gabriel-env
+    depends_on:
+      seraph: { condition: service_healthy }
+
+  replicas:
+    <<: *python
+    build:
+      <<: *python-build
+      args: { SERVICE: replicas }
+    command: [".venv/bin/python", "run.py"]
+    # Host side bound to 127.0.0.1: inside the network every peer is trusted (REPLICAS_ALLOW_REMOTE),
+    # so the replicas are never published beyond this machine.
+    ports: ["127.0.0.1:8101:8101", "127.0.0.1:8102:8102", "127.0.0.1:8103:8103"]
+    environment:
+      MOCK: ${MOCK:-0}
+      REPLICAS_HOST: 0.0.0.0
+      REPLICAS_ALLOW_REMOTE: "1"
+      REPLICAS_DATA: /data
+    volumes:
+      - replicas-data:/data
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8101/health', timeout=3)"]
+
+  halo:
+    build:
+      context: .
+      dockerfile: docker/halo.Dockerfile
+    restart: unless-stopped
+    ports: ["3001:3001"]
+
+  dashboard:
+    profiles: [web]
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args: { APP: dashboard }
+    env_file: .env
+    restart: unless-stopped
+    ports: ["3002:3002"]
+    environment:
+      MOCK: ${MOCK:-0}
+      SERAPH_URL: http://seraph:8000
+      ROSETTA_URL: http://rosetta:8001
+      SILEX_URL: http://silex:8002
+
+  talkie:
+    profiles: [web]
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args: { APP: talkie }
+    env_file: .env
+    restart: unless-stopped
+    ports: ["3000:3000"]
+    environment:
+      MOCK: ${MOCK:-0}
+      SERAPH_URL: http://seraph:8000
+
+volumes:
+  rosetta-shots:
+  rosetta-cache:
+  rosetta-profiles:
+  silex-runtime:
+  replicas-data:

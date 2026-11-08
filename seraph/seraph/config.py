@@ -56,7 +56,7 @@ class Settings:
     building_json: Path
     plan_image_path: Path
     ari_time_factor: float
-    ari_enabled: bool              # air tracking (exit_by, T-5 / T-0, « Mon air » view). Off for the demo (Amil, 06:40)
+    ari_enabled: bool              # air tracking (exit_by, T-5 / T-0, « Mon air » view). Off by default (roadmap)
     llm_base_url: str
     llm_api_key: str
     llm_model: str

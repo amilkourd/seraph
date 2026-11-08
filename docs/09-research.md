@@ -24,7 +24,7 @@
   (calls both ways), the wrist device, Devin building views live.
 - Source: https://github.com/omorros/Lantern · event https://luma.com/london-summer-lock-in
 
-## Firefighter / emergency hackathon winners (patterns)
+## Firefighter / emergency prior art (patterns)
 | Event | Project | Prize | Idea |
 |---|---|---|---|
 | Cal Hacks 13 (Oct 2026) | Standard Response | 7 prizes | Voice agent calls every home in a wildfire zone; Eaton Fire replay 641/662 vs 39 households; « never says help is coming until a driver accepts » |
@@ -35,8 +35,8 @@
 | ElevenLabs Global (Dec 2025) | Sentinel | Global winner | Disaster distress-call voice agent, multilingual |
 | UC Berkeley AI (2024) | DispatchAI | Grand prize | 911 copilot, human makes the final call |
 | Runner H (H × DEV, 2025) | CrisisCopilot | $500 | The only computer-use winner found, small |
-Patterns: real disaster + hard number; judges take part; two screens (field + command); human in charge enforced in
-code; sponsor stacking. Computer use is almost absent → our opening.
+Patterns: real disaster + hard number; participants join in; two screens (field + command); human in charge enforced in
+code; partner tools stacked. Computer use is almost absent → our opening.
 Sources: devpost.com/software/standard-response · /fireflai · /containos · /onics · /dispatch-ai ·
 news.ucsc.edu/2025/11/ai-solutions-wildfire-mitigation-reboot-the-earth-hackathon/ ·
 dev.to/devteam/congrats-to-the-runner-h-ai-agent-prompting-challenge-winners-3aap

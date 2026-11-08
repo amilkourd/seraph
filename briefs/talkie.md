@@ -4,7 +4,7 @@ Read first: `CLAUDE.md`, `contracts/README.md` (LiveKit rooms, data topics), `co
 
 ## Goal
 1. `/` — the crew radio on phone B: one screen, one huge button, it must feel like a radio.
-2. `/call?occ=<id>` — web call page for occupants (fallback for real phone calls, and for judges).
+2. `/call?occ=<id>` — web call page for occupants (fallback for real phone calls, and for visitors).
 3. `/qr` — shows the QR code to the occupants replica's `/inscription` page (env `OCCUPANTS_PUBLIC_URL`).
 
 ## Crew radio (`/`)

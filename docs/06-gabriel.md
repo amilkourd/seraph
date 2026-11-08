@@ -66,10 +66,10 @@ transcript to the LLM history; the LLM writes `free_text_fr`) · named entities 
   `place_calls` entry, create room `call-<id>`, dispatch a call agent, `CreateSIPParticipant` to the number.
 - **Inbound** (the incident's 112 line): a Twilio number → LiveKit SIP inbound trunk → dispatch rule → new room
   `call-<id>` + call agent; Gabriel sends `call_event` (direction `in`).
-- Twilio trial accounts only call verified numbers: use a paid account, or verify the judges' numbers, or fall back
+- Twilio trial accounts only call verified numbers: use a paid account, or verify the visitors' numbers, or fall back
   to web calls.
 - Exact steps change: follow LiveKit's telephony docs via Context7 and write what you did in `status/gabriel.md`.
-- **Fallback:** web calls. The talkie's `/call?occ=…` page joins `call-<id>` from the judge's browser; same agent.
+- **Fallback:** web calls. The talkie's `/call?occ=…` page joins `call-<id>` from the visitor's browser; same agent.
 
 ## Metrics to log
 `eot → transcript sent` · `call fact → crew say` · `say queued → spoken`. Seraph turns them into `metric` events.

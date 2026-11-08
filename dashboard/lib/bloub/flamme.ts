@@ -1,4 +1,4 @@
-// Seraph's flame for the judges' tour: the Bloub engine (copied as is, see README.md) with a flame body. Seraph means
+// Seraph's flame for the guided tour: the Bloub engine (copied as is, see README.md) with a flame body. Seraph means
 // "the burning one". Only this file is ours in lib/bloub/.
 import { PROFILE_SAMPLES } from "./profiles";
 import { hullOfCircles, profileFromPolygon } from "./shape";

@@ -45,11 +45,11 @@ dispatch.read 5.2 s → in parallel occupants.list 4.9 s · plan.read 6.2 s (lev
 georisques.risks 18.1 s · maps.building 37.9 s (2 entrances, 4 views → « Approche calculée : E1 … »). A first start
 just before: 9.3 / 4.2 / 8.8 / 19.6 / 20.0 / 41.6 s, all live. Cams on the dashboard grid (checked live).
 
-**Judge's address (any address ≠ `DEMO_ADDRESS`, 07:00, test instance :8011)**: maps.building, georisques.risks,
+**Visitor's address (any address ≠ `DEMO_ADDRESS`, 07:00, test instance :8011)**: maps.building, georisques.risks,
 weather.wind run live only: no golden path written or served (`cache_scope`: demo address / `DEMO_TOWN` only).
 1 place Bellecour, 69002 Lyon: weather 16.9 s (SSE 5 km/h) · Géorisques 23.8 s (9 risks incl. rupture de barrage) ·
 Maps 38.5 s (E1 + truck on the top view, 3 Street View, 5 storeys; roof outline rejected by the checks). An address
-not in the BAN fails visibly in 1.9 s. A failed live run at a judge's address = `failed`, never another address's cache.
+not in the BAN fails visibly in 1.9 s. A failed live run at a visitor's address = `failed`, never another address's cache.
 Maps golden path keeps the roof outline: a live demo-address run without `footprint` never replaces a cached result that has one (`cache_rank`; the run itself is still served live). Restored 10:35 from the 06:05 UTC run (14-vertex outline, E1/E2/truck on `earth-top-01`) after a 09:43 run without outline had overwritten it.
 Result URLs are now per run (`/shots/<run_id>--<image_id>.jpg`, never overwritten); `/shots/<image_id>.jpg` stays the
 demo golden path (updated only by demo-address runs). Cache serve copies its own `cache--…` files.
@@ -66,7 +66,7 @@ demo golden path (updated only by demo-address runs). Cache serve copies its own
 -
 
 ## Requests (to other sessions or Amil)
-- @seraph: for a judge's address, send `weather.wind` the dispatch `commune` (not `DEMO_TOWN`), and skip `plan.read` when there is no model and no posted plan for that address.
+- @seraph: for a visitor's address, send `weather.wind` the dispatch `commune` (not `DEMO_TOWN`), and skip `plan.read` when there is no model and no posted plan for that address.
 - Amil / H staff: the H key's quota is ~30 calls per minute window **per model** (measured). Rosetta paces each model
   and spreads load (agent: holo4-35b-a3b then holo4-27b; pointing: holo4-27b, holo3-1-35b-a3b). A higher quota on
   holo4-35b-a3b would make the stage run safer, especially if another session uses the same key.

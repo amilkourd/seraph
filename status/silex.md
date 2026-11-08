@@ -54,7 +54,7 @@ Updated: 07:15
 - Fallback when Devin answers in its reply instead of writing the file: the last ```html block of its output.
 - Deadlines from the request; when late, `failed` « délai dépassé, Devin continue » is pushed and the view is still
   delivered as `ready` if it lands (Seraph decides whether to switch).
-- **Watch Devin build** (for the judges): local CLI sessions have no app.devin.ai link (only `--cloud` ones do), so
+- **Watch Devin build** (for the visitors): local CLI sessions have no app.devin.ai link (only `--cloud` ones do), so
   Silex serves its own live page `GET /sessions/<id>?view=<view_id>` and sends it as `devin_session_url` (in the
   `building` ViewReady already, then `ready`/`failed`); `GET /sessions` → `url` is that page for CLI sessions. The
   page polls `/sessions/<id>/data`: Silex's timeline (request, references, Devin started, « Devin écrit la vue (N

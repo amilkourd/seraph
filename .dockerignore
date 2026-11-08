@@ -1,0 +1,37 @@
+# Secrets never enter an image: services get them at run time from env_file (.env).
+.env
+.env.*
+!.env.example
+
+.git
+.github
+.claude
+.playwright-mcp
+explainer
+
+**/node_modules
+**/.next
+**/.expo
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.tsbuildinfo
+**/.DS_Store
+**/*.db
+**/*.sqlite
+
+# runtime data (named volumes in docker-compose.yml)
+seraph/state.json
+rosetta/shots
+rosetta/profiles
+rosetta/cache
+silex/runtime
+replicas/data
+gabriel/recordings
+registry/.cache
+
+# not used by any container
+halo/app
+ifc/test
+ifc/venue/photos
+views/_refs

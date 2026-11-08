@@ -15,7 +15,7 @@ Points use H's 0–1000 grid on the screenshot they refer to (`ImagePoint`).
 | 7 | `dispatch.write_112` | Dispatch replica | replica | write | 30 s | none |
 | 8 | `report.fill` | Report replica (:8102) | replica | write, gated | 120 s | none |
 
-"Golden path" = the last good **live** result for the demo address is cached; a cached answer is always marked
+"Golden path" = the last good **live** result for the reference address (`DEMO_ADDRESS`) is cached; a cached answer is always marked
 `live:false` and shown as « cache » on the dashboard. Learned endpoints are added under
 `rosetta/skills/learned/` by Silex, start as `verified:false`, and Seraph says « source non vérifiée » when using one.
 

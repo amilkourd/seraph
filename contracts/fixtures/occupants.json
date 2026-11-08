@@ -1,5 +1,5 @@
 {
-  "_comment": "Seed data for the occupants replica (building manager software). Fictional people and NON-DIALABLE numbers. Real calls only go to judges who opt in through /inscription. Rooms are real ids of the TU Wien IFC (ifc/out/building.json).",
+  "_comment": "Seed data for the occupants replica (building manager software). Fictional people and NON-DIALABLE numbers. Real calls only go to people who opt in through /inscription. Rooms are real ids of the TU Wien IFC (ifc/out/building.json).",
   "building": "Immeuble d'habitation (maquette TU Wien)",
   "occupants": [
     {

@@ -270,7 +270,7 @@ function Link({ on, building }: { on: boolean; building?: boolean }) {
   return <span className={`block h-0 w-7 flex-none border-t-2 ${on ? "border-ink" : building ? "border-dashed border-propose" : "border-dashed border-ink-3"}`} />;
 }
 
-// ───────── booth (key E): judges drive Seraph themselves, every answer shows where it comes from ─────────
+// ───────── booth (key E): visitors drive Seraph themselves, every answer shows where it comes from ─────────
 
 const PHRASES = [
   "Seraph, quelle entrée ?",
@@ -318,7 +318,7 @@ function Booth({ live }: { live: Live }) {
 }
 
 const PATH: Record<string, string> = { rules: "Règles", llm: "LLM", none: "Non reconnu" };
-// Seraph's event types (seraph/rules.py, llm.py), as the judges read them
+// Seraph's event types (seraph/rules.py, llm.py), as the visitors read them
 const EVENT: Record<string, string> = {
   hazard: "danger signalé",
   hazard_cleared: "danger levé",

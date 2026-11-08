@@ -61,5 +61,5 @@ for danger, white for key numbers. Large hit areas.
 | `approach` | first good `maps.building` + `approach` computed | « Par où j'entre » : block, street, truck spot, arrow to the chosen entrance, hydrant |
 | `inside_route` | IFC level plan or `plan.read` ready + a route to a victim or level | « Par où je monte » : plan zones, smoke shaded, arrow along the route, stair status |
 | `occupants` | 2+ calls with facts | « Qui est où » : floor stack, people per level, trapped/needs help highlighted, active ladder point (`to` of an evacuation route ending in `ladder:`) |
-| `team_engaged` | **cut** (ARI air tracking, post-hackathon; `ARI_ENABLED` off) | was « Mon air » : team cards, countdown to exit_by, alarm at T-5 min |
+| `team_engaged` | **cut** (ARI air tracking, roadmap; `ARI_ENABLED` off) | was « Mon air » : team cards, countdown to exit_by, alarm at T-5 min |
 | `commander_request` | radio « Seraph, il me faut … sur Halo » | whatever was asked, same rules |

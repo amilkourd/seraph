@@ -6,7 +6,7 @@ Read first: `SYSTEM.md`, `CLAUDE.md`, `docs/10-ifc.md` (the design you implement
 ## Goal
 Turn a building's IFC into what the rest of Seraph uses: `ifc/out/building.json` (the `Building` contract, with
 `graph`, `doors`, `materials`, `model`), one SVG plan per level, a 3D `building.glb`. And, since no open IFC of a
-real French building exists, produce the IFC of the hackathon venue from its posted plans.
+real French building exists, produce the IFC of the reference venue from its posted plans.
 
 ## Steps
 1. `uv` project in `ifc/` with `ifcopenshell`, `trimesh`, `numpy`, `pyyaml`, `shapely`.

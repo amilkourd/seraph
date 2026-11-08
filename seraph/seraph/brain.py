@@ -545,7 +545,7 @@ class Brain:
         inc.address = settings.demo_address or inc.address
         self.log("seraph", f"Incident {inc.id} déclenché (exercice).")
         self.show_moment("dispatch", explicit=True)
-        # no id asked → Rosetta reads the newest open incident (a judge's INC-0002 at any address); its id and address
+        # no id asked → Rosetta reads the newest open incident (a visitor's INC-0002 at any address); its id and address
         # are adopted when dispatch.read lands
         self.rosetta("dispatch.read", {"incident_id": incident_id} if incident_id else {}, priority=10)
         self.open_gate("relay_order",
@@ -659,7 +659,7 @@ class Brain:
             addr = settings.demo_address or addr
         inc.address = addr
         if addr and not same_address(addr, self.kit_address):
-            self._building_for(addr, inc.id)       # a judge's address: its own model, or « pas de maquette »
+            self._building_for(addr, inc.id)       # a visitor's address: its own model, or « pas de maquette »
         inc.nature = out.get("nature") or inc.nature
         if out.get("level") is not None:
             inc.origin = Origin(floor=int(out["level"]), room=inc.origin.room if inc.origin else None)

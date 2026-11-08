@@ -107,7 +107,7 @@ Updated: 10:53
   id, level, stair (or room); team callouts read « → engagé ». « Vues Halo » skips team_engaged requests; keys 1–4
   force a Halo moment (team_engaged gone); the mock no longer speaks R03's exit-time line. Air alarms only ever came
   from Seraph's alerts, which Seraph stops sending.
-- Jury booth (Amil's plan, via the Seraph review): key E swaps the left panel for « Essayez »: the 5 phrases, the QR
+- Visitor booth (Amil's plan, via the Seraph review): key E swaps the left panel for « Essayez »: the 5 phrases, the QR
   to the occupants' `/inscription` (from `OCCUPANTS_PUBLIC_URL`; « Lien absent » box when it is empty, never a fake
   QR), the COS decision card if a gate is pending, and each speaker's last line (most recent first, 3 max): the
   transcript, Règles / LLM / Non reconnu and the time from end of speech to Seraph's answer (`metric` voice_to_say:
@@ -118,10 +118,10 @@ Updated: 10:53
 - LIVE vs REJEU: a pill left of the screen button, always on screen in both views: Live (green) · Rejeu (amber,
   amber border: Seraph /health `replay` is anything but "idle", i.e. from a replay's start until the next reset) ·
   Mock · Hors ligne · Connexion. `/api/health` passes Seraph's `replay` through. The panel's old Mock chip is gone.
-- « Lancer l'incident » (Amil, for the demo): a white pill under the title, only while `incident.status` is idle or
+- « Lancer l'incident » (Amil, for live runs): a white pill under the title, only while `incident.status` is idle or
   closed; POST Seraph `/incident/start` `{}` (same as key D), gone as soon as the incident is declared. Rendered
   live at idle; not clicked against the shared Seraph (rehearsals).
-- « Ce que fait Seraph » (Amil, for the jury): a panel top right of the main view (x 1592–1896, under the badge,
+- « Ce que fait Seraph » (Amil, for viewers): a panel top right of the main view (x 1592–1896, under the badge,
   right of the callout column). First what runs now, pulsing: Rosetta endpoints `running` (said in French per
   endpoint), Gabriel's calls in one line (« En ligne avec 6 personnes, appelle Léa Martin… »), Silex view requests
   `requested`/`building`. Then Seraph's `timeline` newest first, radio lines left out (the captions show them),
@@ -150,7 +150,7 @@ Updated: 10:53
   left and shows whole cards only, newest first (column-wrap + overflow hidden). Checked on a mock copy (:3012,
   fixture state, then a 94-char title, « Désincarcération », three seeded turns) and live on :3002.
 
-- Judges' tour (Amil, from the « Démo avec les jurys » session, 13:05): `components/Tour.tsx` + `components/Flamme.tsx`.
+- Guided tour (Amil, from a walkthrough session, 13:05): `components/Tour.tsx` + `components/Flamme.tsx`.
   First visit in a browser on the public replay → « Bienvenue sur Seraph », then 9 steps; white corner target that
   breathes; the flame (Bloub engine, MIT, copied in `lib/bloub/`, flame body in `flamme.ts`) takes each module's
   colour, eyes always wide open and on the cursor. Live projector: only with `?tour` or key T. Anchors: `data-tour`

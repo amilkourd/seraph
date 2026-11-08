@@ -6,7 +6,7 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
 - radio: `cd gabriel && uv run gabriel-radio` — joins LiveKit `crew` as `Seraph`, restarts itself after a crash or a
   lost room; a second radio takes over and the first stops (never two). Fallback: `GABRIEL_LOCAL_SPEAKER=1` also
   plays every crew say on the laptop speaker.
-- calls: `cd gabriel && uv run gabriel-calls start` (`dev` = hot reload, don't use it for the demo) — LiveKit Agents
+- calls: `cd gabriel && uv run gabriel-calls start` (`dev` = hot reload, don't use it for live runs) — LiveKit Agents
   worker, agent name `gabriel-call`, 6 warm processes (`GABRIEL_IDLE_PROCS`), one process per call, health server on a
   random port (`GABRIEL_HTTP_PORT`; 8081 is taken by a node process here). Takes web calls and real phone calls.
   Keep it in `start` and keep the agent name `gabriel-call`: the SIP dispatch rule points at it. It reports unavailable
@@ -83,11 +83,11 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
 - **Parallel:** 3 web calls (fr wheelchair, es, inbound 112 en) + a radio turn at once: calls answer 0.76–1.37 s after
   the caller stops, radio release → audio 0.96 s, no interference.
 - **Real phone calls, inbound (09:48):** LiveKit Phone Number +1 646 357 5046 (`PN_PPN_Mr7J4H9szQnV`, US, inbound
-  only); Amil forwards his French mobile to it, so judges dial a French number. Dispatch rule `SDR_S8H3HrNSvi3j`
+  only); Amil forwards his French mobile to it, so callers dial a French number. Dispatch rule `SDR_S8H3HrNSvi3j`
   « seraph-112 » (any trunk) → room `call-<callee>_<random>`, agent `gabriel-call`, metadata
   `{"direction":"in","channel":"phone"}`. Same agent and flow as web calls: first call `_16463575046_zEQFiPcaNRHd`,
   in/phone/fr, read-back confirmed 3.10, Seraph summary « Appel 112 : quatre personnes séjour-cuisine 3.10… ». Set up
-  by the jury-walkthrough session, no code change needed.
+  in the walkthrough session, no code change needed.
 - Phone numbers: the SIP caller's number goes to Seraph only masked (`number_masked` « +33 7•• •• •• 72 », from the
   participant's `sip.phoneNumber`). Every log line of the call worker is masked too, framework extras included
   (livekit.agents logs `participant: sip_+33…`).

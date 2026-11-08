@@ -20,24 +20,23 @@ the IFC doesn't have: the street, the hydrant, the truck spot, the risks, dispat
   at each entrance; there is no national database (see `docs/09-research.md`). Our assumption for the real use
   case: the fire service holds the IFC of the buildings on its ground, from the architect or the building manager.
 
-## Which building: a French one, the venue
+## Which building: a French one, the reference venue
 We need a French address: Géorisques is France-only and the demo happens in the venue. **No real French building
 with an openly downloadable IFC was found** (searched: OSArch AEC open data directory, opensourceBIM/IFC-files,
 buildingSMART samples, awesome-bim-datasets, French BIM teaching pages; everything is fictional, foreign, or not
 downloadable). The best real one is in Vienna (TU Wien, below), so it is out.
 
-So the demo building is **the hackathon venue, La Maison by Motier Ventures (Paris 9e)**, the building the jury sits
-in. In order of preference:
-1. **The venue's own plans.** Ask the venue team tonight whether the building manager or the architect has
+So the demo building is **the reference venue, La Maison by Motier Ventures (Paris 9e)**. In order of preference:
+1. **The venue's own plans.** Ask the venue team whether the building manager or the architect has
    IFC / Revit / DWG / PDF plans. IFC or Revit (export IFC4) → use as is. DWG or PDF → trace (option 2).
 2. **Rebuilt from the posted plans.** Photograph the evacuation / intervention plan posted on each floor (ask
    first). The `ifc` session traces them into `ifc/venue/trace.yaml` and generates `venue.ifc` with IfcOpenShell.
    Dimensions from the plan's scale, or paced on site. Materials and fire ratings only where the plan shows them
    (fire door symbol, legend) or the venue tells us; everything else absent.
    Every screen says: **« Maquette IFC reconstruite depuis le plan affiché — exercice »**.
-3. **Fallback at the 04:30 gate:** the fictional R+5 (`ifc/out-dev`, labelled « bâtiment fictif »).
+3. **Fallback:** the fictional R+5 (`ifc/out-dev`, labelled « bâtiment fictif »).
 
-**Decision (05:00): the demo runs on the real TU Wien IFC** (`ifc/out`, one stair, façade ladders as the second way
+**Decision: the demo runs on the real TU Wien IFC** (`ifc/out`, one stair, façade ladders as the second way
 out) at a fictional address. Scenario: `docs/02-scenario.md`. `contracts/fixtures/building.json` is built from it.
 
 Never publish the venue's plans in posts or the public README without their OK.

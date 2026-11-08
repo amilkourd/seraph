@@ -80,7 +80,7 @@ Updated: 06:00
   open `exp://172.16.0.13:8083` (or scan the QR), allow « Local Network ». Plain http over the LAN is fine in Expo Go
   (its ATS allows it; `app.json` sets NSAllowsArbitraryLoads + NSAllowsLocalNetworking for a dev build). No
   cloudflared needed on the same Wi-Fi. A signed dev build (`npx expo run:ios --device`) needs Amil's Apple ID in
-  Xcode: not tried. **The blue gear is Expo Go's dev-tools button**: it does not exist outside Expo Go. For the demo, either
+  Xcode: not tried. **The blue gear is Expo Go's dev-tools button**: it does not exist outside Expo Go. For live runs, either
   hide it from Expo Go's dev menu (shake the phone → tools button setting; not verified here), or install a real
   build: `cd halo/app && npx expo run:ios --device --configuration Release` (needs Amil's Apple ID in Xcode).
 

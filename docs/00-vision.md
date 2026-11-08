@@ -1,4 +1,4 @@
-# Vision and pitch
+# Vision
 
 ## The problem
 When firefighters are dispatched, the information that would save the most time already exists, on screens they
@@ -27,7 +27,7 @@ years (the firefighters' and health ministry's victim systems took years to link
 is, on day one: **« Seraph transforme n'importe quel écran en API. »** Rosetta's endpoints are that API, and Silex
 adds a new one when a new source shows up.
 
-## Sponsors, used for real
+## Partners, used for real
 - **H**: Holo navigates real websites and legacy apps and points at doors, stairs and hydrants on screenshots. The
   agent cam is on the big screen the whole time.
 - **Gladia**: every call and the crew channel at once, French/English/Spanish with code-switching, fire jargon and
@@ -38,15 +38,13 @@ adds a new one when a new source shows up.
 - **Linkup**: when a question has no endpoint, Linkup finds the official pages (official hosts only) and the H agent
   opens one on screen. Search finds where, computer use reads what.
 
-## What wins (patterns from firefighter/emergency winners, 2024–2026)
-A real disaster and a hard number up front; judges take part (they get called, they hold the radio); two screens
-(field device + commander); a human stays in charge, enforced in code; sponsor tools used for real. Computer use is
-almost absent from these winners: that's our opening. Details and sources: `docs/09-research.md`.
+## What works (patterns from firefighter/emergency projects, 2024–2026)
+A real disaster and a hard number up front; participants join in (they get called, they hold the radio); two screens
+(field device + commander); a human stays in charge, enforced in code; partner tools used for real. Computer use is
+almost absent from these projects: that's our opening. Details and sources: `docs/09-research.md`.
 
 ## Lines to use
-- « Des minutes de route, zéro seconde d'information. Seraph remplit ce temps. » (TODO: French average response
-  time, sourced, before using a number.)
+- « Des minutes de route, zéro seconde d'information. Seraph remplit ce temps. »
 - « Le plan existe : sur papier à la porte. Personne ne l'a dans la fumée. »
 - « Le commandant décide, Seraph transmet. »
 - « Seraph transforme n'importe quel écran en API. »
-TODO Amil: a French figure for fire deaths at home (to verify before the pitch).

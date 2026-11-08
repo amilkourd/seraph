@@ -234,7 +234,7 @@ class Endpoint:
     params: dict
     fn: Callable[[Run], Awaitable[dict]]
     cache_key: Optional[Callable[[dict], str]] = None
-    cache_scope: Optional[Callable[[dict], bool]] = None   # False → no golden path for these params (judge's address)
+    cache_scope: Optional[Callable[[dict], bool]] = None   # False → no golden path for these params (any other address)
     cache_rank: Optional[Callable[[dict], int]] = None     # a live output ranked lower never replaces the golden path
     site: str = ""               # profile name (cookies persisted per site)
     verified: bool = True
@@ -250,7 +250,7 @@ def in_scope(ep: Endpoint, params: dict) -> bool:
 
 
 def is_demo_address(a) -> bool:
-    """The golden path exists only for the demo address: any other address (a judge's) is live or failed, never cache."""
+    """The golden path exists only for the reference address: any other address is live or failed, never cache."""
     return bool(settings.demo_address) and slug(str(a or "")) == slug(settings.demo_address)
 
 
@@ -399,8 +399,8 @@ class Runner:
         if error is None and output is not None:
             run.status, run.output, run.live = "ok", output, live
             if live:
-                # urls point at this run's own files (never overwritten: a judge's address can't replace the demo's
-                # pictures). The stable /shots/<image_id>.jpg = the demo golden path, updated only in cache scope.
+                # urls point at this run's own files (never overwritten: another address can't replace the reference
+                # address's pictures). The stable /shots/<image_id>.jpg = the golden path, updated only in cache scope.
                 demo = ep is not None and in_scope(ep, run.params)
                 if demo and ep.cache and ep.cache_key and ep.cache_rank:
                     old = cache.get(ep.name, ep.cache_key(run.params))

@@ -1,4 +1,4 @@
-"""The page a judge opens from the dashboard to watch Devin build a Halo view: Silex's timeline, the view as Devin
+"""The page a visitor opens from the dashboard to watch Devin build a Halo view: Silex's timeline, the view as Devin
 writes it (fed with the state it was built from), the references and what Devin took from each, Devin's own steps,
 the prompt. Polls /sessions/<id>/data every 1.5 s. French UI, big type, dark."""
 

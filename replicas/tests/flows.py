@@ -86,27 +86,27 @@ def dispatch_write_112(page: Page) -> dict:
 
 
 def dispatch_new(page: Page) -> dict:
-    """A judge declares an incident at an address of their choice: it becomes the newest « En cours »; reset brings
+    """A visitor declares an incident at an address of their choice: it becomes the newest « En cours »; reset brings
     INC-0001 back."""
-    judge = {"address": "18 rue de l'Essai, 75011 Paris", "nature": "Feu d'appartement", "level": 2,
+    visitor = {"address": "18 rue de l'Essai, 75011 Paris", "nature": "Feu d'appartement", "level": 2,
              "caller_notes": ["Fumée au 2e étage", "Une personne au balcon"]}
     page.goto(DISPATCH + "/interventions/nouvelle")
-    page.get_by_label("Adresse", exact=True).fill(judge["address"])
-    page.get_by_label("Nature", exact=True).fill(judge["nature"])
-    page.get_by_label("Niveau", exact=True).fill(str(judge["level"]))
-    page.get_by_label("Renseignements", exact=True).fill("\n".join(judge["caller_notes"]))
+    page.get_by_label("Adresse", exact=True).fill(visitor["address"])
+    page.get_by_label("Nature", exact=True).fill(visitor["nature"])
+    page.get_by_label("Niveau", exact=True).fill(str(visitor["level"]))
+    page.get_by_label("Renseignements", exact=True).fill("\n".join(visitor["caller_notes"]))
     page.get_by_role("button", name="Déclencher").click()
     page.wait_for_selector("#flash")
     shot(page, "dispatch-new")
     created = page.inner_text("#f-numero")
     out = newest_open(page)
     assert out["incident_id"] == created and created != "INC-0001", (created, out)
-    assert {k: out[k] for k in judge} == judge and out["commune"] == "Paris", out
+    assert {k: out[k] for k in visitor} == visitor and out["commune"] == "Paris", out
     page.goto(REPORT + "/comptes-rendus")                 # « Nouveau compte rendu » follows the newest open incident
     page.locator("#btn-nouveau").click()
     page.wait_for_url("**/comptes-rendus/nouveau*")
     report_for = page.input_value("#intervention")
-    shot(page, "report-new-judge")
+    shot(page, "report-new-visitor")
     unknown = page.goto(REPORT + "/comptes-rendus/nouveau?intervention=INC-0099").status
     assert report_for == created and unknown == 404, (report_for, unknown)
     reset(DISPATCH)

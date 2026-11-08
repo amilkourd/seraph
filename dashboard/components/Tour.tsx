@@ -5,7 +5,7 @@ import type { StateId } from "@/lib/bloub/states";
 import type { Live } from "@/lib/live";
 import { Flamme } from "./Flamme";
 
-// The judges' tour: they open the public replay alone, Seraph's flame walks them around the stage one part at a
+// The guided tour: they open the public replay alone, Seraph's flame walks them around the stage one part at a
 // time, in the colour of the module that acts. The first visit in a browser opens on « Bienvenue sur Seraph » (public
 // replay only; ?tour anywhere); key T and « Visite guidée » go straight to step 1. Rects are stage pixels (1920×1080).
 type Rect = { x: number; y: number; w: number; h: number };
@@ -15,7 +15,7 @@ type Step = {
   expression: string;
   module: FlameModule;
   text: string;
-  act?: string; // what the judge can do there
+  act?: string; // what the visitor can do there
   alt?: { at: string; text: string }; // when the element is not on screen
 };
 
@@ -119,7 +119,7 @@ function Welcome({ start, later }: { start: () => void; later: () => void }) {
 
 export function Tour({ live }: { live: Live }) {
   const root = useRef<HTMLDivElement>(null);
-  const [chosen, setOpen] = useState<boolean | null>(null); // null until the judge opens or closes it
+  const [chosen, setOpen] = useState<boolean | null>(null); // null until the visitor opens or closes it
   const [i, setI] = useState(-1); // -1: the welcome, before the first step
   const [rect, setRect] = useState<Rect | null>(null);
   const [missing, setMissing] = useState(false);

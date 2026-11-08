@@ -30,6 +30,9 @@ the replicas need **no** tunnel.
 - `crew` — every firefighter + command (phone B talkie, Amil as COS) + Gabriel's radio agent. One channel.
 - `call-<call_id>` — one room per phone call (SIP participant or web caller) + one Gabriel call agent.
 - Participant identity = call sign (`COS`, `Tête`, `Binôme 1`…) or `occupant:<id>` / `caller:<call_id>`.
+- Tokens (talkie, keys server-side): a token opens one room only. `GET /api/token?identity=<call sign>` → `crew`,
+  full rights; `&room=call-<call_id>` → that call, listen only and hidden (the commander listens, Gabriel and the
+  caller never see them). `POST /api/call-token` → a new web call room with a Gabriel call agent dispatched into it.
 - Data topics: `ptt` (talkie: `{kind:"eot", speaker}` on button release), `seraph` (Gabriel publishes the text it
   speaks so phones can display it).
 

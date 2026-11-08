@@ -70,7 +70,7 @@ Halo clients (`client=halo`) receive only `state`, `alert` and `halo_view` (`{vi
 |---|---|
 | `/` | crew push-to-talk (room `crew`) |
 | `/call?occ=OCC-07` | web call for an occupant (joins `call-<id>` via `/api/call-token`) |
-| `/qr` | QR code to the occupants replica's public page `/inscription` (judges opt in: name, phone, floor, room, language). Rosetta then reads them back through the screen with `occupants.list` |
+| `/qr` | QR code to the occupants replica's public page `/inscription` (visitors opt in: name, phone, floor, room, language). Rosetta then reads them back through the screen with `occupants.list` |
 | `/api/token` | LiveKit token for `crew` |
 | `/api/call-token` | LiveKit token for a call room + tells Gabriel a web call started |
 
@@ -79,5 +79,5 @@ Halo clients (`client=halo`) receive only `state`, `alert` and `halo_view` (`{vi
   to add an entry (used by `dispatch.write_112`).
 - Report :8102 — login, « Nouveau compte rendu » multi-section form, « Enregistrer » then « Transmettre ».
 - Occupants :8103 — login, building list, building page with an occupant table (name, floor, room, phone), add form,
-  and a public opt-in page `/inscription` (no login, consent checkbox) used by judges through the QR code.
+  and a public opt-in page `/inscription` (no login, consent checkbox) used by visitors through the QR code.
 - Each has `/admin/reset` (HTML button + POST) that restores `contracts/fixtures/` seed data.

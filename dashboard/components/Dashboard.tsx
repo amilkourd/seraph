@@ -24,7 +24,7 @@ export function Dashboard() {
   const [scale, setScale] = useState(1);
   const [now, setNow] = useState(0); // set on mount: the clock must not be read during prerender
   const [view, setView] = useState<"main" | "split">("main");
-  const [booth, setBooth] = useState(false); // « Essayez »: the judges' booth in the left panel (key E)
+  const [booth, setBooth] = useState(false); // « Essayez »: the try-it booth in the left panel (key E)
 
   useEffect(() => {
     const fit = () => setScale(Math.min(window.innerWidth / 1920, window.innerHeight / 1080));
@@ -41,7 +41,7 @@ export function Dashboard() {
 
   // Keys from docs/03-demo-script.md: Space confirm / Esc cancel the latest gate, 1–4 force a Halo moment,
   // R replay the next radio line (R00…R15, for a line missed live). Controls: D start the incident, A call everyone
-  // now, Shift+R replay the whole incident, X twice reset, E the judges' booth.
+  // now, Shift+R replay the whole incident, X twice reset, E the try-it booth.
   const liveRef = useRef(live);
   useEffect(() => {
     liveRef.current = live;

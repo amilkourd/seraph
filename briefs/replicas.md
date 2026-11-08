@@ -27,7 +27,7 @@ Stack: Python FastAPI + Jinja2 + SQLite (one app per port, or one app with three
 ## 3. Gestion des occupants (:8103) — building manager
 - `/login`. `/batiments`: one building (« Bâtiment d'exercice »). `/batiments/1`: occupants table (name, level, room,
   phone, language) + add/edit form.
-- **`/inscription` (public, no login)**: judges opt in from the QR code: name, phone, level, room, language, and a
+- **`/inscription` (public, no login)**: visitors opt in from the QR code: name, phone, level, room, language, and a
   required consent checkbox « J'accepte d'être appelé(e) par l'assistant vocal pendant la démonstration ». Mobile-
   friendly. Exposed publicly (`OCCUPANTS_PUBLIC_URL`), nothing else of this app needs to be.
 

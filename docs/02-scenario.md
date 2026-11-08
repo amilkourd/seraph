@@ -76,7 +76,7 @@ Night (00:25): people are home, mostly in bedrooms. Fictional people, non-dialab
 | OCC-04 | Tom Becker | R+2 / 2.16 Séjour-cuisine (U2.2, balcony 2.17) | en | Leaving the flat, going down the stairs, some smoke | **the catch** |
 | OCC-05 | Inès Rahmani | R+2 / 2.01 Chambre (U2.1) | fr | Wheelchair user, cannot go down alone | needs help |
 | OCC-06 | Lucía García | RDC / 0.19 Séjour-cuisine (U0.2, terrace 0.20) | es | No smoke, asks what to do | « restez en ligne, je transmets » |
-| JUDGE-n | (opt-in via QR) | any | any | Live: whatever they say | — |
+| LIVE-n | (opt-in via QR) | any | any | Live: whatever they say | — |
 Floors are counted the French way (RDC = 0, « second floor » = R+2). Callers name their floor and the kind of room;
 the room id comes from the occupant record.
 
@@ -107,23 +107,23 @@ For a terrace (R+3) the stay sentence says « terrasse » / « terrace » / « t
 
 ## The crew (LiveKit room `crew`)
 COS (Amil, phone B talkie) · Tête (chef d'agrès FPT) · Binôme 1 (B1) · Binôme 2 (B2). In the demo, Amil voices the
-COS and, if needed, Tête/Binôme lines; a judge can hold the talkie too.
+COS and, if needed, Tête/Binôme lines; a participant can hold the talkie too.
 
-## Timeline of the incident (real time, compressed for the demo)
+## Timeline of the incident (real time, compressed for a live run)
 | T | What happens | Who |
 |---|---|---|
 | T-15 min | Amil starts the incident (= dispatch). Rosetta runs its endpoints; Silex starts the `approach` view; Seraph proposes the standing instruction (stay put) and the COS confirms; Gabriel calls every occupant | Seraph |
 | T-14 → T-1 | "The drive": Devin builds the approach view; calls come in (Léa 3.12 smoke under the door, Inès 2.01 wheelchair, Karim no answer, Sophie safe, Lucía asks); the 112 witness: smoke out of the garage ramp | all |
-| T0 (pitch starts) | Halo shows « Qui est où » (the occupants view outranks approach once calls land); « Quelle entrée ? » brings back the approach (E1, E2 crossed: garage on fire); dashboard shows the Devin sessions | — |
+| T0 (run starts) | Halo shows « Qui est où » (the occupants view outranks approach once calls land); « Quelle entrée ? » brings back the approach (E1, E2 crossed: garage on fire); dashboard shows the Devin sessions | — |
 | demo | Tête: « quelle entrée ? » → E1, not E2, single stair in smoke, hydrant | Seraph, Gabriel |
-| demo | A judge's phone rings (or calls 112): live call → facts → crew summary | Gabriel |
+| demo | A participant's phone rings (or calls 112): live call → facts → crew summary | Gabriel |
 | demo | Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « confirme » → told in English → ladder point 2.17 on Halo | Seraph, Gabriel, Halo |
 | demo | Tête: « escalier A désenfumé » · COS: « levée du confinement : dis à tous les occupants de sortir par l'escalier A » → read-back (except Inès, wheelchair) → « confirme » → every caller, every language | Seraph, Gabriel |
 | demo | « Seraph, fais le rapport » → gate → `report.fill` on screen | Rosetta |
 | optional | « La porte du garage est coupe-feu ? » → « Porte -1.11 Garage : EI2 30-C-Sm, source maquette » | Seraph |
 | optional | « Seraph, il y a une crèche ou une école dans la rue ? » → Rosetta explores live → new endpoint | Rosetta, Silex |
 
-## ARI air tracking: cut (post-hackathon)
+## ARI air tracking: cut (roadmap)
 Amil cut air tracking from the demo. Teams are positions only (engaged, level, stair, room): « binôme 1 engagé par
 l'escalier A, 300 bars » is answered « Reçu, binôme 1 engagé par l'escalier A. », with no exit time, no T-5 alarm and
 no `team_engaged` « Mon air » view. Seraph keeps the code behind `ARI_ENABLED` (off). If it comes back: the

@@ -1,6 +1,6 @@
 # Silex → Devin: build one Halo view
 
-You build **Halo views** for Seraph, an AI copilot for firefighters (hackathon demo, an EXERCISE). Halo is a phone
+You build **Halo views** for Seraph, an AI copilot for firefighters (demo scenario, an EXERCISE). Halo is a phone
 strapped to a firefighter's forearm, in landscape (874×402). A view is one self-contained HTML file that draws one
 simple scheme for one moment of the intervention (« Par où j'entre », « Mon air »…) with the **Halo kit**, and
 redraws itself on every live state update. The firefighter glances at it for one second, wearing gloves.

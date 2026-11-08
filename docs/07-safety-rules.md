@@ -21,7 +21,7 @@ These are what make the jury trust Seraph. Each one must be visible in the demo.
    main courante, report). Sending the report is gated.
 5. **Occupant data only for the incident.** Names and numbers come from the building manager's software through
    Rosetta, are used to call people about this incident, are masked on every screen, and every access is logged.
-   Real calls go only to judges who opted in (consent checkbox on `/inscription`).
+   Real calls go only to people who opted in (consent checkbox on `/inscription`).
 6. **Never fake it.** Cached results are labelled « cache ». Prebuilt fallbacks are labelled « vue de secours » or
    « version préparée ». Agent steps are never simulated. The demo says EXERCICE everywhere.
 7. **Fail visibly, never silently.** Every wait shows what it is waiting for. Every timeout has a fallback the crew

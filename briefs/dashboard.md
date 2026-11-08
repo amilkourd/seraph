@@ -27,7 +27,7 @@ screens, Devin building the wrist view, and the commander deciding. 1920×1080, 
 - **Bottom strip:** metrics (voice → crew X s, call → crew X s, request → view X min), alerts ticker.
 
 ## Controls
-« Déclencher l'incident » (`POST /incident/start`), « Appeler maintenant » (re-place calls to opted-in judges),
+« Déclencher l'incident » (`POST /incident/start`), « Appeler maintenant » (re-place calls to opted-in visitors),
 « Réinitialiser » (`/admin/reset` everywhere), « Rejouer » (fixtures replay). Keys from `docs/03-demo-script.md`:
 `V C F G R`, plus `Space` = confirm the latest gate, `Esc` = cancel it, `1–5` force a Halo moment (`/admin/moment`).
 

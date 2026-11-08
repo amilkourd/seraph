@@ -180,7 +180,7 @@ OCC = [
 occ_rows = [{"id": i, "name": n, "phone_e164": f"+3310000000{i[-1]}", "level": lv, "room": r, "language": lg}
             for i, n, lv, r, lg in OCC]
 dump(FX / "occupants.json", {
-    "_comment": "Seed data for the occupants replica (building manager software). Fictional people and NON-DIALABLE numbers. Real calls only go to judges who opt in through /inscription. Rooms are real ids of the TU Wien IFC (ifc/out/building.json).",
+    "_comment": "Seed data for the occupants replica (building manager software). Fictional people and NON-DIALABLE numbers. Real calls only go to people who opt in through /inscription. Rooms are real ids of the TU Wien IFC (ifc/out/building.json).",
     "building": "Immeuble d'habitation (maquette TU Wien)",
     "occupants": occ_rows,
 })

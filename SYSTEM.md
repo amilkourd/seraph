@@ -15,14 +15,14 @@ Every Halo screen is built for that moment by **Devin**, through **Silex**. At t
 the legacy report software.
 
 ## What we keep, what we cut
-| Keep (core demo) | Stretch (only after 09:00 if green) | Cut |
+| Keep (core demo) | Roadmap (only once the core is green) | Cut |
 |---|---|---|
 | Talkie crew channel + Gabriel on the radio | Learning a new source live (`/explore` → new endpoint) | Holographic helmet |
 | Gabriel call agents: web calls guaranteed, real phone calls if SIP works | `weather.wind` (Météo-France) | Victim register / SINUS-style tracking |
 | Rosetta: 7 endpoints (below) with the agent cam | `inside_route` view (beyond the 2 core views) | Hazmat |
 | Seraph: state, catches, gates, routes, moments | Spanish on calls (fr + en are core) | Multiple incidents |
 | Silex + Devin: 2 views built live (`approach`, `occupants` with the ladder points) | | Native apps, real fire-service systems |
-| Halo shell, kit, fallback view | | ARI air tracking (exit time, T-5 alarm, `team_engaged` « Mon air » view): post-hackathon, Seraph keeps it behind `ARI_ENABLED` (off) |
+| Halo shell, kit, fallback view | | ARI air tracking (exit time, T-5 alarm, `team_engaged` « Mon air » view): roadmap, Seraph keeps it behind `ARI_ENABLED` (off) |
 | Dashboard on the projector | | |
 | Report written by Rosetta in the replica, gated | | |
 | Building model: a real architect's IFC (TU Wien, `ifc/`) → routes, level plans, ladder points, 3D on the dashboard | The venue's own IFC | 3D on Halo |
@@ -50,7 +50,7 @@ the legacy report software.
 | `occupants.list` | Building manager replica `:8103` | logs in, opens the building, reads the occupant table | names, level, room, phone, language | replica | read |
 | `dispatch.write_112` | Dispatch replica | opens the incident, types a main-courante entry, adds it | each call logged on the incident | replica | write |
 | `report.fill` | Report replica `:8102` | fills the 4 sections, saves, sends | the finished report | replica | write, gated |
-| `weather.wind` (stretch) | meteofrance.com | searches the town, reads wind | direction, speed | **real** | read |
+| `weather.wind` | meteofrance.com | searches the town, reads wind | direction, speed | **real** | read |
 Never on our own apps. Public sites read-only. Writes only in replicas.
 A question no endpoint covers (`/explore`): **Linkup** finds the official pages, the H agent opens one and reads the
 answer on screen, « source non vérifiée »; Devin can then compile it into a new endpoint.
@@ -73,8 +73,8 @@ on every screen.
    flood-fills the zones.
 5. Every screenshot is saved and returned. They feed the dashboard and become **Devin's visual references**.
 6. Each step is pushed to the dashboard's **agent cam** (screenshot, action, short thought).
-7. Up to 4 browsers in parallel. The last good live result for the demo address is cached; a cached answer is
-   always labelled « cache ». No fake steps, ever.
+7. Up to 4 browsers in parallel. The last good live result for the reference address (`DEMO_ADDRESS`) is cached;
+   a cached answer is always labelled « cache ». No fake steps, ever.
 
 ## How Seraph works
 A loop: **input → event → state → rules → actions → stream.**
@@ -96,7 +96,7 @@ A loop: **input → event → state → rules → actions → stream.**
 - **Gates:** the standing instruction (stay put), any order to occupants (flat by flat, or everyone at once), any
   reroute, sending the report. Seraph asks on the radio, acts on « Seraph,
   confirme » or the dashboard button, drops on « annule » or after 2 min.
-- **Moments:** dispatch → `approach` view; calls with facts → `occupants` view (floors, people, ladder points) (stretch:
+- **Moments:** dispatch → `approach` view; calls with facts → `occupants` view (floors, people, ladder points) (roadmap:
   `inside_route`, anything the commander asks). `team_engaged` is cut with ARI.
 - **Actions:** `say` to the crew or to one/many calls, `place_calls`, Rosetta runs, view requests, dispatch log
   entries, the report.
@@ -108,7 +108,7 @@ A loop: **input → event → state → rules → actions → stream.**
   vocal des pompiers. » in the caller's language; asks where they are, how many, smoke, injuries, what they're doing;
   sends facts to Seraph after each answer; says only questions, « je transmets », « restez en ligne », the standing
   instruction the commander confirmed, and Seraph's gated messages. Never promises help.
-- Outbound to opted-in judges, inbound on the incident's number; web calls from the talkie if SIP fails.
+- Outbound to opted-in participants, inbound on the incident's number; web calls from the talkie if SIP fails.
 - **Gladia, used fully** (`docs/06-gabriel.md`): fr/en/es with code-switching, custom vocabulary (fire jargon, the
   building's ids, the occupants' names), custom spelling for the formatted radio formulas, audio enhancer, radio + 6
   calls in parallel, and **live emotion analysis on calls**: distress, fear or pain in a caller's voice raises that
@@ -151,7 +151,7 @@ fallbacks, `1–5` force a Halo moment.
 | T-15 | The TU Wien IFC is already loaded (levels, one stair, doors, ladder points). Amil clicks « Déclencher ». Rosetta: dispatch.read → then maps.building, plan.read, georisques.risks, occupants.list in parallel (agent cams light up). Seraph asks the COS to confirm the standing instruction (stay put). |
 | T-14 | Occupants listed → Gabriel calls everyone. Maps done → Seraph picks E1, Gabriel briefs the crew, Silex asks Devin for the `approach` view. |
 | T-10 → T-1 | Calls bring facts (3.12 two people, smoke under the door; 2.01 wheelchair; no answer in 1.11; witness: smoke out of the garage ramp…); dots appear; Devin's view lands on Halo. |
-| Pitch | « Quelle entrée ? » → spoken answer + arrow · a judge's phone rings, live call → radio line · Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « Confirme » → ladder point 2.17 · « Levée du confinement : dis à tous les occupants de sortir par l'escalier A » → « Confirme » → every caller at once · « Fais le rapport » → « Confirme » → Rosetta fills it on screen · « La porte du garage est coupe-feu ? » → « EI2 30-C-Sm, source maquette ». |
+| Live run | « Quelle entrée ? » → spoken answer + arrow · a participant's phone rings, live call → radio line · Tom starts down the smoky stair → « Je lui dis de rester dans son logement, porte fermée, et d'aller sur le balcon ? » → « Confirme » → ladder point 2.17 · « Levée du confinement : dis à tous les occupants de sortir par l'escalier A » → « Confirme » → every caller at once · « Fais le rapport » → « Confirme » → Rosetta fills it on screen · « La porte du garage est coupe-feu ? » → « EI2 30-C-Sm, source maquette ». |
 
 ## What can break, and what we do
 | Breaks | Fallback (always labelled) |

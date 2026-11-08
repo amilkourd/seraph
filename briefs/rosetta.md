@@ -5,7 +5,7 @@ returns), `contracts/types.ts` (RosettaRun, RosettaResult, Screenshot, ImagePoin
 `docs/07-safety-rules.md`. You do not write in `rosetta/skills/learned/` (Silex does).
 
 ## Goal
-Make 8 screens without API behave like an API, live and visible. This is what the H jury came to see: the agent cam
+Make 8 screens without API behave like an API, live and visible. This is what the command post shows: the agent cam
 on the big screen, Holo clicking through real sites and legacy software, and pointing at doors and stairs.
 
 ## Build order
@@ -26,7 +26,7 @@ on the big screen, Holo clicking through real sites and legacy software, and poi
 - Every result: `screenshots` (stored, served at `/shots/<id>.jpg`), `source`, `live`, `duration_ms`.
 - Public sites read-only. Writes only on replicas. `report.fill` only when Seraph says the gate passed (Seraph only
   calls it then; refuse if `params.gate_id` is missing).
-- Golden-path cache per endpoint for the demo address, always marked `live:false`.
+- Golden-path cache per endpoint for the reference address (`DEMO_ADDRESS`), always marked `live:false`.
 - Max 4 browsers in parallel, priority queue, per-endpoint timeouts from the contract.
 - Measure and log time per endpoint, live vs cache; expose in `GET /endpoints`.
 

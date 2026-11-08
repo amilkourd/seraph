@@ -1,14 +1,19 @@
 # Seraph
 
-**An AI copilot for firefighters that turns any screen into an API and puts the right information on the
+**An AI copilot for firefighters. Seraph turns any screen into an API and puts the right information on the
 firefighter's wrist, at the right moment, by voice and by image.**
 
 > « Seraph transforme n'importe quel écran en API, et met la bonne information sur le poignet du pompier, au bon
 > moment, à la voix et à l'image. »
 
-Built in one night for the **H Company × 42AI computer-use hackathon** (Paris, 7–8 November 2026).
-Everything shown is an **EXERCICE**: a fictional incident, fictional occupants, and replicas of the software fire
-services use. Nothing touches a real emergency system.
+[![CI](https://github.com/amilkourd/seraph/actions/workflows/ci.yml/badge.svg)](https://github.com/amilkourd/seraph/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**See it in your browser: [seraph-rejeu.vercel.app](https://seraph-rejeu.vercel.app).** The command post replays the
+exercise from its fixtures, with nothing to install and no key, and a guided tour opens on your first visit.
+
+The repository ships with a complete exercise environment: a fictional incident, fictional occupants and replicas of
+the software fire services use, so the whole stack runs end to end without touching a live emergency system.
 
 ![The command post during a live run: a vehicle fire in the underground car park, reported by the alert centre](docs/img/dashboard.png)
 
@@ -37,7 +42,32 @@ It didn't travel.
 The commander stays in charge. Seraph proposes on the radio (« Je lui dis de rester chez lui, porte fermée, et
 d'aller sur le balcon ? ») and acts only on « Seraph, confirme ».
 
-## The parts
+## Try it
+
+In your browser, [seraph-rejeu.vercel.app](https://seraph-rejeu.vercel.app) replays the exercise with a guided tour.
+
+The table below drives the live stack. The command post is at `localhost:3002`, phone B is the crew radio, phone A
+is Halo. The live stack uses API keys for H, Devin, LiveKit, Gladia and ElevenLabs; the dispatch, report and
+occupant systems run as local replicas. On the command post, **X** twice resets and **D** starts the incident.
+
+| Try | Do | You see |
+|---|---|---|
+| Talk to Seraph | Press **E**, hold the talkie button, say one of the five lines, release | Seraph answers on the radio in about a second. The panel shows what it heard, rules or LLM, the time and its answer |
+| A Halo view | « Seraph, il me faut sur Halo le plan du R+3 avec les personnes et la fumée » | Devin builds it in 2–4 minutes: « Vues Halo », then phone A |
+| An order | « Seraph, fais le rapport », then « Seraph, confirme » (or **Space**) | Nothing until you confirm. Then Rosetta fills the legacy report software, live (screens: button top right) |
+| A 112 call | Open `localhost:3000/call`, talk to Gabriel as a resident, in French, English or Spanish | What you say becomes a line on the radio |
+| Your own address | **X** twice, « Nouvelle intervention » in the dispatch replica (`localhost:8101`) with any address in France, then **D** | Within a minute, H agents read Maps, Street View, Earth, Géorisques and Météo-France for it. No model of that building, so « pas de maquette » rather than a guessed plan |
+| Replay | **Shift+R** | The whole scripted incident, with a « Rejeu » badge |
+
+Without any API key, in fixture mode (uv and Node 24):
+
+```bash
+git clone https://github.com/amilkourd/seraph && cd seraph && cp .env.example .env
+cd seraph && uv run pytest -q                        # the brain on the full scenario: 50 tests, no key
+cd ../dashboard && npm install && npm run dev:mock   # open localhost:3002: the incident plays from the fixtures
+```
+
+## Architecture
 
 | Part | Role | Folder |
 |---|---|---|
@@ -47,9 +77,9 @@ d'aller sur le balcon ? ») and acts only on « Seraph, confirme ».
 | **Silex** | Tool creation. Sends each moment to **Devin** (CLI, Claude Opus 5.5), which writes a live Halo view from Rosetta's screenshots and the building plans | `silex/`, `views/` |
 | **Halo** | Phone A on the forearm (Expo / React Native). Hosts Devin's views, feeds them live state, shows alerts | `halo/` |
 | Talkie | Phone B: push-to-talk crew radio on LiveKit, plus the occupants' web-call page | `talkie/` |
-| Dashboard | The command post on the projector: 3D building, radio and calls, gates, Rosetta's six screens, Devin's sessions | `dashboard/` |
+| Dashboard | The command post: 3D building, radio and calls, gates, Rosetta's six screens, Devin's sessions | `dashboard/` |
 | Building registry | Building models looked up by address: the fire service's registry, behind one interface (local, Supabase, or the fire service's own) | `registry/`, `ifc/` |
-| Replicas | Old-school web apps with no API, standing for dispatch, report and building-manager software | `replicas/` |
+| Replicas | Reference dispatch, report and building-manager systems with no API, standing for the fire service's own software | `replicas/` |
 
 ```mermaid
 flowchart LR
@@ -77,15 +107,28 @@ flowchart LR
   S -->|state stream| D
 ```
 
-Our own apps talk to each other through normal APIs. **Computer use only ever touches software we don't own**:
-that is the point of Rosetta.
+Our own services talk to each other through typed HTTP and WebSocket APIs ([contracts/](contracts/)). **Computer use
+only ever touches software we don't own**: that is the point of Rosetta.
 
 ![Rosetta's six screens on the command post: dispatch replica, Street View, Géorisques, Météo-France, the posted plan, the occupant replica](docs/img/dashboard-rosetta.png)
 
 *Rosetta's screens during the same run. Each tile is an H agent working a real site or a replica, with its live
 duration.*
 
-## What makes it trustworthy
+### Voice: LiveKit rooms
+
+| Room | Who is in it | What it carries |
+|---|---|---|
+| `crew` | Every talkie (identity = call sign, e.g. `Tête`) and Gabriel's radio agent (identity `Seraph`) | The radio: crew transmissions, Seraph's answers, briefings and alerts |
+| `call-CALL-W…` | One person on the web-call page and one Gabriel call agent | A web call (talkie `/call`) |
+| `call-CALL-P…` | One occupant's phone (SIP) and one Gabriel call agent | An outbound call from Gabriel to an occupant |
+| `call-<callee>_<random>` | The caller's phone (SIP) and one Gabriel call agent | An inbound 112 call (LiveKit dispatch rule `seraph-112`) |
+
+A LiveKit token opens one room only. The talkie's `GET /api/token?identity=<call sign>` returns a token for `crew`;
+adding `&room=call-…` returns a listen-only, hidden token for that one call, so the commander can listen without the
+caller or Gabriel seeing a new participant. Both need the crew access code when `TALKIE_ACCESS_CODE` is set.
+
+## Safety model
 
 These are product requirements, enforced in code ([docs/07-safety-rules.md](docs/07-safety-rules.md)).
 
@@ -97,39 +140,39 @@ These are product requirements, enforced in code ([docs/07-safety-rules.md](docs
   reports it, with its source on every screen: « signalé · selon l'appel », then « confirmé · Tête ».
 - **Quote, never invent.** A building fact comes from the IFC or a screen, otherwise « pas dans la maquette ».
   A misheard room (« bureau 2.1 ») is resolved against the model or marked « pièce à confirmer ».
-- **Public sites read-only, writes only in the replicas.** Rosetta never solves or bypasses a CAPTCHA. A cached
-  result is always labelled « cache ».
+- **Public sites read-only, writes only in authorised systems.** Rosetta never solves or bypasses a CAPTCHA. A
+  cached result is always labelled « cache ».
 - **Occupant data only for the incident.** Every read of the occupant list is logged, phone numbers are masked in
   logs, and real calls go only to people who opted in.
 
-## Measured tonight
+## Performance
 
-Measured on one laptop during the night, with small samples. `eval/` collects the full numbers over the rehearsals.
+Measured end to end on a single machine, against LiveKit Cloud, H, Devin and OpenAI.
 
 | What | Result |
 |---|---|
 | Talkie button released → Seraph's first audio on the radio (LiveKit Cloud) | **0.89 – 0.96 s** |
 | Radio line → event, rules path / LLM fallback (`gpt-5.4-mini`, no reasoning, priority tier) | **< 1 ms / ~0.8 s** |
-| Rosetta live, from the incident start (one run) | dispatch 5.2 s · occupants 4.9 s · plan 6.2 s · Météo-France 13 s · Géorisques 18 s · Maps / Street View / Earth 38 s |
+| Rosetta live, from the incident start | dispatch 5.2 s · occupants 4.9 s · plan 6.2 s · Météo-France 13 s · Géorisques 18 s · Maps / Street View / Earth 38 s |
 | Devin builds a Halo view (CLI, Opus), checked before serving | **146 – 219 s**, inside the 5-minute drive |
-| Tests | Seraph 37 · registry 35 (incl. live Supabase) · the four replica flows pass with Holo 4 |
+| Test suites | Seraph 50 · registry 35 (incl. live Supabase) · IFC pipeline 29 · the four replica flows pass with Holo 4 |
 
 ## The building model
 
 Seraph knows the inside of the building from an **IFC** file, as a fire service would: walls, doors, stairs, rooms,
 and materials and fire ratings when the file has them. `ifc/` extracts it once, offline, into a small
 `building.json`: a route graph in metres, rooms, doors and level plans. It keeps only what a firefighter needs, with
-no furniture or plumbing. The registry finds the right building from the incident's address. In production the
-local registry is swapped for the fire service's own through one adapter ([registry/README.md](registry/README.md)).
+no furniture or plumbing. The registry finds the right building from the incident's address, and the local registry
+is swapped for the fire service's own through one adapter ([registry/README.md](registry/README.md)).
 
-The demo building is a **real architect's model**: the TU Wien « Real-World Escape Route Test Model »
+The reference building is a **real architect's model**: the TU Wien « Real-World Escape Route Test Model »
 (CC BY 4.0), registered under an exercise address. It has a single stairwell, with balconies and ladder rescue as the
 second way out. That is exactly the case where « stay put » has to be decided flat by flat, and lifted fast.
 
-## Run it
+## Getting started
 
-**You need:** Python 3.12 with [uv](https://docs.astral.sh/uv/), Node 24, Google Chrome (Rosetta drives a headed
-browser), and optionally the Devin CLI (Silex falls back to Devin's API) and Expo Go on a phone for Halo.
+**Requirements:** Python 3.12 with [uv](https://docs.astral.sh/uv/), Node 24, Google Chrome (Rosetta drives a
+headed browser), and optionally the Devin CLI (Silex falls back to Devin's API) and Expo Go on a phone for Halo.
 
 ```bash
 cp .env.example .env     # fill the keys you have; MOCK=1 runs every service on contracts/fixtures/
@@ -151,35 +194,87 @@ Each service runs from its own folder:
 Then start an incident with **D** on the dashboard (or `curl -X POST localhost:8000/incident/start`). **Shift+R**
 replays the whole scenario from `contracts/fixtures/`.
 
-Tests: `cd seraph && uv run pytest -q` · `cd registry && uv run pytest -q` · `cd replicas && uv run python tests/flows.py`.
+**With Docker:** one container per backend service (seraph, rosetta, silex, gabriel-radio, gabriel-calls,
+replicas, halo); the dashboard and the talkie join with the `web` profile.
 
-## Honest limits
+```bash
+docker compose up --build                  # MOCK=1 docker compose up --build runs it with no API key
+docker compose --profile web up --build    # also the dashboard (:3002) and the talkie (:3000)
+```
 
-- **Phone calls are web calls for now.** Real calls through Twilio and LiveKit SIP are planned but not wired, so an
-  occupant joins from the web-call page.
-- **The replicas stand for real software.** In a deployment, Rosetta would operate the fire service's own dispatch
-  and report tools as they are, with no integration.
-- **The building model comes from TU Wien,** under an exercise address in Paris. Street View shows the real street,
-  not that building.
-- Learning a new source live (`/explore`: an H agent finds the answer on screen, then Devin compiles it into a new
-  endpoint) is a stretch goal.
-- Air tracking for teams under breathing apparatus is cut from this version: teams are tracked by position only.
+**Tests:** `make test` runs the Seraph, registry and IFC suites; `make typecheck` checks the web apps. The replica
+flows run against Holo 4 with `cd replicas && uv run python tests/flows.py`.
 
-## How this repo was built
+## Deployment
 
-One person and about a dozen Claude Code sessions working in parallel, one folder each, coordinated through
-written contracts. [`SYSTEM.md`](SYSTEM.md) is the system on one page. [`CLAUDE.md`](CLAUDE.md) holds the rules and
-folder ownership. [`contracts/`](contracts/) holds every message type, endpoint and fixture.
-[`briefs/`](briefs/) has each session's job, and [`status/`](status/) what each one built, how to run it, and what it
-verified. The design docs are in [`docs/`](docs/): vision, architecture, scenario, the hard parts (Rosetta, Halo,
-Gabriel, IFC) and the research behind them.
+- **Fixture mode.** Every service runs with `MOCK=1` on `contracts/fixtures/` and no external call. Every external
+  call has a timeout, a cached fallback and a visible state on the command post: a pending panel says what it is
+  waiting for, nothing spins forever.
+- **Telephony.** Calls run through LiveKit SIP: outbound calls to the building's occupants through the trunk set in
+  `LIVEKIT_SIP_OUTBOUND_TRUNK_ID`, inbound 112 calls with the caller's number masked in logs and to Seraph. The
+  web-call page (`talkie/`, `/call`) serves occupants when no trunk is configured.
+- **Fire-service software.** Rosetta operates dispatch, report and building-manager software through their
+  screens, as they are, with no integration project. The exercise environment ships replicas of them
+  (`replicas/`).
+- **Building models.** The registry resolves a building from the incident's address behind one adapter: local
+  files, Supabase, or the fire service's own registry.
+- **Access.** The crew radio is protected by a crew access code (`TALKIE_ACCESS_CODE`); the web apps build as
+  standalone Next.js apps.
+- **Containers.** [docker-compose.yml](docker-compose.yml) runs one container per backend service from the images in
+  `docker/`, with health checks, restart policies and named volumes for runtime data.
+- **Secrets** come only from environment variables (`.env`, template in [.env.example](.env.example)), passed to
+  the containers at run time and never baked into an image. See [SECURITY.md](SECURITY.md).
 
-## Credits
+## Roadmap
+
+- **Learned endpoints.** `/explore`: an H agent finds the answer on a screen it has never seen, then Devin compiles
+  it into a new Rosetta endpoint.
+- **Breathing-apparatus tracking.** Air supply per team under ARI, on top of the position tracking in place today.
+
+## Repository layout
+
+```
+seraph/       the brain: incident state, events, safety catches, commander gate, routing   FastAPI · :8000
+gabriel/      voice: crew radio agent, one call agent per phone call                        LiveKit Agents
+rosetta/      computer use: endpoints over screens with no API                              H Holo · Playwright · :8001
+silex/        tool creation: Halo views and Rosetta endpoints built by Devin                :8002
+views/        Halo views built by Silex, served by silex/
+halo/         wrist device: view host, live state, alerts                                   Expo · :3001
+talkie/       crew push-to-talk radio and occupants' web-call page                          Next.js · :3000
+dashboard/    command post: 3D building, radio, calls, gates, agent screens                 Next.js · :3002
+registry/     building registry: address → building model                                   local · Supabase · fire service
+ifc/          offline IFC pipeline: route graph, level plans, glTF                          IfcOpenShell
+replicas/     reference dispatch, report and building-manager systems                       :8101 – 8103
+contracts/    message types, endpoints and fixtures shared by every service
+docs/         design documents: architecture, scenario, safety rules, research
+brand/        visual identity
+briefs/       scope of each module
+status/       per-module runbook and verification log
+docker/       container images: one for every Python service, the Halo kit server, the web apps
+setup/        development tooling configuration
+tools/        developer utilities
+```
+
+## Engineering
+
+- **Contracts first.** Every message type, endpoint and fixture is written in [contracts/](contracts/) before the
+  code; services talk only through them.
+- **One owner per module.** Each top-level folder is a module with its own runtime, locked dependencies (`uv.lock`,
+  `package-lock.json`) and tests ([CODEOWNERS](.github/CODEOWNERS)).
+- **Continuous integration** runs the Python test suites and the TypeScript checks on every push and pull request
+  ([ci.yml](.github/workflows/ci.yml)).
+- **AI-assisted development.** Modules are built by Claude Code sessions, one per folder, under the rules in
+  [CLAUDE.md](CLAUDE.md). [SYSTEM.md](SYSTEM.md) is the system on one page; [CONTRIBUTING.md](CONTRIBUTING.md) has
+  the workflow.
+
+## License and credits
+
+Seraph is released under the [MIT License](LICENSE).
 
 - **Building model:** « Real-World Escape Route Test Model », TU Wien, licensed
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/):
   [researchdata.tuwien.ac.at/records/2heb4-xqb83](https://researchdata.tuwien.ac.at/records/2heb4-xqb83).
-- **Sponsors, used for real:** [H Company](https://www.hcompany.ai/) (Holo 4 computer-use agents) ·
-  [Devin](https://devin.ai/) (builds the Halo views) · [Gladia](https://www.gladia.io/) (speech to text).
-- **Also:** LiveKit (radio and calls) · ElevenLabs (voice) · OpenAI (`gpt-5.4-mini` for language) · Supabase
-  (registry backend) · IfcOpenShell · Playwright · three.js · Expo.
+- **Built on:** [H Company](https://www.hcompany.ai/) (Holo 4 computer-use agents) ·
+  [Devin](https://devin.ai/) (builds the Halo views) · [Gladia](https://www.gladia.io/) (speech to text) ·
+  LiveKit (radio and calls) · ElevenLabs (voice) · OpenAI (`gpt-5.4-mini` for language) · Supabase (registry
+  backend) · IfcOpenShell · Playwright · three.js · Expo.

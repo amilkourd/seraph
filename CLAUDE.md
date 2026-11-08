@@ -1,7 +1,6 @@
 # Seraph — read this first (every Claude Code session)
 
-Hackathon: H Company × 42AI "Computer-use agents", Paris, Nov 7–8 2026. Solo builder: Amil.
-**Submission Sunday 13:30 (deadline 14:00). Feature freeze 10:00.** Demo = 3 minutes, live, with phones.
+Engineering guide for every Claude Code session working on this repository. Owner: Amil.
 
 ## What Seraph is (one paragraph)
 Seraph is an AI copilot for firefighters. Firefighters carry one app: a **talkie** (push-to-talk on a phone) and
@@ -25,7 +24,7 @@ pompier, au bon moment, à la voix et à l'image. »**
 
 Supporting parts: `talkie/` (crew push-to-talk app + occupant web-call page), `replicas/` (legacy software we
 "don't own": dispatch, report, building manager), `dashboard/` (command post on the projector), `ifc/` (the building's IFC → routing graph, level plans, 3D;
-offline), `eval/`.
+offline).
 
 ## Folder ownership — ONE Claude Code session per folder
 | Session (`claude -n …`) | Writes only in | Brief |
@@ -38,7 +37,6 @@ offline), `eval/`.
 | silex | `silex/`, `views/`, `rosetta/skills/learned/` | `briefs/silex.md` |
 | replicas | `replicas/` | `briefs/replicas.md` |
 | dashboard | `dashboard/` | `briefs/dashboard.md` |
-| eval | `eval/` | `briefs/eval.md` |
 | ifc | `ifc/` | `briefs/ifc.md` |
 
 `contracts/` and `docs/` belong to Amil. **Never edit them.** If a contract is wrong or missing something, write it
@@ -50,13 +48,13 @@ under "Requests" in your status file and message the session that owns the other
 2. Write only in your folder(s) and `status/<session>.md` (create it from `status/_TEMPLATE.md`).
 3. After each task, update your status file: Running (URL/port) · Done · In progress · Blocked · Requests.
 4. Talk to other sessions only when something is ready, blocked, or a contract is wrong: `@ifc @talkie @gabriel @seraph
-   @halo @rosetta @silex @replicas @dashboard @eval` (`/peers` lists them). No chatter.
+   @halo @rosetta @silex @replicas @dashboard` (`/peers` lists them). No chatter.
 5. Never block on another session: mock it from `contracts/fixtures/`. Every service must run in **mock mode**
-   (`MOCK=1`) with fixtures only, so the demo survives any single failure.
+   (`MOCK=1`) with fixtures only, so the system survives any single failure.
 6. Commit only your paths: `git add <your folder> status/<you>.md && git commit -m "<session>: …"`. Never commit
    `.env`. Never force-push, never rewrite history.
 7. Secrets only from the root `.env` (`.env.example` lists them). Never hardcode keys. Never print them.
-8. Demo first. Every external call has a timeout, a cached fallback, and a visible state on the dashboard. Nothing
+8. Resilience first. Every external call has a timeout, a cached fallback, and a visible state on the dashboard. Nothing
    ever spins forever: a pending panel says what it is waiting for.
 9. UI text in French (radio French: short, no politeness). Code, comments, status files in English.
 10. Use Context7 for current docs (LiveKit Agents, Gladia, H API, Devin API, Next.js, FastAPI, Playwright). Do not

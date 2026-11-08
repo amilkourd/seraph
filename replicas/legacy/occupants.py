@@ -1,4 +1,4 @@
-"""Gestion des occupants (:8103): the building manager's software, plus the public /inscription page for judges."""
+"""Gestion des occupants (:8103): the building manager's software, plus the public /inscription page for visitors."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def levels() -> list[tuple[int, str]]:
 
 
 def living_rooms() -> list[tuple[int, str, list[tuple[str, str]]]]:
-    """Bedrooms and living rooms per floor, with the IFC's room ids, so Seraph can place each judge."""
+    """Bedrooms and living rooms per floor, with the IFC's room ids, so Seraph can place each visitor."""
     by_level: dict[int, list[tuple[str, str]]] = {}
     for room in building_model().get("rooms", []):
         if room.get("use") in LIVING and room.get("level", -1) >= 0:
@@ -220,7 +220,7 @@ def journal(request: Request, user: str = login):
     return replica.render(request, "occupants/journal.html", rows=rows)
 
 
-# ---------- public: judges opt in from the QR code ----------
+# ---------- public: visitors opt in from the QR code ----------
 
 @app.get("/inscription", response_class=HTMLResponse)
 def signup_form(request: Request):

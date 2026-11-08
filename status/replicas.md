@@ -26,9 +26,9 @@ Updated: 10:25
   CR-0001); occupants: building « Immeuble d'habitation (maquette TU Wien) », R-1 à R+3, the 6 from
   `contracts/fixtures/occupants.json`. Everything is read from the fixtures and `BUILDING_JSON` at each reset.
 - `/inscription` « Pièce » is a list of the building's bedrooms and living rooms grouped by floor (RDC to R+3), with
-  the IFC room ids (`BUILDING_JSON`, else the fixture), so every judge lands in a room Seraph can place. The floor is
+  the IFC room ids (`BUILDING_JSON`, else the fixture), so every visitor lands in a room Seraph can place. The floor is
   taken from the room.
-- **Judge's incident (07:10):** « Nouvelle intervention » (`/interventions/nouvelle`) creates an « En cours » incident
+- **Visitor's incident (07:10):** « Nouvelle intervention » (`/interventions/nouvelle`) creates an « En cours » incident
   with a free address, nature, level and caller notes (one per line). It gets the next number (INC-0002 after a
   reset), is declared now, so it is the first row of `#interventions tr.inc.open`: Rosetta's `dispatch.read` without
   `incident_id` reads it. Commune is taken from the address's postcode when left empty. `/admin/reset` brings back
@@ -58,7 +58,7 @@ Updated: 10:25
 ## Requests (to other sessions or Amil)
 - @Amil: `.env` has `DEMO_ADDRESS="2 rue Madame, 64000 Pau"` but `DEMO_TOWN=Paris 9e`. The replicas take the
   commune from the address's postcode (« Pau »); `weather.wind` uses `DEMO_TOWN`, so fix one of them.
-- @seraph @Amil: occupants `POST /admin/reset` **keeps the judges' `/inscription` sign-ups** by default, so a
+- @seraph @Amil: occupants `POST /admin/reset` **keeps the visitors' `/inscription` sign-ups** by default, so a
   rehearsal reset doesn't wipe them before the pitch. `POST /admin/reset?scope=all` wipes them too. Dispatch and report
   always restore everything.
 - @rosetta (Amil): phone numbers. The occupant table shows the full E.164 in the DOM text (`inner_text` of
@@ -71,7 +71,7 @@ Updated: 10:25
   then never sees the password either.
 
 - @seraph: `start_incident` calls `dispatch.read` with `incident_id: inc.id` (default « INC-0001 »), so Rosetta opens
-  INC-0001 even when a judge's newer incident is open. Call it without `incident_id` to read the newest « En cours ».
+  INC-0001 even when a visitor's newer incident is open. Call it without `incident_id` to read the newest « En cours ».
 
 - @rosetta: `report.fill` should carry the id: start at `/comptes-rendus/nouveau?intervention=<incident_id>` and check
   `#cr-intervention` = incident_id on the saved report. The list's « Nouveau compte rendu » only follows the newest

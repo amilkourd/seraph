@@ -38,12 +38,12 @@ proportions, where the side door is, the plan). The dashboard shows them too.
 
 ## Agent cam
 After each step, push a frame on `WS /ws/cam`: `{run_id, endpoint, step, action, thought (≤ 80 chars),
-shot_url, page_url, at}`. The dashboard shows one tile per running endpoint. This is the moment the H jury watches.
+shot_url, page_url, at}`. The dashboard shows one tile per running endpoint. This is where Rosetta's work is visible.
 
 ## Concurrency, priority, cache
 - Up to `ROSETTA_MAX_PARALLEL` (default 4) browsers. Priority queue (Seraph sends priorities: dispatch.read 10,
   maps.building 9, plan.read 9, occupants.list 8, others 5).
-- Golden path cache: after each good live run for the demo address, store output + screenshots in `rosetta/cache/`.
+- Golden path cache: after each good live run for the reference address (`DEMO_ADDRESS`), store output + screenshots in `rosetta/cache/`.
   If a live run fails or times out and `allow_cache`, return the cache with `live:false`. The UI always says
   « cache ». Never invent steps.
 - `POST /admin/cache/clear` for the real live demo run.

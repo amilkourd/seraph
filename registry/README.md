@@ -24,7 +24,7 @@ which incident, hit or miss.
 | `tuwien-escape-route-v2` | **The demo building.** TU Wien « Real-World Escape Route Test Model » v2.0.0 (IFC4, Archicad, **CC BY 4.0**, credit *TU Wien, Research Unit Digital Building Process*, https://researchdata.tuwien.ac.at/records/wzp90-dmf60). Provenance « Maquette IFC réelle (TU Wien, CC BY 4.0) — adresse d'exercice ». | `DEMO_ADDRESS`, now « 96 Boulevard Bessières, 75017 Paris » (exercise address: this model is not the building there) |
 | `dev-r5-exercice` | The fictional R+5, « bâtiment fictif » fallback. | 1 rue de l'Exercice, 75009 Paris (placeholder, exercice) |
 
-Ask for the demo building with `DEMO_ADDRESS` (in `.env`), in any spelling: `registry lookup "96 bd Bessieres 75017 PARIS"`.
+Look up the demo building with `DEMO_ADDRESS` (in `.env`), in any spelling: `registry lookup "96 bd Bessieres 75017 PARIS"`.
 Both are on the local backend and on Supabase.
 
 ## Why it is keyed this way
