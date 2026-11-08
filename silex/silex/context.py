@@ -166,6 +166,8 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
     inter = "\n".join(f"- {i}" for i in vr.get("interactions") or []) or "- none beyond the kit's taps"
     stairs = ", ".join("stair " + st.get("id", "?") for st in ((json_load(state_path).get("building") or {}).get("stairs") or [])) or "no stair listed"
     head = cli_warm_prompt().split("## Now")[0] + "\n" if cold else ""
+    bmap = ("\nThe building in one page (stairs, entrances, rooms, fire doors per level): `ifc/out/building.md` — read it first."
+            if (REPO / "ifc" / "out" / "building.md").exists() else "")
     return f"""{head}VIEW REQUEST {vr['request_id']}
 
 - view_id: `{view_id}` (put it in `<html data-view-id="{view_id}">`)
@@ -181,8 +183,10 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
 ## Build it FROM these images (open and look at every one of them with your read tool)
 Screenshots Rosetta's H agent took of the real address during the drive (Street View, Google Earth):
 {shot_lines}
-The building's IFC level plans (source of truth for the building's shape):
-{plan_lines}{miss_lines}
+The building's IFC level plans (source of truth for the building's shape; French intervention-plan conventions:
+walls, door swings, stair flights, green circulation, risk triangles, E1/E2 access arrows, ladder points). They
+share the 0–1000 frame of `building.rooms[].zone`, `doors[].plan_point` and `routes[].path`:
+{plan_lines}{miss_lines}{bmap}
 
 How to use them:
 - The street context (which side the street runs along, where the façade and the doors are, the approach from the
