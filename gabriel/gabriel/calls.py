@@ -73,7 +73,8 @@ Never set a boolean to false unless the caller says so.
 - level: the floor where the CALLER is, never where the fire is (« the fire on the third floor » → null). « deuxième / 2e » = 2, « fourth floor » = 4,
   « quinto piso » = 5, ground floor / RDC / planta baja = 0. Caller outside the building → null.
 - room: only a room id like "3.12" (level, dot, two digits) if said (« salle 3.12 » → "3.12", « bureau 2.01 » → "2.01");
-  « au deuxième » alone is level 2, not a room.
+  « au deuxième » alone is level 2, not a room. A number close to a valid id (« 2.1 », « deux zéro trois » → 2.01, 2.03)
+  → pick that id with room_sure false: the agent will read it back to the caller.
 - people_count: people together including the caller (« avec un collègue » = 2, « seul(e) » / « I'm alone » = 1,
   a single person speaking only about themself = 1).
 - smoke_seen: true if they see smoke near them, false if they say no smoke (« no veo humo » = false).
@@ -129,6 +130,34 @@ REPORT_FACTS = {
         "strict": True,
     },
 }
+
+NUM_ES = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
+CONFIRM_ROOM = {"fr": "Appartement {spoken}, c'est bien ça ?", "en": "Flat {spoken}, is that right?",
+                "es": "Apartamento {spoken}, ¿es correcto?"}
+
+
+def spoken_room(room: str, lang: str) -> str:
+    """« 2.01 » said digit by digit in the caller's language (TTS reads ids badly)."""
+    digits = [c for c in room if c.isdigit()]
+    words = {"fr": gladia_live.NUM_FR, "en": gladia_live.NUM_EN, "es": NUM_ES}[lang]
+    out = [words[int(d)] for d in digits]
+    if lang == "en":
+        out = ["oh" if w == "zero" and i > 0 else w for i, w in enumerate(out)]
+    return " ".join(out)
+
+
+def facts_tool(room_ids: list[str]) -> dict:
+    """report_facts with `room` restricted to the building's ids (or null) and a `room_sure` flag."""
+    tool = json.loads(json.dumps(REPORT_FACTS))
+    props = tool["function"]["parameters"]["properties"]
+    if room_ids:
+        props["room"] = {"type": ["string", "null"], "enum": sorted(room_ids) + [None],
+                         "description": "one of the building's room ids, only if the caller's words match it; else null"}
+    props["room_sure"] = {"type": "boolean", "description": "true only if the caller said this room id clearly; "
+                          "false if you picked the closest id from a partial or garbled number"}
+    tool["function"]["parameters"]["required"].append("room_sure")
+    return tool
+
 
 VOICE_RAISE = {"distress", "fear", "pain"}
 
@@ -246,7 +275,14 @@ class Call:
         self.seraph_speaking = False
         self.oai = AsyncOpenAI(base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY, timeout=4)
         self.ended = False
-        self.rooms = known_rooms()
+        self.room_list = gladia_live.rooms()
+        self.rooms = {r["id"] for r in self.room_list} or known_rooms()
+        self.tool = facts_tool(sorted(self.rooms))
+        self.rooms_prompt = "Valid room ids (choose one or null, never another value): " + "; ".join(
+            f"level {lv}: " + ", ".join(f"{r['id']} {r.get('use') or ''}".strip() for r in self.room_list if r.get("level") == lv)
+            for lv in sorted({r.get("level") for r in self.room_list if r.get("level") is not None})) if self.room_list else ""
+        self.confirm_room: Optional[str] = None       # a room to read back before sending it
+        self.room_asked: set[str] = set()
 
     def number(self) -> str:
         return self.occ.get("phone_masked") or ("web" if self.channel == "web" else "••")
@@ -356,6 +392,15 @@ class Call:
         if self.seraph_speaking or self.ended or self.pending:   # Seraph has the line, or the caller kept talking
             return
         new = facts.pop("_new", False)
+        if self.confirm_room:
+            room, self.confirm_room = self.confirm_room, None
+            self.room_asked.add(room)
+            text = CONFIRM_ROOM[self.lang].format(spoken=spoken_room(room, self.lang))
+            self.lines.append(("gabriel", CONFIRM_ROOM[self.lang].format(spoken=room)))
+            log.info("%s gabriel: %s", self.call_id, text)
+            assert self.session is not None
+            self.session.say(text, audio=self.audio(text, self.lang))
+            return
         if facts.get("asks_what_to_do"):
             line = FOLLOW[self.lang]["asked"] if acked else p["asked"]
         else:
@@ -393,8 +438,9 @@ class Call:
         try:
             r = await self.oai.chat.completions.create(
                 model=config.LLM_MODEL, reasoning_effort="none", service_tier="priority",
-                tools=[REPORT_FACTS], tool_choice={"type": "function", "function": {"name": "report_facts"}},
-                messages=[{"role": "system", "content": EXTRACT}, {"role": "user", "content": convo}])
+                tools=[self.tool], tool_choice={"type": "function", "function": {"name": "report_facts"}},
+                messages=[{"role": "system", "content": f"{EXTRACT}\n{self.rooms_prompt}"},
+                          {"role": "user", "content": convo}])
             calls = r.choices[0].message.tool_calls or []
             got = json.loads(calls[0].function.arguments) if calls else {}
         except Exception as e:
@@ -402,10 +448,15 @@ class Call:
             return {}
         asks = bool(got.pop("asks_what_to_do", False))
         got = {k: v for k, v in got.items() if v is not None}
+        sure = bool(got.pop("room_sure", False))
         if got.get("room"):
             got["room"] = norm_room(got["room"], self.rooms, self.occ.get("room"))
-            if "." not in got["room"] and got["room"] not in self.rooms:
+            room = got["room"]
+            if room not in self.rooms:                  # never send a free-form number
                 got.pop("room")
+            elif room != self.facts.get("room") and not sure and room not in self.room_asked:
+                got.pop("room")                         # unsure: read it back once before sending it
+                self.confirm_room = room
         changed = {k: v for k, v in got.items() if k != "confidence" and self.facts.get(k) != v}
         self.facts.update({k: v for k, v in got.items() if k != "confidence"})
         voice_new = bool(self.voice) and self.voice.get("at") != self.sent.get("_voice_at")
@@ -485,7 +536,8 @@ async def call_agent(ctx: JobContext) -> None:
 
     session = AgentSession(
         stt=gladia.STT(languages=list(LANGS), code_switching=True, endpointing=0.15, maximum_duration_without_endpointing=10,
-                       custom_vocabulary=gladia_live.vocabulary([call.occ.get("name", "")]),
+                       custom_vocabulary=gladia_live.vocabulary([call.occ.get("name", "")] + [
+                           r["id"] for r in call.room_list if r.get("level") == call.occ.get("level")]),
                        custom_spelling=gladia_live.SPELLING, pre_processing_audio_enhancer=True, http_session=http),
         vad=ctx.proc.userdata["vad"],
     )

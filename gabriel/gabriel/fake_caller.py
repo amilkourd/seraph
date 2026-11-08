@@ -1,6 +1,7 @@
 """Scripted web caller for testing call agents without a phone. Uses the talkie's /api/call-token like /call does,
 then speaks lines (ElevenLabs, a different voice) when Gabriel stops talking.
-`uv run python -m gabriel.fake_caller OCC-01 fr "Allô ? Oui, je suis en salle 3.12 avec un collègue." "Il y a de la fumée sous la porte."`
+`uv run python -m gabriel.fake_caller OCC-T01 fr "Allô ? Je suis au deuxième, appartement 2.01." "Il y a de la fumée."`
+Use a test occupant id (OCC-T…) so test calls never overwrite the demo occupants in Seraph's state; `-` = inbound 112.
 """
 from __future__ import annotations
 

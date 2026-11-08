@@ -44,6 +44,45 @@ SPELLING = {
 }
 
 
+NUM_FR = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze",
+          "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt"]
+NUM_EN = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
+          "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"]
+SKIP_USES = {"ascenseur", "circulation", "extérieur", "garage", "place de parking", "rampe d'accès"}
+
+
+def rooms() -> list[dict]:
+    """Rooms people can be in, from BUILDING_JSON (fallback: fixture): {id, level, label, use}."""
+    for p in (config.ROOT / config.env("BUILDING_JSON", "ifc/out/building.json"), config.FIXTURES / "building.json"):
+        try:
+            b = json.loads(p.read_text(encoding="utf-8"))
+            out = [r for r in b.get("building", b).get("rooms", []) or []
+                   if r.get("id") and re.fullmatch(r"-?\d+\.\d+", r["id"]) and r.get("use") not in SKIP_USES]
+            if out:
+                return out
+        except Exception:
+            continue
+    return []
+
+
+def room_spelling(room_list: list[dict]) -> dict[str, list[str]]:
+    """« deux zéro un », « deux point zéro un », « two oh one » → "2.01" (Gladia custom spelling)."""
+    out: dict[str, list[str]] = {}
+    for r in room_list:
+        m = re.fullmatch(r"(\d)\.(\d)(\d)", r["id"])
+        if not m:
+            continue
+        lv, a, b = int(m[1]), int(m[2]), int(m[3])
+        n = a * 10 + b
+        fr_tail = [f"{NUM_FR[a]} {NUM_FR[b]}"] if a == 0 else ([NUM_FR[n]] if n <= 20 else [])
+        en_tail = [f"oh {NUM_EN[b]}", f"zero {NUM_EN[b]}"] if a == 0 else ([NUM_EN[n]] if n <= 20 else [])
+        heard = [f"{NUM_FR[lv]} {t}" for t in fr_tail] + [f"{NUM_FR[lv]} point {t}" for t in fr_tail] \
+            + [f"{NUM_EN[lv]} {t}" for t in en_tail]
+        if heard:
+            out[r["id"]] = heard
+    return out
+
+
 def building_words() -> list[str]:
     """Ids and labels from BUILDING_JSON (fallback: fixture) and the occupants' names."""
     words: list[str] = []
@@ -71,8 +110,9 @@ def building_words() -> list[str]:
 
 
 def vocabulary(extra: Optional[list[str]] = None) -> list[str]:
+    """Glossary, then `extra` (the caller's name and rooms), then the building's ids. Capped at 100."""
     seen: dict[str, None] = {}
-    for w in GLOSSARY + building_words() + (extra or []):
+    for w in GLOSSARY + (extra or []) + building_words():
         w = w.strip()
         if w and w.lower() not in (k.lower() for k in seen):
             seen[w] = None
@@ -91,7 +131,7 @@ def session_config(*, sentiment: bool, extra_vocab: Optional[list[str]] = None, 
             "custom_vocabulary": True,
             "custom_vocabulary_config": {"vocabulary": vocabulary(extra_vocab), "default_intensity": 0.5},
             "custom_spelling": True,
-            "custom_spelling_config": {"spelling_dictionary": SPELLING},
+            "custom_spelling_config": {"spelling_dictionary": {**room_spelling(rooms()), **SPELLING}},
         },
         "messages_config": {"receive_partial_transcripts": True, "receive_final_transcripts": True,
                             "receive_speech_events": True, "receive_lifecycle_events": False,
