@@ -292,12 +292,23 @@ class Radio:
         r.on("participant_disconnected", self.on_participant_disconnected)
         r.on("reconnecting", lambda: log.warning("LiveKit reconnecting"))
         r.on("reconnected", lambda: log.info("LiveKit reconnected"))
+        gone: asyncio.Future = asyncio.get_running_loop().create_future()
+        r.on("disconnected", lambda reason=None: gone.done() or gone.set_result(reason))
         await r.connect(config.LIVEKIT_URL, token(), rtc.RoomOptions(auto_subscribe=True))
         log.info("joined %s as %s (%d others)", config.RADIO_ROOM, config.RADIO_IDENTITY, len(r.remote_participants))
         track = rtc.LocalAudioTrack.create_audio_track("seraph-voice", self.source)
         await r.local_participant.publish_track(track, rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_MICROPHONE))
         await self.set_talking(False)
-        await self.speak_loop()
+        speaker = asyncio.create_task(self.speak_loop())
+        reason = await gone
+        speaker.cancel()
+        if reason == rtc.DisconnectReason.DUPLICATE_IDENTITY:
+            raise Duplicate("another process joined crew as Seraph")
+        raise RuntimeError(f"left crew ({reason})")
+
+
+class Duplicate(Exception):
+    pass
 
 
 def play_local(pcm: bytes) -> None:
@@ -319,17 +330,31 @@ async def amain() -> None:
         loop.add_signal_handler(s, stop.set)
     task = asyncio.create_task(radio.run())
     done, _ = await asyncio.wait({task, asyncio.create_task(stop.wait())}, return_when=asyncio.FIRST_COMPLETED)
-    if task in done and task.exception():
-        log.error("radio crashed: %r", task.exception())
+    err = task.exception() if task in done else None
     await radio.room.disconnect()
+    await radio.link.stop()
     if radio.http:
         await radio.http.close()
+    if err:
+        raise err
 
 
 def main() -> None:
+    """Restarts by itself after a crash or a lost room; stops if another radio took the `Seraph` identity."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s", datefmt="%H:%M:%S")
     logging.getLogger("livekit").setLevel(logging.WARNING)
-    asyncio.run(amain())
+    while True:
+        try:
+            asyncio.run(amain())
+            return
+        except Duplicate as e:
+            log.error("stopping: %s (one radio only)", e)
+            return
+        except KeyboardInterrupt:
+            return
+        except Exception as e:
+            log.error("radio crashed (%r), restarting in 2 s", e)
+            time.sleep(2)
 
 
 if __name__ == "__main__":
