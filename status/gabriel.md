@@ -1,5 +1,5 @@
 # gabriel — status
-Updated: 05:16
+Updated: 05:24
 
 ## Running
 Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talkie on :3000 for web calls.
@@ -67,6 +67,12 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
 - `place_calls`: logged with masked numbers, not dialed (SIP not wired, Amil's decision). Numbers are masked everywhere.
 - Metrics to Seraph (`{kind:"metric"}`): `eot_to_transcript`, `say_to_audio` (+`wait_ms`), `release_to_audio`,
   `call_ack`, `call_turn` (+`report_facts_ms`), `call_say_queued`.
+
+- **Scenario v2 (TU Wien, 96 boulevard Bessières, one stair A):** vocabulary without « escalier B », with rampe,
+  parking, désenfumé, levée du confinement, balcon, terrasse, boulevard Bessières; `report_facts` maps « the stairs »
+  to `stair:A`, the garage ramp to `exit:E2`, and « ma chambre » / « chez moi » to the caller's listed room. Offline
+  against `calls.jsonl` v2 (twice): CALL-01/02/03/04/07 exact; CALL-05 gives `current_action:"unknown"` (Lucía never
+  says what she's doing; Gabriel asks).
 
 ## In progress
 - Nothing. Next if wanted: SIP/Twilio for `place_calls` and the 112 number (stubbed), a real-phone check of the mic.
