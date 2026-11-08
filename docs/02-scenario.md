@@ -21,7 +21,8 @@ adresse fictive, exercice » on every screen. Everything below exists in `contra
   `U1.2`, `U2.1` `U2.2`, `U3.1`. Each flat door is EI2 30-C-Sm.
 - Outside, from Rosetta (`maps.building`; fixture values, all on the top view `earth-top-01`): hydrant **H1**
   « Poteau incendie, trottoir rue Madame », ~30 m from E1 · truck spot « Rue Madame, devant E1 » · E1 on the front
-  façade, E2 at the foot of the ramp on the left side.
+  façade, E2 at the foot of the ramp, rear-left corner · the roof outline `building.footprint` (optional; in the
+  fixture, the IFC's R+1 outline placed with E1 on its point).
 - Posted plan (`plan.read`): the R-1 plan, rendered from the IFC (`ifc/out/levels/L-1.svg`), `image_id`
   `plan-l-1-01`, same 0–1000 frame as `ifc-L-1`. It cross-checks the IFC; the IFC zones win.
 - Wind: west, ~20 km/h (Météo-France, Pau). Géorisques (mock): séisme zone 4, retrait-gonflement des argiles.

@@ -42,15 +42,19 @@ output
 ```json
 { "storeys_estimate": 4,
   "entrances": [{"id":"E1","label":"Porte d'entrée, hall de l'escalier","side":"front","point":{"image_id":"earth-top-01","x":500,"y":585}},
-                {"id":"E2","label":"Porte de garage, rampe (sous-sol)","side":"left","point":{"image_id":"earth-top-01","x":318,"y":372}}],
-  "hydrants": [{"id":"H1","label":"Poteau incendie, trottoir rue Madame","point":{"image_id":"earth-top-01","x":642,"y":652}}],
+                {"id":"E2","label":"Porte de garage, rampe (sous-sol)","side":"left","point":{"image_id":"earth-top-01","x":395,"y":352}}],
+  "hydrants": [{"id":"H1","label":"Poteau incendie, trottoir rue Madame","point":{"image_id":"earth-top-01","x":831,"y":635}}],
   "truck_spot": {"label":"Rue Madame, devant E1","point":{"image_id":"earth-top-01","x":500,"y":712}},
+  "footprint": {"image_id":"earth-top-01","polygon":[[422,468],[422,360],[625,360], …]},
   "evidence": [{"of":"E1","point":{"image_id":"sv-front-01","x":508,"y":642}}, …],
   "obstacles": ["Voitures garées le long de la rue Madame"] }
 ```
 **Every point Halo draws (entrances, hydrant, truck spot) is on the same top view, `earth-top-01`.** Points found on
 other photos (Street View, Earth sides) go in `evidence` (`{of, point}`): proof for the dashboard, never drawn
-together on one scheme.
+together on one scheme. Optional `footprint` (`{image_id, polygon}`, same top view): the building's roof outline,
+so Halo draws the real block instead of a schematic one. Holo points once at the roof; **code** computes the polygon
+(threshold + flood fill from that point, simplified to ≤ 16 vertices), as for `plan.read` zones. Seraph copies it
+to `building.footprint` (with `source`). Absent = Halo keeps its schematic block through the entrances.
 Screenshots: `sv-front-01`, `sv-left-01`, `sv-right-01`, `earth-front-01`, `earth-left-01`, `earth-rear-01`,
 `earth-top-01` (whatever was reachable). Accept cookie consent first. If Earth's 3D doesn't render, keep Street View
 and Maps satellite only and say so in `error` (status stays `ok`).

@@ -75,8 +75,22 @@ SHOTS_MAPS = [
     shot("earth-rear-01", "Arrière, balcons et terrasses (Google Earth 3D)", "rear"),
     shot(TOP, "Vue du dessus, rue Madame (Google Earth)", "top"),
 ]
-ENTRANCE_POINTS = {"E1": pt(TOP, 500, 585), "E2": pt(TOP, 318, 372)}
-HYDRANT = {"id": "H1", "label": "Poteau incendie, trottoir rue Madame", "distance_m": 30, "point": pt(TOP, 642, 652)}
+# Mock placement of the IFC on the top view (live: Rosetta points on the real image). The IFC frame already has E1's
+# façade at the bottom: scale it to ~21 % of the 1280×800 image (k px per plan unit) and put door E1 on (500, 585).
+# The 0–1000 grid is per axis, so x and y scale differently. 1 m ≈ 14 px: the hydrant sits ~30 m from E1.
+TOP_W, TOP_H, K = 1280, 800, 0.4
+E1_PLAN = next(d for d in ifc["doors"] if d["id"] == "E1")["plan_point"]
+
+
+def to_top(x, y):
+    return [round(500 + K * (x - E1_PLAN["x"]) * 1000 / TOP_W), round(585 + K * (y - E1_PLAN["y"]) * 1000 / TOP_H)]
+
+
+ROOF = next(lv for lv in ifc["levels"] if lv["level"] == 1)["outline"][0]["outer"]   # largest upper floor = the roof seen from above
+FOOTPRINT = {"image_id": TOP, "polygon": [to_top(x, y) for x, y in ROOF]}
+E2_PLAN = next(d for d in ifc["doors"] if d["id"] == "E2")["plan_point"]
+ENTRANCE_POINTS = {"E1": pt(TOP, *to_top(E1_PLAN["x"], E1_PLAN["y"])), "E2": pt(TOP, *to_top(E2_PLAN["x"], E2_PLAN["y"]))}
+HYDRANT = {"id": "H1", "label": "Poteau incendie, trottoir rue Madame", "distance_m": 30, "point": pt(TOP, 831, 635)}
 TRUCK = {"label": "Rue Madame, devant E1", "point": pt(TOP, 500, 712)}
 EVIDENCE = [  # per-photo pointing, kept as evidence only (Halo draws from the top view)
     {"of": "E1", "point": pt("sv-front-01", 508, 642)},
@@ -142,6 +156,7 @@ for e in fb["entrances"]:
     e["point"] = ENTRANCE_POINTS[e["id"]]
 fb["hydrants"] = [HYDRANT]
 fb["truck_spot"] = TRUCK
+fb["footprint"] = FOOTPRINT
 fb["plan"] = {"image_id": PLAN_ID, "level": -1, "file": "levels/L-1.svg", "points": plan_points, "zones": plan_zones}
 out = {"name": fb.pop("name"), "address_placeholder": "DEMO_ADDRESS (.env: « 2 rue Madame, 64000 Pau », adresse fictive, exercice)"}
 out.update(fb)
@@ -189,6 +204,7 @@ dump(EP / "maps.building.json", result("maps.building", {
     "entrances": [{"id": e["id"], "label": e["label"], "side": e["side"], "point": ENTRANCE_POINTS[e["id"]]} for e in ifc["entrances"]],
     "hydrants": [{k: v for k, v in HYDRANT.items() if k != "distance_m"}],
     "truck_spot": TRUCK,
+    "footprint": FOOTPRINT,
     "evidence": EVIDENCE,
     "obstacles": ["Voitures garées le long de la rue Madame"]},
     SHOTS_MAPS, src("earth", "Maps / Earth", T0, url="https://earth.google.com/")))
@@ -260,6 +276,7 @@ for e in sb["entrances"]:
     e["source"] = src("earth", "Earth")
 sb["hydrants"][0]["source"] = src("earth", "Earth")
 sb["truck_spot"]["source"] = src("earth", "Earth")
+sb["footprint"]["source"] = src("earth", "Earth")
 sb["plan"] = {"image_id": PLAN_ID, "url": f"http://localhost:8001/shots/{PLAN_ID}.jpg", "level": -1, "points": plan_points}
 sb["hazards"] = hazards
 sb["approach"] = {"best_entrance_id": "E1", "reason": APPROACH_REASON, "source": src("seraph", "calcul")}

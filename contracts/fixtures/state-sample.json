@@ -259,7 +259,7 @@
         "level": -1,
         "source": {"kind": "earth", "label": "Earth", "confirmed": true, "at": "2026-11-08T00:40:00Z"},
         "plan_point": {"image_id": "ifc-L-1", "x": 122, "y": 247},
-        "point": {"image_id": "earth-top-01", "x": 318, "y": 372}
+        "point": {"image_id": "earth-top-01", "x": 395, "y": 352}
       }
     ],
     "hydrants": [
@@ -267,7 +267,7 @@
         "id": "H1",
         "label": "Poteau incendie, trottoir rue Madame",
         "distance_m": 30,
-        "point": {"image_id": "earth-top-01", "x": 642, "y": 652},
+        "point": {"image_id": "earth-top-01", "x": 831, "y": 635},
         "source": {"kind": "earth", "label": "Earth", "confirmed": true, "at": "2026-11-08T00:40:00Z"}
       }
     ],
@@ -3484,6 +3484,11 @@
         ]
       }
     ],
+    "footprint": {
+      "image_id": "earth-top-01",
+      "polygon": [[422, 468], [422, 360], [625, 360], [625, 498], [613, 498], [613, 611], [555, 611], [555, 587], [411, 586], [411, 468]],
+      "source": {"kind": "earth", "label": "Earth", "confirmed": true, "at": "2026-11-08T00:40:00Z"}
+    },
     "plan": {
       "image_id": "plan-l-1-01",
       "url": "http://localhost:8001/shots/plan-l-1-01.jpg",

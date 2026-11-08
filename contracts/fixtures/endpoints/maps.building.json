@@ -16,19 +16,23 @@
         "id": "E2",
         "label": "Porte de garage, rampe (sous-sol)",
         "side": "left",
-        "point": {"image_id": "earth-top-01", "x": 318, "y": 372}
+        "point": {"image_id": "earth-top-01", "x": 395, "y": 352}
       }
     ],
     "hydrants": [
       {
         "id": "H1",
         "label": "Poteau incendie, trottoir rue Madame",
-        "point": {"image_id": "earth-top-01", "x": 642, "y": 652}
+        "point": {"image_id": "earth-top-01", "x": 831, "y": 635}
       }
     ],
     "truck_spot": {
       "label": "Rue Madame, devant E1",
       "point": {"image_id": "earth-top-01", "x": 500, "y": 712}
+    },
+    "footprint": {
+      "image_id": "earth-top-01",
+      "polygon": [[422, 468], [422, 360], [625, 360], [625, 498], [613, 498], [613, 611], [555, 611], [555, 587], [411, 586], [411, 468]]
     },
     "evidence": [
       {
