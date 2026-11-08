@@ -179,6 +179,8 @@ def cli_request_prompt(vr: dict, view_id: str, out: str, notes: str, state_path:
 - live state: `{state_path}` (the IncidentState right now, without doors/materials/graph/old timeline). Read it with
   your file read tool. Draw only what it has: this building has {stairs}.
 - deadline: {vr.get('deadline_s')} s from now. Be fast: copy the example, adapt it, check, done.
+- legibility at arm's length: the arrow is the main shape (`width` ≥ 16, long); no tag over the arrow's shaft or
+  head (put the entrance tag on the side away from the route).
 
 ## Build it FROM these images (open and look at every one of them with your read tool)
 Screenshots Rosetta's H agent took of the real address during the drive (Street View, Google Earth):

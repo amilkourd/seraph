@@ -1,5 +1,5 @@
 # silex — status
-Updated: 05:15
+Updated: 05:22
 
 ## Running
 - silex on http://localhost:8002 (0.0.0.0) · public: `SILEX_PUBLIC_URL`, else the LAN IP (`http://172.16.0.13:8002`)
@@ -13,6 +13,8 @@ Updated: 05:15
 ## Measured
 | When | Moment | Transport | Warm | Attempts | request_to_view | Deadline |
 |---|---|---|---|---|---|---|
+| 05:16 | approach, test id, live Rosetta shots (6/8 refs as files, 24 s of it waiting for Rosetta) | CLI, Opus | yes | 1 | **140 s** | 300 s |
+| 05:10 | approach, sent by Seraph itself at dispatch (refs: IFC plans only, shots not taken yet) | CLI, Opus | yes | 1 | **102 s** | 300 s |
 | 05:05 | approach (TU Wien, Seraph's real request id) | CLI, Opus | yes (warm 17 s before) | 1 | **107 s** | 300 s |
 | 04:50 | approach / team_engaged | mock (kit example) | — | 1 | 5.2 s / 3.9 s | — |
 
@@ -56,16 +58,25 @@ Updated: 05:15
   examples) + attachments (kit files, state.json, reference images), structured output `{request_id, view_id,
   attempt, html, notes}`, warm sessions via messages. Tested to the point of sending; see Facts.
 
+- Screenshot → view, checked with live Rosetta shots (05:16, `view_approach_3`): Devin opened each image and
+  said what it took. `earth-top-01` → the street band along the façade E1 opens on; IFC L0 → the footprint; IFC L3
+  → one stair A. The three `sv-*` Street View shots are an **indoor panorama of the 42 Paris campus** (no façade),
+  and Devin said so and took nothing from them (@rosetta told).
+- A build waits up to `SILEX_REF_WAIT_S` (45 s) for shots that are missing while Rosetta reports active runs.
+- `GET /sessions` → `request_to_view_ms` of the session's last view (request reaching Silex → view served).
+- Playbook + every request: arrow width ≥ 16, no tag over the arrow (Amil's review of view_approach_2).
+
 ## In progress
-- Nothing running. Next: a build with real Rosetta street shots once `maps.building` has run live (today only the
-  2 IFC plans were files; `sv-*`/`earth-*` return 404 from Rosetta, so they were listed as « not available »).
+- Nothing running.
 
 ## Blocked
 -
 
 ## Requests (to other sessions or Amil)
-- @seraph: with `MOCK=1`, `Silex._request` fakes a failure and never calls Silex. Please call Silex when it is
-  reachable even in mock (or behind a flag such as `SERAPH_SILEX_LIVE=1`), so the replay gets Devin views.
+- @seraph: the approach ViewRequest goes out on the first `maps.building` result (fixture/cache at dispatch), and
+  `request_moment` sends only one per moment, so the live shots that land later never reach Devin. Please send a
+  new approach request when a live `maps.building` result brings new screenshots.
+- (done by @seraph) Seraph calls Silex in mock too: its 05:10 dispatch request was built by Devin in 102 s.
 - @rosetta: the approach references Seraph sends are `sv-front-01`, `sv-left-01`, `earth-left-01`,
   `earth-rear-01`, `earth-top-01` (`/shots/<id>.jpg`). Silex fetches them per request, so live ones are used as soon
   as they exist.

@@ -35,3 +35,9 @@ and, per request, `state.json` (the full live `IncidentState`) and reference ima
   `building.stairs[].zones`, `routes[].path` on the frame `routes[].path_image_id`, level `path_level`).
 - UI text in French, radio style: short, imperative, no politeness. Tags only (`E1`, `3.12`, `B1 · R+3`).
 - File size well under 200 KB (aim for ~150 lines).
+
+## Legibility at arm's length (from Amil's review of the first views)
+- The route is the main shape: draw the arrow wide (`width` ≥ 16 on the 874×402 screen) and long enough to read
+  in one glance, from the truck or the street to the door.
+- No tag ever covers the arrow, its shaft or its head: put the entrance tag on the side away from the route
+  (`at` = the side opposite the arrow), and keep tags off the target outline when you can.

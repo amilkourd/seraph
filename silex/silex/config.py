@@ -79,6 +79,7 @@ class Settings:
     transport: str             # cli: local `devin -p` (Opus, sees the repo) · api: Devin cloud API v3
     devin_model: str
     devin_permission_mode: str
+    ref_wait_s: float          # how long a build waits for Rosetta shots that are still being taken
 
     @property
     def active_transport(self) -> str:
@@ -112,6 +113,7 @@ def load() -> Settings:
         transport=env("DEVIN_TRANSPORT", "cli").lower(),
         devin_model=env("SILEX_DEVIN_MODEL", "opus"),
         devin_permission_mode=env("SILEX_DEVIN_PERMISSION_MODE", "accept-edits"),
+        ref_wait_s=float(env("SILEX_REF_WAIT_S", "45")),
     )
 
 

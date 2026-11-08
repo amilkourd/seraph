@@ -1,0 +1,54 @@
+{
+ "view_id": "view_approach_2",
+ "moment": "approach",
+ "title_fr": "Par où j'entre",
+ "purpose_fr": "Par où j'entre : bloc vu du dessus, rue, camion, flèche vers E1, hydrant",
+ "data_keys": [
+  "building.entrances",
+  "building.approach",
+  "building.hydrants",
+  "building.truck_spot",
+  "routes"
+ ],
+ "references": [
+  "sv-front-01",
+  "sv-left-01",
+  "earth-left-01",
+  "earth-rear-01",
+  "earth-top-01",
+  "ifc-L-1",
+  "ifc-L0",
+  "ifc-L1",
+  "ifc-L2",
+  "ifc-L3"
+ ],
+ "built_by": "devin",
+ "devin_session_url": null,
+ "transport": "cli",
+ "model": "opus",
+ "devin_cli_session": "acoustic-dragon",
+ "created_at": "2026-11-08T04:12:15.250Z",
+ "request_id": "req_01M6WNKM2GMW5817TX5QYB7HFR",
+ "request_to_view_ms": 101750,
+ "attempts": 1,
+ "late": false,
+ "notes": "Top view of the ground-floor IFC footprint in white with the arrow coming from the street onto E1 (pinged, the only outdoor point on the ifc-L0 frame), and a card: Entrez par E1, Esc. A fumée, Feu R-1, Camion devant E1.",
+ "references_used": [
+  {
+   "image": "ifc-L-1.svg",
+   "image_id": "ifc-L-1",
+   "caption": "Plan IFC niveau -1",
+   "side": "plan",
+   "took": "the garage level behind E2: the access ramp -1.03 and the garage -1.11 (the room on fire) on the left side of the plan, with ESC A at the bottom centre; this is why E2's plan_point lives on the ifc-L-1 frame and is not placed on the ground-floor drawing",
+   "url": "http://172.16.0.13:8002/views/view_approach_2/refs/ifc-L-1.svg"
+  },
+  {
+   "image": "ifc-L0.svg",
+   "image_id": "ifc-L0",
+   "caption": "Plan IFC niveau 0",
+   "side": "plan",
+   "took": "the footprint drawn in the view: the main slab outline plus the stair-hall block at the bottom centre (ESC A, x 525-656, y 639-744) and the narrow annex down the right edge; the E1 door marker on the plan at (497,775) sits just outside that bottom edge, so the façade and the street are on the south side and the approach arrow comes from there",
+   "url": "http://172.16.0.13:8002/views/view_approach_2/refs/ifc-L0.svg"
+  }
+ ]
+}

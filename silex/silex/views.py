@@ -53,6 +53,7 @@ class Session:
     transport: str = "api"         # api | cli | mock
     resume: Optional[str] = None   # Devin CLI session id (`devin -r`)
     summary: str = ""              # Devin's line on its last view
+    request_to_view_ms: Optional[int] = None   # its last view: request reaching Silex → view served
     refs: list = field(default_factory=list)   # [{image, took, url, caption}]: what it took from each screenshot
 
     def public(self) -> dict:
@@ -62,7 +63,8 @@ class Session:
                 "status": self.status, "purpose": self.purpose, "started_at": self.started_at,
                 "elapsed_s": round(time.time() - self.t0), "request_id": self.request_id, "view_id": self.view_id,
                 "label": "mock" if self.mock else "devin", "note": self.note,
-                "tail": list(run.tail)[-6:] if run else [], "summary": self.summary, "refs": self.refs}
+                "tail": list(run.tail)[-6:] if run else [], "summary": self.summary, "refs": self.refs,
+                "request_to_view_ms": self.request_to_view_ms}
 
     @property
     def live(self) -> bool:
@@ -123,6 +125,9 @@ class Silex:
                 if job.status not in ("ready", "failed"):
                     job.status, job.note = "failed", "Silex redémarré"
                 self.jobs[job.request_id] = job
+            for j in self.jobs.values():           # sessions saved before the field existed
+                if j.status == "ready" and j.session_id in self.sessions and self.sessions[j.session_id].request_to_view_ms is None:
+                    self.sessions[j.session_id].request_to_view_ms = j.request_to_view_ms
             for s in self.sessions.values():
                 if s.status in ("building", "fixing"):
                     s.status, s.request_id = "idle", None
@@ -250,7 +255,7 @@ class Silex:
                 "notes": notes, "references_used": used}
         (out / "view.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
         if s:
-            s.summary, s.refs = notes, used
+            s.summary, s.refs, s.request_to_view_ms = notes, used, job.request_to_view_ms
             s.status = "ready" if s.mock else "idle"     # a Devin session keeps its context: reusable
             s.note = f"{job.view_id} en {job.request_to_view_ms / 1000:.0f} s"
             s.request_id = None if not s.mock else s.request_id
@@ -578,25 +583,42 @@ class Silex:
         want = {"ifc-L0", f"ifc-L{fire_level}"}
         plans = [r for r in refs if r.get("side") == "plan" and r.get("image_id") in want][:2]
         folder.mkdir(parents=True, exist_ok=True)
-        out = []
+        out = [{**r, "path": None} for r in shots + plans]
+
+        async def fetch(c: httpx.AsyncClient, item: dict) -> None:
+            iid = item.get("image_id") or "ref"
+            urls = [u for u in (item.get("url"), None if item.get("side") == "plan" else f"{settings.rosetta_url}/shots/{iid}.jpg") if u]
+            for url in dict.fromkeys(urls):
+                try:
+                    resp = await c.get(url)
+                    resp.raise_for_status()
+                except httpx.HTTPError:
+                    continue
+                ext = ".svg" if "svg" in resp.headers.get("content-type", "") or url.endswith(".svg") else ".jpg"
+                (folder / f"{iid}{ext}").write_bytes(resp.content)
+                item["path"] = str((folder / f"{iid}{ext}").relative_to(REPO))
+                return
+
         async with httpx.AsyncClient(timeout=6) as c:
-            for r in shots + plans:
-                iid = r.get("image_id") or "ref"
-                urls = [u for u in (r.get("url"), None if r.get("side") == "plan" else f"{settings.rosetta_url}/shots/{iid}.jpg") if u]
-                item = {**r, "path": None}
-                for url in dict.fromkeys(urls):
-                    try:
-                        resp = await c.get(url)
-                        resp.raise_for_status()
-                    except httpx.HTTPError:
-                        continue
-                    ext = ".svg" if "svg" in resp.headers.get("content-type", "") or url.endswith(".svg") else ".jpg"
-                    (folder / f"{iid}{ext}").write_bytes(resp.content)
-                    item["path"] = str((folder / f"{iid}{ext}").relative_to(REPO))
-                    break
-                out.append(item)
+            for item in out:
+                await fetch(c, item)
+            # Seraph may ask before Rosetta has written the shots: wait a little while Rosetta is still working
+            stop = time.time() + settings.ref_wait_s
+            while any(not r["path"] and r.get("side") != "plan" for r in out) and time.time() < stop and await self._rosetta_busy(c):
+                await asyncio.sleep(3)
+                for item in out:
+                    if not item["path"]:
+                        await fetch(c, item)
         log.info("references for %s: %d/%d files", job.view_id, sum(1 for r in out if r["path"]), len(out))
         return out
+
+    @staticmethod
+    async def _rosetta_busy(c: httpx.AsyncClient) -> bool:
+        try:
+            h = (await c.get(f"{settings.rosetta_url}/health")).json()
+            return bool(h.get("active") or h.get("queued"))
+        except (httpx.HTTPError, ValueError):
+            return False
 
     @staticmethod
     def _read_notes(path: Path, refs: list[dict]) -> tuple[dict, list[str]]:

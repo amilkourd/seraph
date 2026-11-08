@@ -1,0 +1,91 @@
+{
+ "view_id": "view_approach_3",
+ "moment": "approach",
+ "title_fr": "Par où j'entre",
+ "purpose_fr": "Par où j'entre : bloc vu du dessus, rue, camion, flèche vers E1, hydrant",
+ "data_keys": [
+  "building.entrances",
+  "building.approach",
+  "building.hydrants",
+  "building.truck_spot",
+  "building.stairs",
+  "building.rooms",
+  "building.levels",
+  "building.model",
+  "routes"
+ ],
+ "references": [
+  "sv-front-01",
+  "sv-left-01",
+  "sv-right-01",
+  "earth-left-01",
+  "earth-rear-01",
+  "earth-top-01",
+  "ifc-L-1",
+  "ifc-L0",
+  "ifc-L1",
+  "ifc-L2",
+  "ifc-L3"
+ ],
+ "built_by": "devin",
+ "devin_session_url": null,
+ "transport": "cli",
+ "model": "opus",
+ "devin_cli_session": "acoustic-dragon",
+ "created_at": "2026-11-08T04:18:49.968Z",
+ "request_id": "req_test_shots_1",
+ "request_to_view_ms": 139632,
+ "attempts": 1,
+ "late": false,
+ "notes": "Top view of the ground-floor IFC footprint in white, a grey street band along the façade edge and one big arrow (width 18) running from it onto E1, tag set across the arrow; card: Entrez par E1, Montez esc. A, Feu R+3, Camion vers E2.",
+ "references_used": [
+  {
+   "image": "sv-front-01.jpg",
+   "image_id": "sv-front-01",
+   "caption": "Façade boulevard (Street View)",
+   "side": "front",
+   "took": "nothing usable for the street: the Street View pano is an indoor room of the 42 Paris campus (black walls, screens, no façade, no door), so no façade detail or door position was taken from it; the mini-map corner only confirms Bd Bessières as the address street",
+   "url": "http://172.16.0.13:8002/views/view_approach_3/refs/sv-front-01.jpg"
+  },
+  {
+   "image": "sv-left-01.jpg",
+   "image_id": "sv-left-01",
+   "caption": "Rue latérale (Street View)",
+   "side": "left",
+   "took": "same indoor pano from another angle (two screens, corner of the room): no side street, no ramp, no hydrant visible, so H1 is not placed in the drawing; its point lives on this frame only and distance_m is null, so it is left out",
+   "url": "http://172.16.0.13:8002/views/view_approach_3/refs/sv-left-01.jpg"
+  },
+  {
+   "image": "sv-right-01.jpg",
+   "image_id": "sv-right-01",
+   "caption": "Street View, côté droit",
+   "side": "right",
+   "took": "again the same indoor room (opposite corner): no right-side context, so nothing is drawn on that side of the footprint",
+   "url": "http://172.16.0.13:8002/views/view_approach_3/refs/sv-right-01.jpg"
+  },
+  {
+   "image": "earth-top-01.jpg",
+   "image_id": "earth-top-01",
+   "caption": "Vue du dessus (Google Earth)",
+   "side": "top",
+   "took": "Bd Bessières runs as a wide straight band along one side of the block, with the buildings lined up against it and the pavement/trees between: that is why the view draws one flat street band parallel to the façade edge E1 opens on, and the arrow comes in off that band perpendicular to the façade",
+   "url": "http://172.16.0.13:8002/views/view_approach_3/refs/earth-top-01.jpg"
+  },
+  {
+   "image": "ifc-L0.svg",
+   "image_id": "ifc-L0",
+   "caption": "Plan IFC niveau 0",
+   "side": "plan",
+   "took": "the footprint drawn white in the view: the main slab outline plus the stair-hall block at the bottom centre (ESC A, x 525-656, y 639-744) and the narrow annex down the right edge; the plan's own E1 marker at (497,775) sits just outside that bottom edge, so the façade and the street are along that edge and the arrow comes from there",
+   "url": "http://172.16.0.13:8002/views/view_approach_3/refs/ifc-L0.svg"
+  },
+  {
+   "image": "ifc-L3.svg",
+   "image_id": "ifc-L3",
+   "caption": "Plan IFC niveau 3",
+   "side": "plan",
+   "took": "confirmed one single stair, ESC A, bottom centre right above E1, with circulation 3.03 and the fire room 3.T Buanderie on the level of the fire: the card sends the crew up stair A and names Feu R+3; no stair B exists",
+   "url": "http://172.16.0.13:8002/views/view_approach_3/refs/ifc-L3.svg"
+  }
+ ]
+}
