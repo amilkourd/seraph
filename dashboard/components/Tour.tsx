@@ -10,7 +10,7 @@ import { Flamme } from "./Flamme";
 // replay only; ?tour anywhere); key T and « Visite guidée » go straight to step 1. Rects are stage pixels (1920×1080).
 type Rect = { x: number; y: number; w: number; h: number };
 type Step = {
-  at: string; // data-tour of the element, "echelle" (found by its text) or "batiment" / "tout" (fixed frames)
+  at: string; // data-tour of the element (a Card is tagged with its title), or "batiment" / "tout" (fixed frames)
   state: StateId;
   expression: string;
   module: FlameModule;
@@ -29,7 +29,7 @@ const STEPS: Step[] = [
   { at: "halo", state: "swirl", expression: "fier", module: "silex", text: "Le poignet du pompier. Devin a écrit cette vue pendant le trajet." },
   { at: "radio", state: "notify", expression: "excite", module: "gabriel", text: "La radio des pompiers. Seraph écoute et répond en une seconde." },
   { at: "À l'intérieur", state: "idle", expression: "heureux", module: "gabriel", text: "Seraph a appelé chaque habitant, dans sa langue." },
-  { at: "echelle", state: "idle", expression: "effraye", module: "seraph", text: "Tom descendait l'escalier enfumé. Seraph a proposé : reste chez toi, va sur ton balcon." },
+  { at: "Alertes", state: "idle", expression: "effraye", module: "seraph", text: "Tom descendait l'escalier enfumé. Seraph a proposé : reste chez toi, va sur ton balcon.", alt: { at: "batiment", text: "Tom descendait l'escalier enfumé. Seraph a proposé : reste chez toi, va sur ton balcon." } },
   {
     at: "Décision COS",
     state: "idle",
@@ -150,15 +150,7 @@ export function Tour({ live }: { live: Live }) {
       const find = (at: string): Rect | null => {
         if (at === "tout") return STAGE;
         if (at === "batiment") return BUILDING;
-        const host = root.current?.parentElement;
-        let el: Element | null = null;
-        if (at === "echelle") {
-          el = Array.from(host?.querySelectorAll("div, span") ?? []).find((n) => n.children.length === 0 && /^Échelle\b/.test(n.textContent?.trim() ?? "")) ?? null;
-          el = el?.closest("div") ?? el;
-          if (!el) return BUILDING;
-        } else {
-          el = host?.querySelector(`[data-tour="${at}"]`) ?? null;
-        }
+        const el = root.current?.parentElement?.querySelector(`[data-tour="${at}"]`);
         if (!el) return null;
         const r = el.getBoundingClientRect();
         return { x: (r.left - stage.left) / k, y: (r.top - stage.top) / k, w: r.width / k, h: r.height / k };
