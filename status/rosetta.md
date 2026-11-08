@@ -1,0 +1,70 @@
+# rosetta — status
+Updated: 05:35
+
+## Running
+- rosetta on http://localhost:8001 · public: none · MOCK=0 · **headed Chrome** (Street View needs it)
+  `cd rosetta && uv run uvicorn rosetta.app:app --host 0.0.0.0 --port 8001` (dev: `ROSETTA_HEADLESS=1`, `SERAPH_URL=http://localhost:8999` to keep test runs out of Seraph).
+- Pushes every status change to `SERAPH_URL/rosetta/results`. Agent cam `ws://localhost:8001/ws/cam`.
+
+## Done
+- Service: `POST /run` (priority queue, ≤ `ROSETTA_MAX_PARALLEL`=4 browsers, contract timeouts), `GET /runs/{id}`,
+  `/runs/{id}/trace`, `/runs`, `/shots/<id>.jpg`, `GET /endpoints` (live / cache timings + golden path),
+  `GET /health`, `POST /admin/cache/clear`, `GET /admin/cache`, `WS /ws/cam`, `MOCK=1` (fixtures, placeholder JPEGs
+  « MOCK », cam « MOCK — aucun agent »).
+- Agent loop (`rosetta/holo.py`): Holo 4 Step schema, 0–1000 grid, last 3 screenshots, tool errors fed back,
+  ≤ 30 steps; on `answer` code verifies the page and a failed check goes back to the model. Tools: click,
+  double_click, write, type_param (code types a parameter's exact value where Holo clicked), press_key, scroll,
+  drag, wait, go_back, answer. Per-skill `forbid` (no `write` in writes) and `guard` (code blocks an irreversible
+  click). CAPTCHA / bot check (URL, iframe, page text, or the model saying so) → run stops, failed, cache.
+- Pointing: H element-localization recipe, `{found,x,y}` when the target may be absent.
+- Every result: `screenshots` (stable `/shots/<image_id>.jpg` = last good live run), `source`, `live`,
+  `duration_ms`. Cam frame per step: `{run_id, endpoint, step, action, thought ≤ 80, shot_url, page_url, at, live}`;
+  click actions carry `(x,y)` on the 0–1000 grid (the dashboard draws its crosshair from it).
+- Golden-path cache: only from good live runs, served `live:false` with `cached_at`, `cache_reason`, and
+  `error` = « live: … → cache du … ». Replicas: no cache (contract). Not cached when the address fails the BAN.
+- Phone numbers: full E.164 only in the push to Seraph; `/runs/{id}` and traces mask them.
+
+| Endpoint | Live result | Time (live) | Notes |
+|---|---|---|---|
+| `dispatch.read` | ✅ INC-0001, address, nature, level, notes from the DOM | 10 s, 2 Holo steps | code logs in |
+| `occupants.list` | ✅ 6 occupants | 9 s | building matched by code (exact name, else the only one, else « exercice ») |
+| `dispatch.write_112` | ✅ MC-0007, text exact | 10 s | `write` disabled, `type_param entry_fr` |
+| `report.fill` | ✅ CR transmis, 4 sections exact | 25–57 s | 403 without `gate_id`; guard on « Transmettre » |
+| `plan.read` | ✅ 19 points on `plan-l-1-01` (L-1.svg) | 7 s | zones IoU vs IFC: -1.01 0.96, -1.04 0.97, -1.06 0.91, -1.08 0.95, -1.11 0.86 (garage + ramp + places in one region); stair 0.15 (hatching), lift 0.46 |
+| `maps.building` | ✅ 96 bd Bessières: E1 (496,500), truck (600,530) on `earth-top-01`; sv-front/left/right; 5 storeys | 32–42 s | no hydrant visible (honest: empty); E2 (garage ramp from the IFC) not at this address; footprint off |
+| `georisques.risks` | ✅ 8 risks (inondation, séisme, mouvements de terrain, argiles, radon, ICPE, canalisations, pollution des sols) | 22 s | Holo refuses cookies, picks the suggestion |
+| `weather.wind` | ✅ Paris: S, 5 km/h | 16 s | 30 min cache |
+| `/explore` | ⏳ not built | | |
+
+Parallel: `georisques.risks` + `maps.building` together 22 s / 32 s; `dispatch.read` + `occupants.list` 10 s / 9 s.
+
+## In progress
+- End-to-end from Seraph `/incident/start`: waiting for Seraph to run with Rosetta live (it runs MOCK=1).
+
+## Blocked
+-
+
+## Requests (to other sessions or Amil)
+- @seraph: run with Rosetta live (MOCK=0 or a Rosetta-only switch), then `/incident/start`. Pass `level` -1 for the R-1 plan.
+- Amil (`.env`): `PLAN_IMAGE_PATH` is still `contracts/fixtures/plan-level3.svg`; scenario v2 wants `ifc/out/levels/L-1.svg`.
+- @replicas: the dispatch seed still says « Feu de local technique », level 3 (scenario v2: vehicle fire, level -1).
+
+## Facts I verified (API names, model ids, gotchas)
+- H API `GET /v1/models` (04:55): `holo3-1-35b-a3b`, `holo3-122b-a10b`, `holo4-27b`, `holo4-35b-a3b`. Using `holo4-35b-a3b`.
+- Agent loop: `extra_body={"structured_outputs": {"json": <Step schema>}}`, temperature 0.6, JPEG q80 screenshots.
+- Element localization (hub.hcompany.ai/element-localization): single turn, image then prompt, schema `{x, y}` in
+  `structured_outputs`, `chat_template_kwargs: {enable_thinking: false}`, temperature 0. ~1–2 s per point, 10 in parallel fine.
+- A coordinate hint in the prompt (« around x=500, y=500 ») makes Holo answer exactly that point: don't. A red ring
+  drawn on Holo's copy of the image (stored shot stays raw) marks the address instead.
+- Holo 4 told to fill report sections typed the section *names* and sent the report; fixed with `type_param`,
+  `write` disabled and a code guard on « Transmettre ».
+- Google consent: `consent.google.com` « Tout refuser »; cookies persisted per site in `rosetta/profiles/` (gitignored).
+- Street View: `maps/@?api=1&map_action=pano&viewpoint=lat,lng` → URL becomes `@lat,lng,<n>a,90y,…t/data=…!1e1…!2e0…`.
+  `!2e10` = a user photo sphere (42's indoor 360): skipped, viewpoint moved 18 m. Headless Chrome never resolves the
+  panorama (stays on a thumbnail URL): run headed. Turning = rewrite `,<h>h,` in that URL (keeps the pano id).
+- Maps satellite top view: `maps/@lat,lng,70m/data=!3m1!1e3`. Place pin from the place URL `!3d<lat>!4d<lng>`.
+- BAN (`api-adresse.data.gouv.fr/search`): « 2 rue Madame, 64000 Pau » → « 2 rue de Méon », score 0.60 → refused.
+  96 bd Bessières → 0.98.
+- Géorisques report URL: `/mes-risques/connaitre-les-risques-pres-de-chez-moi/rapport2?…&lon=…&lat=…`.
+- Météo-France: `#atmogramme_slider li.wind p.wind-speed` → `img[title="Vent S"]` + `strong` km/h; « Maintenant » time in `#atmogramme_time_picker .period`.
+- The `rosetta` console script doesn't resolve the package (hatch layout); start with uvicorn.

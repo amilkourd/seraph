@@ -1,0 +1,6 @@
+shots/
+cache/
+profiles/
+traces/
+.venv/
+__pycache__/
