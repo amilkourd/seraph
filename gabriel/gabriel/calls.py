@@ -44,6 +44,7 @@ LANGS = ("fr", "en", "es")
 RING_S = 30                                     # outbound: ring this long before no_answer
 NO_ANSWER = {408, 480, 486, 487, 600, 603}       # timeout, unavailable, busy, cancelled, declined
 HELLO = {"hello", "allo", "allô", "hola", "hi", "oui", "yes", "sí", "si", "bonjour", "ok", "okay", "alo", "aló"}
+HUH = HELLO | {"pardon", "quoi", "comment", "hein", "what", "sorry", "perdón", "qué", "cómo", "euh", "uh"}
 GREETING = {
     "fr": "Exercice. Bonjour, ici Gabriel, l'assistant vocal des pompiers. Où êtes-vous en ce moment ?",
     "en": "Exercise. Hello, this is Gabriel, the fire service's voice assistant. Where are you right now?",
@@ -55,17 +56,20 @@ PHRASES = {
            "smoke": "Y a-t-il de la fumée ou de la chaleur près de vous ?",
            "hurt": "Quelqu'un est-il blessé, ou ne peut pas marcher ?", "action": "Que faites-vous en ce moment ?",
            "ack": "Je transmets.", "done": "Je transmets aux pompiers. Restez en ligne.",
-           "asked": "Je transmets votre question aux pompiers. Restez en ligne.", "hold": "Restez en ligne."},
+           "asked": "Je transmets votre question aux pompiers. Restez en ligne.", "hold": "Restez en ligne.",
+           "digits": "Le numéro de la porte, chiffre par chiffre ?"},
     "en": {"where": "Where are you right now?", "people": "How many people are with you, including you?",
            "smoke": "Is there any smoke or heat near you?", "hurt": "Is anyone hurt, or unable to walk?",
            "action": "What are you doing right now?", "ack": "Got it, I'm passing it on.",
            "done": "I'm passing this to the firefighters. Stay on the line.",
-           "asked": "I'm passing your question to the firefighters. Stay on the line.", "hold": "Stay on the line."},
+           "asked": "I'm passing your question to the firefighters. Stay on the line.", "hold": "Stay on the line.",
+           "digits": "Your door number, digit by digit?"},
     "es": {"where": "¿Dónde está ahora mismo?", "people": "¿Cuántas personas son, contándose usted?",
            "smoke": "¿Hay humo o calor cerca de usted?", "hurt": "¿Hay alguien herido, o que no pueda caminar?",
            "action": "¿Qué está haciendo ahora mismo?", "ack": "Lo transmito.",
            "done": "Lo transmito a los bomberos. Quédese en línea.",
-           "asked": "Transmito su pregunta a los bomberos. Quédese en línea.", "hold": "Quédese en línea."},
+           "asked": "Transmito su pregunta a los bomberos. Quédese en línea.", "hold": "Quédese en línea.",
+           "digits": "¿El número de la puerta, cifra por cifra?"},
 }
 QUESTIONS = ("where", "people", "smoke", "hurt", "action")
 FOLLOW = {  # said after the immediate « je transmets »
@@ -82,6 +86,11 @@ Never set a boolean to false unless the caller says so.
 - room: only a room id like "3.12" (level, dot, two digits) if said (« salle 3.12 » → "3.12", « bureau 2.01 » → "2.01");
   « au deuxième » alone is level 2, not a room. A number close to a valid id (« 2.1 », « deux zéro trois » → 2.01, 2.03)
   → pick that id with room_sure false: the agent will read it back to the caller.
+  Speech recognition garbles door numbers: « 2-11 », « 211 », « 2,11 », « 3D » (trois dix), « 019 », « -1.11 » can all
+  be what the caller said. Use the digits with the level the caller gave: on level 2, « -1.11 » or « 211 » → "2.11"
+  with room_sure false. Digits said one by one (« 2, 1, 1 », « deux un un ») → "2.11", room_sure true.
+- room_heard: the door / room number exactly as written in the CALLER's words (e.g. "-1.11", "2-11", "310"), the
+  latest one they said; null if they never gave a number.
 - people_count: people together including the caller (« avec un collègue » = 2, « seul(e) » / « I'm alone » = 1,
   a single person speaking only about themself = 1).
 - smoke_seen: true if they see smoke near them, false if they say no smoke (« no veo humo » = false).
@@ -102,7 +111,8 @@ Never set a boolean to false unless the caller says so.
 def all_phrases() -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for lang, p in PHRASES.items():
-        lines = [GREETING[lang], p["done"], p["asked"], p["hold"], p["ack"], FOLLOW[lang]["asked"]]
+        lines = [GREETING[lang], p["done"], p["asked"], p["hold"], p["ack"], p["digits"], f"{p['ack']} {p['digits']}",
+                 FOLLOW[lang]["asked"]]
         for q in QUESTIONS:
             lines += [p[q], f"{p['ack']} {p[q]}"]
         out[lang] = lines
@@ -119,6 +129,8 @@ REPORT_FACTS = {
             "properties": {
                 "level": {"type": ["integer", "null"], "description": "floor: 0 = ground floor (RDC), 3 = 3rd"},
                 "room": {"type": ["string", "null"], "description": "room id as said, e.g. 3.12, 2.01"},
+                "room_heard": {"type": ["string", "null"],
+                               "description": "the door number as written in the caller's words, e.g. -1.11, 2-11"},
                 "people_count": {"type": ["integer", "null"],
                                  "description": "people with the caller, caller included (« avec un collègue » = 2, « seul » = 1)"},
                 "smoke_seen": {"type": ["boolean", "null"]},
@@ -134,7 +146,7 @@ REPORT_FACTS = {
                                     "description": "the caller's LAST turn asks what to do / for instructions / for help"},
                 "confidence": {"type": "number", "description": "0-1"},
             },
-            "required": ["level", "room", "people_count", "smoke_seen", "fire_seen", "heat", "mobility_issue",
+            "required": ["level", "room", "room_heard", "people_count", "smoke_seen", "fire_seen", "heat", "mobility_issue",
                          "injuries", "current_action", "heading_to", "free_text_fr", "asks_what_to_do", "confidence"],
             "additionalProperties": False,
         },
@@ -145,6 +157,12 @@ REPORT_FACTS = {
 NUM_ES = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
 CONFIRM_ROOM = {"fr": "Appartement {spoken}, c'est bien ça ?", "en": "Flat {spoken}, is that right?",
                 "es": "Apartamento {spoken}, ¿es correcto?"}
+
+
+def heard_room(heard: str) -> Optional[str]:
+    """The room id in a transcribed door number: « 2-11 », « 211 », « 2, 1, 1 », « 2.11 » → "2.11"; « -1.11 » → "-1.11"."""
+    d = re.sub(r"\D", "", heard)
+    return f"{'-' if heard.strip().startswith('-') else ''}{d[0]}.{d[1:]}" if len(d) == 3 else None
 
 
 def spoken_room(room: str, lang: str) -> str:
@@ -278,7 +296,7 @@ class Call:
         self.sent: dict = {}
         self.voice: Optional[dict] = None
         self.voice_sent_at = 0.0
-        self.asked: dict[str, int] = {}
+        self.asked: dict[str, int] = {"where": 1}     # the greeting asks it
         self.pending: list[str] = []
         self.turn_timer: Optional[asyncio.TimerHandle] = None
         self.turn_task: Optional[asyncio.Task] = None
@@ -289,6 +307,7 @@ class Call:
         self.ended = False
         self.room_list = gladia_live.rooms()
         self.rooms = {r["id"] for r in self.room_list} or known_rooms()
+        self.room_level = {r["id"]: r.get("level") for r in self.room_list}
         self.tool = facts_tool(sorted(self.rooms))
         self.rooms_prompt = "Valid room ids (choose one or null, never another value): " + "; ".join(
             f"level {lv}: " + ", ".join(f"{r['id']} {r.get('use') or ''}".strip() for r in self.room_list if r.get("level") == lv)
@@ -296,6 +315,10 @@ class Call:
         self.confirm_room: Optional[str] = None       # a room to read back before sending it
         self.sip_number = self.phone_e164             # phone calls only, never logged or sent in full
         self.room_asked: set[str] = set()
+        self.ask_digits = False                       # the number heard does not fit: ask it digit by digit (once)
+        self.digits_asked = False
+        self.last_q: Optional[str] = "where"          # the greeting asks where they are
+        self.last_said_at = 0.0
 
     def listed(self) -> str:
         """Who the occupant list says this caller is (only used when they say « ma chambre », « chez moi »…)."""
@@ -333,7 +356,9 @@ class Call:
         lang = lang or self.lang
         self.lines.append(("gabriel", text))
         log.info("%s gabriel: %s", self.call_id, text)
-        return self.session.say(text, audio=self.audio(text, lang), allow_interruptions=interruptible)
+        handle = self.session.say(text, audio=self.audio(text, lang), allow_interruptions=interruptible)
+        handle.add_done_callback(lambda _: setattr(self, "last_said_at", time.perf_counter()))
+        return handle
 
     # ───── Seraph → this call ─────
     def for_me(self, target: dict) -> bool:
@@ -379,6 +404,9 @@ class Call:
         if not ev.is_final or not (ev.transcript or "").strip():
             return
         log.debug("%s final: %s", self.call_id, ev.transcript)
+        if self.is_echo(ev.transcript):
+            log.info("%s echo dropped: %s", self.call_id, ev.transcript)
+            return
         if ev.language and len([w for w in re.findall(r"\w+", ev.transcript.lower()) if w not in HELLO]) >= 3:
             self.lang = norm_lang(str(ev.language), self.lang)   # « Allô ? » comes back as English « Hello? »
         self.pending.append(ev.transcript.strip())
@@ -412,6 +440,13 @@ class Call:
         if self.seraph_speaking or self.ended or self.pending:   # Seraph has the line, or the caller kept talking
             return
         new = facts.pop("_new", False)
+        if self.ask_digits:
+            self.ask_digits, self.digits_asked, self.confirm_room = False, True, None
+            self.last_q = "digits"
+            self.say(p["digits"] if acked else f"{p['ack']} {p['digits']}")
+            return
+        if not new and self.speaking():          # e.g. « Allô ? » over the greeting: let Gabriel finish
+            return
         if self.confirm_room:
             room, self.confirm_room = self.confirm_room, None
             self.room_asked.add(room)
@@ -424,9 +459,11 @@ class Call:
         if facts.get("asks_what_to_do"):
             line = FOLLOW[self.lang]["asked"] if acked else p["asked"]
         else:
-            nxt = self.next_question()
+            heard_nothing = not [w for w in re.findall(r"\w+", text.lower()) if w not in HUH]
+            nxt = self.next_question(repeat=heard_nothing)   # « Allô ? », « Pardon ? »: ask the same again
             if nxt:
                 self.asked[nxt] = self.asked.get(nxt, 0) + 1
+                self.last_q = nxt
                 line = p[nxt] if acked or not new else f"{p['ack']} {p[nxt]}"
             elif new or not self.done_said:
                 self.done_said = True
@@ -437,7 +474,7 @@ class Call:
         self.link.metric("call_turn", (time.perf_counter() - self.last_final_at) * 1000, call_id=self.call_id,
                          report_facts_ms=round((t1 - t0) * 1000))
 
-    def next_question(self) -> Optional[str]:
+    def next_question(self, repeat: bool = False) -> Optional[str]:
         f = self.facts
         known = {
             "where": f.get("level") is not None or bool(f.get("room")) or f.get("current_action") == "outside",
@@ -447,10 +484,24 @@ class Call:
             "hurt": f.get("mobility_issue") is not None or bool(f.get("injuries")),
             "action": f.get("current_action") not in (None, "unknown") or bool(f.get("heading_to")),
         }
-        for q in QUESTIONS:
-            if not known[q] and self.asked.get(q, 0) < 2:
+        for q in QUESTIONS:                      # never the same question twice in a row
+            if not known[q] and self.asked.get(q, 0) < 2 and (repeat or q != self.last_q):
                 return q
         return None
+
+    def is_echo(self, text: str) -> bool:
+        """Gabriel's own voice coming back through the caller's mic: most words of the transcript are in what
+        Gabriel is saying (or just said)."""
+        said = [t for r, t in self.lines[-3:] if r == "gabriel"]
+        if not said or not (self.speaking() or time.perf_counter() - self.last_said_at < 1.5):
+            return False
+        words = re.findall(r"\w+", text.lower())
+        ours = set(re.findall(r"\w+", " ".join(said).lower()))
+        return len(words) >= 2 and sum(w in ours for w in words) >= 0.7 * len(words)
+
+    def speaking(self) -> bool:
+        sp = self.session.current_speech if self.session else None
+        return bool(sp and not sp.done())
 
     async def report_facts(self) -> dict:
         """Forced `report_facts` tool call over the conversation → `call_facts` to Seraph when something changed."""
@@ -469,6 +520,15 @@ class Call:
         asks = bool(got.pop("asks_what_to_do", False))
         got = {k: v for k, v in got.items() if v is not None}
         sure = bool(got.pop("room_sure", False))
+        heard = got.pop("room_heard", None)
+        if heard and heard != self.facts.get("_heard"):
+            self.facts["_heard"] = heard
+            level = got.get("level", self.facts.get("level"))
+            r = heard_room(heard)
+            fits = r in self.rooms and (level is None or self.room_level.get(r) == level)
+            if not fits and not self.digits_asked:       # « -1.11 » from someone on level 2: ask, don't guess
+                self.ask_digits = True
+                got.pop("room", None)
         if got.get("room"):
             got["room"] = norm_room(got["room"], self.rooms, self.occ.get("room"))
             room = got["room"]
@@ -491,7 +551,7 @@ class Call:
                     + "Demande quoi faire."
             self.send_facts(out)
             log.info("%s report_facts: %s", self.call_id, {k: v for k, v in out.items() if k != "voice"})
-        return {**self.facts, "asks_what_to_do": asks, "_new": bool(changed)}
+        return {**self.facts, "asks_what_to_do": asks, "_new": bool(set(changed) - {"free_text_fr"})}
 
     def send_facts(self, facts: dict) -> None:
         excerpt = " ".join(t for r, t in self.lines if r == "appelant")[-400:]
@@ -590,10 +650,14 @@ async def call_agent(ctx: JobContext) -> None:
 
     session = AgentSession(
         stt=gladia.STT(languages=list(LANGS), code_switching=True, endpointing=0.15, maximum_duration_without_endpointing=10,
-                       custom_vocabulary=gladia_live.vocabulary([call.occ.get("name", "")] + [
-                           r["id"] for r in call.room_list if r.get("level") == call.occ.get("level")]),
-                       custom_spelling=gladia_live.SPELLING, pre_processing_audio_enhancer=True, http_session=http),
+                       custom_vocabulary=gladia_live.vocabulary([call.occ.get("name", "")]),
+                       custom_spelling={**gladia_live.room_spelling(call.room_list), **gladia_live.SPELLING},
+                       pre_processing_audio_enhancer=True, http_session=http),
         vad=ctx.proc.userdata["vad"],
+        # Seraph's guidance is not interruptible, but a caller talking over it (« je suis blessé ») must still be
+        # transcribed and reported: by default the framework feeds silence to the STT during such speech.
+        turn_handling={"interruption": {"discard_audio_if_uninterruptible": False}},
+        aec_warmup_duration=None,     # it also drops the caller's first 3 s over the greeting; echo: Call.is_echo
     )
     call.session = session
     session.on("user_input_transcribed", call.on_transcribed)

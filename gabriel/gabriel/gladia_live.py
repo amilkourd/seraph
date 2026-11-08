@@ -64,7 +64,9 @@ def rooms() -> list[dict]:
 
 
 def room_spelling(room_list: list[dict]) -> dict[str, list[str]]:
-    """« deux zéro un », « deux point zéro un », « two oh one » → "2.01" (Gladia custom spelling)."""
+    """Gladia custom spelling → "2.11". It applies after Gladia's number formatting, so the variants are what Gladia
+    writes for a spoken door number (« deux onze » → « 2-11 », « trois dix » → « 3D », « zéro dix-neuf » → « 019 »),
+    plus the spoken forms (« deux zéro un », « two oh one »)."""
     out: dict[str, list[str]] = {}
     for r in room_list:
         m = re.fullmatch(r"(\d)\.(\d)(\d)", r["id"])
@@ -76,8 +78,8 @@ def room_spelling(room_list: list[dict]) -> dict[str, list[str]]:
         en_tail = [f"oh {NUM_EN[b]}", f"zero {NUM_EN[b]}"] if a == 0 else ([NUM_EN[n]] if n <= 20 else [])
         heard = [f"{NUM_FR[lv]} {t}" for t in fr_tail] + [f"{NUM_FR[lv]} point {t}" for t in fr_tail] \
             + [f"{NUM_EN[lv]} {t}" for t in en_tail]
-        if heard:
-            out[r["id"]] = heard
+        heard += [f"{lv}-{a}{b}", f"{lv}{a}{b}", f"{lv},{a}{b}"] + ([f"{lv}D"] if n == 10 else [])
+        out[r["id"]] = heard
     return out
 
 
@@ -107,12 +109,19 @@ def building_words() -> list[str]:
     return words
 
 
+ROOM_LABEL = re.compile(r"^-?\d+[.,]\d+\s+")
+
+
 def vocabulary(extra: Optional[list[str]] = None) -> list[str]:
-    """Glossary, then `extra` (the caller's name and rooms), then the building's ids. Capped at 100."""
+    """Glossary, then `extra` (the caller's name), then the building's ids and labels. Capped at 100. Never a numeric
+    id: « -1.04 » in the vocabulary makes Gladia write every spoken door number as « -1.xx » (« deux onze » → « -1.11 »);
+    room numbers go through custom spelling instead."""
     seen: dict[str, None] = {}
-    for w in GLOSSARY + (extra or []) + building_words():
-        w = w.strip()
-        if w and w.lower() not in (k.lower() for k in seen):
+    for w in GLOSSARY + (extra or []) + [ROOM_LABEL.sub("", w.strip()) for w in building_words()]:
+        w = w.strip()                                # « -1.11 Garage » → « Garage »; « 3.T » dropped like « -1.04 »
+        if not w or ":" in w or (w not in GLOSSARY and re.search(r"\d", w)):
+            continue
+        if w.lower() not in (k.lower() for k in seen):
             seen[w] = None
     return list(seen)[:100]
 

@@ -1,5 +1,5 @@
 # gabriel — status
-Updated: 10:30
+Updated: 10:50
 
 ## Running
 Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talkie on :3000 for web calls.
@@ -16,8 +16,8 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
 - mock (`MOCK=1`, no LiveKit): `uv run gabriel-mock radio R01 R03` · `call CALL-01` · `say "Seraph, quelle entrée ?" Tête`
   · `listen [--speak]`.
 - tests without phones: `uv run python -m gabriel.fake_talkie "Seraph de Tête, quelle entrée ?"` ·
-  `uv run python -m gabriel.fake_caller OCC-04 en "Hello?" "I'm on the fourth floor, heading down the south stairs."`
-  (`-` instead of `OCC-…` = inbound 112).
+  `uv run python -m gabriel.fake_caller OCC-T01 en "Hello?" "I'm on the fourth floor, heading down the stairs."`
+  (`-` instead of `OCC-…` = inbound 112; a line starting with `>` is said while Gabriel is still talking).
 - I am running both right now (calls in `start` mode), logs in `gabriel/logs/`.
 - Test callers use test occupant ids (`OCC-T01`…) so they never overwrite the demo occupants in Seraph's state.
 
@@ -37,9 +37,9 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   tracks are subscribed: Gabriel never hears its own TTS.
 - Radio speak: `say` for `{room:"crew"}` → queue (`alert` first) → waits for a free floor → `talking=true` +
   `talking_since` → ElevenLabs PCM → `talking=false`. Text also on topic `seraph`. Yields on a press collision.
-- Gladia, all paths: solaria-1, eu-west, fr/en/es + code-switching, custom vocabulary (glossary + building ids from
-  `BUILDING_JSON` + occupant names, ≤100), custom spelling (Seraph, Binôme 1/2, ARI, COS, escalier A/B, E1/E2, 3.12…),
-  audio enhancer. Calls: + live sentiment/emotion.
+- Gladia, all paths: solaria-1, eu-west, fr/en/es + code-switching, custom vocabulary (glossary + building labels
+  from `BUILDING_JSON` + occupant names, ≤100, **no numeric ids**), custom spelling (Seraph, Binôme 1/2, ARI, COS,
+  escalier A, E1/E2, every room id), audio enhancer. Calls: + live sentiment/emotion.
 - Talkie wiring (`talkie/lib/radio/livekit.ts`, `talkie/app/api/token`, `talkie/app/api/call-token`): mic published muted
   at join, unmute on press, `talking`/`talking_since` without awaiting, eot on release, collision rule (earlier
   `talking_since` wins, tie = smaller identity), `radioFilter` on received audio through the given `AudioContext`,
@@ -54,10 +54,26 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   yet answered (where → how many → smoke → injured → what are you doing), or « Et votre question aussi. Restez en
   ligne. » when the caller asks what to do. **No model writes what the caller hears**, so Gabriel can never give an
   instruction or promise help on its own; every phrase is pre-generated in fr/en/es.
-- **Rooms:** only the building's room ids (BUILDING_JSON, people rooms only) ever reach Seraph. Gladia gets them in the
-  vocabulary (caller's level first) and as custom spelling (« deux zéro un », « two oh one » → 2.01); `report_facts`
-  has `room` as an enum of those ids + `room_sure`. An unsure room is read back once (« Appartement deux zéro un,
-  c'est bien ça ? ») and sent only after. Live: « chambre deux point un » → read-back → « oui » → 2.01.
+- **Rooms:** only the building's room ids (BUILDING_JSON, people rooms only) ever reach Seraph; `report_facts` has
+  `room` as an enum of those ids + `room_sure` + `room_heard` (the number as transcribed).
+  - **« -1.xx » fixed at the source:** the room ids in Gladia's custom vocabulary (« -1.04 », « -1.11 Garage »…) made
+    Gladia write every spoken door number in that shape: « deux onze », « deux point onze », « deux cent onze » all came
+    out « -1.11 ». Numbers are now out of the vocabulary, and custom spelling (applied after Gladia's number
+    formatting) maps the shapes Gladia writes: « 2-11 », « 211 », « 2,11 » → 2.11, « 3D » (trois dix) → 3.10, « 019 »
+    → 0.19. Same TTS lines through Gladia, before → after: « toilettes, 2.11 » -1.11 → 2.11; « appartement 3.10 »
+    310 → 3.10; « trois dix » 3D → 3.10; « chambre deux zéro un » → 2.01. The radio uses the same vocabulary.
+  - When the number heard does not fit the caller's level (« -1.11 » from someone on the 2nd), the next line is
+    « Le numéro de la porte, chiffre par chiffre ? » (once per call; en/es too), and « 2, 1, 1 » → 2.11 sure. An unsure
+    room that fits is read back once (« Appartement deux un un, c'est bien ça ? »).
+- **Caller talking over Gabriel is kept:** LiveKit Agents fed silence to the STT during non-interruptible speech
+  (`discard_audio_if_uninterruptible`, default on) and during the first 3 s of agent speech (`aec_warmup_duration`).
+  Both off now, so what a caller says over the greeting or over Seraph's guidance is transcribed and goes through
+  `report_facts` (Gabriel keeps talking). Live: « Je suis blessé à la jambe, je ne peux pas marcher » over the
+  greeting → `injuries` + `mobility_issue`; « ma fille est avec moi » over Seraph's guidance → `people_count` 2. Echo
+  guard: a transcript made mostly of the words Gabriel is saying is dropped (`echo dropped` in the log).
+- **No repeated questions:** never the same question twice in a row (the greeting counts as « where »), except right
+  after a turn with no content (« Allô ? », « Pardon ? »); a turn with no new fact while Gabriel is still talking
+  gets no reply (« Allô ? » over the greeting).
 - Seraph's `say` for a call (`call_id` / `call_ids`) interrupts and is spoken as is; `translate:true` → faithful LLM
   translation of `text_fr`. Verified: the confirmed standing instruction reached CALL-01-style call after « fumée sous la
   porte ». `end_call` hangs up.
@@ -166,4 +182,9 @@ Needs Seraph on :8000 (both reconnect by themselves if it restarts) and the talk
   turn commit, and the session has no LLM.
 - `lk number update --sip-dispatch-rule-id` fails with invalid_argument; an any-trunk dispatch rule routes the number
   anyway.
+- Gladia custom vocabulary biases number formatting: a vocabulary with « -1.04 »-style ids turns « deux onze » into
+  « -1.11 ». Custom spelling runs after number formatting, so its variants must be Gladia's written shapes (« 2-11 »,
+  « 3D »), not spoken words.
+- livekit-agents 1.8.11: `AgentSession(turn_handling={"interruption": {"discard_audio_if_uninterruptible": False}},
+  aec_warmup_duration=None)` keeps the STT hearing the user during non-interruptible speech and the first 3 s of it.
 - The in-app browser pane blocks the mic; Chromium with `--use-file-for-fake-audio-capture=<wav>` works for tests.

@@ -2,6 +2,7 @@
 then speaks lines (ElevenLabs, a different voice) when Gabriel stops talking.
 `uv run python -m gabriel.fake_caller OCC-T01 fr "Allô ? Je suis au deuxième, appartement 2.01." "Il y a de la fumée."`
 Use a test occupant id (OCC-T…) so test calls never overwrite the demo occupants in Seraph's state; `-` = inbound 112.
+A line starting with `>` is said while Gabriel is still talking (1 s after he starts).
 """
 from __future__ import annotations
 
@@ -53,6 +54,8 @@ async def run(occ: str | None, lang: str, lines: list[str], hold_s: float = 8.0,
         bg = asyncio.create_task(mic())
         t = tts_mod.TTS(http)
         tts_mod.VOICE = CALLER_VOICE.get(lang, CALLER_VOICE["fr"])
+        over = [line.startswith(">") for line in lines]      # « >… »: said while Gabriel is still talking
+        lines = [line.lstrip(">").strip() for line in lines]
         audio = [await t.full(line, lang) for line in lines]
 
         async def wait_agent_quiet(q: float = 0.9, timeout: float = 20) -> None:
@@ -62,9 +65,15 @@ async def run(occ: str | None, lang: str, lines: list[str], hold_s: float = 8.0,
                     return
                 await asyncio.sleep(0.05)
 
-        for line, pcm in zip(lines, audio):
-            await wait_agent_quiet()
-            print(f"{tag}{call_id} caller: {line}")
+        async def wait_agent_talking(s: float = 1.0, timeout: float = 20) -> None:
+            end = time.perf_counter() + timeout
+            while time.perf_counter() < end and not (st["greet_at"] and time.perf_counter() - st["agent_last_loud"] < 0.1):
+                await asyncio.sleep(0.02)
+            await asyncio.sleep(s)
+
+        for line, pcm, o in zip(lines, audio, over):
+            await (wait_agent_talking() if o else wait_agent_quiet())
+            print(f"{tag}{call_id} caller{' (over Gabriel)' if o else ''}: {line}")
             step = tts_mod.SR // 50 * 2
             for i in range(0, len(pcm) - len(pcm) % 2, step):
                 q.put_nowait(pcm[i:i + step])
