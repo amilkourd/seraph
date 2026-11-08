@@ -89,7 +89,7 @@ function Title({ s, now }: { s: IncidentState; now: number }) {
   }, [head]);
   return (
     <div className="flex flex-col gap-5">
-      <h1 ref={ref} className="t-display text-[78px] text-ink [text-wrap:balance]">
+      <h1 ref={ref} data-tour="titre" className="t-display text-[78px] text-ink [text-wrap:balance]">
         {head}
       </h1>
       <div className="flex flex-col items-start gap-1.5">
@@ -127,7 +127,7 @@ function Launch({ live }: { live: Live }) {
 
 function Card({ title, right, children, className = "" }: { title: string; right?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={`card flex flex-col gap-3 p-4 ${className}`}>
+    <section data-tour={title} className={`card flex flex-col gap-3 p-4 ${className}`}>
       <header className="flex h-6 items-center justify-between gap-2">
         <span className="label">{title}</span>
         {right}

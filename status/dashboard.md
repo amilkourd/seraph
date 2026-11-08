@@ -150,6 +150,12 @@ Updated: 10:53
   left and shows whole cards only, newest first (column-wrap + overflow hidden). Checked on a mock copy (:3012,
   fixture state, then a 94-char title, « Désincarcération », three seeded turns) and live on :3002.
 
+- Judges' tour (Amil, from the « Démo avec les jurys » session, 13:05): `components/Tour.tsx` + `components/Flamme.tsx`.
+  First visit in a browser on the public replay → « Bienvenue sur Seraph », then 9 steps; white corner target that
+  breathes; the flame (Bloub engine, MIT, copied in `lib/bloub/`, flame body in `flamme.ts`) takes each module's
+  colour, eyes always wide open and on the cursor. Live projector: only with `?tour` or key T. Anchors: `data-tour`
+  on the panel title, every `Card` (by title), Radio, HaloPhone, ScreenButton, Activity — keep them.
+
 ## In progress
 - Click-to-expand layouts (details per card / per level) — to design with Amil.
 

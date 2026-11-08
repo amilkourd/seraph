@@ -7,6 +7,7 @@ import { Activity } from "./Activity";
 import { Building3D } from "./Building3D";
 import { Decision, Panel } from "./Panel";
 import { RosettaGrid } from "./RosettaGrid";
+import { Tour } from "./Tour";
 import { Sq } from "./ui";
 
 // Stage layout (1920×1080). Main view: panel | the building, full height | radio over Halo.
@@ -96,6 +97,7 @@ export function Dashboard() {
             <Radio live={live} />
             <HaloPhone live={live} />
             <Activity live={live} />
+            <Tour live={live} />
           </>
         ) : (
           <>
@@ -167,6 +169,7 @@ function ScreenButton({ live, active, onClick }: { live: Live; active: boolean; 
       type="button"
       onClick={onClick}
       title={`${active ? "Revenir à la vue principale" : "Écrans Rosetta"} · Seraph ${link}${down.length ? ` · hors ligne : ${down.join(", ")}` : ""}`}
+      data-tour="ecrans"
       className={`dark absolute right-6 top-6 grid h-16 w-16 place-items-center rounded-full border border-rule transition-colors ${active ? "bg-ink text-paper" : "bg-paper text-ink"}`}
     >
       <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
@@ -204,7 +207,7 @@ const SOURCE_PHRASE = /(selon (?:l'appel|le plan|la maquette|Géorisques|Maps|Ea
 function Radio({ live }: { live: Live }) {
   const lines = live.radio.slice(-2);
   return (
-    <div className="absolute bottom-[330px] left-[1376px] flex w-[520px] flex-col items-start gap-2">
+    <div data-tour="radio" className="absolute bottom-[330px] left-[1376px] flex w-[520px] flex-col items-start gap-2">
       {lines.map((l, i) => (
         <div key={l.id} className="flex max-w-full items-baseline gap-3 bg-[rgba(11,11,11,0.94)] px-3 py-2" style={{ opacity: i === lines.length - 1 ? 1 : 0.55 }}>
           <span className={`mono flex-none text-[13px] font-medium ${l.seraph ? "text-gabriel" : "text-gris"}`}>
@@ -235,7 +238,7 @@ function HaloPhone({ live }: { live: Live }) {
   const sh = PHONE.h * PHONE.scale;
 
   return (
-    <div className="absolute bottom-7 right-6 flex flex-col items-end gap-2.5">
+    <div data-tour="halo" className="absolute bottom-7 right-6 flex flex-col items-end gap-2.5">
       <span className="mono text-[13px] text-gris">Halo</span>
       <div className="rounded-[34px] border-2 border-brume bg-black p-[10px]" style={{ width: sw + 24, height: sh + 24 }}>
         <div className="relative h-full w-full overflow-hidden rounded-[24px] bg-black">

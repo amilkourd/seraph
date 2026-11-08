@@ -74,7 +74,7 @@ export function Activity({ live }: { live: Live }) {
   if (!rows.length) return null;
   const latest = rows.findIndex((r) => !r.now);
   return (
-    <aside className="panel right-6 top-[112px] flex max-h-[460px] w-[304px] flex-col gap-5 overflow-hidden px-5 pb-5 pt-4">
+    <aside data-tour="activite" className="panel right-6 top-[112px] flex max-h-[460px] w-[304px] flex-col gap-5 overflow-hidden px-5 pb-5 pt-4">
       <span className="label">Ce que fait Seraph</span>
       {rows.map((r, i) => {
         const [label, color] = MODULE[r.mod];
