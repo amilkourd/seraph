@@ -50,6 +50,13 @@ function since(p: Participant): number {
   return Number.isFinite(v) && v > 0 ? v : Number.MAX_SAFE_INTEGER;
 }
 
+function joinError(e: unknown): string {
+  const name = e instanceof Error ? e.name : "";
+  if (name === "NotAllowedError" || name === "SecurityError") return "Micro refusé : autorisez le micro.";
+  if (name === "NotFoundError") return "Aucun micro.";
+  return e instanceof Error && e.message ? e.message : "Canal crew injoignable.";
+}
+
 async function fetchJson<T>(input: string, init?: RequestInit): Promise<T> {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), 8000);
@@ -129,7 +136,7 @@ export class LiveKitRadio implements RadioTransport {
       if (this.room === room) this.room = null;
       await room.disconnect().catch(() => {});
       this.link.set("offline");
-      throw e instanceof Error ? e : new Error("Canal crew injoignable.");
+      throw new Error(joinError(e));
     }
   }
 
@@ -182,7 +189,7 @@ export class LiveKitRadio implements RadioTransport {
     void room.localParticipant.setAttributes({ [ATTR_TALKING]: "false" }).catch(() => {});
     if (sendEot)
       void room.localParticipant
-        .publishData(encodeEot(this.callSign), { reliable: true, topic: TOPIC_PTT })
+        .publishData(new Uint8Array(encodeEot(this.callSign)), { reliable: true, topic: TOPIC_PTT })
         .catch(() => {});
   }
 
@@ -240,7 +247,8 @@ export class LiveKitCall implements CallTransport {
       const res = await fetchJson<{ url: string; token: string; callId: string }>("/api/call-token", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(occId ? { occ: occId } : {}),
+        // The browser's language lets Gabriel greet a 112 caller in it (an occupant's language comes from Seraph).
+        body: JSON.stringify({ occ: occId, lang: navigator.language?.slice(0, 2) }),
       });
       callId = res.callId;
       this.status.set({ phase: "connecting", direction, callId });

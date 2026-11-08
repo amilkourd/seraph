@@ -90,8 +90,9 @@ class TTS:
             out += c
         return bytes(out)
 
-    async def warm(self, langs: tuple[str, ...] = ("fr", "en", "es")) -> None:
-        """Pre-generate FIXED phrases (skips the ones already on disk)."""
+    async def warm(self, phrases: Optional[dict[str, list[str]]] = None) -> None:
+        """Pre-generate fixed phrases (default FIXED; skips the ones already on disk)."""
+        phrases = phrases or FIXED
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
         async def one(text: str, lang: str) -> None:
@@ -103,7 +104,13 @@ class TTS:
             except Exception as e:
                 log.warning("tts warm failed for %r: %s", text, e)
 
-        await asyncio.gather(*(one(t, l) for l in langs for t in FIXED.get(l, [])))
+        sem = asyncio.Semaphore(6)
+
+        async def limited(text: str, lang: str) -> None:
+            async with sem:
+                await one(text, lang)
+
+        await asyncio.gather(*(limited(t, l) for l, lines in phrases.items() for t in lines))
 
 
 async def _selftest() -> None:

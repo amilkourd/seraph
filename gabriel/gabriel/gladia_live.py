@@ -122,6 +122,8 @@ class LiveSession:
         self._tasks: list[asyncio.Task] = []
         self.failed: Optional[str] = None
         self._last_final_at = 0.0
+        self.in_speech = False
+        self._stop_acked_at = 0.0
 
     async def start(self) -> None:
         self._tasks.append(asyncio.create_task(self._run()))
@@ -181,6 +183,12 @@ class LiveSession:
                         self._last_final_at = time.perf_counter()
                     else:
                         self.partial = text
+                elif t == "speech_start":
+                    self.in_speech = True
+                elif t == "speech_end":
+                    self.in_speech = False
+                elif t == "stop_recording":
+                    self._stop_acked_at = time.perf_counter()
                 elif t == "error":
                     log.warning("%s gladia error: %s", self.tag, str(data)[:300])
                 if self.on_message:
@@ -201,18 +209,22 @@ class LiveSession:
             parts.append(self.partial)
         return re.sub(r"\s+", " ", " ".join(parts)).strip()
 
-    async def finish(self, settle_s: float = 0.25, timeout_s: float = 2.0) -> str:
+    async def finish(self, settle_s: float = 0.25, timeout_s: float = 1.6) -> str:
         """Stop recording and wait for the last final. Returns finals (+ last partial if the final never came)."""
         self._q.put_nowait(b"\x00\x00" * int(SR * settle_s))   # a little silence closes the last utterance
         self._q.put_nowait(None)
         t0 = time.perf_counter()
         n0 = len(self.finals)
         deadline = t0 + timeout_s
-        # Done when: a final arrived after stop and no partial is pending, or the socket closed, or timeout.
+        # Done when: a final arrived after stop and nothing is pending; or Gladia acked the stop while no speech
+        # was open (the speaker had already gone quiet); or the socket closed; or timeout.
         while time.perf_counter() < deadline and not self._closed.is_set():
             if self.failed:
                 break
-            if len(self.finals) > n0 and not self.partial and time.perf_counter() - self._last_final_at > 0.05:
+            now = time.perf_counter()
+            if len(self.finals) > n0 and not self.partial and not self.in_speech and now - self._last_final_at > 0.05:
+                break
+            if self._stop_acked_at and not self.in_speech and not self.partial and now - self._stop_acked_at > 0.15:
                 break
             if not self._ready.is_set() and time.perf_counter() - t0 > 1.0:
                 break

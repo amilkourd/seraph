@@ -26,7 +26,7 @@ import aiohttp
 from livekit import api, rtc
 
 from . import config, gladia_live
-from .seraph_link import SeraphLink, now_iso
+from .seraph_link import SeraphLink, mask, now_iso
 from .tts import TTS
 
 log = logging.getLogger("gabriel.radio")
@@ -182,6 +182,11 @@ class Radio:
 
     # ───────── speaking ─────────
     def on_seraph(self, msg: dict) -> None:
+        if msg.get("kind") == "place_calls":
+            # Real phone calls (LiveKit SIP + Twilio) are not wired yet (Amil's call): occupants use the web call page.
+            who = ", ".join(f"{c.get('occupant_id')} {mask(c.get('phone_e164', ''))}" for c in msg.get("calls", []))
+            log.warning("place_calls received, SIP not wired: %s → web calls only (/call?occ=…)", who)
+            return
         if msg.get("kind") != "say" or msg.get("target", {}).get("room") != "crew":
             return
         prio = 0 if msg.get("priority") == "alert" else 1
