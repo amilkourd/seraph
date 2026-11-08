@@ -7,7 +7,8 @@ from typing import Any
 
 from .config import KIT, PLAYBOOKS, REPO
 
-EXAMPLE_FOR = {"approach": "approach", "team_engaged": "team_engaged", "occupants": "occupants",
+# team_engaged (« Mon air ») is cut with ARI: its example is parked, a team is drawn as a position like occupants
+EXAMPLE_FOR = {"approach": "approach", "team_engaged": "occupants", "occupants": "occupants",
                "inside_route": "inside_route", "commander_request": "occupants"}
 
 # structured output Devin fills for every request (JSON Schema draft 7, self-contained)
@@ -35,8 +36,8 @@ FRAMES_NOTE = """- frames: every point names its image (`image_id`). Draw one vi
   `evidence`) are not drawing coordinates."""
 
 KIT_FILES = [("halo-kit.js", "text/javascript"), ("halo.css", "text/css"), ("check-view.mjs", "text/javascript"),
-             ("examples/approach.html", "text/html"), ("examples/team_engaged.html", "text/html"),
-             ("examples/occupants.html", "text/html"), ("examples/inside_route.html", "text/html")]
+             ("examples/approach.html", "text/html"), ("examples/occupants.html", "text/html"),
+             ("examples/inside_route.html", "text/html")]
 
 
 def _read(p) -> str:
@@ -59,9 +60,9 @@ def warm_prompt(kit_attachments: list[str]) -> str:
 {_read(KIT / "examples" / "approach.html")}
 ```
 
-## Example `examples/team_engaged.html` (verbatim)
+## Example `examples/occupants.html` (verbatim)
 ```html
-{_read(KIT / "examples" / "team_engaged.html")}
+{_read(KIT / "examples" / "occupants.html")}
 ```
 
 ## Attachments in this message
@@ -160,7 +161,7 @@ def cli_warm_prompt() -> str:
 ## You run on the team's laptop, in the repository root (Devin CLI)
 Ignore the « attachments » wording above: every file is on disk. Read, in this order:
 `halo/kit/RULES.md` (hard rules, non-negotiable), `halo/kit/README.md` (the API), `halo/kit/halo-kit.js` (the
-source), `halo/kit/examples/approach.html`, `halo/kit/examples/team_engaged.html`, `halo/kit/examples/occupants.html`,
+source), `halo/kit/examples/approach.html`, `halo/kit/examples/occupants.html`,
 `halo/kit/examples/inside_route.html`, `halo/kit/check-view.mjs`.
 
 Use your file read tool to read files (it opens images too: .jpg screenshots, .svg plans) and your file write

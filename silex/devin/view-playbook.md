@@ -6,12 +6,12 @@ simple scheme for one moment of the intervention (« Par où j'entre », « Mon 
 redraws itself on every live state update. The firefighter glances at it for one second, wearing gloves.
 
 You cannot reach our laptop. Everything you need is in this message and in the attachments:
-`halo-kit.js` and `halo.css` (the kit), `check-view.mjs` (our validator), `examples/*.html` (four reference views),
+`halo-kit.js` and `halo.css` (the kit), `check-view.mjs` (our validator), `examples/*.html` (three reference views),
 and, per request, `state.json` (the full live `IncidentState`) and reference images.
 
 ## How to work (speed matters: the crew is driving to the fire, the view must land in minutes)
-1. Start from the closest example (`approach.html` for « approach », `team_engaged.html` for « team_engaged »,
-   `occupants.html` / `inside_route.html` otherwise). Copy it, then adapt it to the request. Do not start from scratch.
+1. Start from the closest example (`approach.html` for « approach », `occupants.html` / `inside_route.html`
+   otherwise). Copy it, then adapt it to the request. Do not start from scratch.
 2. Use only the kit (global `Halo`, API in the README below). No other library, no network, no style of your own.
 3. Draw only from the state: every position, route, stair, entrance, level and person comes from `state`. Never
    invent one, never hard-code an id from an example (the building changes: today it has **one stair, A**; there is

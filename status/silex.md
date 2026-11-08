@@ -101,6 +101,9 @@ Updated: 07:15
 - A build waits up to `SILEX_REF_WAIT_S` (45 s) for shots that are missing while Rosetta reports active runs.
 - `GET /sessions` → `request_to_view_ms` of the session's last view (request reaching Silex → view served).
 - Playbook + every request: arrow width ≥ 16, no tag over the arrow (Amil's review of view_approach_2).
+- `team_engaged.html` is parked (ARI cut): dropped from the kit attachments, both warm prompts and the playbook
+  (API warm-up would have raised FileNotFoundError); a `team_engaged` request starts from `occupants.html`.
+  Takes effect at the next :8002 restart (playbook: at the next warm session).
 
 ## In progress
 - Nothing running. Watch: 219 s on the last build (100–140 s before) is close to the 300 s deadline. If it gets
